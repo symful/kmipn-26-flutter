@@ -103,8 +103,8 @@ class SyncWorker {
 
       await _surveyorTaskRepo.markVisitSynced(idempotencyKey, 'synced');
       await _queueRepo.remove(idempotencyKey);
-    } catch (e) {
-      _logger.error('Failed to sync surveyor visit: $idempotencyKey', e);
+    } catch (e, st) {
+      _logger.error('Failed to sync surveyor visit: $idempotencyKey', e, st);
       if (retryCount >= maxRetry) {
         await _queueRepo.markAsDeadLetter(idempotencyKey, e.toString());
         await _surveyorTaskRepo.markVisitFailed(idempotencyKey);
@@ -164,8 +164,8 @@ class SyncWorker {
           await _queueRepo.remove(report.idempotencyKey);
         }
       }
-    } catch (e) {
-      _logger.error('Failed to sync report: ${report.idempotencyKey}', e);
+    } catch (e, st) {
+      _logger.error('Failed to sync report: ${report.idempotencyKey}', e, st);
       if (retryCount >= maxRetry) {
         await _queueRepo.markAsDeadLetter(report.idempotencyKey, e.toString());
         await _reportRepo.markFailed(report.idempotencyKey);
