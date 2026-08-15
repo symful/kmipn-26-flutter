@@ -67,7 +67,8 @@ class SyncWorker {
           } else {
             await _syncReport(item.idempotencyKey, item.retryCount);
           }
-        } catch (e) {
+        } catch (e, st) {
+          _logger.error('SyncWorker sync error', e, st);
           hasFailure = true;
           lastError = e.toString();
         }
