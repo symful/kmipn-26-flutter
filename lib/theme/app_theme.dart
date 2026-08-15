@@ -61,7 +61,7 @@ class PantauTheme {
         titleMedium: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
         titleSmall: GoogleFonts.ibmPlexSans(color: AppColors.textSecondary),
         bodyLarge: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        bodyMedium: GoogleFonts.ibmPlexSans(color: AppColors.textSecondary),
+        bodyMedium: GoogleFonts.ibmPlexMono(color: AppColors.textSecondary),
         bodySmall: GoogleFonts.ibmPlexSans(color: AppColors.textTertiary),
         labelLarge: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
         labelMedium: GoogleFonts.ibmPlexSans(color: AppColors.textSecondary),
@@ -139,6 +139,12 @@ class PantauTheme {
       dividerTheme: const DividerThemeData(
         color: AppColors.borderCard,
         thickness: 1,
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        selectedItemColor: Color(0xFF0F7A6B),
+        unselectedItemColor: Color(0xFF8A9099),
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
       ),
     );
   }

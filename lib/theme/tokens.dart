@@ -56,22 +56,139 @@ class AppColors {
 
   static const Color textPrimary = Color(0xFF17191C);
   static const Color textSecondary = Color(0xFF3A3F45);
-  static const Color textTertiary = Color(0xFF616170);
+  static const Color textTertiary = Color(0xFF616770);
+
+  // Sidebar
+  static const Color sidebarBg = Color(0xFF16302B);
+  static const Color sidebarText = Color(0xFFCFE4DF);
+  static const Color sidebarTextHover = Color(0xFFFFFFFF);
+  static const Color sidebarTextMuted = Color(0xFF9DC0B9);
+  static const Color sidebarDivider = Color(0xFF234A43);
+  static const Color sidebarAccent = Color(0xFF7FA8A0);
+
+  // Info/Danger/Warning variants
+  static const Color infoChartBar = Color(0xFFC7D7FB);
+  static const Color dangerTextStrong = Color(0xFFA5271A);
+  static const Color dangerBorder = Color(0xFFECC4BD);
+  static const Color warningText = Color(0xFF8A5808);
+  static const Color warningBorder = Color(0xFFECD7A6);
+  static const Color warningTextStrong = Color(0xFF7A4D06);
+
+  // Success/Border/Bg variants
+  static const Color successBorder = Color(0xFFBFE0D9);
+  static const Color borderSoft = Color(0xFFD3D7D0);
+  static const Color bgSoft = Color(0xFFEEF0EC);
+  static const Color bgScreen = Color(0xFFF9FAF8);
+
+  // Text soft/disabled + mac traffic + map colors
+  static const Color textSoft = Color(0xFF4A5058);
+  static const Color textDisabled = Color(0xFF8A9099);
+  static const Color macGreen = Color(0xFF66C07F);
+  static const Color macYellow = Color(0xFFE8BD57);
+  static const Color macRed = Color(0xFFE06C60);
+  static const Color mapBg = Color(0xFFEAEEE9);
+  static const Color mapGrid = Color(0xFFDFE4DE);
+  static const Color phoneBezel = Color(0xFF1F2226);
 }
 
 class AppSpacing {
-  static const double xs = 4.0;
-  static const double sm = 8.0;
-  static const double md = 12.0;
-  static const double lg = 16.0;
-  static const double xl = 20.0;
-  static const double xxl = 24.0;
+  static const double xxs = 2;
+  static const double xs = 5;
+  static const double x4 = 4;
+  static const double sm = 8;
+  static const double x6 = 6;
+  static const double x7 = 7;
+  static const double md = 12;
+  static const double x9 = 9;
+  static const double x10 = 10;
+  static const double x11 = 11;
+  static const double lg = 16;
+  static const double x12 = 12;
+  static const double x14 = 14;
+  static const double x15 = 15;
+  static const double xl = 20;
+  static const double x17 = 17;
+  static const double x22 = 22;
+  static const double xxl = 24;
+  static const double x28 = 28;
+  static const double x32 = 32;
+  static const double x34 = 34;
+  static const double x56 = 56;
+  static const double x60 = 60;
+  static const double x90 = 90;
 }
 
 class AppRadius {
-  static const double sm = 8.0;
-  static const double md = 10.0;
-  static const double lg = 12.0;
-  static const double xl = 14.0;
-  static const double pill = 999.0;
+  static const double x1 = 1;
+  static const double x2 = 2;
+  static const double x3 = 3;
+  static const double x4 = 4;
+  static const double sm = 8;
+  static const double x6 = 6;
+  static const double x7 = 7;
+  static const double md = 10;
+  static const double x8 = 8;
+  static const double x9 = 9;
+  static const double x10 = 10;
+  static const double x12 = 12;
+  static const double lg = 13;
+  static const double xl = 14;
+  static const double x16 = 16;
+  static const double x34 = 34;
+  static const double x44 = 44;
+  static const double pill = 999;
+}
+
+class AppShadows {
+  static const List<BoxShadow> buttonPrimary = [
+    BoxShadow(color: Color(0xE60F7A6B), blurRadius: 22, offset: Offset(0, 10)),
+  ];
+  static const List<BoxShadow> fab = [
+    BoxShadow(color: Color(0xE60F7A6B), blurRadius: 20, offset: Offset(0, 10)),
+  ];
+  static const List<BoxShadow> phoneBezel = [
+    BoxShadow(color: Color(0x801F2226), blurRadius: 60, offset: Offset(0, 28)),
+  ];
+  static const List<BoxShadow> browserFrame = [
+    BoxShadow(color: Color(0x66000000), blurRadius: 60, offset: Offset(0, 24)),
+  ];
+  static const List<BoxShadow> mapLegend = [
+    BoxShadow(color: Color(0x4D000000), blurRadius: 16, offset: Offset(0, 6)),
+  ];
+  static const List<BoxShadow> toggleThumb = [
+    BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1)),
+  ];
+}
+
+class AppTypography {
+  static const double size8 = 8;
+  static const double size9 = 9;
+  static const double size10 = 10;
+  static const double size11 = 11;
+  static const double size11_5 = 11.5;
+  static const double size12 = 12;
+  static const double size12_5 = 12.5;
+  static const double size13 = 13;
+  static const double size13_5 = 13.5;
+  static const double size14 = 14;
+  static const double size15 = 15;
+  static const double size16 = 16;
+  static const double size17 = 17;
+  static const double size19 = 19;
+  static const double size20 = 20;
+  static const double size22 = 22;
+  static const double size24 = 24;
+  static const double size26 = 26;
+  static const double size30 = 30;
+
+  static const double lineHeight125 = 1.25;
+  static const double lineHeight130 = 1.3;
+  static const double lineHeight135 = 1.35;
+  static const double lineHeight140 = 1.4;
+  static const double lineHeight145 = 1.45;
+  static const double lineHeight150 = 1.5;
+  static const double lineHeight155 = 1.55;
+
+  static const double letterSpacingTight = -0.01;
+  static const double letterSpacingLabel = 0.04;
 }
