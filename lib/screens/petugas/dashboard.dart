@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../api/exceptions.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
@@ -130,9 +131,11 @@ class _PetugasDashboardScreenState
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal memperbarui: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memperbarui: ${extractErrorMessage(e)}'),
+          ),
+        );
       }
     } finally {
       if (mounted) {

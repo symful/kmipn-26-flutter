@@ -5,7 +5,7 @@ void main() {
   group('NetworkException', () {
     test('uses default message when no argument provided', () {
       final exception = NetworkException();
-      expect(exception.message, equals('No internet connection'));
+      expect(exception.message, equals('Tidak ada koneksi internet.'));
     });
 
     test('uses custom message when provided', () {
@@ -13,10 +13,9 @@ void main() {
       expect(exception.message, equals('Custom network error'));
     });
 
-    test('toString contains the message', () {
+    test('toString returns the message', () {
       final exception = NetworkException('Connection failed');
-      expect(exception.toString(), contains('NetworkException'));
-      expect(exception.toString(), contains('Connection failed'));
+      expect(exception.toString(), equals('Connection failed'));
     });
   });
 
@@ -27,10 +26,7 @@ void main() {
         '/api/test',
       );
       final str = exception.toString();
-      expect(str, contains('TimeoutException'));
       expect(str, contains('/api/test'));
-      // Duration format may vary, just check it contains the duration info
-      expect(str, contains('30'), reason: 'should contain 30 for 30 seconds');
     });
 
     test('stores timeout duration and endpoint', () {
@@ -43,26 +39,28 @@ void main() {
   });
 
   group('ApiException', () {
-    test('toString contains statusCode, body, and endpoint', () {
+    test('toString returns userMessage when available', () {
+      final exception = ApiException(
+        statusCode: 500,
+        body: 'error body',
+        endpoint: '/api/test',
+        userMessage: 'Server sedang bermasalah',
+      );
+      expect(exception.toString(), equals('Server sedang bermasalah'));
+    });
+
+    test('toString returns body when userMessage is null', () {
       final exception = ApiException(
         statusCode: 500,
         body: 'error body',
         endpoint: '/api/test',
       );
-      final str = exception.toString();
-      expect(str, contains('ApiException'));
-      expect(str, contains('500'));
-      expect(str, contains('/api/test'));
-      expect(str, contains('error body'));
+      expect(exception.toString(), equals('error body'));
     });
 
-    test('toString shows null when body is null', () {
+    test('toString returns API Error with status when both are null', () {
       final exception = ApiException(statusCode: 404, endpoint: '/api/missing');
-      final str = exception.toString();
-      expect(str, contains('404'));
-      expect(str, contains('/api/missing'));
-      // Body is null, so toString shows null
-      expect(str, contains('null'));
+      expect(exception.toString(), equals('API Error: 404'));
     });
 
     test('stores all properties correctly', () {
@@ -70,10 +68,12 @@ void main() {
         statusCode: 403,
         body: 'Forbidden',
         endpoint: '/api/admin',
+        userMessage: 'Anda tidak memiliki akses.',
       );
       expect(exception.statusCode, equals(403));
       expect(exception.body, equals('Forbidden'));
       expect(exception.endpoint, equals('/api/admin'));
+      expect(exception.userMessage, equals('Anda tidak memiliki akses.'));
     });
   });
 }

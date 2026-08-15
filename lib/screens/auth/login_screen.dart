@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/tokens.dart';
 
@@ -34,7 +35,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authNotifier = ref.read(authNotifierProvider.notifier);
     final success = await authNotifier.login(email, password);
     if (success && mounted) {
-      Navigator.of(context).pop();
+      // Navigate to role-based redirect screen after successful login
+      // This ensures surveyor users go to surveyor screens, warga go to warga, etc.
+      context.go('/');
     }
   }
 

@@ -13,6 +13,8 @@ import 'features/operator/case_detail_screen.dart' as operator_detail;
 import 'features/petugas/task_detail_screen.dart';
 import 'features/surveyor/task_list_screen.dart';
 import 'features/surveyor/task_detail_screen.dart';
+import 'screens/surveyor/daftar_tugas.dart';
+import 'features/surveyor/form_survei.dart';
 import 'features/exec/dashboard_screen.dart';
 import 'features/admin_daerah/wilayah_screen.dart';
 import 'features/admin_daerah/categories_screen.dart';
@@ -26,6 +28,8 @@ import 'features/warga/sanggahan_screen.dart';
 import 'features/warga/reopen_request_screen.dart';
 import 'features/warga/complementary_evidence_screen.dart';
 import 'features/warga/warga_home_screen.dart';
+import 'features/warga/review_kiriman_screen.dart';
+import 'screens/warga/laporan_detail_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/role_switcher/role_switcher_screen.dart';
@@ -44,7 +48,7 @@ class RoleBasedRedirectScreen extends ConsumerWidget {
     final activeRole = authState.activeRole ?? authState.userRole;
 
     // Redirect based on active role
-    final redirectPath = _getRedirectPath(activeRole);
+    final redirectPath = RoleRedirectHelper.getRedirectPath(activeRole);
 
     // Use delayed navigation to avoid build-time issues
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -55,8 +59,11 @@ class RoleBasedRedirectScreen extends ConsumerWidget {
 
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
+}
 
-  String _getRedirectPath(String? role) {
+// Helper class for role-based redirect paths
+class RoleRedirectHelper {
+  static String getRedirectPath(String? role) {
     switch (role?.toLowerCase()) {
       case 'warga':
         return '/warga';
@@ -141,6 +148,20 @@ class SurveyorHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
+    final activeRole = authState.activeRole ?? authState.userRole;
+
+    // Redirect non-surveyor users to their appropriate screen
+    if (activeRole?.toLowerCase() != 'surveyor') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          final redirectPath = RoleRedirectHelper.getRedirectPath(activeRole);
+          context.go(redirectPath);
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return RoleAppBarWrapper(
       title: 'Beranda Surveyor',
       actions: [
@@ -303,6 +324,26 @@ final appRouter = GoRouter(
             reportId: s.pathParameters['reportId']!,
           ),
         ),
+        GoRoute(
+          path: '/warga/laporan/:reportId',
+          builder: (c, s) =>
+              LaporanDetailScreen(reportId: s.pathParameters['reportId']),
+        ),
+        GoRoute(
+          path: '/warga/review',
+          builder: (c, s) {
+            final extra = s.extra as Map<String, dynamic>?;
+            return ReviewKirimanScreen(
+              description: extra?['description'] ?? '',
+              lat: extra?['lat'] ?? 0.0,
+              lng: extra?['lng'] ?? 0.0,
+              categoryId: extra?['categoryId'],
+              categoryName: extra?['categoryName'],
+              photoPath: extra?['photoPath'],
+              duplicateMatches: extra?['duplicateMatches'] ?? [],
+            );
+          },
+        ),
 
         // Surveyor routes
         GoRoute(
@@ -314,9 +355,17 @@ final appRouter = GoRouter(
           builder: (c, s) => const SurveyorTaskListScreen(),
         ),
         GoRoute(
+          path: '/surveyor/daftar-tugas',
+          builder: (c, s) => const SurveyorDaftarTugasScreen(),
+        ),
+        GoRoute(
           path: '/surveyor/tasks/:id',
           builder: (c, s) =>
               SurveyorTaskDetailScreen(taskId: s.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: '/surveyor/form-survei',
+          builder: (c, s) => FormSurveiScreen(taskId: s.extra as String?),
         ),
 
         // Verifikator routes

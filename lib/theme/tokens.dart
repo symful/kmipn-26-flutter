@@ -34,3 +34,44 @@ class SigapRadius {
   static const double md = 11.0;
   static const double lg = 13.0;
 }
+
+// PantauDesa Design Tokens
+class AppColors {
+  static const Color primary = Color(0xFF0F7A6B);
+  static const Color primaryDark = Color(0xFF0A5C50);
+  static const Color primaryLight = Color(0xFFE2F1EE);
+
+  static const Color warning = Color(0xFFB8730A);
+  static const Color warningBg = Color(0xFFF8ECD6);
+
+  static const Color danger = Color(0xFFC0392B);
+  static const Color dangerBg = Color(0xFFF8E2DE);
+
+  static const Color info = Color(0xFF2563EB);
+  static const Color infoBg = Color(0xFFE5EDFD);
+
+  static const Color bgSurface = Color(0xFFF4F5F3);
+  static const Color bgCard = Color(0xFFFFFFFF);
+  static const Color borderCard = Color(0xFFE4E7E2);
+
+  static const Color textPrimary = Color(0xFF17191C);
+  static const Color textSecondary = Color(0xFF3A3F45);
+  static const Color textTertiary = Color(0xFF616170);
+}
+
+class AppSpacing {
+  static const double xs = 4.0;
+  static const double sm = 8.0;
+  static const double md = 12.0;
+  static const double lg = 16.0;
+  static const double xl = 20.0;
+  static const double xxl = 24.0;
+}
+
+class AppRadius {
+  static const double sm = 8.0;
+  static const double md = 10.0;
+  static const double lg = 12.0;
+  static const double xl = 14.0;
+  static const double pill = 999.0;
+}

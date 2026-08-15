@@ -77,21 +77,25 @@ class ApiClient {
       switch (e.type) {
         case DioExceptionType.connectionError:
         case DioExceptionType.connectionTimeout:
-          throw NetworkException('Connection failed: ${e.message}');
+          throw NetworkException('Tidak dapat terhubung ke server.');
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
           throw TimeoutException(const Duration(seconds: 30), endpoint);
         case DioExceptionType.badResponse:
+          final userMessage = extractErrorMessage(e);
           throw ApiException(
             statusCode: e.response?.statusCode ?? 0,
             body: e.response?.data?.toString(),
             endpoint: endpoint,
+            userMessage: userMessage,
           );
         default:
+          final userMessage = extractErrorMessage(e);
           throw ApiException(
             statusCode: 0,
             body: e.message ?? 'Unknown error',
             endpoint: endpoint,
+            userMessage: userMessage,
           );
       }
     }
@@ -179,7 +183,8 @@ class ApiClient {
     return await _execute<List<Map<String, dynamic>>>(
       dioCall: () => _dio.get('/api/categories'),
       endpoint: '/api/categories',
-      parse: (data) => (data as List).cast<Map<String, dynamic>>(),
+      parse: (data) =>
+          (data['categories'] as List).cast<Map<String, dynamic>>(),
     );
   }
 
@@ -414,6 +419,22 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/surveyor/tasks/$taskId/visit', data: visitData),
       endpoint: '/api/surveyor/tasks/$taskId/visit',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  Future<Map<String, dynamic>> surveyorAcceptTask(String taskId) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post('/api/surveyor/tasks/$taskId/accept'),
+      endpoint: '/api/surveyor/tasks/$taskId/accept',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  Future<Map<String, dynamic>> surveyorStartTask(String taskId) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post('/api/surveyor/tasks/$taskId/start'),
+      endpoint: '/api/surveyor/tasks/$taskId/start',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
   }

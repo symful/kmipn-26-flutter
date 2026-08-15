@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:exif/exif.dart';
+import '../../../api/exceptions.dart';
 import '../../../db/database.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
@@ -160,9 +161,11 @@ class _SurveyorTaskDetailScreenState
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal capture GPS: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal capture GPS: ${extractErrorMessage(e)}'),
+          ),
+        );
       }
     }
   }

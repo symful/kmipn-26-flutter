@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_client.dart';
+import '../api/exceptions.dart';
 import '../utils/logger.dart';
 
 class AuthState {
@@ -151,12 +152,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
       return true;
     } on DioException catch (e) {
-      final detail =
-          e.response?.data?['error']?['message'] as String? ?? 'Login failed';
+      final detail = extractErrorMessage(e);
       state = state.copyWith(isLoading: false, error: detail);
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Network error');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Tidak dapat terhubung ke server.',
+      );
       return false;
     }
   }

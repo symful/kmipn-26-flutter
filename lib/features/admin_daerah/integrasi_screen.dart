@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../api/exceptions.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../utils/logger.dart';
@@ -40,7 +41,7 @@ class _AdminDaerahIntegrasiScreenState
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = extractErrorMessage(e);
         _loading = false;
       });
     }
@@ -61,9 +62,9 @@ class _AdminDaerahIntegrasiScreenState
       _load();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${extractErrorMessage(e)}')),
+        );
       }
     }
   }
@@ -100,9 +101,9 @@ class _AdminDaerahIntegrasiScreenState
       _load();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${extractErrorMessage(e)}')),
+        );
       }
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../api/exceptions.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -37,7 +38,7 @@ class _AdminDaerahWilayahScreenState
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = extractErrorMessage(e);
         _loading = false;
       });
     }
@@ -103,9 +104,9 @@ class _AdminDaerahWilayahScreenState
                 if (ctx.mounted) Navigator.pop(ctx, true);
               } catch (e) {
                 if (ctx.mounted) {
-                  ScaffoldMessenger.of(
-                    ctx,
-                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(content: Text('Error: ${extractErrorMessage(e)}')),
+                  );
                 }
               }
             },

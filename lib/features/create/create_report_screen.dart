@@ -22,7 +22,62 @@ class CreateReportScreen extends ConsumerStatefulWidget {
   ConsumerState<CreateReportScreen> createState() => _CreateReportScreenState();
 }
 
-/// Widget that handles category loading with cache fallback and error handling
+// ─── Section Card Widget ──────────────────────────────────────────────────────
+
+class _SectionCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Widget child;
+
+  const _SectionCard({
+    required this.title,
+    required this.icon,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.borderCard),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                Icon(icon, color: AppColors.primary, size: 20),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.borderCard),
+          Padding(padding: const EdgeInsets.all(AppSpacing.lg), child: child),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Category Section ─────────────────────────────────────────────────────────
+
 class _CategorySection extends ConsumerWidget {
   final String? selectedCategoryId;
   final ValueChanged<String?> onChanged;
@@ -64,7 +119,12 @@ class _CategoryDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      decoration: const InputDecoration(labelText: 'Kategori'),
+      decoration: const InputDecoration(
+        labelText: 'Pilih Kategori',
+        labelStyle: TextStyle(color: AppColors.textSecondary),
+        hintText: 'Tap untuk memilih kategori',
+        hintStyle: TextStyle(color: AppColors.textTertiary),
+      ),
       initialValue: selectedCategoryId,
       items: categories.map((cat) {
         return DropdownMenuItem(
@@ -95,23 +155,20 @@ class _CategoryErrorWidget extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.error_outline,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              const SizedBox(width: 8),
+              const Icon(Icons.error_outline, color: AppColors.danger),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
                   error,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  style: const TextStyle(color: AppColors.danger, fontSize: 12),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: SigapSpacing.sm),
+        const SizedBox(height: AppSpacing.md),
         ElevatedButton.icon(
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh, size: 18),
           label: const Text('Coba Lagi'),
           onPressed: () => ref.invalidate(categoriesProvider),
         ),
@@ -119,6 +176,182 @@ class _CategoryErrorWidget extends ConsumerWidget {
     );
   }
 }
+
+// ─── Photo Section ────────────────────────────────────────────────────────────
+
+class _PhotoSection extends StatelessWidget {
+  final String? photoPath;
+  final VoidCallback onCapture;
+
+  const _PhotoSection({required this.photoPath, required this.onCapture});
+
+  @override
+  Widget build(BuildContext context) {
+    if (photoPath != null) {
+      return Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: Image.file(
+              File(photoPath!),
+              height: 180,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.camera_alt, size: 18),
+            label: const Text('Ambil Ulang Foto'),
+            onPressed: onCapture,
+          ),
+        ],
+      );
+    }
+
+    return InkWell(
+      onTap: onCapture,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Container(
+        height: 140,
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add_a_photo, color: AppColors.primary, size: 40),
+              SizedBox(height: AppSpacing.sm),
+              Text(
+                'Ambil Foto',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                'Tap untuk membuka kamera',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Location Section ─────────────────────────────────────────────────────────
+
+class _LocationSection extends StatelessWidget {
+  final double? lat;
+  final double? lng;
+  final VoidCallback onCapture;
+  final VoidCallback onPickFromMap;
+
+  const _LocationSection({
+    required this.lat,
+    required this.lng,
+    required this.onCapture,
+    required this.onPickFromMap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLocation = lat != null && lng != null;
+
+    return Column(
+      children: [
+        InkWell(
+          onTap: onCapture,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: hasLocation ? AppColors.primaryLight : AppColors.bgSurface,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(
+                color: hasLocation
+                    ? AppColors.primary.withValues(alpha: 0.3)
+                    : AppColors.borderCard,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.my_location,
+                  color: hasLocation
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
+                  size: 24,
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hasLocation ? 'Lokasi Terdeteksi' : 'Ambil Lokasi GPS',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: hasLocation
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                      if (hasLocation) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '${lat!.toStringAsFixed(6)}, ${lng!.toStringAsFixed(6)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Tap untuk mendapatkan lokasi saat ini',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (hasLocation)
+                  const Icon(
+                    Icons.check_circle,
+                    color: AppColors.primary,
+                    size: 20,
+                  )
+                else
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textSecondary,
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        TextButton.icon(
+          icon: const Icon(Icons.map, size: 16),
+          label: const Text('Pilih di Peta'),
+          onPressed: onPickFromMap,
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Main Screen ─────────────────────────────────────────────────────────────
 
 class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   static final _logger = Logger('CreateReportScreen');
@@ -134,8 +367,6 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   static const int maxPending = 50;
 
   /// Strips EXIF data from JPEG bytes using the image package.
-  /// Decoding and re-encoding naturally removes EXIF metadata.
-  /// Returns the original bytes if stripping fails.
   Uint8List _stripExifFromJpeg(Uint8List bytes) {
     try {
       final image = img.decodeImage(bytes);
@@ -143,14 +374,13 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
         _logger.warning('Failed to decode image for EXIF stripping');
         return bytes;
       }
-      // Re-encode as JPEG - EXIF is stripped by default during decode/encode
       final strippedBytes = Uint8List.fromList(
-        img.encodeJpg(image, quality: 95),
+        img.encodeJpg(image, quality: 85),
       );
-      _logger.info('EXIF data stripped from image using image package');
+      _logger.info('EXIF data stripped from image');
       return strippedBytes;
     } catch (e, s) {
-      _logger.warning('Error stripping EXIF using image package', e, s);
+      _logger.warning('Error stripping EXIF', e, s);
       return bytes;
     }
   }
@@ -173,26 +403,27 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
               entry.key: entry.value.toString(),
           });
         }
-        // Strip EXIF data from image bytes
         final strippedBytes = _stripExifFromJpeg(bytes);
-        // Save stripped image to temp file
         final tempDir = await getTemporaryDirectory();
         final strippedFile = File(
           '${tempDir.path}/photo_${DateTime.now().millisecondsSinceEpoch}.jpg',
         );
         await strippedFile.writeAsBytes(strippedBytes);
-        setState(() {
-          _photoPath = strippedFile.path;
-          _exifDataJson = exifJson;
-        });
-        _logger.info('Photo captured with EXIF stripped: ${strippedFile.path}');
+        if (mounted) {
+          setState(() {
+            _photoPath = strippedFile.path;
+            _exifDataJson = exifJson;
+          });
+        }
+        _logger.info('Photo captured: ${strippedFile.path}');
       } catch (e, s) {
-        _logger.warning('Error capturing/stripping photo', e, s);
-        // Fallback: use original photo without stripping
-        setState(() {
-          _photoPath = photo.path;
-          _exifDataJson = null;
-        });
+        _logger.warning('Error capturing photo', e, s);
+        if (mounted) {
+          setState(() {
+            _photoPath = photo.path;
+            _exifDataJson = null;
+          });
+        }
       }
     }
   }
@@ -211,12 +442,23 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       return;
     }
 
-    final position = await Geolocator.getCurrentPosition();
-    if (mounted) {
-      setState(() {
-        _lat = position.latitude;
-        _lng = position.longitude;
-      });
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      if (mounted) {
+        setState(() {
+          _lat = position.latitude;
+          _lng = position.longitude;
+        });
+      }
+    } catch (e, s) {
+      _logger.warning('Error getting location', e, s);
+      if (mounted) {
+        _showLocationPickerDialog();
+      }
     }
   }
 
@@ -261,12 +503,21 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_photoPath == null ||
-        _lat == null ||
-        _lng == null ||
-        _categoryId == null) {
+    if (_photoPath == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lengkapi foto, lokasi, dan kategori')),
+        const SnackBar(content: Text('Ambil foto terlebih dahulu')),
+      );
+      return;
+    }
+    if (_lat == null || _lng == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tentukan lokasi terlebih dahulu')),
+      );
+      return;
+    }
+    if (_categoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pilih kategori terlebih dahulu')),
       );
       return;
     }
@@ -288,120 +539,213 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
     setState(() => _submitting = true);
 
-    final idempotencyKey = const Uuid().v4();
-    final reportRepo = ref.read(reportRepositoryProvider);
-    final queueRepo = ref.read(syncQueueRepositoryProvider);
-
-    await reportRepo.saveLocal(
-      LocalReportsCompanion.insert(
-        idempotencyKey: idempotencyKey,
-        categoryId: _categoryId!,
-        description: _descriptionController.text,
-        lat: _lat!,
-        lng: _lng!,
-        photoPath: Value(_photoPath),
-        exifDataJson: Value(_exifDataJson),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-    );
-
-    // Insert photo record with EXIF data
-    final db = ref.read(databaseProvider);
-    await db.insertPhoto(
-      reportIdempotencyKey: idempotencyKey,
-      filePath: _photoPath!,
-      exifDataJson: _exifDataJson,
-      capturedAt: DateTime.now().millisecondsSinceEpoch,
-    );
-
-    // Upload stripped photo via Dio
     try {
-      final api = ref.read(apiClientProvider);
-      final photoFile = File(_photoPath!);
-      final photoBytes = await photoFile.readAsBytes();
-      final filename = _photoPath!.split('/').last;
-      final uploadUrl = '/api/reports/$idempotencyKey/photos/upload-url';
-      await api.uploadPhotoBytes(uploadUrl, photoBytes, filename);
-      _logger.info('Photo uploaded successfully for report: $idempotencyKey');
+      final idempotencyKey = const Uuid().v4();
+      final reportRepo = ref.read(reportRepositoryProvider);
+
+      await reportRepo.saveLocal(
+        LocalReportsCompanion.insert(
+          idempotencyKey: idempotencyKey,
+          categoryId: _categoryId!,
+          description: _descriptionController.text,
+          lat: _lat!,
+          lng: _lng!,
+          photoPath: Value(_photoPath),
+          exifDataJson: Value(_exifDataJson),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+
+      // Insert photo record
+      final db = ref.read(databaseProvider);
+      await db.insertPhoto(
+        reportIdempotencyKey: idempotencyKey,
+        filePath: _photoPath!,
+        exifDataJson: _exifDataJson,
+        capturedAt: DateTime.now().millisecondsSinceEpoch,
+      );
+
+      // Upload photo
+      try {
+        final api = ref.read(apiClientProvider);
+        final photoFile = File(_photoPath!);
+        final photoBytes = await photoFile.readAsBytes();
+        final filename = _photoPath!.split('/').last;
+        final uploadUrl = '/api/reports/$idempotencyKey/photos/upload-url';
+        await api.uploadPhotoBytes(uploadUrl, photoBytes, filename);
+        _logger.info('Photo uploaded for report: $idempotencyKey');
+      } catch (e, s) {
+        _logger.warning('Photo upload failed, will sync later', e, s);
+      }
+
+      // Enqueue for sync
+      final queueRepo = ref.read(syncQueueRepositoryProvider);
+      await queueRepo.enqueue(idempotencyKey);
+
+      ref.invalidate(localReportsProvider);
+      ref.invalidate(pendingCountProvider);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Laporan tersimpan. Akan sinkron otomatis.'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+      context.pop();
     } catch (e, s) {
-      _logger.warning('Failed to upload photo, will sync later', e, s);
-      // Continue even if upload fails - sync worker will retry
+      _logger.error('Submit failed', e, s);
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menyimpan: $e'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
     }
-
-    await queueRepo.enqueue(idempotencyKey);
-
-    ref.invalidate(localReportsProvider);
-    ref.invalidate(pendingCountProvider);
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Laporan tersimpan lokal. Akan sinkron otomatis.'),
-      ),
-    );
-    context.pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Buat Laporan')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(SigapSpacing.lg),
-          children: [
-            if (_photoPath != null)
-              Image.file(File(_photoPath!), height: 200, fit: BoxFit.cover),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.camera_alt),
-              label: Text(_photoPath == null ? 'Ambil Foto' : 'Ambil Ulang'),
-              onPressed: _capturePhoto,
-            ),
-            const SizedBox(height: SigapSpacing.md),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _lat == null
-                        ? 'Lokasi belum diambil'
-                        : 'Lat: ${_lat!.toStringAsFixed(6)}, Lng: ${_lng!.toStringAsFixed(6)}',
-                    style: TextStyle(
-                      color: _lat == null
-                          ? SigapColors.textMuted
-                          : SigapColors.textPrimary,
+      backgroundColor: AppColors.bgSurface,
+      appBar: AppBar(
+        title: const Text('Buat Laporan'),
+        backgroundColor: AppColors.bgCard,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  // Photo Section
+                  _SectionCard(
+                    title: 'Ambil Foto',
+                    icon: Icons.add_a_photo,
+                    child: _PhotoSection(
+                      photoPath: _photoPath,
+                      onCapture: _capturePhoto,
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Location Section
+                  _SectionCard(
+                    title: 'Lokasi',
+                    icon: Icons.location_on,
+                    child: _LocationSection(
+                      lat: _lat,
+                      lng: _lng,
+                      onCapture: _captureLocation,
+                      onPickFromMap: _openMapPicker,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Category Section
+                  _SectionCard(
+                    title: 'Kategori',
+                    icon: Icons.category,
+                    child: _CategorySection(
+                      selectedCategoryId: _categoryId,
+                      onChanged: (v) => setState(() => _categoryId = v),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Description Section
+                  _SectionCard(
+                    title: 'Deskripsi',
+                    icon: Icons.description,
+                    child: TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Jelaskan laporan Anda',
+                        labelStyle: TextStyle(color: AppColors.textSecondary),
+                        hintText: 'Minimal 10 karakter...',
+                        hintStyle: TextStyle(color: AppColors.textTertiary),
+                        alignLabelWithHint: true,
+                      ),
+                      maxLines: 4,
+                      maxLength: 2000,
+                      validator: (v) => v == null || v.length < 10
+                          ? 'Minimal 10 karakter'
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: AppSpacing.xxl,
+                  ), // Space for bottom CTA
+                ],
+              ),
+            ),
+          ),
+
+          // Bottom CTA Button
+          Container(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.lg + MediaQuery.of(context).padding.bottom,
+            ),
+            decoration: const BoxDecoration(
+              color: AppColors.bgCard,
+              border: Border(top: BorderSide(color: AppColors.borderCard)),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _submitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: AppColors.primary.withValues(
+                    alpha: 0.5,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  elevation: 0,
                 ),
-                IconButton(
-                  icon: const Icon(Icons.my_location),
-                  onPressed: _captureLocation,
-                ),
-              ],
+                child: _submitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : const Text(
+                        'Kirim Laporan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
             ),
-            const SizedBox(height: SigapSpacing.md),
-            _CategorySection(
-              selectedCategoryId: _categoryId,
-              onChanged: (v) => setState(() => _categoryId = v),
-            ),
-            const SizedBox(height: SigapSpacing.md),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Deskripsi'),
-              maxLines: 3,
-              maxLength: 2000,
-              validator: (v) =>
-                  v == null || v.length < 10 ? 'Minimal 10 karakter' : null,
-            ),
-            const SizedBox(height: SigapSpacing.lg),
-            ElevatedButton(
-              onPressed: _submitting ? null : _submit,
-              child: Text(_submitting ? 'Menyimpan...' : 'Kirim'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
   }
 }

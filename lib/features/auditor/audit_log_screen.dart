@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../api/exceptions.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../utils/logger.dart';
@@ -396,9 +397,9 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Export gagal: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export gagal: ${extractErrorMessage(e)}')),
+        );
       }
     }
   }
