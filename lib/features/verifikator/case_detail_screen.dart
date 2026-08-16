@@ -4,6 +4,15 @@ import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
+import '../../widgets/skeleton_loaders.dart';
+
+/// Case Review screen for Verifikator to review and make decisions on cases.
+///
+/// Design tokens used:
+/// - AppColors: primary, danger, info, warning, bgCard, borderCard, textPrimary, textSecondary, textTertiary
+/// - AppSpacing: sm, md, lg, xxl
+/// - AppRadius: sm, md, lg
+/// - AppTypography: size11, size12, size13, size14, size16, size18, size22
 
 class VerifikasiCaseDetailScreen extends ConsumerStatefulWidget {
   final String caseId;
@@ -267,7 +276,7 @@ class _VerifikasiCaseDetailScreenState
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Detail Kasus')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const VerifikatorCaseDetailSkeleton(),
       );
     }
 

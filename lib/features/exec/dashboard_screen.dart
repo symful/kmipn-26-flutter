@@ -123,32 +123,32 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
               onRefresh: _loadAll,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(SigapSpacing.lg),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _SummaryCards(stats: _dashboard!),
-                    const SizedBox(height: SigapSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
                     _TrendPeriodSelector(
                       selected: _trendPeriod,
                       onChanged: _changePeriod,
                     ),
-                    const SizedBox(height: SigapSpacing.md),
+                    const SizedBox(height: AppSpacing.md),
                     _VerificationTrendSection(data: _trendData!),
-                    const SizedBox(height: SigapSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
                     _RegionalDistribution(
                       wilayahData: _regionalStats!['by_wilayah'] as List? ?? [],
                     ),
-                    const SizedBox(height: SigapSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
                     _CategoryDistribution(
                       categoryData: _dashboard!['by_category'] as List? ?? [],
                     ),
-                    const SizedBox(height: SigapSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
                     _WilayahCategoryMatrix(
                       data:
                           _regionalStats!['by_wilayah_category'] as List? ?? [],
                     ),
-                    const SizedBox(height: SigapSpacing.xl),
+                    const SizedBox(height: AppSpacing.xl),
                     _DrillDownSection(
                       stats: _dashboard!,
                       regionalStats: _regionalStats!,
@@ -243,7 +243,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Export failed: $e'),
-            backgroundColor: SigapColors.perluTindakan,
+            backgroundColor: AppColors.danger,
           ),
         );
       }
@@ -293,7 +293,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Export failed: $e'),
-            backgroundColor: SigapColors.perluTindakan,
+            backgroundColor: AppColors.danger,
           ),
         );
       }
@@ -361,20 +361,23 @@ class _PeriodChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: 6,
+        ),
         decoration: BoxDecoration(
-          color: selected ? SigapColors.primary : SigapColors.surface,
-          borderRadius: BorderRadius.circular(SigapRadius.sm),
+          color: selected ? AppColors.primary : AppColors.bgCard,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(
-            color: selected ? SigapColors.primary : SigapColors.border,
+            color: selected ? AppColors.primary : AppColors.borderCard,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: AppTypography.size12,
             fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-            color: selected ? Colors.white : SigapColors.textPrimary,
+            color: selected ? Colors.white : AppColors.textPrimary,
           ),
         ),
       ),
@@ -407,25 +410,23 @@ class _SummaryCards extends StatelessWidget {
                 title: 'Total Laporan',
                 value: '$total',
                 icon: Icons.folder_open,
-                color: SigapColors.primary,
+                color: AppColors.primary,
                 onTap: () => context.push('/operator/cases'),
               ),
             ),
-            const SizedBox(width: SigapSpacing.md),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: _StatCard(
                 title: 'Backlog',
                 value: '$backlog',
                 icon: Icons.warning_amber,
-                color: backlog > 0
-                    ? SigapColors.offlineDot
-                    : SigapColors.selesai,
+                color: backlog > 0 ? AppColors.warning : AppColors.primary,
                 onTap: () => context.push('/operator/cases?status=in_progress'),
               ),
             ),
           ],
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             Expanded(
@@ -434,24 +435,24 @@ class _SummaryCards extends StatelessWidget {
                 value: '${slaCompliance.toStringAsFixed(1)}%',
                 icon: Icons.verified,
                 color: slaCompliance >= 80
-                    ? SigapColors.selesai
+                    ? AppColors.primary
                     : slaCompliance >= 60
-                    ? SigapColors.offlineDot
-                    : SigapColors.perluTindakan,
+                    ? AppColors.warning
+                    : AppColors.danger,
               ),
             ),
-            const SizedBox(width: SigapSpacing.md),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: _StatCard(
                 title: 'SLA Terlewat',
                 value: '$slaBreached',
                 icon: Icons.error,
-                color: SigapColors.perluTindakan,
+                color: AppColors.danger,
               ),
             ),
           ],
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             Expanded(
@@ -459,21 +460,21 @@ class _SummaryCards extends StatelessWidget {
                 title: 'Operator Aktif',
                 value: '$operators',
                 icon: Icons.engineering,
-                color: SigapColors.diproses,
+                color: AppColors.info,
               ),
             ),
-            const SizedBox(width: SigapSpacing.md),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: _StatCard(
                 title: 'Petugas Aktif',
                 value: '$petugas',
                 icon: Icons.badge,
-                color: SigapColors.primary,
+                color: AppColors.primary,
               ),
             ),
           ],
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             Expanded(
@@ -483,7 +484,7 @@ class _SummaryCards extends StatelessWidget {
                 icon: Icons.timer,
               ),
             ),
-            const SizedBox(width: SigapSpacing.md),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: _MiniStat(
                 label: 'Rata-rata Resolusi',
@@ -516,21 +517,21 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: SigapColors.surface,
-      borderRadius: BorderRadius.circular(SigapRadius.md),
+      color: AppColors.bgCard,
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
-          padding: const EdgeInsets.all(SigapSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(SigapRadius.md),
-            border: Border.all(color: SigapColors.border),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: AppColors.borderCard),
           ),
           child: Row(
             children: [
               Icon(icon, color: color, size: 28),
-              const SizedBox(width: SigapSpacing.md),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -538,7 +539,7 @@ class _StatCard extends StatelessWidget {
                     Text(
                       value,
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: AppTypography.size22,
                         fontWeight: FontWeight.bold,
                         color: color,
                       ),
@@ -548,8 +549,8 @@ class _StatCard extends StatelessWidget {
                         Text(
                           title,
                           style: TextStyle(
-                            fontSize: 12,
-                            color: SigapColors.textSecondary,
+                            fontSize: AppTypography.size12,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         if (onTap != null) ...[
@@ -557,7 +558,7 @@ class _StatCard extends StatelessWidget {
                           Icon(
                             Icons.chevron_right,
                             size: 14,
-                            color: SigapColors.textMuted,
+                            color: AppColors.textTertiary,
                           ),
                         ],
                       ],
@@ -587,16 +588,16 @@ class _MiniStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(SigapSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.sm),
-        border: Border.all(color: SigapColors.border),
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppColors.borderCard),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: SigapColors.textMuted),
-          const SizedBox(width: 8),
+          Icon(icon, size: 18, color: AppColors.textTertiary),
+          const SizedBox(width: AppSpacing.x4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -604,13 +605,17 @@ class _MiniStat extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: AppTypography.size14,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 Text(
                   label,
-                  style: TextStyle(fontSize: 10, color: SigapColors.textMuted),
+                  style: TextStyle(
+                    fontSize: AppTypography.size10,
+                    color: AppColors.textTertiary,
+                  ),
                 ),
               ],
             ),
@@ -639,15 +644,19 @@ class _VerificationTrendSection extends StatelessWidget {
       children: [
         const Text(
           'Tren Verifikasi & SLA',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: AppTypography.size16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         Container(
-          padding: const EdgeInsets.all(SigapSpacing.md),
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: SigapColors.surface,
-            borderRadius: BorderRadius.circular(SigapRadius.md),
-            border: Border.all(color: SigapColors.border),
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: AppColors.borderCard),
           ),
           child: Column(
             children: [
@@ -657,9 +666,9 @@ class _VerificationTrendSection extends StatelessWidget {
                   data: trend,
                   valueKey: 'avg_verification_days',
                   maxValue: 30,
-                  color: SigapColors.primary,
+                  color: AppColors.primary,
                 ),
-                const SizedBox(height: SigapSpacing.md),
+                const SizedBox(height: AppSpacing.md),
               ],
               if (breachTrend.isNotEmpty)
                 _TrendChartRow(
@@ -667,7 +676,7 @@ class _VerificationTrendSection extends StatelessWidget {
                   data: breachTrend,
                   valueKey: 'breached_count',
                   maxValue: 20,
-                  color: SigapColors.perluTindakan,
+                  color: AppColors.danger,
                 ),
             ],
           ),
@@ -704,9 +713,12 @@ class _TrendChartRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: SigapColors.textSecondary),
+          style: TextStyle(
+            fontSize: AppTypography.size12,
+            color: AppColors.textSecondary,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.x4),
         SizedBox(
           height: 40,
           child: Row(
@@ -743,12 +755,18 @@ class _TrendChartRow extends StatelessWidget {
           children: [
             Text(
               _formatPeriod(data.first['period'] as String? ?? ''),
-              style: TextStyle(fontSize: 9, color: SigapColors.textMuted),
+              style: TextStyle(
+                fontSize: AppTypography.size9,
+                color: AppColors.textTertiary,
+              ),
             ),
             const Spacer(),
             Text(
               _formatPeriod(data.last['period'] as String? ?? ''),
-              style: TextStyle(fontSize: 9, color: SigapColors.textMuted),
+              style: TextStyle(
+                fontSize: AppTypography.size9,
+                color: AppColors.textTertiary,
+              ),
             ),
           ],
         ),
@@ -791,15 +809,22 @@ class _RegionalDistribution extends StatelessWidget {
           children: [
             const Text(
               'Distribusi per Wilayah',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: AppTypography.size16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
             Text(
               '${wilayahData.length} wilayah',
-              style: TextStyle(fontSize: 12, color: SigapColors.textMuted),
+              style: TextStyle(
+                fontSize: AppTypography.size12,
+                color: AppColors.textTertiary,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         ...wilayahData
             .take(8)
             .map((item) => _WilayahBar(item: item, maxTotal: maxTotal)),
@@ -822,7 +847,7 @@ class _WilayahBar extends StatelessWidget {
     final fraction = maxTotal > 0 ? (total / maxTotal) : 0.0;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -832,7 +857,10 @@ class _WilayahBar extends StatelessWidget {
               Expanded(
                 child: Text(
                   name,
-                  style: const TextStyle(fontSize: 13),
+                  style: const TextStyle(
+                    fontSize: AppTypography.size13,
+                    color: AppColors.textPrimary,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -842,11 +870,12 @@ class _WilayahBar extends StatelessWidget {
                   Text(
                     '$total kasus',
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: AppTypography.size12,
                       fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.x4),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,
@@ -854,22 +883,22 @@ class _WilayahBar extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: rate >= 70
-                          ? SigapColors.selesai.withValues(alpha: 0.1)
+                          ? AppColors.primary.withValues(alpha: 0.1)
                           : rate >= 40
-                          ? SigapColors.offlineDot.withValues(alpha: 0.1)
-                          : SigapColors.perluTindakan.withValues(alpha: 0.1),
+                          ? AppColors.warning.withValues(alpha: 0.1)
+                          : AppColors.danger.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       '${rate.toStringAsFixed(0)}%',
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: AppTypography.size11,
                         fontWeight: FontWeight.w600,
                         color: rate >= 70
-                            ? SigapColors.selesai
+                            ? AppColors.primary
                             : rate >= 40
-                            ? SigapColors.offlineDot
-                            : SigapColors.perluTindakan,
+                            ? AppColors.warning
+                            : AppColors.danger,
                       ),
                     ),
                   ),
@@ -883,12 +912,12 @@ class _WilayahBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: fraction.clamp(0.0, 1.0),
               minHeight: 6,
-              backgroundColor: SigapColors.border,
+              backgroundColor: AppColors.borderCard,
               color: rate >= 70
-                  ? SigapColors.selesai
+                  ? AppColors.primary
                   : rate >= 40
-                  ? SigapColors.offlineDot
-                  : SigapColors.perluTindakan,
+                  ? AppColors.warning
+                  : AppColors.danger,
             ),
           ),
         ],
@@ -917,12 +946,16 @@ class _CategoryDistribution extends StatelessWidget {
       children: [
         const Text(
           'Distribusi per Kategori',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: AppTypography.size16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         Wrap(
-          spacing: SigapSpacing.sm,
-          runSpacing: SigapSpacing.sm,
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
           children: categoryData.take(6).map((cat) {
             final count = (cat['count'] as num?)?.toInt() ?? 0;
             final fraction = totalCount > 0 ? count / totalCount : 0.0;
@@ -952,11 +985,14 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.x4,
+      ),
       decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.sm),
-        border: Border.all(color: SigapColors.border),
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppColors.borderCard),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -969,15 +1005,21 @@ class _CategoryChip extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 8),
-          Text(name, style: const TextStyle(fontSize: 12)),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.x4),
+          Text(
+            name,
+            style: const TextStyle(
+              fontSize: AppTypography.size12,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.x4),
           Text(
             '$count',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: AppTypography.size12,
               fontWeight: FontWeight.w600,
-              color: SigapColors.textSecondary,
+              color: AppColors.textSecondary,
             ),
           ),
         ],
@@ -987,12 +1029,12 @@ class _CategoryChip extends StatelessWidget {
 
   Color _getCategoryColor(String name) {
     final colors = [
-      SigapColors.primary,
-      SigapColors.diproses,
-      SigapColors.offlineDot,
-      SigapColors.primary,
-      SigapColors.primary,
-      SigapColors.offlineDot,
+      AppColors.primary,
+      AppColors.info,
+      AppColors.warning,
+      AppColors.primary,
+      AppColors.primary,
+      AppColors.warning,
     ];
     return colors[name.hashCode % colors.length].withValues(alpha: 0.8);
   }
@@ -1027,18 +1069,22 @@ class _WilayahCategoryMatrix extends StatelessWidget {
       children: [
         const Text(
           'Matriks Wilayah x Kategori',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: AppTypography.size16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
-            columnSpacing: 16,
-            headingRowColor: WidgetStateProperty.all(SigapColors.surface),
-            columns: [
-              const DataColumn(label: Text('Kategori')),
-              const DataColumn(label: Text('Wilayah')),
-              const DataColumn(label: Text('Jumlah'), numeric: true),
+            columnSpacing: AppSpacing.lg,
+            headingRowColor: WidgetStateProperty.all(AppColors.bgSurface),
+            columns: const [
+              DataColumn(label: Text('Kategori')),
+              DataColumn(label: Text('Wilayah')),
+              DataColumn(label: Text('Jumlah'), numeric: true),
             ],
             rows: data.take(10).map<DataRow>((row) {
               return DataRow(
@@ -1046,20 +1092,20 @@ class _WilayahCategoryMatrix extends StatelessWidget {
                   DataCell(
                     Text(
                       row['category_name'] as String? ?? '-',
-                      style: const TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: AppTypography.size12),
                     ),
                   ),
                   DataCell(
                     Text(
                       row['wilayah_name'] as String? ?? '-',
-                      style: const TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: AppTypography.size12),
                     ),
                   ),
                   DataCell(
                     Text(
                       '${row['report_count'] ?? 0}',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: AppTypography.size12,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1086,9 +1132,13 @@ class _DrillDownSection extends StatelessWidget {
       children: [
         const Text(
           'Drill-down',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: AppTypography.size16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             Expanded(
@@ -1096,24 +1146,24 @@ class _DrillDownSection extends StatelessWidget {
                 icon: Icons.list_alt,
                 label: 'Semua Kasus',
                 subtitle: '${stats['total']} total',
-                color: SigapColors.primary,
+                color: AppColors.primary,
                 onTap: () => context.push('/operator/cases'),
               ),
             ),
-            const SizedBox(width: SigapSpacing.md),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: _DrillDownCard(
                 icon: Icons.pending_actions,
                 label: 'Menunggu',
                 subtitle:
                     '${(stats['by_status']?['submitted'] as int? ?? 0) + (stats['by_status']?['under_review'] as int? ?? 0)} kasus',
-                color: SigapColors.offlineDot,
+                color: AppColors.warning,
                 onTap: () => context.push('/operator/cases?status=pending'),
               ),
             ),
           ],
         ),
-        const SizedBox(height: SigapSpacing.md),
+        const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             Expanded(
@@ -1122,18 +1172,18 @@ class _DrillDownSection extends StatelessWidget {
                 label: 'Dalam Proses',
                 subtitle:
                     '${(stats['by_status']?['in_progress'] as int? ?? 0) + (stats['by_status']?['assigned'] as int? ?? 0) + (stats['by_status']?['verified'] as int? ?? 0)} kasus',
-                color: SigapColors.diproses,
+                color: AppColors.info,
                 onTap: () => context.push('/operator/cases?status=in_progress'),
               ),
             ),
-            const SizedBox(width: SigapSpacing.md),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: _DrillDownCard(
                 icon: Icons.check_circle,
                 label: 'Selesai',
                 subtitle:
                     '${(stats['by_status']?['resolved'] as int? ?? 0) + (stats['by_status']?['closed'] as int? ?? 0)} kasus',
-                color: SigapColors.selesai,
+                color: AppColors.primary,
                 onTap: () => context.push('/operator/cases?status=resolved'),
               ),
             ),
@@ -1162,28 +1212,28 @@ class _DrillDownCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: SigapColors.surface,
-      borderRadius: BorderRadius.circular(SigapRadius.md),
+      color: AppColors.bgCard,
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
-          padding: const EdgeInsets.all(SigapSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(SigapRadius.md),
-            border: Border.all(color: SigapColors.border),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: AppColors.borderCard),
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(SigapSpacing.sm),
+                padding: const EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              const SizedBox(width: SigapSpacing.md),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1192,20 +1242,21 @@ class _DrillDownCard extends StatelessWidget {
                       label,
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: AppTypography.size14,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        fontSize: 12,
-                        color: SigapColors.textSecondary,
+                        fontSize: AppTypography.size12,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: SigapColors.textMuted),
+              Icon(Icons.chevron_right, color: AppColors.textTertiary),
             ],
           ),
         ),
@@ -1225,11 +1276,21 @@ class _ErrorRetry extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.error_outline, size: 64, color: SigapColors.perluTindakan),
-          const SizedBox(height: 16),
-          Text('Gagal memuat: $error'),
-          const SizedBox(height: 16),
-          ElevatedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
+          Icon(Icons.error_outline, size: 64, color: AppColors.danger),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Gagal memuat: $error',
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          ElevatedButton(
+            onPressed: onRetry,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Coba Lagi'),
+          ),
         ],
       ),
     );

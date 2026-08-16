@@ -162,7 +162,7 @@ class _RtRwVerifyScreenState extends ConsumerState<RtRwVerifyScreen> {
         await client.rtRwVerify(
           verificationToken: widget.token,
           reportId: widget.reportId,
-          verdict: _verdict == RwVerdict.valid ? 'confirmed' : 'rejected',
+          verdict: _verdict.apiValue,
           reason: reason.isNotEmpty ? reason : null,
           photoPath: _photoPath,
         );

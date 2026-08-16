@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../utils/logger.dart';
@@ -22,6 +27,10 @@ class _SurveyorTaskListScreenState
   bool _loading = true;
   String? _error;
   bool _isOfflineMode = false;
+  // Tracks which task IDs are currently being downloaded (with prefetch)
+  final Set<String> _downloadingTaskIds = {};
+  // Download progress: taskId -> (current, total)
+  final Map<String, (int, int)> _downloadProgress = {};
 
   @override
   void initState() {
@@ -82,6 +91,146 @@ class _SurveyorTaskListScreenState
     }
   }
 
+  // ─── Offline Cache Helpers ───────────────────────────────────────────────────
+
+  /// Returns the cache directory for a specific task's offline content.
+  Future<Directory> _getTaskCacheDir(String taskId) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final taskCacheDir = Directory(p.join(appDir.path, 'task_cache', taskId));
+    if (!await taskCacheDir.exists()) {
+      await taskCacheDir.create(recursive: true);
+    }
+    return taskCacheDir;
+  }
+
+  /// Downloads a file from [url] and saves it to [destFile].
+  /// Returns true on success, false on failure.
+  Future<bool> _downloadFile(String url, File destFile) async {
+    try {
+      final dio = Dio();
+      await dio.download(url, destFile.path);
+      return true;
+    } catch (e, s) {
+      _logger.warning('Failed to download $url', e, s);
+      return false;
+    }
+  }
+
+  /// Pre-fetches task photos and stores them locally.
+  /// Returns the number of successfully cached photos.
+  Future<int> _prefetchPhotos(String taskId, List<dynamic> photoUrls) async {
+    if (photoUrls.isEmpty) return 0;
+
+    final cacheDir = await _getTaskCacheDir(taskId);
+    final photosDir = Directory(p.join(cacheDir.path, 'photos'));
+    if (!await photosDir.exists()) {
+      await photosDir.create(recursive: true);
+    }
+
+    int successCount = 0;
+    for (int i = 0; i < photoUrls.length; i++) {
+      final url = photoUrls[i].toString();
+      if (url.isEmpty) continue;
+
+      final ext = p.extension(url).isNotEmpty ? p.extension(url) : '.jpg';
+      final destFile = File(p.join(photosDir.path, 'photo_$i$ext'));
+      if (await _downloadFile(url, destFile)) {
+        successCount++;
+      }
+
+      // Update progress
+      setState(() {
+        _downloadProgress[taskId] = (i + 1, photoUrls.length);
+      });
+    }
+    return successCount;
+  }
+
+  /// Converts lat/lng to tile coordinates at a given zoom level.
+  (int, int) _latLngToTile(double lat, double lng, int zoom) {
+    final n = pow(2.0, zoom);
+    final x = ((lng + 180.0) / 360.0 * n).floor();
+    final latRad = lat * pi / 180.0;
+    final y = ((1.0 - log(tan(latRad) + 1.0 / cos(latRad)) / pi) / 2.0 * n)
+        .floor();
+    return (x, y);
+  }
+
+  /// Pre-fetches OSM tiles for the area around [lat], [lng].
+  /// Downloads zoom levels 14-17 by default.
+  Future<int> _prefetchTiles(String taskId, double lat, double lng) async {
+    const minZoom = 14;
+    const maxZoom = 17;
+    const tileUrlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+    // Calculate how many tiles to fetch per zoom level for a small area
+    // Around the location (roughly 500m x 500m area)
+    int totalTiles = 0;
+    final dio = Dio();
+
+    for (int zoom = minZoom; zoom <= maxZoom; zoom++) {
+      // Get center tile
+      final (cx, cy) = _latLngToTile(lat, lng, zoom);
+
+      // For each zoom, fetch a 3x3 grid around center for better coverage
+      for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+          final x = cx + dx;
+          final y = cy + dy;
+          final url = tileUrlTemplate
+              .replaceAll('{z}', zoom.toString())
+              .replaceAll('{x}', x.toString())
+              .replaceAll('{y}', y.toString());
+
+          final cacheDir = await _getTaskCacheDir(taskId);
+          final tilesDir = Directory(p.join(cacheDir.path, 'tiles'));
+          if (!await tilesDir.exists()) {
+            await tilesDir.create(recursive: true);
+          }
+
+          final destFile = File(p.join(tilesDir.path, '$zoom-$x-$y.png'));
+          if (!await destFile.exists()) {
+            try {
+              await dio.download(url, destFile.path);
+            } catch (e) {
+              // Tile download failed, continue with others
+            }
+          }
+          totalTiles++;
+
+          // Update progress (photos done first, then tiles)
+          setState(() {
+            _downloadProgress[taskId] = (
+              totalTiles,
+              (maxZoom - minZoom + 1) * 9,
+            );
+          });
+        }
+      }
+    }
+    return totalTiles;
+  }
+
+  /// Main prefetch orchestrator: downloads photos and tiles for a task.
+  Future<void> _prefetchTaskOfflineContent(Map<String, dynamic> detail) async {
+    final taskId = detail['id']?.toString() ?? detail['taskId']?.toString();
+    if (taskId == null) return;
+
+    // Extract photo URLs from detail
+    final photoUrls = detail['photo_urls'] as List<dynamic>? ?? [];
+
+    // Extract location for tile pre-fetch
+    final location = detail['location'] as Map<String, dynamic>?;
+    final lat = location?['lat'] as double? ?? 0.0;
+    final lng = location?['lng'] as double? ?? 0.0;
+
+    // Pre-fetch in parallel
+    await Future.wait([
+      _prefetchPhotos(taskId, photoUrls),
+      if (lat != 0.0 && lng != 0.0) _prefetchTiles(taskId, lat, lng),
+    ]);
+  }
+
   Future<void> _toggleDownload(Map<String, dynamic> task) async {
     final taskId = task['id'] as String;
     final taskRepo = ref.read(surveyorTaskRepositoryProvider);
@@ -103,6 +252,12 @@ class _SurveyorTaskListScreenState
     } else {
       // Download and store locally
       try {
+        // Mark as downloading
+        setState(() {
+          _downloadingTaskIds.add(taskId);
+          _downloadProgress[taskId] = (0, 1);
+        });
+
         final client = ref.read(apiClientProvider);
         final detail = await client.surveyorGetTaskDetail(taskId);
         final checklistTemplate =
@@ -122,8 +277,13 @@ class _SurveyorTaskListScreenState
           checklistTemplate: checklistTemplate.cast<Map<String, dynamic>>(),
         );
 
+        // Pre-fetch photos and OSM tiles for offline use
+        await _prefetchTaskOfflineContent(detail);
+
         setState(() {
           _downloadedIds.add(taskId);
+          _downloadingTaskIds.remove(taskId);
+          _downloadProgress.remove(taskId);
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -134,6 +294,10 @@ class _SurveyorTaskListScreenState
           );
         }
       } catch (e) {
+        setState(() {
+          _downloadingTaskIds.remove(taskId);
+          _downloadProgress.remove(taskId);
+        });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -199,10 +363,13 @@ class _SurveyorTaskListScreenState
                 itemCount: _tasks.length,
                 itemBuilder: (context, index) {
                   final task = _tasks[index];
+                  final taskId = task['id'] as String;
                   return _SurveyorTaskCard(
                     task: task,
-                    isDownloaded: _downloadedIds.contains(task['id']),
-                    onTap: () => context.push('/surveyor/tasks/${task['id']}'),
+                    isDownloaded: _downloadedIds.contains(taskId),
+                    isDownloading: _downloadingTaskIds.contains(taskId),
+                    progress: _downloadProgress[taskId],
+                    onTap: () => context.push('/surveyor/tasks/$taskId'),
                     onDownloadToggle: () => _toggleDownload(task),
                   );
                 },
@@ -215,12 +382,16 @@ class _SurveyorTaskListScreenState
 class _SurveyorTaskCard extends StatelessWidget {
   final Map<String, dynamic> task;
   final bool isDownloaded;
+  final bool isDownloading;
+  final (int, int)? progress;
   final VoidCallback onTap;
   final VoidCallback onDownloadToggle;
 
   const _SurveyorTaskCard({
     required this.task,
     required this.isDownloaded,
+    required this.isDownloading,
+    this.progress,
     required this.onTap,
     required this.onDownloadToggle,
   });
@@ -288,20 +459,30 @@ class _SurveyorTaskCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      isDownloaded
-                          ? Icons.download_done
-                          : Icons.download_for_offline_outlined,
-                      color: isDownloaded
-                          ? SigapColors.selesai
-                          : SigapColors.textMuted,
+                  if (isDownloading)
+                    const SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: Padding(
+                        padding: EdgeInsets.all(12),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  else
+                    IconButton(
+                      icon: Icon(
+                        isDownloaded
+                            ? Icons.download_done
+                            : Icons.download_for_offline_outlined,
+                        color: isDownloaded
+                            ? SigapColors.selesai
+                            : SigapColors.textMuted,
+                      ),
+                      onPressed: onDownloadToggle,
+                      tooltip: isDownloaded
+                          ? 'Hapus offline'
+                          : 'Download offline',
                     ),
-                    onPressed: onDownloadToggle,
-                    tooltip: isDownloaded
-                        ? 'Hapus offline'
-                        : 'Download offline',
-                  ),
                 ],
               ),
               const SizedBox(height: SigapSpacing.xs),

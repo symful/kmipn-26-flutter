@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/theme/tokens.dart';
 
 class WilayahDropdown extends StatelessWidget {
   final String label;
@@ -21,7 +22,10 @@ class WilayahDropdown extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF616770)),
+            style: const TextStyle(
+              fontSize: AppTypography.size11,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 2),
           Row(
@@ -31,14 +35,14 @@ class WilayahDropdown extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF3A3F45),
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(width: 4),
               const Icon(
                 Icons.keyboard_arrow_down,
                 size: 12,
-                color: Color(0xFF8A9099),
+                color: AppColors.textDisabled,
               ),
             ],
           ),

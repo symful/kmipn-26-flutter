@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -13,13 +14,24 @@ import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
 import '../../theme/tokens.dart';
 import '../../db/database.dart';
+import '../../features/warga/presentation/widgets/similar_cases_banner.dart';
 import '../../providers/providers.dart';
+import '../../services/photo_service.dart';
 import '../../utils/logger.dart';
 
 class CreateReportScreen extends ConsumerStatefulWidget {
   const CreateReportScreen({super.key});
   @override
   ConsumerState<CreateReportScreen> createState() => _CreateReportScreenState();
+}
+
+/// Formats DateTime to "HH:MM" string for autosave display.
+class _TimeOfDayFormatter {
+  static String format(DateTime dateTime) {
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
 }
 
 // ─── Section Card Widget ──────────────────────────────────────────────────────
@@ -351,6 +363,78 @@ class _LocationSection extends StatelessWidget {
   }
 }
 
+// ─── Duplicate Cases Section (M-11) ──────────────────────────────────────────
+
+class _DuplicateCasesSection extends ConsumerWidget {
+  final double lat;
+  final double lng;
+  final String? categoryId;
+
+  static final _logger = Logger('DuplicateCasesSection');
+
+  const _DuplicateCasesSection({
+    required this.lat,
+    required this.lng,
+    required this.categoryId,
+  });
+
+  /// Converts API response map to SimilarCase model.
+  SimilarCase _mapToSimilarCase(Map<String, dynamic> json) {
+    final title = json['title']?.toString() ?? '';
+    // Derive initials from title (first letters of first 2 words)
+    final words = title.trim().split(' ');
+    String initials;
+    if (words.isEmpty) {
+      initials = '??';
+    } else if (words.length == 1) {
+      initials = words[0]
+          .substring(0, words[0].length.clamp(0, 2))
+          .toUpperCase();
+    } else {
+      initials = '${words[0][0]}${words[1][0]}'.toUpperCase();
+    }
+
+    return SimilarCase(
+      id: json['id']?.toString() ?? '',
+      initials: json['initials']?.toString() ?? initials,
+      title: title,
+      distance: json['distance']?.toString() ?? '0 m',
+      similarityPercent:
+          (json['similarity_percent'] ?? json['similarityPercent'] ?? 0) as int,
+      reportCount: (json['report_count'] ?? json['reportCount'] ?? 1) as int,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final duplicatesAsync = ref.watch(
+      duplicateCasesProvider((lat: lat, lng: lng, categoryId: categoryId)),
+    );
+
+    return duplicatesAsync.when(
+      loading: () => const LinearProgressIndicator(),
+      error: (_, __) => const SizedBox.shrink(), // Silent fail, banner hidden
+      data: (duplicates) {
+        if (duplicates.isEmpty) return const SizedBox.shrink();
+        final cases = duplicates.map(_mapToSimilarCase).toList();
+        return SimilarCasesBanner(
+          cases: cases,
+          onViewAll: () {
+            // TODO(W4.13): Navigate to full duplicate cases list
+          },
+          onAddEvidence: (selectedCase) {
+            // TODO(W4.13): Link to existing case
+            _logger.info('Add evidence to case: ${selectedCase.id}');
+          },
+          onCreateSeparate: () {
+            // User chose to create separate case - no action needed
+          },
+        );
+      },
+    );
+  }
+}
+
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 
 class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
@@ -363,6 +447,9 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   String? _categoryId;
   final _descriptionController = TextEditingController();
   bool _submitting = false;
+  bool _isDirty = false;
+  DateTime? _autosaveTimestamp;
+  Timer? _autosaveTimer;
 
   static const int maxPending = 50;
 
@@ -414,6 +501,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
             _photoPath = strippedFile.path;
             _exifDataJson = exifJson;
           });
+          _onFormChanged();
         }
         _logger.info('Photo captured: ${strippedFile.path}');
       } catch (e, s) {
@@ -423,6 +511,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
             _photoPath = photo.path;
             _exifDataJson = null;
           });
+          _onFormChanged();
         }
       }
     }
@@ -453,6 +542,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           _lat = position.latitude;
           _lng = position.longitude;
         });
+        _onFormChanged();
       }
     } catch (e, s) {
       _logger.warning('Error getting location', e, s);
@@ -494,6 +584,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           _lat = latLng.latitude;
           _lng = latLng.longitude;
         });
+        _onFormChanged();
       }
       ref.read(pickLocationCallbackProvider.notifier).state = null;
     };
@@ -557,27 +648,22 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
         ),
       );
 
-      // Insert photo record
+      // Upload photo immediately via signed URL and get R2 URL
+      final photoService = PhotoService(ref.read(apiClientProvider));
+      final r2Url = await photoService.uploadPhotoAndGetUrl(
+        _photoPath!,
+        idempotencyKey,
+      );
+
+      // Insert photo record with R2 URL (or local path if upload failed)
       final db = ref.read(databaseProvider);
       await db.insertPhoto(
         reportIdempotencyKey: idempotencyKey,
-        filePath: _photoPath!,
+        filePath: r2Url, // Store R2 URL, not local path
         exifDataJson: _exifDataJson,
         capturedAt: DateTime.now().millisecondsSinceEpoch,
       );
-
-      // Upload photo
-      try {
-        final api = ref.read(apiClientProvider);
-        final photoFile = File(_photoPath!);
-        final photoBytes = await photoFile.readAsBytes();
-        final filename = _photoPath!.split('/').last;
-        final uploadUrl = '/api/reports/$idempotencyKey/photos/upload-url';
-        await api.uploadPhotoBytes(uploadUrl, photoBytes, filename);
-        _logger.info('Photo uploaded for report: $idempotencyKey');
-      } catch (e, s) {
-        _logger.warning('Photo upload failed, will sync later', e, s);
-      }
+      _logger.info('Photo uploaded for report: $idempotencyKey, url: $r2Url');
 
       // Enqueue for sync
       final queueRepo = ref.read(syncQueueRepositoryProvider);
@@ -607,12 +693,67 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     }
   }
 
+  /// Called whenever form fields change to trigger autosave debounce.
+  void _onFormChanged() {
+    if (_submitting) return; // Don't autosave during submission
+    setState(() => _isDirty = true);
+    _autosaveTimer?.cancel();
+    _autosaveTimer = Timer(const Duration(seconds: 2), () {
+      if (_isDirty && mounted) {
+        _autosaveDraft();
+      }
+    });
+  }
+
+  /// Autosaves form state to LocalReports with debounce.
+  Future<void> _autosaveDraft() async {
+    if (!_isDirty) return;
+    try {
+      final reportRepo = ref.read(reportRepositoryProvider);
+      final now = DateTime.now();
+      await reportRepo.saveLocal(
+        LocalReportsCompanion.insert(
+          idempotencyKey: 'draft',
+          categoryId: _categoryId ?? '',
+          description: _descriptionController.text,
+          lat: _lat ?? 0.0,
+          lng: _lng ?? 0.0,
+          photoPath: Value(_photoPath),
+          exifDataJson: Value(_exifDataJson),
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
+      setState(() {
+        _isDirty = false;
+        _autosaveTimestamp = now;
+      });
+      _logger.info('Autosave triggered');
+    } catch (e, s) {
+      _logger.warning('Autosave failed', e, s);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgSurface,
       appBar: AppBar(
-        title: const Text('Buat Laporan'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Buat Laporan'),
+            if (_autosaveTimestamp != null)
+              Text(
+                'Tersimpan ${_TimeOfDayFormatter.format(_autosaveTimestamp!)}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+          ],
+        ),
         backgroundColor: AppColors.bgCard,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
@@ -656,10 +797,23 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                     icon: Icons.category,
                     child: _CategorySection(
                       selectedCategoryId: _categoryId,
-                      onChanged: (v) => setState(() => _categoryId = v),
+                      onChanged: (v) {
+                        setState(() => _categoryId = v);
+                        _onFormChanged();
+                      },
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
+
+                  // Similar Cases Banner (M-11)
+                  if (_lat != null && _lng != null && _categoryId != null)
+                    _DuplicateCasesSection(
+                      lat: _lat!,
+                      lng: _lng!,
+                      categoryId: _categoryId,
+                    ),
+                  if (_lat != null && _lng != null && _categoryId != null)
+                    const SizedBox(height: AppSpacing.lg),
 
                   // Description Section
                   _SectionCard(
@@ -667,6 +821,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                     icon: Icons.description,
                     child: TextFormField(
                       controller: _descriptionController,
+                      onChanged: (_) => _onFormChanged(),
                       decoration: const InputDecoration(
                         labelText: 'Jelaskan laporan Anda',
                         labelStyle: TextStyle(color: AppColors.textSecondary),
@@ -745,6 +900,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
   @override
   void dispose() {
+    _autosaveTimer?.cancel();
     _descriptionController.dispose();
     super.dispose();
   }

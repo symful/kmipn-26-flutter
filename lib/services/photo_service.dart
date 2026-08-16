@@ -1,0 +1,65 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import '../api/api_client.dart';
+
+/// Service for handling photo uploads to R2 via signed URLs.
+///
+/// Provides immediate upload after capture and returns the R2 URL
+/// for storage in the database.
+class PhotoService {
+  final ApiClient _api;
+
+  PhotoService(this._api);
+
+  /// Uploads a photo to R2 via signed URL and returns the public R2 URL.
+  ///
+  /// [localFilePath] - Path to the local photo file
+  /// [idempotencyKey] - Unique key for the report this photo belongs to
+  ///
+  /// Returns the R2 URL if upload succeeds, or the local path if upload fails
+  /// (for offline fallback).
+  Future<String> uploadPhotoAndGetUrl(
+    String localFilePath,
+    String idempotencyKey,
+  ) async {
+    try {
+      final photoFile = File(localFilePath);
+      final photoBytes = await photoFile.readAsBytes();
+      final filename = localFilePath.split('/').last;
+      final uploadUrl = '/api/reports/$idempotencyKey/photos/upload-url';
+
+      final response = await _api.uploadPhotoBytes(
+        uploadUrl,
+        photoBytes,
+        filename,
+      );
+
+      // Extract R2 URL from response - backend returns {url: "https://r2.example.com/..."}
+      final r2Url = response['url'] as String?;
+      if (r2Url != null && r2Url.isNotEmpty) {
+        return r2Url;
+      }
+
+      // Fallback: if no URL in response, try 'public_url' field
+      final publicUrl = response['public_url'] as String?;
+      if (publicUrl != null && publicUrl.isNotEmpty) {
+        return publicUrl;
+      }
+
+      // If neither URL found, return local path for offline fallback
+      debugPrint('PhotoService: No R2 URL in response, using local path');
+      return localFilePath;
+    } catch (e) {
+      debugPrint(
+        'PhotoService: Upload failed, using local path as fallback: $e',
+      );
+      // Return local path as offline fallback - sync will handle this case
+      return localFilePath;
+    }
+  }
+
+  /// Checks if a path is an R2/remote URL (vs local file path).
+  bool isRemoteUrl(String path) {
+    return path.startsWith('http://') || path.startsWith('https://');
+  }
+}

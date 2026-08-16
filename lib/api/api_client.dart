@@ -232,16 +232,11 @@ class ApiClient {
   Future<Map<String, dynamic>> syncBatch({
     required List<Map<String, dynamic>> reports,
     String? deviceId,
-    List<Map<String, dynamic>>? photos,
   }) async {
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.post(
         '/api/sync/batch',
-        data: {
-          if (deviceId != null) 'device_id': deviceId,
-          'reports': reports,
-          if (photos != null && photos.isNotEmpty) 'photos': photos,
-        },
+        data: {if (deviceId != null) 'device_id': deviceId, 'reports': reports},
       ),
       endpoint: '/api/sync/batch',
       parse: (data) => (data as Map).cast<String, dynamic>(),
@@ -423,6 +418,44 @@ class ApiClient {
     );
   }
 
+  /// Submits a structured visit report for a surveyor task.
+  ///
+  /// [taskId] - The surveyor task ID
+  /// [photos] - Map of 4 corner photo paths: {depan, belakang, kiri, kanan}
+  /// [gpsLat] - GPS latitude coordinate
+  /// [gpsLng] - GPS longitude coordinate
+  /// [accuracy] - GPS accuracy in meters
+  /// [kondisi] - Condition selection (e.g., 'baik', 'rusak', 'berbahaya')
+  /// [rekomendasi] - Recommendation selection (e.g., 'perbaikan', 'penggantian', 'pemeliharaan')
+  /// [catatan] - Additional notes text
+  Future<Map<String, dynamic>> submitVisitReport({
+    required String taskId,
+    required Map<String, String> photos,
+    required double gpsLat,
+    required double gpsLng,
+    required double accuracy,
+    required String kondisi,
+    required String rekomendasi,
+    String? catatan,
+  }) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/surveyor/tasks/$taskId/visit',
+        data: {
+          'photos': photos,
+          'gps_lat': gpsLat,
+          'gps_lng': gpsLng,
+          'accuracy': accuracy,
+          'kondisi': kondisi,
+          'rekomendasi': rekomendasi,
+          if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
+        },
+      ),
+      endpoint: '/api/surveyor/tasks/$taskId/visit',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
   Future<Map<String, dynamic>> surveyorAcceptTask(String taskId) async {
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.post('/api/surveyor/tasks/$taskId/accept'),
@@ -435,6 +468,34 @@ class ApiClient {
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.post('/api/surveyor/tasks/$taskId/start'),
       endpoint: '/api/surveyor/tasks/$taskId/start',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  Future<Map<String, dynamic>> surveyorRejectTask(
+    String taskId,
+    String reason,
+  ) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/surveyor/tasks/$taskId/reject',
+        data: {'reason': reason},
+      ),
+      endpoint: '/api/surveyor/tasks/$taskId/reject',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  Future<Map<String, dynamic>> surveyorRequestClarification(
+    String taskId, {
+    required String question,
+  }) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/surveyor/tasks/$taskId/clarification',
+        data: {'question': question},
+      ),
+      endpoint: '/api/surveyor/tasks/$taskId/clarification',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
   }
@@ -497,6 +558,80 @@ class ApiClient {
     );
   }
 
+  // ─── Warga Stats & Nearby ──────────────────────────────────────────────────
+
+  /// Fetches warga statistics (submitted, verified, in_progress, resolved counts).
+  Future<Map<String, dynamic>> getWargaStats() async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get('/api/warga/stats'),
+      endpoint: '/api/warga/stats',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  /// Fetches nearby reports based on user location.
+  Future<List<Map<String, dynamic>>> getNearbyReports({
+    required double lat,
+    required double lng,
+  }) async {
+    return await _execute<List<Map<String, dynamic>>>(
+      dioCall: () => _dio.get(
+        '/api/reports/nearby',
+        queryParameters: {'lat': lat, 'lng': lng},
+      ),
+      endpoint: '/api/reports/nearby',
+      parse: (data) {
+        if (data is List) return data.cast<Map<String, dynamic>>();
+        if (data is Map && data.containsKey('reports')) {
+          return (data['reports'] as List).cast<Map<String, dynamic>>();
+        }
+        return <Map<String, dynamic>>[];
+      },
+    );
+  }
+
+  // ─── Duplicate Cases (M-11) ────────────────────────────────────────────────
+
+  /// Fetches duplicate case candidates for a given location and category.
+  ///
+  /// Used by SimilarCasesBanner during report creation to surface
+  /// nearby cases that may be duplicates.
+  Future<List<Map<String, dynamic>>> getDuplicateCases({
+    required double lat,
+    required double lng,
+    String? categoryId,
+  }) async {
+    return await _execute<List<Map<String, dynamic>>>(
+      dioCall: () => _dio.get(
+        '/api/reports/duplicates',
+        queryParameters: {
+          'lat': lat,
+          'lng': lng,
+          if (categoryId != null) 'category_id': categoryId,
+        },
+      ),
+      endpoint: '/api/reports/duplicates',
+      parse: (data) {
+        if (data is List) return data.cast<Map<String, dynamic>>();
+        if (data is Map && data.containsKey('duplicates')) {
+          return (data['duplicates'] as List).cast<Map<String, dynamic>>();
+        }
+        return <Map<String, dynamic>>[];
+      },
+    );
+  }
+
+  // ─── Report Timeline ─────────────────────────────────────────────────────────
+
+  /// Fetches the timeline/history events for a given report.
+  Future<Map<String, dynamic>> getReportTimeline(String reportId) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get('/api/reports/$reportId/timeline'),
+      endpoint: '/api/reports/$reportId/timeline',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
   // ─── Operator ──────────────────────────────────────────────────────────────
 
   Future<Map<String, dynamic>> operatorSeparateCase({
@@ -513,6 +648,52 @@ class ApiClient {
         },
       ),
       endpoint: '/api/operator/cases/$caseId/separate',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  // ─── Notifications ──────────────────────────────────────────────────────────
+
+  /// Fetches notifications from the server.
+  Future<List<Map<String, dynamic>>> getNotifications({
+    int page = 1,
+    int limit = 20,
+  }) async {
+    return await _execute<List<Map<String, dynamic>>>(
+      dioCall: () => _dio.get(
+        '/api/notifications',
+        queryParameters: {'page': page, 'limit': limit},
+      ),
+      endpoint: '/api/notifications',
+      parse: (data) {
+        if (data is List) return data.cast<Map<String, dynamic>>();
+        if (data is Map && data.containsKey('notifications')) {
+          return (data['notifications'] as List).cast<Map<String, dynamic>>();
+        }
+        if (data is Map && data.containsKey('data')) {
+          return (data['data'] as List).cast<Map<String, dynamic>>();
+        }
+        return <Map<String, dynamic>>[];
+      },
+    );
+  }
+
+  /// Marks a notification as read.
+  Future<Map<String, dynamic>> markNotificationRead(
+    String notificationId,
+  ) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post('/api/notifications/$notificationId/read'),
+      endpoint: '/api/notifications/$notificationId/read',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  /// Marks all notifications as read.
+  Future<Map<String, dynamic>> markAllNotificationsRead() async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post('/api/notifications/read-all'),
+      endpoint: '/api/notifications/read-all',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
   }

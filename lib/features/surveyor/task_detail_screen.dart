@@ -11,6 +11,8 @@ import '../../../db/database.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../utils/logger.dart';
+import '../../../widgets/design_system/phone_frame.dart';
+import '../../../widgets/design_system/status_bar.dart';
 
 class SurveyorTaskDetailScreen extends ConsumerStatefulWidget {
   final String taskId;
@@ -310,63 +312,93 @@ class _SurveyorTaskDetailScreenState
   @override
   Widget build(BuildContext context) {
     if (_success) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Tugas Survei')),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.check_circle,
-                color: SigapColors.selesai,
-                size: 64,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _isOfflineMode
-                    ? 'Kunjungan disimpan, akan dikirim saat online!'
-                    : 'Kunjungan berhasil dikirim!',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+      return PhoneFrame(
+        child: Column(
+          children: [
+            const StatusBar(),
+            Expanded(
+              child: Scaffold(
+                appBar: AppBar(title: const Text('Tugas Survei')),
+                body: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: SigapColors.selesai,
+                        size: 64,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _isOfflineMode
+                            ? 'Kunjungan disimpan, akan dikirim saat online!'
+                            : 'Kunjungan berhasil dikirim!',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => context.go('/surveyor/tasks'),
+                        child: const Text('Kembali ke Daftar'),
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => context.go('/surveyor/tasks'),
-                child: const Text('Kembali ke Daftar'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
 
     if (_loading) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Detail Tugas')),
-        body: const Center(child: CircularProgressIndicator()),
+      return PhoneFrame(
+        child: Column(
+          children: [
+            const StatusBar(),
+            Expanded(
+              child: Scaffold(
+                appBar: AppBar(title: const Text('Detail Tugas')),
+                body: const Center(child: CircularProgressIndicator()),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
     if (_error != null && _task == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Detail Tugas')),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: SigapColors.perluTindakan,
+      return PhoneFrame(
+        child: Column(
+          children: [
+            const StatusBar(),
+            Expanded(
+              child: Scaffold(
+                appBar: AppBar(title: const Text('Detail Tugas')),
+                body: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: SigapColors.perluTindakan,
+                      ),
+                      const SizedBox(height: 16),
+                      Text('Gagal memuat: $_error'),
+                      ElevatedButton(
+                        onPressed: _load,
+                        child: const Text('Coba Lagi'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 16),
-              Text('Gagal memuat: $_error'),
-              ElevatedButton(onPressed: _load, child: const Text('Coba Lagi')),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -375,148 +407,165 @@ class _SurveyorTaskDetailScreenState
     final title = task['title'] as String? ?? '-';
     final instructions = task['instructions'] as String? ?? '-';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [
-          if (_isOfflineMode)
-            Container(
-              margin: const EdgeInsets.only(right: SigapSpacing.md),
-              padding: const EdgeInsets.symmetric(
-                horizontal: SigapSpacing.sm,
-                vertical: SigapSpacing.xs,
+    return PhoneFrame(
+      child: Column(
+        children: [
+          const StatusBar(),
+          Expanded(
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(title),
+                actions: [
+                  if (_isOfflineMode)
+                    Container(
+                      margin: const EdgeInsets.only(right: SigapSpacing.md),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.sm,
+                        vertical: SigapSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SigapColors.offlineBg,
+                        borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.cloud_off,
+                            size: 14,
+                            color: SigapColors.offlineText,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'OFFLINE',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: SigapColors.offlineText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
-              decoration: BoxDecoration(
-                color: SigapColors.offlineBg,
-                borderRadius: BorderRadius.circular(SigapRadius.sm),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
+              body: Column(
                 children: [
-                  Icon(
-                    Icons.cloud_off,
-                    size: 14,
-                    color: SigapColors.offlineText,
+                  // Task info banner
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(SigapSpacing.md),
+                    color: SigapColors.primary.withValues(alpha: 0.05),
+                    child: Text(
+                      instructions,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: SigapColors.textSecondary,
+                      ),
+                    ),
                   ),
-                  SizedBox(width: 4),
-                  Text(
-                    'OFFLINE',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: SigapColors.offlineText,
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(SigapSpacing.lg),
+                      itemCount: _checklistItems.length,
+                      itemBuilder: (context, index) {
+                        final item = _checklistItems[index];
+                        final itemId =
+                            item['id']?.toString() ??
+                            item['item_id']?.toString() ??
+                            '';
+                        final entry = _checklistData[itemId];
+                        final label =
+                            item['label'] as String? ??
+                            item['name'] as String? ??
+                            'Item ${index + 1}';
+                        final required =
+                            item['required'] == true ||
+                            item['is_required'] == true;
+
+                        return _ChecklistItemCard(
+                          label: label,
+                          required: required,
+                          checked: entry?.checked ?? false,
+                          gps: entry?.gps,
+                          photoPath: entry?.photoPath,
+                          notes: entry?.notes ?? '',
+                          onCheckedChanged: (v) => setState(() {
+                            _checklistData[itemId]?.checked = v ?? false;
+                          }),
+                          onCaptureGps: () => _captureGps(itemId),
+                          onCapturePhoto: (source) =>
+                              _capturePhoto(itemId, source),
+                          onNotesChanged: (v) => setState(() {
+                            _checklistData[itemId]?.notes = v;
+                          }),
+                        );
+                      },
+                    ),
+                  ),
+                  // Submit button
+                  Container(
+                    padding: EdgeInsets.only(
+                      left: SigapSpacing.lg,
+                      right: SigapSpacing.lg,
+                      top: SigapSpacing.md,
+                      bottom:
+                          MediaQuery.of(context).padding.bottom +
+                          SigapSpacing.md,
+                    ),
+                    decoration: BoxDecoration(
+                      color: SigapColors.surface,
+                      boxShadow: [
+                        BoxShadow(
+                          color: SigapColors.textPrimary.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, -2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: SigapSpacing.sm,
+                            ),
+                            child: Text(
+                              'Error: $_error',
+                              style: const TextStyle(
+                                color: SigapColors.perluTindakan,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ElevatedButton(
+                          onPressed: _submitting ? null : _submitVisit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: SigapColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: _submitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  _isOfflineMode
+                                      ? 'Simpan (Kirim Saat Online)'
+                                      : 'Kirim Kunjungan',
+                                ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Task info banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(SigapSpacing.md),
-            color: SigapColors.primary.withValues(alpha: 0.05),
-            child: Text(
-              instructions,
-              style: const TextStyle(
-                fontSize: 13,
-                color: SigapColors.textSecondary,
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(SigapSpacing.lg),
-              itemCount: _checklistItems.length,
-              itemBuilder: (context, index) {
-                final item = _checklistItems[index];
-                final itemId =
-                    item['id']?.toString() ?? item['item_id']?.toString() ?? '';
-                final entry = _checklistData[itemId];
-                final label =
-                    item['label'] as String? ??
-                    item['name'] as String? ??
-                    'Item ${index + 1}';
-                final required =
-                    item['required'] == true || item['is_required'] == true;
-
-                return _ChecklistItemCard(
-                  label: label,
-                  required: required,
-                  checked: entry?.checked ?? false,
-                  gps: entry?.gps,
-                  photoPath: entry?.photoPath,
-                  notes: entry?.notes ?? '',
-                  onCheckedChanged: (v) => setState(() {
-                    _checklistData[itemId]?.checked = v ?? false;
-                  }),
-                  onCaptureGps: () => _captureGps(itemId),
-                  onCapturePhoto: (source) => _capturePhoto(itemId, source),
-                  onNotesChanged: (v) => setState(() {
-                    _checklistData[itemId]?.notes = v;
-                  }),
-                );
-              },
-            ),
-          ),
-          // Submit button
-          Container(
-            padding: EdgeInsets.only(
-              left: SigapSpacing.lg,
-              right: SigapSpacing.lg,
-              top: SigapSpacing.md,
-              bottom: MediaQuery.of(context).padding.bottom + SigapSpacing.md,
-            ),
-            decoration: BoxDecoration(
-              color: SigapColors.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: SigapColors.textPrimary.withValues(alpha: 0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
-                    child: Text(
-                      'Error: $_error',
-                      style: const TextStyle(
-                        color: SigapColors.perluTindakan,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ElevatedButton(
-                  onPressed: _submitting ? null : _submitVisit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SigapColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          _isOfflineMode
-                              ? 'Simpan (Kirim Saat Online)'
-                              : 'Kirim Kunjungan',
-                        ),
-                ),
-              ],
             ),
           ),
         ],

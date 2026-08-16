@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
+import '../../../widgets/skeleton_loaders.dart';
 import 'widgets/merge_dialog.dart';
 import 'widgets/priority_slider.dart';
 import 'widgets/assign_dialog.dart';
@@ -54,7 +55,7 @@ class _OperatorCaseDetailScreenState
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Detail Kasus')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const OperatorCaseDetailSkeleton(),
       );
     }
     if (_error != null) {

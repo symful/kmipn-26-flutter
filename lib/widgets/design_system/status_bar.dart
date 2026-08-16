@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/theme/tokens.dart';
 
 class StatusBar extends StatelessWidget {
   final String time;
@@ -9,19 +10,23 @@ class StatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      // Design: padding 0 24px (horizontal only)
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Time: font-size 13, font-weight 600, tabular nums via FontFeature
           Text(
             time,
-            style: const TextStyle(
-              fontSize: 13,
+            style: TextStyle(
+              fontSize: AppTypography.size13,
               fontWeight: FontWeight.w600,
-              color: Colors.black,
+              color: AppColors.textPrimary,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
-          Row(children: [_buildBatteryIcon()]),
+          // Battery icon: 16x9 outline + 6x9 fill (design spec line 54)
+          _buildBatteryIcon(),
         ],
       ),
     );
@@ -30,25 +35,25 @@ class StatusBar extends StatelessWidget {
   Widget _buildBatteryIcon() {
     return Row(
       children: [
-        const Icon(Icons.wifi, size: 16),
-        const SizedBox(width: 4),
-        const Icon(Icons.signal_cellular_alt, size: 16),
-        const SizedBox(width: 4),
+        // Battery outline: 16x9, border 1.4px, color #17191c
         Container(
           width: 16,
           height: 9,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.black, width: 1),
+            border: Border.all(
+              color: AppColors.textPrimary,
+              width: 1.4, // Design: 1.4px border
+            ),
             borderRadius: BorderRadius.circular(2),
           ),
           child: Align(
             alignment: Alignment.centerRight,
             child: Container(
               width: 6,
-              height: 5,
+              height: 9,
               margin: const EdgeInsets.only(right: 1),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: AppColors.textPrimary,
                 borderRadius: BorderRadius.circular(1),
               ),
             ),

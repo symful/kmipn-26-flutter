@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
+import '../../../widgets/skeleton_loaders.dart';
 
 class OperatorDashboardScreen extends ConsumerStatefulWidget {
   const OperatorDashboardScreen({super.key});
@@ -52,7 +53,7 @@ class _OperatorDashboardScreenState
         automaticallyImplyLeading: false,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const OperatorDashboardSkeleton()
           : _error != null
           ? _ErrorRetry(error: _error!, onRetry: _loadStats)
           : RefreshIndicator(

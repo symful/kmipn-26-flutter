@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:exif/exif.dart';
+import 'package:image/image.dart' as img;
 import '../../db/database.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
@@ -41,6 +43,25 @@ class _ComplementaryEvidenceScreenState
     return true;
   }
 
+  /// Strips EXIF data from JPEG bytes to protect privacy (especially GPS).
+  Uint8List _stripExifFromJpeg(Uint8List bytes) {
+    try {
+      final image = img.decodeImage(bytes);
+      if (image == null) {
+        _logger.warning('Failed to decode image for EXIF stripping');
+        return bytes;
+      }
+      final strippedBytes = Uint8List.fromList(
+        img.encodeJpg(image, quality: 85),
+      );
+      _logger.info('EXIF data stripped from image');
+      return strippedBytes;
+    } catch (e, s) {
+      _logger.warning('Error stripping EXIF', e, s);
+      return bytes;
+    }
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -60,13 +81,28 @@ class _ComplementaryEvidenceScreenState
                 entry.key: entry.value.toString(),
             });
           }
+          // Strip EXIF before storing to protect privacy
+          final strippedBytes = _stripExifFromJpeg(bytes);
+          final tempDir = Directory.systemTemp;
+          final strippedFile = File(
+            '${tempDir.path}/warga_evidence_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          );
+          await strippedFile.writeAsBytes(strippedBytes);
+          if (!mounted) return;
+          setState(() {
+            _photos.add(
+              _PhotoData(path: strippedFile.path, exifJson: exifJson),
+            );
+          });
         } catch (e, s) {
-          _logger.warning('Error extracting EXIF data', e, s);
-          // EXIF extraction failed, continue without it
+          _logger.warning('Error processing image', e, s);
+          // If stripping fails, use original path (less ideal but functional)
+          if (mounted) {
+            setState(() {
+              _photos.add(_PhotoData(path: image.path, exifJson: exifJson));
+            });
+          }
         }
-        setState(() {
-          _photos.add(_PhotoData(path: image.path, exifJson: exifJson));
-        });
       }
     } catch (e) {
       setState(() => _submitError = 'Gagal memilih gambar: $e');

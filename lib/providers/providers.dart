@@ -74,10 +74,20 @@ final localReportsProvider = FutureProvider<List<LocalReport>>((ref) async {
   return repo.getAllReports();
 });
 
-final pendingCountProvider = FutureProvider<int>((ref) async {
-  final repo = ref.watch(reportRepositoryProvider);
+/// Stream-based pending count provider for real-time UI updates.
+///
+/// Uses PendingCountNotifier from SyncWorker to emit count changes after each
+/// sync operation. Backed by a broadcast StreamController in dart:async.
+///
+/// - Initial value: fetched from repository on first watch
+/// - Updates: emitted by SyncWorker.syncNow() after each sync completes
+/// - Consumers: warga_home_screen.dart pending banner, etc.
+final pendingCountProvider = StreamProvider<int>((ref) {
+  final worker = ref.watch(syncWorkerProvider);
+  // Trigger initial count fetch by watching syncWorkerProvider
+  // The worker loads initial count and emits it on first sync
   ref.watch(syncWorkerProvider);
-  return repo.countPending();
+  return worker.pendingCountNotifier.stream;
 });
 
 /// Fetches server-side reports created by the current warga user.
@@ -100,6 +110,64 @@ final categoriesProvider = FutureProvider<List<Map<String, dynamic>>>((
   final api = ref.watch(apiClientProvider);
   return await api.getCategories();
 });
+
+/// Fetches warga statistics (submitted, verified, in_progress, resolved).
+final wargaStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  final api = ref.watch(apiClientProvider);
+  try {
+    return await api.getWargaStats();
+  } catch (e, st) {
+    _logger.warning('wargaStatsProvider failed', e, st);
+    return {'submitted': 0, 'verified': 0, 'in_progress': 0, 'resolved': 0};
+  }
+});
+
+/// Fetches nearby reports based on user location.
+final nearbyReportsProvider =
+    FutureProvider.family<
+      List<Map<String, dynamic>>,
+      ({double lat, double lng})
+    >((ref, location) async {
+      final api = ref.watch(apiClientProvider);
+      try {
+        return await api.getNearbyReports(lat: location.lat, lng: location.lng);
+      } catch (e, st) {
+        _logger.warning('nearbyReportsProvider failed', e, st);
+        return [];
+      }
+    });
+
+/// Fetches duplicate case candidates for a given location and category.
+/// Used by SimilarCasesBanner (M-11) during report creation.
+final duplicateCasesProvider =
+    FutureProvider.family<
+      List<Map<String, dynamic>>,
+      ({double lat, double lng, String? categoryId})
+    >((ref, params) async {
+      final api = ref.watch(apiClientProvider);
+      try {
+        return await api.getDuplicateCases(
+          lat: params.lat,
+          lng: params.lng,
+          categoryId: params.categoryId,
+        );
+      } catch (e, st) {
+        _logger.warning('duplicateCasesProvider failed', e, st);
+        return [];
+      }
+    });
+
+/// Fetches the timeline/history events for a given report.
+final reportTimelineProvider =
+    FutureProvider.family<Map<String, dynamic>, String>((ref, reportId) async {
+      final api = ref.watch(apiClientProvider);
+      try {
+        return await api.getReportTimeline(reportId);
+      } catch (e, st) {
+        _logger.warning('reportTimelineProvider failed', e, st);
+        return {};
+      }
+    });
 
 final syncManagerProvider = AsyncNotifierProvider<SyncManager, void>(() {
   return SyncManager();
@@ -133,4 +201,131 @@ class SyncManager extends AsyncNotifier<void> {
 /// initializeBackgroundSync() are called on app startup.
 final syncInitProvider = Provider<void>((ref) {
   ref.watch(syncManagerProvider);
+});
+
+// ─── Surveyor S-01 Filter & Sort Providers ─────────────────────────────────
+
+/// Tracks selected filter index for surveyor S-01 screen.
+/// 0 = Hari ini, 1 = Terlambat, 2 = Belum diunduh, null = all
+final surveyorFilterProvider = StateProvider<int?>((ref) => null);
+
+/// Tracks selected sort option for surveyor S-01 screen.
+/// Values: 'terbaru', 'sla', 'prioritas'
+final surveyorSortProvider = StateProvider<String>((ref) => 'terbaru');
+
+/// Fetches surveyor tasks from the server for S-01 screen.
+final surveyorTasksProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
+  final api = ref.watch(apiClientProvider);
+  try {
+    return await api.surveyorGetTasks();
+  } catch (e, st) {
+    _logger.warning('surveyorTasksProvider failed', e, st);
+    return [];
+  }
+});
+
+// ─── Surveyor Task Action Providers ─────────────────────────────────────────
+
+/// Accepts a surveyor task by ID.
+final surveyorAcceptTaskProvider =
+    FutureProvider.family<Map<String, dynamic>, String>((ref, taskId) async {
+      final api = ref.watch(apiClientProvider);
+      return await api.surveyorAcceptTask(taskId);
+    });
+
+/// Rejects a surveyor task with a reason.
+final surveyorRejectTaskProvider =
+    FutureProvider.family<
+      Map<String, dynamic>,
+      ({String taskId, String reason})
+    >((ref, params) async {
+      final api = ref.watch(apiClientProvider);
+      return await api.surveyorRejectTask(params.taskId, params.reason);
+    });
+
+/// Requests clarification for a surveyor task.
+final surveyorRequestClarificationProvider =
+    FutureProvider.family<
+      Map<String, dynamic>,
+      ({String taskId, String question})
+    >((ref, params) async {
+      final api = ref.watch(apiClientProvider);
+      return await api.surveyorRequestClarification(
+        params.taskId,
+        question: params.question,
+      );
+    });
+
+// ─── Surveyor S-04 Visit Report Submission ─────────────────────────────────────
+
+/// Parameters for submitting a structured visit report.
+class SurveyorVisitParams {
+  final String taskId;
+  final Map<String, String> photos;
+  final double gpsLat;
+  final double gpsLng;
+  final double accuracy;
+  final String kondisi;
+  final String rekomendasi;
+  final String? catatan;
+
+  const SurveyorVisitParams({
+    required this.taskId,
+    required this.photos,
+    required this.gpsLat,
+    required this.gpsLng,
+    required this.accuracy,
+    required this.kondisi,
+    required this.rekomendasi,
+    this.catatan,
+  });
+}
+
+/// Submits a structured visit report for a surveyor task.
+/// Structured fields: 4 corner photos, GPS coordinates, accuracy, kondisi selection, rekomendasi selection, catatan text.
+final surveyorSubmitVisitProvider =
+    FutureProvider.family<Map<String, dynamic>, SurveyorVisitParams>((
+      ref,
+      params,
+    ) async {
+      final api = ref.watch(apiClientProvider);
+      return await api.submitVisitReport(
+        taskId: params.taskId,
+        photos: params.photos,
+        gpsLat: params.gpsLat,
+        gpsLng: params.gpsLng,
+        accuracy: params.accuracy,
+        kondisi: params.kondisi,
+        rekomendasi: params.rekomendasi,
+        catatan: params.catatan,
+      );
+    });
+
+// ─── Notifications ─────────────────────────────────────────────────────────────
+
+/// Fetches notifications from the server.
+final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
+  final api = ref.watch(apiClientProvider);
+  try {
+    return await api.getNotifications();
+  } catch (e, st) {
+    _logger.warning('notificationsProvider failed', e, st);
+    return [];
+  }
+});
+
+/// Computed provider that returns the count of unread notifications.
+/// Returns 0 if notifications are loading or on error.
+final unreadCountProvider = Provider<int>((ref) {
+  final notificationsAsync = ref.watch(notificationsProvider);
+  return notificationsAsync.whenOrNull(
+        data: (notifications) => notifications
+            .where((n) => n['is_read'] == false || n['is_read'] == null)
+            .length,
+      ) ??
+      0;
 });

@@ -22,11 +22,29 @@ class SigapColors {
 }
 
 class SigapSpacing {
+  static const double xxs = 2;
   static const double xs = 5.0;
+  static const double x4 = 4;
   static const double sm = 8.0;
+  static const double x6 = 6;
+  static const double x7 = 7;
   static const double md = 13.0;
+  static const double x9 = 9;
+  static const double x10 = 10;
+  static const double x11 = 11;
   static const double lg = 18.0;
+  static const double x12 = 12;
+  static const double x14 = 14;
+  static const double x15 = 15;
   static const double xl = 24.0;
+  static const double x17 = 17;
+  static const double x22 = 22;
+  static const double x28 = 28;
+  static const double x32 = 32;
+  static const double x34 = 34;
+  static const double x56 = 56;
+  static const double x60 = 60;
+  static const double x90 = 90;
 }
 
 class SigapRadius {
@@ -147,7 +165,9 @@ class AppShadows {
     BoxShadow(color: Color(0xE60F7A6B), blurRadius: 20, offset: Offset(0, 10)),
   ];
   static const List<BoxShadow> phoneBezel = [
-    BoxShadow(color: Color(0x801F2226), blurRadius: 60, offset: Offset(0, 28)),
+    // Design: box-shadow: 0 28px 60px -22px rgba(0,0,0,.5)
+    // Color is black at 50%, not bezel color
+    BoxShadow(color: Color(0x80000000), blurRadius: 60, offset: Offset(0, 28)),
   ];
   static const List<BoxShadow> browserFrame = [
     BoxShadow(color: Color(0x66000000), blurRadius: 60, offset: Offset(0, 24)),

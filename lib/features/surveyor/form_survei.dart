@@ -9,6 +9,8 @@ import '../../db/database.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../components/app_icons.dart';
+import '../../widgets/design_system/phone_frame.dart';
+import '../../widgets/design_system/status_bar.dart';
 
 class FormSurveiScreen extends ConsumerStatefulWidget {
   final String? taskId;
@@ -226,225 +228,272 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   @override
   Widget build(BuildContext context) {
     if (_success) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Form Survei')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.check_circle,
-                  color: AppColors.primary,
-                  size: 64,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                const Text(
-                  'Survei berhasil dikirim!',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                ElevatedButton(
-                  onPressed: () => context.go('/surveyor/tasks'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.xl,
-                      vertical: AppSpacing.md,
+      return PhoneFrame(
+        child: Column(
+          children: [
+            StatusBar(),
+            Expanded(
+              child: Scaffold(
+                appBar: AppBar(title: const Text('Form Survei')),
+                body: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.check_circle,
+                          color: AppColors.primary,
+                          size: 64,
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        const Text(
+                          'Survei berhasil dikirim!',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        ElevatedButton(
+                          onPressed: () => context.go('/surveyor/tasks'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.xl,
+                              vertical: AppSpacing.md,
+                            ),
+                          ),
+                          child: const Text('Kembali ke Daftar Tugas'),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Text('Kembali ke Daftar Tugas'),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Form Survei')),
-      body: Column(
+    return PhoneFrame(
+      child: Column(
         children: [
+          StatusBar(),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: Scaffold(
+              appBar: AppBar(title: const Text('Form Survei')),
+              body: Column(
                 children: [
-                  // GPS Section
-                  _buildSectionHeader('Lokasi GPS', AppIcons.location),
-                  const SizedBox(height: AppSpacing.sm),
-                  _buildGpsCard(),
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // Photo Grid Section
-                  _buildSectionHeader('Foto Bukti', AppIcons.camera),
-                  const SizedBox(height: AppSpacing.sm),
-                  _buildPhotoGrid(),
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // Damage Description
-                  _buildSectionHeader('Deskripsi Kerusakan', null),
-                  const SizedBox(height: AppSpacing.sm),
-                  TextField(
-                    controller: _damageDescriptionController,
-                    maxLines: 4,
-                    maxLength: 500,
-                    decoration: InputDecoration(
-                      hintText: 'Jelaskan kerusakan atau temuan survei...',
-                      hintStyle: TextStyle(color: AppColors.textTertiary),
-                      filled: true,
-                      fillColor: AppColors.bgCard,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: const BorderSide(
-                          color: AppColors.borderCard,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: const BorderSide(
-                          color: AppColors.borderCard,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: const BorderSide(
-                          color: AppColors.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-
-                  // Notes
-                  _buildSectionHeader('Catatan Tambahan', null),
-                  const SizedBox(height: AppSpacing.sm),
-                  TextField(
-                    controller: _notesController,
-                    maxLines: 3,
-                    maxLength: 300,
-                    decoration: InputDecoration(
-                      hintText: 'Tambahkan catatan jika diperlukan...',
-                      hintStyle: TextStyle(color: AppColors.textTertiary),
-                      filled: true,
-                      fillColor: AppColors.bgCard,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: const BorderSide(
-                          color: AppColors.borderCard,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: const BorderSide(
-                          color: AppColors.borderCard,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: const BorderSide(
-                          color: AppColors.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Error message
-                  if (_submitError != null) ...[
-                    const SizedBox(height: AppSpacing.lg),
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: AppColors.dangerBg,
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                      ),
-                      child: Row(
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: AppColors.danger,
-                            size: 18,
+                          // GPS Section
+                          _buildSectionHeader('Lokasi GPS', AppIcons.location),
+                          const SizedBox(height: AppSpacing.sm),
+                          _buildGpsCard(),
+                          const SizedBox(height: AppSpacing.xl),
+
+                          // Photo Grid Section
+                          _buildSectionHeader('Foto Bukti', AppIcons.camera),
+                          const SizedBox(height: AppSpacing.sm),
+                          _buildPhotoGrid(),
+                          const SizedBox(height: AppSpacing.xl),
+
+                          // Damage Description
+                          _buildSectionHeader('Deskripsi Kerusakan', null),
+                          const SizedBox(height: AppSpacing.sm),
+                          TextField(
+                            controller: _damageDescriptionController,
+                            maxLines: 4,
+                            maxLength: 500,
+                            decoration: InputDecoration(
+                              hintText:
+                                  'Jelaskan kerusakan atau temuan survei...',
+                              hintStyle: TextStyle(
+                                color: AppColors.textTertiary,
+                              ),
+                              filled: true,
+                              fillColor: AppColors.bgCard,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.borderCard,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.borderCard,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            onChanged: (_) => setState(() {}),
                           ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: Text(
-                              _submitError!,
-                              style: TextStyle(
-                                color: AppColors.danger,
-                                fontSize: 13,
+                          const SizedBox(height: AppSpacing.lg),
+
+                          // Notes
+                          _buildSectionHeader('Catatan Tambahan', null),
+                          const SizedBox(height: AppSpacing.sm),
+                          TextField(
+                            controller: _notesController,
+                            maxLines: 3,
+                            maxLength: 300,
+                            decoration: InputDecoration(
+                              hintText: 'Tambahkan catatan jika diperlukan...',
+                              hintStyle: TextStyle(
+                                color: AppColors.textTertiary,
+                              ),
+                              filled: true,
+                              fillColor: AppColors.bgCard,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.borderCard,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.borderCard,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary,
+                                  width: 2,
+                                ),
                               ),
                             ),
                           ),
+
+                          // Error message
+                          if (_submitError != null) ...[
+                            const SizedBox(height: AppSpacing.lg),
+                            Container(
+                              padding: const EdgeInsets.all(AppSpacing.md),
+                              decoration: BoxDecoration(
+                                color: AppColors.dangerBg,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.sm,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
+                                    color: AppColors.danger,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: AppSpacing.sm),
+                                  Expanded(
+                                    child: Text(
+                                      _submitError!,
+                                      style: TextStyle(
+                                        color: AppColors.danger,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          const SizedBox(
+                            height: 100,
+                          ), // Space for bottom button
                         ],
                       ),
                     ),
-                  ],
+                  ),
 
-                  const SizedBox(height: 100), // Space for bottom button
+                  // Bottom Fixed Submit Button
+                  Container(
+                    padding: EdgeInsets.only(
+                      left: AppSpacing.lg,
+                      right: AppSpacing.lg,
+                      top: AppSpacing.md,
+                      bottom:
+                          MediaQuery.of(context).padding.bottom + AppSpacing.md,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgCard,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.textPrimary.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, -2),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _canSubmit && !_submitting ? _submit : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
+                        ),
+                        disabledBackgroundColor: AppColors.borderCard,
+                      ),
+                      child: _submitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : const Text(
+                              'Kirim Hasil',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ),
-
-          // Bottom Fixed Submit Button
-          Container(
-            padding: EdgeInsets.only(
-              left: AppSpacing.lg,
-              right: AppSpacing.lg,
-              top: AppSpacing.md,
-              bottom: MediaQuery.of(context).padding.bottom + AppSpacing.md,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.bgCard,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.textPrimary.withValues(alpha: 0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: _canSubmit && !_submitting ? _submit : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                disabledBackgroundColor: AppColors.borderCard,
-              ),
-              child: _submitting
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text(
-                      'Kirim Hasil',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
             ),
           ),
         ],
