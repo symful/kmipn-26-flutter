@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/api_config.dart';
 import 'auth_interceptor.dart';
 import 'exceptions.dart';
+import 'types.g.dart';
 
 /// Exception thrown when network connectivity is unavailable.
 class ConnectivityException implements Exception {
@@ -853,6 +855,32 @@ class ApiClient {
     );
   }
 
+  // ─── Export ────────────────────────────────────────────────────────────────
+
+  /// Exports reports as PDF.
+  Future<Uint8List> exportPdf({
+    String? status,
+    String? categoryId,
+    String? wilayahId,
+    String? from,
+    String? to,
+  }) async {
+    final query = <String, String>{};
+    if (status != null) query['status'] = status;
+    if (categoryId != null) query['category_id'] = categoryId;
+    if (wilayahId != null) query['wilayah_id'] = wilayahId;
+    if (from != null) query['from'] = from;
+    if (to != null) query['to'] = to;
+    final uri = Uri.parse(
+      '${_dio.options.baseUrl}/api/export/pdf',
+    ).replace(queryParameters: query.isEmpty ? null : query);
+    final resp = await _dio.get<List<int>>(
+      uri.toString(),
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return Uint8List.fromList(resp.data ?? []);
+  }
+
   // ─── Operator ──────────────────────────────────────────────────────────────
 
   /// Fetches operator case list with pagination and filters.
@@ -1476,6 +1504,41 @@ class ApiClient {
       endpoint: '/api/public/reports',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
+  }
+
+  /// Submits an anonymous warga report (no auth required).
+  ///
+  /// POST /api/public/anonymous-reports
+  ///
+  /// Returns the created report's [AnonymousReportResult].
+  Future<AnonymousReportResult> submitAnonymousReport({
+    required String idempotencyKey,
+    required String deviceId,
+    required String categoryId,
+    required String description,
+    required double lat,
+    required double lng,
+    String? title,
+    String? captchaToken,
+  }) async {
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/public/anonymous-reports',
+        data: {
+          'idempotency_key': idempotencyKey,
+          'device_id': deviceId,
+          'category_id': categoryId,
+          'description': description,
+          'lat': lat,
+          'lng': lng,
+          if (title != null) 'title': title,
+          if (captchaToken != null) 'captcha_token': captchaToken,
+        },
+      ),
+      endpoint: '/api/public/anonymous-reports',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+    return AnonymousReportResult.fromJson(data);
   }
 
   /// Fetches public reports GeoJSON for map clustering.

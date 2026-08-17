@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../api/exceptions.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
@@ -20,6 +22,7 @@ class _AdminDaerahIntegrasiScreenState
     extends ConsumerState<AdminDaerahIntegrasiScreen> {
   Map<String, dynamic>? _outbox;
   bool _loading = true;
+  bool _exporting = false;
   String? _error;
 
   @override
@@ -106,6 +109,31 @@ class _AdminDaerahIntegrasiScreenState
     }
   }
 
+  Future<void> _exportPdf() async {
+    setState(() => _exporting = true);
+    try {
+      final client = ref.read(apiClientProvider);
+      final bytes = await client.exportPdf();
+      final dir = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final file = File('${dir.path}/export_pdf_$timestamp.pdf');
+      await file.writeAsBytes(bytes);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('PDF saved: ${file.path}')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${extractErrorMessage(e)}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final items =
@@ -123,6 +151,21 @@ class _AdminDaerahIntegrasiScreenState
       appBar: AppBar(
         title: const Text('Integrasi'),
         actions: [
+          if (_exporting)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf),
+              onPressed: _exportPdf,
+              tooltip: 'Ekspor PDF',
+            ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _reconcile,

@@ -1,573 +1,166 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
+/// Seeded test user credentials for staging environment.
+class SeededCredentials {
+  static const String admin = 'admin@sigap.live';
+  static const String verifikator = 'verifikator@sigap.live';
+  static const String surveyor = 'surveyor@sigap.live';
+  static const String petugas = 'petugas@sigap.live';
+  static const String operator = 'operator@sigap.live';
+  static const String adminDaerah = 'admin_daerah@sigap.live';
+  static const String auditor = 'auditor@sigap.live';
+  static const String exec = 'exec@sigap.live';
+  static const String warga = 'warga@sigap.live';
+
+  static const Map<String, String> passwords = {
+    admin: 'admin123',
+    verifikator: 'verifikator123',
+    surveyor: 'surveyor123',
+    petugas: 'petugas123',
+    operator: 'operator123',
+    adminDaerah: 'admin_daerah123',
+    auditor: 'auditor123',
+    exec: 'exec1234',
+    warga: 'warga123',
+  };
+}
+
+/// Represents a logged-in test user with access token.
 class TestUser {
   final String email;
   final String password;
-  final String token;
-  final String refreshToken;
-  final String wilayahId;
-  final String userId;
+  final String role;
+  String? accessToken;
+  Map<String, dynamic>? userData;
 
   TestUser({
     required this.email,
     required this.password,
-    required this.token,
-    required this.refreshToken,
-    required this.wilayahId,
-    required this.userId,
+    required this.role,
+    this.accessToken,
+    this.userData,
   });
+
+  bool get isLoggedIn => accessToken != null && accessToken!.isNotEmpty;
+
+  Map<String, String> get authHeaders => {
+    if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+  };
 }
 
+/// Result of a login attempt.
+class LoginResult {
+  final bool success;
+  final String? accessToken;
+  final Map<String, dynamic>? userData;
+  final String? errorMessage;
+
+  LoginResult.success({required this.accessToken, this.userData})
+    : success = true,
+      errorMessage = null;
+
+  LoginResult.failure({required this.errorMessage})
+    : success = false,
+      accessToken = null,
+      userData = null;
+}
+
+/// Factory for creating and logging in test users against the staging API.
 class TestUserFactory {
   final String baseUrl;
+  final http.Client _client;
 
-  TestUserFactory(this.baseUrl);
+  TestUserFactory({required this.baseUrl, http.Client? client})
+    : _client = client ?? http.Client();
 
-  Future<TestUser> createWarga({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'warga_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Warga';
-
-    // Try to register
+  /// Logs in a user with the given email and password.
+  Future<LoginResult> login(String email, String password) async {
     try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'WARGA',
-        }),
-      );
-
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    // Fallback: try login with seeded test account
-    try {
-      final loginResp = await http.post(
+      final response = await _client.post(
         Uri.parse('$baseUrl/api/auth/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': 'warga@test.com', 'password': 'Test123456'}),
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'warga@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        final accessToken = body['access_token'] as String?;
+        if (accessToken != null) {
+          return LoginResult.success(
+            accessToken: accessToken,
+            userData: body['user'] as Map<String, dynamic>?,
+          );
+        }
       }
-    } catch (_) {}
 
-    // Ultimate fallback - return a user with placeholder values
+      final errorBody = response.body.isNotEmpty
+          ? jsonDecode(response.body)
+          : {'message': 'Unknown error'};
+      return LoginResult.failure(
+        errorMessage: errorBody is Map
+            ? errorBody['message'] ?? 'Login failed'
+            : 'Login failed',
+      );
+    } catch (e) {
+      return LoginResult.failure(errorMessage: e.toString());
+    }
+  }
+
+  /// Creates a logged-in TestUser for the given role using seeded credentials.
+  Future<TestUser> getSeededUser(String role) async {
+    final email = _getEmailForRole(role);
+    final password = SeededCredentials.passwords[email];
+
+    if (email.isEmpty || password == null) {
+      throw ArgumentError('Unknown role: $role');
+    }
+
+    final result = await login(email, password);
+
+    if (!result.success) {
+      throw Exception(
+        'Failed to login as $role ($email): ${result.errorMessage}',
+      );
+    }
+
     return TestUser(
       email: email,
       password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
+      role: role,
+      accessToken: result.accessToken,
+      userData: result.userData,
     );
   }
 
-  Future<TestUser> createSurveyor({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'surveyor_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Surveyor';
-
-    try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'SURVEYOR',
-        }),
-      );
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    // Fallback: try seeded account
-    try {
-      final loginResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': 'surveyor@test.com',
-          'password': 'Test123456',
-        }),
-      );
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'surveyor@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    return TestUser(
-      email: email,
-      password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
-    );
+  /// Gets the email address for a given role.
+  String _getEmailForRole(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return SeededCredentials.admin;
+      case 'verifikator':
+        return SeededCredentials.verifikator;
+      case 'surveyor':
+        return SeededCredentials.surveyor;
+      case 'petugas':
+        return SeededCredentials.petugas;
+      case 'operator':
+        return SeededCredentials.operator;
+      case 'admin_daerah':
+        return SeededCredentials.adminDaerah;
+      case 'auditor':
+        return SeededCredentials.auditor;
+      case 'exec':
+        return SeededCredentials.exec;
+      case 'warga':
+        return SeededCredentials.warga;
+      default:
+        throw ArgumentError('Unknown role: $role');
+    }
   }
 
-  Future<TestUser> createPetugas({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'petugas_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Petugas';
-
-    try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'PETUGAS',
-        }),
-      );
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    try {
-      final loginResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': 'petugas@test.com',
-          'password': 'Test123456',
-        }),
-      );
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'petugas@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    return TestUser(
-      email: email,
-      password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
-    );
-  }
-
-  Future<TestUser> createVerifikator({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'verifikator_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Verifikator';
-
-    try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'VERIFIKATOR',
-        }),
-      );
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    try {
-      final loginResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': 'verifikator@test.com',
-          'password': 'Test123456',
-        }),
-      );
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'verifikator@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    return TestUser(
-      email: email,
-      password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
-    );
-  }
-
-  Future<TestUser> createOperator({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'operator_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Operator';
-
-    try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'OPERATOR',
-        }),
-      );
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    try {
-      final loginResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': 'operator@test.com',
-          'password': 'Test123456',
-        }),
-      );
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'operator@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    return TestUser(
-      email: email,
-      password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
-    );
-  }
-
-  Future<TestUser> createAdminDaerah({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'admin_daerah_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Admin Daerah';
-
-    try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'ADMIN_DAERAH',
-        }),
-      );
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    try {
-      final loginResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': 'admin_daerah@test.com',
-          'password': 'Test123456',
-        }),
-      );
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'admin_daerah@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    return TestUser(
-      email: email,
-      password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
-    );
-  }
-
-  Future<TestUser> createAuditor({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'auditor_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Auditor';
-
-    try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'AUDITOR',
-        }),
-      );
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    try {
-      final loginResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': 'auditor@test.com',
-          'password': 'Test123456',
-        }),
-      );
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'auditor@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    return TestUser(
-      email: email,
-      password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
-    );
-  }
-
-  Future<TestUser> createExecutive({required String suffix}) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final email = 'executive_${suffix}_$timestamp@test.com';
-    final password = 'Test123456';
-    final name = 'Test Executive';
-
-    try {
-      final registerResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'name': name,
-          'role': 'EXECUTIVE',
-        }),
-      );
-      if (registerResp.statusCode == 201) {
-        final json = jsonDecode(registerResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: email,
-          password: password,
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    try {
-      final loginResp = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': 'executive@test.com',
-          'password': 'Test123456',
-        }),
-      );
-      if (loginResp.statusCode == 200) {
-        final json = jsonDecode(loginResp.body) as Map<String, dynamic>;
-        final userJson = json['user'] as Map<String, dynamic>? ?? json;
-        return TestUser(
-          email: 'executive@test.com',
-          password: 'Test123456',
-          token: (json['token'] ?? json['access_token'] ?? '') as String,
-          refreshToken: (json['refresh_token'] ?? '') as String,
-          wilayahId:
-              (userJson['wilayah_id'] ?? '00000000-0000-0000-0000-000000000001')
-                  as String,
-          userId: (userJson['id'] ?? '') as String,
-        );
-      }
-    } catch (_) {}
-
-    return TestUser(
-      email: email,
-      password: password,
-      token: 'placeholder_token',
-      refreshToken: 'placeholder_refresh',
-      wilayahId: '00000000-0000-0000-0000-000000000001',
-      userId: '00000000-0000-0000-0000-000000000001',
-    );
+  /// Disposes the HTTP client.
+  void dispose() {
+    _client.close();
   }
 }

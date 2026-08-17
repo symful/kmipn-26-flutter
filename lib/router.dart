@@ -30,6 +30,7 @@ import 'features/warga/reopen_request_screen.dart';
 import 'features/warga/complementary_evidence_screen.dart';
 import 'features/warga/warga_home_screen.dart';
 import 'features/warga/review_kiriman_screen.dart';
+import 'features/anon/anon_landing_screen.dart';
 import 'features/notifications/notifications_screen.dart';
 import 'screens/warga/laporan_detail_screen.dart';
 import 'features/settings/settings_screen.dart';
@@ -39,7 +40,47 @@ import 'screens/verifikator/queue_screen.dart';
 import 'screens/petugas/dashboard.dart';
 import 'providers/auth_provider.dart';
 import 'providers/providers.dart';
+import 'providers/onboarding_provider.dart';
 import 'widgets/role_banner.dart';
+import 'features/onboarding/onboarding_screen.dart';
+
+// Root redirect screen - checks auth state and onboarding status, redirects accordingly
+class RootRedirectScreen extends ConsumerWidget {
+  const RootRedirectScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
+    final onboardingAsync = ref.watch(onboardingCompleteProvider);
+
+    return onboardingAsync.when(
+      data: (onboardingComplete) {
+        if (!authState.isAuthenticated) {
+          // No token → /anon
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/anon');
+            }
+          });
+        } else if (!onboardingComplete) {
+          // Token + !onboarding_complete → /onboarding
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/onboarding');
+            }
+          });
+        } else {
+          // Token + onboarding_complete → RoleBasedRedirectScreen
+          return const RoleBasedRedirectScreen();
+        }
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      },
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (_, __) => const RoleBasedRedirectScreen(),
+    );
+  }
+}
 
 // Role-based redirect screen - reads activeRole and navigates to appropriate dashboard
 class RoleBasedRedirectScreen extends ConsumerWidget {
@@ -1229,7 +1270,7 @@ final appRouter = GoRouter(
       },
       routes: [
         // Root redirect to role-based dashboard
-        GoRoute(path: '/', builder: (c, s) => const RoleBasedRedirectScreen()),
+        GoRoute(path: '/', builder: (c, s) => const RootRedirectScreen()),
 
         // Warga routes
         GoRoute(path: '/warga', builder: (c, s) => const WargaHomeScreen()),
@@ -1384,6 +1425,15 @@ final appRouter = GoRouter(
 
         // Common routes
         GoRoute(path: '/create', builder: (c, s) => const CreateReportScreen()),
+        GoRoute(
+          path: '/create-anonymous',
+          builder: (c, s) => const CreateReportScreen(anonymousMode: true),
+        ),
+        GoRoute(path: '/anon', builder: (c, s) => const AnonLandingScreen()),
+        GoRoute(
+          path: '/onboarding',
+          builder: (c, s) => const OnboardingScreen(),
+        ),
         GoRoute(
           path: '/detail/:id',
           builder: (c, s) => ReportDetailScreen(id: s.pathParameters['id']!),

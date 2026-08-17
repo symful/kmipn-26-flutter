@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -16,6 +18,7 @@ class _OperatorCaseListScreenState
     extends ConsumerState<OperatorCaseListScreen> {
   List<Map<String, dynamic>> _cases = [];
   bool _loading = true;
+  bool _exporting = false;
   String? _error;
   String _statusFilter = 'all';
   String _sortBy = 'date';
@@ -44,6 +47,31 @@ class _OperatorCaseListScreenState
         _error = e.toString();
         _loading = false;
       });
+    }
+  }
+
+  Future<void> _exportPdf() async {
+    setState(() => _exporting = true);
+    try {
+      final client = ref.read(apiClientProvider);
+      final bytes = await client.exportPdf();
+      final dir = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final file = File('${dir.path}/case_list_$timestamp.pdf');
+      await file.writeAsBytes(bytes);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('PDF saved: ${file.path}')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
     }
   }
 
@@ -124,6 +152,21 @@ class _OperatorCaseListScreenState
               _filterItem('rejected', 'Ditolak', _statusFilter),
             ],
           ),
+          if (_exporting)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf),
+              onPressed: _exportPdf,
+              tooltip: 'Ekspor PDF',
+            ),
         ],
       ),
       body: _loading

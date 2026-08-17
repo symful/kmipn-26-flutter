@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:exif/exif.dart';
@@ -21,7 +22,10 @@ import '../../services/photo_service.dart';
 import '../../utils/logger.dart';
 
 class CreateReportScreen extends ConsumerStatefulWidget {
-  const CreateReportScreen({super.key});
+  final bool anonymousMode;
+
+  const CreateReportScreen({super.key, this.anonymousMode = false});
+
   @override
   ConsumerState<CreateReportScreen> createState() => _CreateReportScreenState();
 }
@@ -592,6 +596,20 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     context.push('/map');
   }
 
+  static const String _deviceIdKey = 'anonymous_device_id';
+
+  /// Gets or generates a persistent device ID for anonymous reports.
+  Future<String> _getOrCreateDeviceId() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? deviceId = prefs.getString(_deviceIdKey);
+    if (deviceId == null) {
+      deviceId = const Uuid().v4();
+      await prefs.setString(_deviceIdKey, deviceId);
+      _logger.info('Generated new anonymous device_id: $deviceId');
+    }
+    return deviceId;
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_photoPath == null) {
@@ -613,6 +631,13 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       return;
     }
 
+    // Anonymous mode submission
+    if (widget.anonymousMode) {
+      await _submitAnonymous();
+      return;
+    }
+
+    // Regular authenticated submission
     final pendingCount = await ref
         .read(reportRepositoryProvider)
         .countPending();
@@ -682,6 +707,49 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       context.pop();
     } catch (e, s) {
       _logger.error('Submit failed', e, s);
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menyimpan: $e'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
+  }
+
+  /// Submits an anonymous report directly to the API.
+  Future<void> _submitAnonymous() async {
+    setState(() => _submitting = true);
+
+    try {
+      final deviceId = await _getOrCreateDeviceId();
+      final client = ref.read(apiClientProvider);
+
+      final result = await client.submitAnonymousReport(
+        idempotencyKey: const Uuid().v4(),
+        deviceId: deviceId,
+        categoryId: _categoryId!,
+        description: _descriptionController.text,
+        lat: _lat!,
+        lng: _lng!,
+        captchaToken: 'test-token-bypass',
+      );
+
+      _logger.info(
+        'Anonymous report submitted: id=${result.id}, status=${result.status}',
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Laporan匿名 tersimpan: ${result.id}'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+      context.pop();
+    } catch (e, s) {
+      _logger.error('Anonymous submit failed', e, s);
       if (!mounted) return;
       setState(() => _submitting = false);
       ScaffoldMessenger.of(context).showSnackBar(

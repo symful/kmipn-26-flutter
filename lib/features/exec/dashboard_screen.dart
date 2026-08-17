@@ -89,6 +89,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
               onSelected: (value) {
                 if (value == 'csv') _exportCsv();
                 if (value == 'geojson') _exportGeoJson();
+                if (value == 'pdf') _exportPdf();
               },
               itemBuilder: (context) => [
                 const PopupMenuItem(
@@ -108,6 +109,16 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
                       Icon(Icons.map, size: 20),
                       SizedBox(width: 8),
                       Text('Export GeoJSON'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'pdf',
+                  child: Row(
+                    children: [
+                      Icon(Icons.picture_as_pdf, size: 20),
+                      SizedBox(width: 8),
+                      Text('Export PDF'),
                     ],
                   ),
                 ),
@@ -284,6 +295,44 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('GeoJSON exported: ${file.path}'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: $e'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
+  Future<void> _exportPdf() async {
+    setState(() => _exporting = true);
+
+    try {
+      final client = ref.read(apiClientProvider);
+      final bytes = await client.exportPdf();
+
+      // Save to file
+      final dir = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final file = File('${dir.path}/exec_dashboard_$timestamp.pdf');
+      await file.writeAsBytes(bytes);
+
+      // Share the file
+      await Share.shareXFiles([XFile(file.path)], subject: 'SIGAP PDF Export');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('PDF exported: ${file.path}'),
             duration: const Duration(seconds: 4),
           ),
         );
