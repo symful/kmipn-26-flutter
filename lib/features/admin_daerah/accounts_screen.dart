@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -32,9 +33,9 @@ class _AdminDaerahAccountsScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/admin-daerah/accounts');
+      final data = await client.getAdminUsers();
       setState(() {
-        _items = (data['items'] as List? ?? data['data'] as List? ?? []).cast();
+        _items = (data['data'] as List? ?? []).cast<Map<String, dynamic>>();
         _loading = false;
       });
     } catch (e) {
@@ -76,7 +77,7 @@ class _AdminDaerahAccountsScreenState
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Nama (WAJIB)',
+                    labelText: Strings.namaWAJIB,
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -114,7 +115,7 @@ class _AdminDaerahAccountsScreenState
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal'),
+              child: const Text(Strings.batal),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -143,7 +144,7 @@ class _AdminDaerahAccountsScreenState
                   }
                 }
               },
-              child: const Text('Simpan'),
+              child: const Text(Strings.simpan),
             ),
           ],
         ),

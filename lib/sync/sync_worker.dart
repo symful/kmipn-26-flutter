@@ -149,8 +149,8 @@ class SyncWorker {
         await _notificationService.showSyncFailure(error: lastError);
       } else if (itemCount > 0 && !hasFailure) {
         await _notificationService.showSyncSuccess();
+        await _reportRepo.clearOfflineQueue();
       }
-      await _reportRepo.clearOfflineQueue();
       // Emit updated pending count for real-time UI updates via StreamProvider.
       final count = await _reportRepo.countPending();
       pendingCountNotifier.emit(count);
@@ -176,7 +176,11 @@ class SyncWorker {
       final photos = await _reportRepo.getPhotosByReportIdempotencyKey(
         report.idempotencyKey,
       );
-      final photoUrls = photos.map((p) => p.filePath).toList();
+      // Filter to only keep URLs (http/https) - exclude local file paths
+      final photoUrls = photos
+          .map((p) => p.filePath)
+          .where((path) => path.startsWith('http'))
+          .toList();
 
       reportsData.add({
         'idempotency_key': report.idempotencyKey,

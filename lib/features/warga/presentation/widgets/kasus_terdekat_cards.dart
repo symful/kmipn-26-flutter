@@ -79,7 +79,7 @@ class KasusTerdekatCard extends StatelessWidget {
   Color get _statusTextColor {
     switch (status) {
       case KasusStatus.sedangDitangani:
-        return AppColors.info;
+        return const Color(0xFF1D4ED8); // #1d4ed8 per M-05 spec
       case KasusStatus.terverifikasi:
         return AppColors.primaryDark;
     }

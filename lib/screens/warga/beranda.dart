@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sigap/l10n/strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/tokens.dart';
 import '../../components/app_icons.dart';
@@ -93,13 +94,13 @@ class _BottomNavWithCenterFAB extends StatelessWidget {
             children: [
               _NavItem(
                 icon: AppIcons.home,
-                label: 'Beranda',
+                label: Strings.beranda,
                 isSelected: selectedIndex == 0,
                 onTap: () => onTap(0),
               ),
               _NavItem(
                 icon: AppIcons.report,
-                label: 'Laporan',
+                label: Strings.laporan,
                 isSelected: selectedIndex == 1,
                 onTap: () => onTap(1),
               ),
@@ -113,7 +114,7 @@ class _BottomNavWithCenterFAB extends StatelessWidget {
               ),
               _NavItem(
                 icon: AppIcons.person,
-                label: 'Profil',
+                label: Strings.profil,
                 isSelected: selectedIndex == 4,
                 onTap: () => onTap(4),
               ),
@@ -198,7 +199,7 @@ class _BerandaTab extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              authState.userName ?? 'Warga',
+              authState.userName ?? '--',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -533,7 +534,7 @@ class _ProfilTab extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    authState.userName ?? 'Warga',
+                    authState.userName ?? '--',
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -551,7 +552,9 @@ class _ProfilTab extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                     child: Text(
-                      authState.activeRole ?? authState.userRole ?? 'Warga',
+                      authState.activeRole ??
+                          authState.userRole ??
+                          'Pilih Peran',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -619,7 +622,7 @@ class _ProfilTab extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () {

@@ -57,14 +57,17 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^18.0.1
+  marionette_flutter: ^0.6.0
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   drift_dev: ^2.22.1
   build_runner: ^2.4.14
   riverpod_generator: ^2.6.3
   flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

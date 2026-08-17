@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/strings.dart';
 import 'package:sigap/theme/tokens.dart';
 
 enum BottomNavVariant { warga, surveyor }
@@ -41,9 +42,9 @@ class BottomNav5 extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _WargaNavItem(label: 'Beranda', index: 0),
+                _WargaNavItem(label: Strings.beranda, index: 0),
                 SizedBox(width: 24),
-                _WargaNavItem(label: 'Peta', index: 1),
+                _WargaNavItem(label: Strings.peta, index: 1),
               ],
             ),
           ),
@@ -53,9 +54,9 @@ class BottomNav5 extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _WargaNavItem(label: 'Laporan', index: 3),
+                _WargaNavItem(label: Strings.laporan, index: 3),
                 SizedBox(width: 24),
-                _WargaNavItem(label: 'Akun', index: 4),
+                _WargaNavItem(label: Strings.akun, index: 4),
               ],
             ),
           ),
@@ -84,7 +85,7 @@ class BottomNav5 extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Buat',
+            Strings.buat,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -157,7 +158,9 @@ class _WargaNavItem extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              fontWeight: isSelected
+                  ? FontWeight.w600
+                  : FontWeight.w400, // w400 per M-05 inactive spec
               color: isSelected ? AppColors.primary : AppColors.textTertiary,
             ),
           ),

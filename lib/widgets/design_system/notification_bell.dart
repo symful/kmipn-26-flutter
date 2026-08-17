@@ -5,6 +5,9 @@ import 'package:sigap/theme/tokens.dart';
 ///
 /// When [unreadCount] is > 0, displays a badge with the count (or a simple
 /// dot if count is 1). When [unreadCount] is 0, no badge is shown.
+///
+/// Design: M-05 Beranda Warga spec - checkbox-style icon per PantauDesa
+/// mockup, with red dot notification badge.
 class NotificationBell extends StatelessWidget {
   /// Number of unread notifications. Shows badge when > 0.
   final int unreadCount;
@@ -24,23 +27,24 @@ class NotificationBell extends StatelessWidget {
             border: Border.all(color: AppColors.borderCard),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          child: const Icon(
-            Icons.notifications_outlined,
-            size: 14,
-            color: AppColors.textSecondary,
+          child: Center(
+            child: CustomPaint(
+              size: const Size(14, 14),
+              painter: _CheckboxPainter(),
+            ),
           ),
         ),
         if (unreadCount > 0)
           Positioned(
-            top: -4,
-            right: -4,
+            top: 6,
+            right: 27,
             child: Container(
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: AppColors.danger,
+                color: const Color(0xFFC0392B), // #c0392b per M-05
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 1.5),
+                border: Border.all(color: Colors.white, width: 1.6),
               ),
               child: Center(
                 child: Text(
@@ -57,4 +61,30 @@ class NotificationBell extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Custom painter for checkbox-style notification icon per M-05 spec.
+/// 14x14, border 1.6px, border-radius: 4px 4px 3px 3px, color #3a3f45.
+class _CheckboxPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF3A3F45)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round;
+
+    final rect = RRect.fromRectAndCorners(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      topLeft: const Radius.circular(4),
+      topRight: const Radius.circular(4),
+      bottomLeft: const Radius.circular(3),
+      bottomRight: const Radius.circular(3),
+    );
+
+    canvas.drawRRect(rect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -59,7 +60,7 @@ class _AdminDaerahCategoriesScreenState
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Nama (WAJIB)',
+                  labelText: Strings.namaWAJIB,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -85,7 +86,7 @@ class _AdminDaerahCategoriesScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -111,7 +112,7 @@ class _AdminDaerahCategoriesScreenState
                 }
               }
             },
-            child: const Text('Simpan'),
+            child: const Text(Strings.simpan),
           ),
         ],
       ),

@@ -32,7 +32,7 @@ class _OperatorDashboardScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/operator/dashboard');
+      final data = await client.getOperatorDashboard();
       setState(() {
         _stats = data;
         _loading = false;

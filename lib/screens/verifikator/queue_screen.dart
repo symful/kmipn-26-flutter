@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 
@@ -127,7 +128,7 @@ final verifikatorQueueCountsProvider = FutureProvider<Map<String, int>>((
 ) async {
   final api = ref.watch(apiClientProvider);
   try {
-    final res = await api.get('/api/verifikator/queue');
+    final res = await api.getVerifikatorQueue();
     final items = res['items'] as List? ?? [];
     final queueItems = items
         .map((e) => VerifikatorQueueItem.fromJson(e as Map<String, dynamic>))
@@ -182,7 +183,7 @@ final verifikatorQueueProvider = FutureProvider<List<VerifikatorQueueItem>>((
   ref,
 ) async {
   final api = ref.watch(apiClientProvider);
-  final res = await api.get('/api/verifikator/queue');
+  final res = await api.getVerifikatorQueue();
   final items = res['items'] as List? ?? [];
   return items
       .map((e) => VerifikatorQueueItem.fromJson(e as Map<String, dynamic>))
@@ -847,7 +848,13 @@ class _VerifikatorQueueScreenState
   }
 
   Widget _buildBottomNav() {
-    final labels = ['Beranda', 'Tugas', 'Peta', 'Notifikasi', 'Profil'];
+    final labels = [
+      Strings.beranda,
+      'Tugas',
+      Strings.peta,
+      Strings.notifikasi,
+      Strings.profil,
+    ];
 
     return Container(
       decoration: const BoxDecoration(

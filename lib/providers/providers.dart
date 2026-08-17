@@ -329,3 +329,32 @@ final unreadCountProvider = Provider<int>((ref) {
       ) ??
       0;
 });
+
+// ─── Wilayah ─────────────────────────────────────────────────────────────────
+
+/// Fetches wilayah (region/village) list from /api/wilayah.
+/// Returns a list of wilayah objects with id, name, district, city, etc.
+final wilayahProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final api = ref.watch(apiClientProvider);
+  try {
+    return await api.getWilayahList();
+  } catch (e, st) {
+    _logger.warning('wilayahProvider failed', e, st);
+    return [];
+  }
+});
+
+/// Returns the first available wilayah name, or a fallback string if none.
+final selectedWilayahNameProvider = Provider<String>((ref) {
+  final wilayahAsync = ref.watch(wilayahProvider);
+  return wilayahAsync.whenOrNull(
+        data: (wilayahList) {
+          if (wilayahList.isEmpty) return 'Pilih Wilayah';
+          final first = wilayahList.first;
+          return first['name']?.toString() ??
+              first['village_name']?.toString() ??
+              'Pilih Wilayah';
+        },
+      ) ??
+      'Pilih Wilayah';
+});

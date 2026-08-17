@@ -39,7 +39,7 @@ class WargaAppBar extends StatelessWidget {
         children: [
           // Left: Wilayah dropdown
           WilayahDropdown(
-            label: 'Wilayah aktif',
+            label: wilayahName,
             value: wilayahName,
             onTap: onWilayahTap,
           ),

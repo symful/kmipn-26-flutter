@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -24,9 +25,9 @@ class _OperatorEscalationDialogState
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.post(
-        '/api/operator/cases/${widget.caseId}/escalate',
-        data: {'reason': _reasonController.text.trim()},
+      await client.escalateOperatorCase(
+        caseId: widget.caseId,
+        reason: _reasonController.text.trim(),
       );
       if (mounted) {
         Navigator.pop(context, true);
@@ -125,7 +126,7 @@ class _OperatorEscalationDialogState
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.pop(context),
-          child: const Text('Batal'),
+          child: const Text(Strings.batal),
         ),
         ElevatedButton(
           onPressed:

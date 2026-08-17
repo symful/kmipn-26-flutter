@@ -25,10 +25,42 @@ class StatusBar extends StatelessWidget {
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
-          // Battery icon: 16x9 outline + 6x9 fill (design spec line 54)
-          _buildBatteryIcon(),
+          // Signal bars + battery per M-05 spec (line 54)
+          Row(
+            children: [
+              _buildSignalBars(),
+              const SizedBox(width: 5),
+              _buildBatteryIcon(),
+            ],
+          ),
         ],
       ),
+    );
+  }
+
+  /// Signal bars icon per M-05 spec: wifi outline + small fill
+  Widget _buildSignalBars() {
+    return Row(
+      children: [
+        // Wifi outline rectangle: 16x9, border 1.4px
+        Container(
+          width: 16,
+          height: 9,
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.textPrimary, width: 1.4),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        // Small fill rectangle: 6x9
+        Container(
+          width: 6,
+          height: 9,
+          decoration: BoxDecoration(
+            color: AppColors.textPrimary,
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+      ],
     );
   }
 

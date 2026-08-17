@@ -33,7 +33,7 @@ class _OperatorCaseListScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/operator/cases');
+      final data = await client.getOperatorCases();
       final items = data['items'] as List? ?? [];
       setState(() {
         _cases = items.cast<Map<String, dynamic>>();

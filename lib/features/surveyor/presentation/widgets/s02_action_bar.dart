@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/strings.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Action bar widget for S-02 surveyor task detail screen.
@@ -92,7 +93,7 @@ class _TolakButton extends StatelessWidget {
         ),
       ),
       child: Text(
-        'Tolak',
+        Strings.tolak,
         style: const TextStyle(
           fontSize: AppTypography.size13,
           fontWeight: FontWeight.w600,

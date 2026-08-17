@@ -2,8 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'tokens.dart';
 
+// ============================================================================
+// SIGAP Flutter Theme
+// Uses design tokens from tokens.dart (single source of truth)
+// ============================================================================
+
 class SigapTheme {
+  SigapTheme._();
+
   static ThemeData light() {
+    final textTheme = GoogleFonts.ibmPlexSansTextTheme().copyWith(
+      displayLarge: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      displayMedium: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      displaySmall: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      headlineLarge: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      headlineMedium: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      headlineSmall: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      titleLarge: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      titleMedium: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      titleSmall: GoogleFonts.ibmPlexSans(color: SigapColors.textSecondary),
+      bodyLarge: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      bodyMedium: GoogleFonts.ibmPlexMono(color: SigapColors.textSecondary),
+      bodySmall: GoogleFonts.ibmPlexSans(color: SigapColors.textTertiary),
+      labelLarge: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
+      labelMedium: GoogleFonts.ibmPlexSans(color: SigapColors.textSecondary),
+      labelSmall: GoogleFonts.ibmPlexSans(color: SigapColors.textTertiary),
+    );
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -12,18 +37,27 @@ class SigapTheme {
       ),
       scaffoldBackgroundColor: SigapColors.background,
       fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
-      textTheme: GoogleFonts.ibmPlexSansTextTheme(),
-      appBarTheme: const AppBarTheme(
+      textTheme: textTheme,
+      appBarTheme: AppBarTheme(
         backgroundColor: SigapColors.surface,
         foregroundColor: SigapColors.textPrimary,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+      ),
+      cardTheme: CardThemeData(
+        color: SigapColors.bgCard,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SigapRadius.lg),
+          side: const BorderSide(color: SigapColors.border),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: SigapColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(
-            horizontal: SigapSpacing.lg,
+            horizontal: SigapSpacing.xl,
             vertical: SigapSpacing.md,
           ),
           shape: RoundedRectangleBorder(
@@ -31,118 +65,55 @@ class SigapTheme {
           ),
         ),
       ),
-    );
-  }
-}
-
-class AppTypography {
-  static TextStyle get sans => GoogleFonts.ibmPlexSans();
-  static TextStyle get mono => GoogleFonts.ibmPlexMono();
-}
-
-class PantauTheme {
-  static ThemeData light() {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        brightness: Brightness.light,
-      ),
-      scaffoldBackgroundColor: AppColors.bgSurface,
-      fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
-      textTheme: GoogleFonts.ibmPlexSansTextTheme().copyWith(
-        displayLarge: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        displayMedium: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        displaySmall: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        headlineLarge: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        headlineMedium: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        headlineSmall: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        titleLarge: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        titleMedium: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        titleSmall: GoogleFonts.ibmPlexSans(color: AppColors.textSecondary),
-        bodyLarge: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        bodyMedium: GoogleFonts.ibmPlexMono(color: AppColors.textSecondary),
-        bodySmall: GoogleFonts.ibmPlexSans(color: AppColors.textTertiary),
-        labelLarge: GoogleFonts.ibmPlexSans(color: AppColors.textPrimary),
-        labelMedium: GoogleFonts.ibmPlexSans(color: AppColors.textSecondary),
-        labelSmall: GoogleFonts.ibmPlexSans(color: AppColors.textTertiary),
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.bgCard,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-      ),
-      cardTheme: CardThemeData(
-        color: AppColors.bgCard,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: const BorderSide(color: AppColors.borderCard),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xl,
-            vertical: AppSpacing.md,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
-        ),
-      ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary),
+          foregroundColor: SigapColors.primary,
+          side: const BorderSide(color: SigapColors.primary),
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xl,
-            vertical: AppSpacing.md,
+            horizontal: SigapSpacing.xl,
+            vertical: SigapSpacing.md,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(SigapRadius.md),
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: SigapColors.primary,
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.sm,
+            horizontal: SigapSpacing.lg,
+            vertical: SigapSpacing.sm,
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.bgCard,
+        fillColor: SigapColors.bgCard,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.borderCard),
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+          borderSide: const BorderSide(color: SigapColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.borderCard),
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+          borderSide: const BorderSide(color: SigapColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+          borderSide: const BorderSide(color: SigapColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
+          horizontal: SigapSpacing.lg,
+          vertical: SigapSpacing.md,
         ),
       ),
       dividerTheme: const DividerThemeData(
-        color: AppColors.borderCard,
+        color: SigapColors.border,
         thickness: 1,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        selectedItemColor: Color(0xFF0F7A6B),
-        unselectedItemColor: Color(0xFF8A9099),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        selectedItemColor: SigapColors.primary,
+        unselectedItemColor: SigapColors.textMuted,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),

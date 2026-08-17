@@ -42,9 +42,9 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
     try {
       final client = ref.read(apiClientProvider);
       final results = await Future.wait([
-        client.get('/api/executive/dashboard'),
-        client.get('/api/executive/regional-stats'),
-        client.get('/api/executive/trend-analysis?period=$_trendPeriod'),
+        client.getExecutiveDashboard(),
+        client.getExecutiveRegionalStats(),
+        client.getExecutiveTrendAnalysis(_trendPeriod),
       ]);
       setState(() {
         _dashboard = results[0];

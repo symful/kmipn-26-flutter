@@ -124,6 +124,7 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
                 key: ValueKey(c.id),
                 caseItem: c,
                 onAddEvidence: () => widget.onAddEvidence?.call(c),
+                onCreateSeparate: widget.onCreateSeparate,
               ),
             ),
           ],
@@ -136,6 +137,7 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
               caseItem: widget.cases.first,
               onAddEvidence: () =>
                   widget.onAddEvidence?.call(widget.cases.first),
+              onCreateSeparate: widget.onCreateSeparate,
               isSingle: true,
             ),
           ],
@@ -148,12 +150,14 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
 class _CaseCard extends StatelessWidget {
   final SimilarCase caseItem;
   final VoidCallback? onAddEvidence;
+  final VoidCallback? onCreateSeparate;
   final bool isSingle;
 
   const _CaseCard({
     super.key,
     required this.caseItem,
     this.onAddEvidence,
+    this.onCreateSeparate,
     this.isSingle = false,
   });
 
@@ -250,7 +254,7 @@ class _CaseCard extends StatelessWidget {
               // Secondary: Buat terpisah
               Expanded(
                 child: GestureDetector(
-                  onTap: onAddEvidence,
+                  onTap: onCreateSeparate,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 10,

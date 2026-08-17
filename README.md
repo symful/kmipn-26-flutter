@@ -97,6 +97,43 @@ flutter build apk --debug
 flutter build ios --release
 ```
 
+## Deployment
+
+### Building for Production
+
+The Flutter app is configured to connect to the production API at `https://sigap.live` by default when built with `--release`.
+
+**Android Release APK:**
+```bash
+flutter build apk --release
+```
+
+**iOS Release:**
+```bash
+flutter build ios --release
+```
+
+### Connecting to a Deployed Backend
+
+The app connects to the backend API defined by `API_BASE_URL` at compile time. The default production URL is `https://sigap.live`.
+
+**To connect to a different backend:**
+```bash
+# Local development (Android emulator connects to host machine)
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8787
+
+# Custom deployed backend
+flutter build apk --release --dart-define=API_BASE_URL=https://your-backend.example.com
+```
+
+> **Note:** The app does not read `.env` at runtime. The API URL must be set at compile time via `--dart-define`.
+
+### Publishing
+
+**Android (Play Store):** Follow Google Play Store publishing guidelines. Build the release APK with `flutter build apk --release`, sign it, and upload to the Play Console.
+
+**iOS (App Store):** Build with `flutter build ios --release`, then use Xcode or Transporter to upload to the App Store.
+
 ## API Configuration
 
 API base URL diatur pada **compile time** menggunakan `String.fromEnvironment`. Dart tidak membaca `.env` file pada runtime, sehingga konfigurasi harus dilakukan via `--dart-define`.

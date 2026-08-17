@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -30,7 +31,7 @@ class _AdminDaerahPriorityConfigScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/admin-daerah/priority-config');
+      final data = await client.getAdminPriorityConfig();
       setState(() {
         _config = data;
         _loading = false;
@@ -47,7 +48,7 @@ class _AdminDaerahPriorityConfigScreenState
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.post('/api/admin-daerah/priority-config', data: weights);
+      await client.saveAdminPriorityConfig(weights: weights);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -173,7 +174,7 @@ class _PriorityFormState extends State<_PriorityForm> {
         const SizedBox(height: SigapSpacing.xl),
         ElevatedButton(
           onPressed: () => widget.onSave({'weights': _weights}),
-          child: const Text('Simpan Konfigurasi'),
+          child: const Text(Strings.simpanKonfigurasi),
         ),
       ],
     );

@@ -7,11 +7,11 @@ import '../../theme/tokens.dart';
 import '../../widgets/design_system/phone_frame.dart';
 import '../../widgets/design_system/status_bar.dart';
 import '../../widgets/skeleton_loaders.dart';
-import 'presentation/widgets/s01_header.dart';
-import 'presentation/widgets/s01_online_indicator.dart';
-import 'presentation/widgets/s01_filter_chips.dart';
-import 'presentation/widgets/s01_sort_row.dart';
-import 'presentation/widgets/s01_task_card.dart';
+import 'presentation/widgets/surveyor_task_list_header.dart';
+import 'presentation/widgets/connectivity_indicator.dart';
+import 'presentation/widgets/task_filter_chips.dart';
+import 'presentation/widgets/task_sort_row.dart';
+import 'presentation/widgets/surveyor_task_card.dart';
 
 /// S-01 Surveyor Home Screen
 ///
@@ -44,12 +44,12 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
         false;
 
     // Determine online status for indicator
-    final S01OnlineStatus onlineStatus;
+    final ConnectivityStatus onlineStatus;
     if (isOffline) {
-      onlineStatus = S01OnlineStatus.offline;
+      onlineStatus = ConnectivityStatus.offline;
     } else {
       // If we have a sync in progress, show syncing
-      onlineStatus = S01OnlineStatus.online;
+      onlineStatus = ConnectivityStatus.online;
     }
 
     return PhoneFrame(
@@ -62,7 +62,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
               body: Column(
                 children: [
                   // Header with date and wilayah
-                  S01Header(wilayahName: _wilayahName),
+                  SurveyorTaskListHeader(wilayahName: _wilayahName),
 
                   // Online status indicator row
                   Container(
@@ -72,7 +72,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
                     ),
                     child: Row(
                       children: [
-                        S01OnlineIndicator(status: onlineStatus),
+                        ConnectivityIndicator(status: onlineStatus),
                         const Spacer(),
                         // Sync button when offline
                         if (isOffline)
@@ -94,7 +94,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
                   if (isOffline) _OfflineBanner(),
 
                   // Filter chips
-                  S01FilterChips(
+                  TaskFilterChips(
                     selectedIndex: filterIndex,
                     onChipSelected: (index) {
                       ref.read(surveyorFilterProvider.notifier).state = index;
@@ -107,14 +107,13 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
                       horizontal: AppSpacing.lg,
                       vertical: AppSpacing.sm,
                     ),
-                    child: S01SortRow(
+                    child: TaskSortRow(
                       selectedValue: _mapSortToDisplay(sortValue),
                       onSortChanged: (value) {
                         ref.read(surveyorSortProvider.notifier).state =
                             _mapDisplayToSort(value);
                       },
                       onUnduhBatchTap: () {
-                        // TODO: Implement batch download
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Fitur unduh batch belum tersedia'),
@@ -203,7 +202,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
           final task = sortedTasks[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.md),
-            child: S01TaskCard(
+            child: SurveyorTaskCard(
               task: _mapToTaskData(task),
               onTap: () {
                 final taskId = task['id']?.toString();
@@ -298,29 +297,29 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
     return DateTime.tryParse(value.toString());
   }
 
-  /// Maps API task to S01TaskData
-  S01TaskData _mapToTaskData(Map<String, dynamic> task) {
+  /// Maps API task to SurveyorTaskData
+  SurveyorTaskData _mapToTaskData(Map<String, dynamic> task) {
     // Determine priority from task data
-    S01TaskPriority priority = S01TaskPriority.normal;
+    TaskPriority priority = TaskPriority.normal;
     final priorityValue =
         (task['priority'] as num?)?.toInt() ??
         (task['severity'] as num?)?.toInt() ??
         2;
     if (priorityValue >= 4) {
-      priority = S01TaskPriority.urgent;
+      priority = TaskPriority.urgent;
     } else if (priorityValue >= 3) {
-      priority = S01TaskPriority.high;
+      priority = TaskPriority.high;
     } else if (priorityValue >= 2) {
-      priority = S01TaskPriority.normal;
+      priority = TaskPriority.normal;
     } else {
-      priority = S01TaskPriority.low;
+      priority = TaskPriority.low;
     }
 
     // Format time ago
     final createdAt = _parseDate(task['created_at'] ?? task['assigned_date']);
     final timeAgo = _formatTimeAgo(createdAt);
 
-    return S01TaskData(
+    return SurveyorTaskData(
       id: task['id']?.toString() ?? '',
       title:
           task['title']?.toString() ??

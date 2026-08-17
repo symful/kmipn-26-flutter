@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../utils/logger.dart';
@@ -34,7 +35,7 @@ class _AdminDaerahIntegrasiScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/admin-daerah/integrasi/outbox');
+      final data = await client.getAdminOutbox();
       setState(() {
         _outbox = data;
         _loading = false;
@@ -50,10 +51,7 @@ class _AdminDaerahIntegrasiScreenState
   Future<void> _retryItem(String id) async {
     try {
       final client = ref.read(apiClientProvider);
-      await client.post(
-        '/api/admin-daerah/integrasi/outbox/$id/retry',
-        data: {},
-      );
+      await client.retryAdminDaerahIntegration(id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Retry berhasil dijadwalkan')),
@@ -80,7 +78,7 @@ class _AdminDaerahIntegrasiScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -92,7 +90,7 @@ class _AdminDaerahIntegrasiScreenState
     if (confirmed != true) return;
     try {
       final client = ref.read(apiClientProvider);
-      await client.post('/api/admin-daerah/integrasi/reconcile', data: {});
+      await client.reconcileAdminDaerahIntegration();
       if (mounted) {
         ScaffoldMessenger.of(
           context,

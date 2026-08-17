@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -23,8 +24,9 @@ class _OperatorSplitDialogState extends ConsumerState<OperatorSplitDialog> {
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.operatorSeparateCase(
+      await client.separateOperatorCase(
         caseId: widget.caseId,
+        reportIdsToSeparate: [widget.caseId],
         reason: _reasonController.text.trim(),
         targetUnitId: _targetUnitIdController.text.trim().isNotEmpty
             ? _targetUnitIdController.text.trim()
@@ -60,7 +62,7 @@ class _OperatorSplitDialogState extends ConsumerState<OperatorSplitDialog> {
               controller: _reasonController,
               decoration: const InputDecoration(
                 labelText: 'Alasan Pemisahan (WAJIB)',
-                hintText: 'Masukkan alasan mengapa kasus ini perlu dipisahkan',
+                hintText: Strings.alasanPemisahan,
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -90,7 +92,7 @@ class _OperatorSplitDialogState extends ConsumerState<OperatorSplitDialog> {
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.pop(context),
-          child: const Text('Batal'),
+          child: const Text(Strings.batal),
         ),
         ElevatedButton(
           onPressed: _reasonController.text.trim().isEmpty || _loading

@@ -6,6 +6,7 @@ import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../../db/database.dart';
+import '../../l10n/strings.dart';
 import '../../theme/tokens.dart';
 import '../../providers/providers.dart';
 import '../../providers/auth_provider.dart';
@@ -173,7 +174,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               isLabelVisible: filters.isActive,
               child: const Icon(Icons.filter_list),
             ),
-            tooltip: 'Filter',
+            tooltip: Strings.filter,
             onPressed: _showFilterSheet,
           ),
           IconButton(
@@ -506,7 +507,10 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Filter', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    Strings.filter,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   TextButton(
                     onPressed: _clearFilters,
                     child: const Text('Hapus Semua'),

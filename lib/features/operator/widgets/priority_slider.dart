@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -23,13 +24,12 @@ class _OperatorPriorityDialogState
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.post(
-        '/api/operator/cases/${widget.caseId}/priority',
-        data: {
-          'priority_score': _priority.round(),
-          if (_reasonController.text.trim().isNotEmpty)
-            'reason': _reasonController.text.trim(),
-        },
+      await client.setOperatorPriority(
+        caseId: widget.caseId,
+        newScore: _priority.round(),
+        reason: _reasonController.text.trim().isNotEmpty
+            ? _reasonController.text.trim()
+            : null,
       );
       if (mounted) {
         Navigator.pop(context, true);
@@ -125,7 +125,7 @@ class _OperatorPriorityDialogState
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.pop(context),
-          child: const Text('Batal'),
+          child: const Text(Strings.batal),
         ),
         ElevatedButton(
           onPressed: _loading ? null : _submit,
@@ -135,7 +135,7 @@ class _OperatorPriorityDialogState
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Simpan'),
+              : const Text(Strings.simpan),
         ),
       ],
     );

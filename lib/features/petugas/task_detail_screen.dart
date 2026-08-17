@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
@@ -58,7 +59,7 @@ class _PetugasTaskDetailScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/petugas/tasks/${widget.taskId}');
+      final data = await client.getPetugasTaskDetail(widget.taskId);
       setState(() {
         _task = data;
         _taskStatus = data['status'] as String?;
@@ -96,7 +97,7 @@ class _PetugasTaskDetailScreenState
     final reason = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Tolak Tugas'),
+        title: const Text(Strings.tolakTugas),
         content: TextField(
           controller: reasonController,
           decoration: const InputDecoration(
@@ -108,7 +109,7 @@ class _PetugasTaskDetailScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () {
@@ -119,7 +120,7 @@ class _PetugasTaskDetailScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: SigapColors.perluTindakan,
             ),
-            child: const Text('Tolak'),
+            child: const Text(Strings.tolak),
           ),
         ],
       ),
@@ -246,7 +247,7 @@ class _PetugasTaskDetailScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () {
@@ -254,7 +255,7 @@ class _PetugasTaskDetailScreenState
                 Navigator.pop(ctx, questionController.text.trim());
               }
             },
-            child: const Text('Kirim'),
+            child: const Text(Strings.kirim),
           ),
         ],
       ),
@@ -310,14 +311,14 @@ class _PetugasTaskDetailScreenState
 
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Tugas')),
+        appBar: AppBar(title: const Text(Strings.detailTugas)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null && _task == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Tugas')),
+        appBar: AppBar(title: const Text(Strings.detailTugas)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -342,7 +343,7 @@ class _PetugasTaskDetailScreenState
     final canComplete = isActive && _taskStatus != 'completed';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Tugas')),
+      appBar: AppBar(title: const Text(Strings.detailTugas)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
@@ -367,7 +368,7 @@ class _PetugasTaskDetailScreenState
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: const Text('Tolak'),
+                      child: const Text(Strings.tolak),
                     ),
                   ),
                   const SizedBox(width: SigapSpacing.md),
@@ -388,7 +389,7 @@ class _PetugasTaskDetailScreenState
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Terima'),
+                          : const Text(Strings.terima),
                     ),
                   ),
                 ],
@@ -473,7 +474,7 @@ class _PetugasTaskDetailScreenState
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _submitting ? null : _saveProgress,
-                        child: const Text('Simpan Progress'),
+                        child: const Text(Strings.simpanProgress),
                       ),
                     ),
                   ],

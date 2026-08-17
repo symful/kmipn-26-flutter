@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -31,7 +32,7 @@ class _AdminDaerahUnitsScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/admin-daerah/units');
+      final data = await client.getAdminDaerahUnits();
       setState(() {
         _items = (data['items'] as List? ?? data['data'] as List? ?? []).cast();
         _loading = false;
@@ -58,7 +59,7 @@ class _AdminDaerahUnitsScreenState
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Nama Unit (WAJIB)',
+                  labelText: Strings.namaUnitWAJIB,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -76,7 +77,7 @@ class _AdminDaerahUnitsScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -102,7 +103,7 @@ class _AdminDaerahUnitsScreenState
                 }
               }
             },
-            child: const Text('Simpan'),
+            child: const Text(Strings.simpan),
           ),
         ],
       ),

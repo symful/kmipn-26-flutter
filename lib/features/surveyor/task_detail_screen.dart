@@ -1,16 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:exif/exif.dart';
-import '../../../api/exceptions.dart';
-import '../../../db/database.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
-import '../../../utils/logger.dart';
 import '../../../widgets/design_system/phone_frame.dart';
 import '../../../widgets/design_system/status_bar.dart';
 
@@ -25,7 +20,6 @@ class SurveyorTaskDetailScreen extends ConsumerStatefulWidget {
 
 class _SurveyorTaskDetailScreenState
     extends ConsumerState<SurveyorTaskDetailScreen> {
-  static final _logger = Logger('SurveyorTaskDetailScreen');
   Map<String, dynamic>? _task;
   List<Map<String, dynamic>> _checklistItems = [];
   bool _loading = true;
@@ -33,6 +27,15 @@ class _SurveyorTaskDetailScreenState
   bool _submitting = false;
   bool _success = false;
   bool _isOfflineMode = false;
+  String? _taskCode;
+  String? _slaText;
+  String? _taskCategory;
+  String? _taskTitle;
+  List<String>? _evidenceUrls;
+
+  // Dialog state for reject/clarification
+  bool _rejecting = false;
+  bool _requestingClarification = false;
 
   // Per-checklist data: itemId -> {gps: LatLng?, photo: String?, checked: bool, notes: String}
   final Map<String, _ChecklistEntry> _checklistData = {};
@@ -60,11 +63,31 @@ class _SurveyorTaskDetailScreenState
           data['checklist'] as List? ??
           [];
 
+      // Extract task metadata from API response
+      final taskCode =
+          data['task_code'] as String? ??
+          data['code'] as String? ??
+          'TGS-${widget.taskId.substring(0, 4)}';
+      final slaHours =
+          data['sla_hours'] as int? ?? data['sla_days'] as int? ?? 4;
+      final slaText = '$slaHours jam';
+
       setState(() {
         _task = data;
         _checklistItems = checklistTemplate.cast<Map<String, dynamic>>();
         _loading = false;
         _isOfflineMode = false;
+        _taskCode = taskCode;
+        _slaText = slaText;
+        _taskCategory = data['category'] as String? ?? 'JALAN';
+        _taskTitle =
+            data['title'] as String? ??
+            data['description'] as String? ??
+            Strings.detailTugas;
+        _evidenceUrls =
+            (data['evidence_urls'] as List?)?.cast<String>() ??
+            (data['evidence'] as List?)?.cast<String>() ??
+            [];
       });
 
       // Initialize checklist data map
@@ -98,6 +121,17 @@ class _SurveyorTaskDetailScreenState
                 .cast<Map<String, dynamic>>();
             _loading = false;
             _isOfflineMode = true;
+            _taskCode = localTask.taskId.length >= 4
+                ? 'TGS-${localTask.taskId.substring(0, 4).toUpperCase()}'
+                : 'TGS-${localTask.taskId.toUpperCase()}';
+            _slaText = '4 jam';
+            _taskCategory = 'JALAN';
+            _taskTitle = localTask.title.isNotEmpty
+                ? localTask.title
+                : (localTask.description?.isNotEmpty ?? false)
+                ? localTask.description!
+                : Strings.detailTugas;
+            _evidenceUrls = <String>[];
           });
 
           // Initialize checklist data map
@@ -118,94 +152,12 @@ class _SurveyorTaskDetailScreenState
             _loading = false;
           });
         }
-      } catch (localError) {
+      } catch (e) {
         setState(() {
-          _error = localError.toString();
+          _error = e.toString();
           _loading = false;
         });
       }
-    }
-  }
-
-  Future<void> _captureGps(String itemId) async {
-    try {
-      final permission = await Geolocator.checkPermission();
-      LocationPermission locPerm = permission;
-      if (permission == LocationPermission.denied) {
-        locPerm = await Geolocator.requestPermission();
-      }
-      if (locPerm == LocationPermission.denied ||
-          locPerm == LocationPermission.deniedForever) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Izin lokasi ditolak')));
-        }
-        return;
-      }
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 15),
-        ),
-      );
-      setState(() {
-        _checklistData[itemId]?.gps = (position.latitude, position.longitude);
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'GPS captured: ${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}',
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal capture GPS: ${extractErrorMessage(e)}'),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _capturePhoto(String itemId, ImageSource source) async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: source, maxWidth: 1200);
-    if (picked != null) {
-      String? exifJson;
-      try {
-        final bytes = await picked.readAsBytes();
-        final exifData = await readExifFromBytes(bytes);
-        if (exifData.isNotEmpty) {
-          exifJson = jsonEncode({
-            for (final entry in exifData.entries)
-              entry.key: entry.value.toString(),
-          });
-        }
-      } catch (e, s) {
-        _logger.warning('Error extracting EXIF data', e, s);
-        // EXIF extraction failed, continue without it
-      }
-
-      // Store photo in LocalPhotos
-      final idempotencyKey =
-          'surveyor_visit_${widget.taskId}_${DateTime.now().millisecondsSinceEpoch}';
-      final db = ref.read(databaseProvider);
-      await db.insertPhoto(
-        reportIdempotencyKey: idempotencyKey,
-        filePath: picked.path,
-        exifDataJson: exifJson,
-        capturedAt: DateTime.now().millisecondsSinceEpoch,
-      );
-
-      setState(() {
-        _checklistData[itemId]?.photoPath = picked.path;
-        _checklistData[itemId]?.photoExifJson = exifJson;
-      });
     }
   }
 
@@ -300,12 +252,136 @@ class _SurveyorTaskDetailScreenState
           _success = true;
           _submitting = false;
         });
-      } catch (queueError) {
+      } catch (e) {
         setState(() {
-          _error = queueError.toString();
+          _error = e.toString();
           _submitting = false;
         });
       }
+    }
+  }
+
+  Future<void> _showRejectDialog() async {
+    final reasonController = TextEditingController();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(Strings.tolakTugas),
+        content: TextField(
+          controller: reasonController,
+          decoration: const InputDecoration(
+            labelText: 'Alasan penolakan',
+            hintText: 'Masukkan alasan penolakan...',
+          ),
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(Strings.batal),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, reasonController.text),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: SigapColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text(Strings.tolak),
+          ),
+        ],
+      ),
+    );
+
+    if (reason != null && reason.isNotEmpty) {
+      await _rejectTask(reason);
+    }
+  }
+
+  Future<void> _rejectTask(String reason) async {
+    setState(() {
+      _rejecting = true;
+      _error = null;
+    });
+
+    try {
+      final client = ref.read(apiClientProvider);
+      await client.surveyorRejectTask(widget.taskId, reason);
+      setState(() {
+        _rejecting = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Tugas berhasil ditolak')));
+        context.go('/surveyor/tasks');
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _rejecting = false;
+      });
+    }
+  }
+
+  Future<void> _showClarificationDialog() async {
+    final questionController = TextEditingController();
+    final question = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Minta Klarifikasi'),
+        content: TextField(
+          controller: questionController,
+          decoration: const InputDecoration(
+            labelText: 'Pertanyaan',
+            hintText: 'Masukkan pertanyaan Anda...',
+          ),
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(Strings.batal),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, questionController.text),
+            child: const Text('Kirim'),
+          ),
+        ],
+      ),
+    );
+
+    if (question != null && question.isNotEmpty) {
+      await _requestClarification(question);
+    }
+  }
+
+  Future<void> _requestClarification(String question) async {
+    setState(() {
+      _requestingClarification = true;
+      _error = null;
+    });
+
+    try {
+      final client = ref.read(apiClientProvider);
+      await client.surveyorRequestClarification(
+        widget.taskId,
+        question: question,
+      );
+      setState(() {
+        _requestingClarification = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Permintaan klarifikasi berhasil dikirim'),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _requestingClarification = false;
+      });
     }
   }
 
@@ -318,31 +394,82 @@ class _SurveyorTaskDetailScreenState
             const StatusBar(),
             Expanded(
               child: Scaffold(
-                appBar: AppBar(title: const Text('Tugas Survei')),
+                backgroundColor: SigapColors.bgCard,
+                appBar: AppBar(
+                  backgroundColor: SigapColors.bgCard,
+                  elevation: 0,
+                  title: Text(
+                    'Tugas Survei',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size16,
+                      fontWeight: FontWeight.w600,
+                      color: SigapColors.textPrimary,
+                    ),
+                  ),
+                ),
                 body: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: SigapColors.selesai,
-                        size: 64,
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: SigapColors.selesai.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle,
+                          color: SigapColors.selesai,
+                          size: 48,
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: SigapSpacing.lg),
                       Text(
                         _isOfflineMode
-                            ? 'Kunjungan disimpan, akan dikirim saat online!'
+                            ? 'Kunjungan disimpan,'
                             : 'Kunjungan berhasil dikirim!',
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: SigapTypography.size17,
                           fontWeight: FontWeight.bold,
+                          color: SigapColors.textPrimary,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 24),
+                      if (_isOfflineMode) ...[
+                        const SizedBox(height: SigapSpacing.xs),
+                        Text(
+                          'akan dikirim saat online!',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size17,
+                            fontWeight: FontWeight.bold,
+                            color: SigapColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                      const SizedBox(height: SigapSpacing.xl),
                       ElevatedButton(
                         onPressed: () => context.go('/surveyor/tasks'),
-                        child: const Text('Kembali ke Daftar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: SigapColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SigapSpacing.xl,
+                            vertical: SigapSpacing.md,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(SigapRadius.md),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Kembali ke Daftar',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -361,8 +488,22 @@ class _SurveyorTaskDetailScreenState
             const StatusBar(),
             Expanded(
               child: Scaffold(
-                appBar: AppBar(title: const Text('Detail Tugas')),
-                body: const Center(child: CircularProgressIndicator()),
+                backgroundColor: SigapColors.surface,
+                appBar: AppBar(
+                  backgroundColor: SigapColors.bgCard,
+                  elevation: 0,
+                  title: Text(
+                    Strings.detailTugas,
+                    style: TextStyle(
+                      fontSize: SigapTypography.size16,
+                      fontWeight: FontWeight.w600,
+                      color: SigapColors.textPrimary,
+                    ),
+                  ),
+                ),
+                body: const Center(
+                  child: CircularProgressIndicator(color: SigapColors.primary),
+                ),
               ),
             ),
           ],
@@ -377,21 +518,72 @@ class _SurveyorTaskDetailScreenState
             const StatusBar(),
             Expanded(
               child: Scaffold(
-                appBar: AppBar(title: const Text('Detail Tugas')),
+                backgroundColor: SigapColors.surface,
+                appBar: AppBar(
+                  backgroundColor: SigapColors.bgCard,
+                  elevation: 0,
+                  title: Text(
+                    Strings.detailTugas,
+                    style: TextStyle(
+                      fontSize: SigapTypography.size16,
+                      fontWeight: FontWeight.w600,
+                      color: SigapColors.textPrimary,
+                    ),
+                  ),
+                ),
                 body: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: SigapColors.perluTindakan,
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: SigapColors.dangerBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: SigapColors.perluTindakan,
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      Text('Gagal memuat: $_error'),
+                      const SizedBox(height: SigapSpacing.lg),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: SigapSpacing.xl,
+                        ),
+                        child: Text(
+                          'Gagal memuat:\n$_error',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size14,
+                            color: SigapColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: SigapSpacing.xl),
                       ElevatedButton(
                         onPressed: _load,
-                        child: const Text('Coba Lagi'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: SigapColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SigapSpacing.xl,
+                            vertical: SigapSpacing.md,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(SigapRadius.md),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Coba Lagi',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -404,8 +596,20 @@ class _SurveyorTaskDetailScreenState
     }
 
     final task = _task!;
-    final title = task['title'] as String? ?? '-';
-    final instructions = task['instructions'] as String? ?? '-';
+    final instructions =
+        task['instructions'] as String? ??
+        task['description'] as String? ??
+        '-';
+
+    // Ensure we have task metadata
+    final taskCode = _taskCode ?? 'TGS-${widget.taskId.substring(0, 4)}';
+    final slaText = _slaText ?? '4 jam';
+    final taskCategory = _taskCategory ?? 'JALAN';
+    final taskTitle = _taskTitle ?? Strings.detailTugas;
+    final evidenceUrls = _evidenceUrls ?? <String>[];
+    final evidenceCount = evidenceUrls.isNotEmpty
+        ? evidenceUrls.length
+        : (task['evidence_count'] as int? ?? 3);
 
     return PhoneFrame(
       child: Column(
@@ -413,33 +617,106 @@ class _SurveyorTaskDetailScreenState
           const StatusBar(),
           Expanded(
             child: Scaffold(
+              backgroundColor: SigapColors.surface,
               appBar: AppBar(
-                title: Text(title),
+                backgroundColor: SigapColors.bgCard,
+                elevation: 0,
+                toolbarHeight: 60,
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: SigapColors.textPrimary,
+                    size: 22,
+                  ),
+                  onPressed: () => context.pop(),
+                ),
+                titleSpacing: 0,
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            Strings.detailTugas,
+                            style: TextStyle(
+                              fontSize: SigapTypography.size16,
+                              fontWeight: FontWeight.w700,
+                              color: SigapColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            taskCode,
+                            style: TextStyle(
+                              fontSize: SigapTypography.size11,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: SigapTypography.fontFamilyMono,
+                              color: SigapColors.textTertiary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: SigapSpacing.sm),
+                    // SLA badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.sm,
+                        vertical: SigapSpacing.x4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SigapColors.offlineBg,
+                        borderRadius: BorderRadius.circular(SigapRadius.x6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.schedule,
+                            size: SigapTypography.size11,
+                            color: SigapColors.offlineText,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'SLA $slaText',
+                            style: TextStyle(
+                              fontSize: SigapTypography.size11,
+                              fontWeight: FontWeight.w700,
+                              color: SigapColors.offlineText,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 actions: [
                   if (_isOfflineMode)
                     Container(
                       margin: const EdgeInsets.only(right: SigapSpacing.md),
                       padding: const EdgeInsets.symmetric(
                         horizontal: SigapSpacing.sm,
-                        vertical: SigapSpacing.xs,
+                        vertical: SigapSpacing.x4,
                       ),
                       decoration: BoxDecoration(
                         color: SigapColors.offlineBg,
                         borderRadius: BorderRadius.circular(SigapRadius.sm),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.cloud_off,
-                            size: 14,
+                            size: SigapTypography.size10,
                             color: SigapColors.offlineText,
                           ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
                             'OFFLINE',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: SigapTypography.size10,
                               fontWeight: FontWeight.bold,
                               color: SigapColors.offlineText,
                             ),
@@ -451,77 +728,312 @@ class _SurveyorTaskDetailScreenState
               ),
               body: Column(
                 children: [
-                  // Task info banner
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(SigapSpacing.md),
-                    color: SigapColors.primary.withValues(alpha: 0.05),
-                    child: Text(
-                      instructions,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: SigapColors.textSecondary,
-                      ),
-                    ),
-                  ),
+                  // Divider
+                  Container(height: 1, color: SigapColors.border),
+                  // Content
                   Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(SigapSpacing.lg),
-                      itemCount: _checklistItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _checklistItems[index];
-                        final itemId =
-                            item['id']?.toString() ??
-                            item['item_id']?.toString() ??
-                            '';
-                        final entry = _checklistData[itemId];
-                        final label =
-                            item['label'] as String? ??
-                            item['name'] as String? ??
-                            'Item ${index + 1}';
-                        final required =
-                            item['required'] == true ||
-                            item['is_required'] == true;
+                    child: ListView(
+                      padding: const EdgeInsets.all(SigapSpacing.md),
+                      children: [
+                        // Category tag + Task type
+                        Row(
+                          children: [
+                            // JALAN tag
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: SigapSpacing.sm,
+                                vertical: SigapSpacing.x4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: SigapColors.primaryLight,
+                                borderRadius: BorderRadius.circular(
+                                  SigapRadius.sm,
+                                ),
+                              ),
+                              child: Text(
+                                taskCategory.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size10,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: SigapTypography.fontFamilyMono,
+                                  color: SigapColors.primaryDark,
+                                  letterSpacing:
+                                      SigapTypography.letterSpacingTight,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: SigapSpacing.sm),
+                            // Verifikasi lapangan
+                            Text(
+                              'Verifikasi lapangan',
+                              style: TextStyle(
+                                fontSize: SigapTypography.size11,
+                                fontWeight: FontWeight.w600,
+                                color: SigapColors.perluTindakan,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 7),
+                        // Task title
+                        Text(
+                          taskTitle,
+                          style: TextStyle(
+                            fontSize: SigapTypography.size17,
+                            fontWeight: FontWeight.w700,
+                            color: SigapColors.textPrimary,
+                            height: SigapTypography.lineHeight130,
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
 
-                        return _ChecklistItemCard(
-                          label: label,
-                          required: required,
-                          checked: entry?.checked ?? false,
-                          gps: entry?.gps,
-                          photoPath: entry?.photoPath,
-                          notes: entry?.notes ?? '',
-                          onCheckedChanged: (v) => setState(() {
-                            _checklistData[itemId]?.checked = v ?? false;
+                        // Instructions card
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(SigapSpacing.x12),
+                          decoration: BoxDecoration(
+                            color: SigapColors.bgCard,
+                            borderRadius: BorderRadius.circular(
+                              SigapRadius.x12,
+                            ),
+                            border: Border.all(color: SigapColors.border),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'INSTRUKSI',
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size11,
+                                  fontWeight: FontWeight.w700,
+                                  color: SigapColors.textTertiary,
+                                  letterSpacing:
+                                      SigapTypography.letterSpacingLabel,
+                                ),
+                              ),
+                              const SizedBox(height: SigapSpacing.x6),
+                              Text(
+                                instructions,
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size13,
+                                  color: SigapColors.textPrimary,
+                                  height: SigapTypography.lineHeight150,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
+
+                        // Checklist section
+                        Text(
+                          'CHECKLIST WAJIB',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size11,
+                            fontWeight: FontWeight.w700,
+                            color: SigapColors.textTertiary,
+                            letterSpacing: SigapTypography.letterSpacingLabel,
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.sm),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: SigapColors.bgCard,
+                            borderRadius: BorderRadius.circular(
+                              SigapRadius.x12,
+                            ),
+                            border: Border.all(color: SigapColors.border),
+                          ),
+                          child: Column(
+                            children: List.generate(_checklistItems.length, (
+                              index,
+                            ) {
+                              final item = _checklistItems[index];
+                              final label =
+                                  item['label'] as String? ??
+                                  item['name'] as String? ??
+                                  'Item ${index + 1}';
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: SigapSpacing.md,
+                                  vertical: SigapSpacing.md,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: index < _checklistItems.length - 1
+                                      ? const Border(
+                                          bottom: BorderSide(
+                                            color: SigapColors.bgSoft,
+                                            width: 1,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Empty checkbox square
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: SigapColors.bgCard,
+                                        borderRadius: BorderRadius.circular(
+                                          SigapRadius.x6,
+                                        ),
+                                        border: Border.all(
+                                          color: const Color(0xFFcfd3cc),
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: SigapSpacing.md),
+                                    Expanded(
+                                      child: Text(
+                                        label,
+                                        style: TextStyle(
+                                          fontSize: SigapTypography.size13,
+                                          color: SigapColors.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
+
+                        // Evidence section
+                        Text(
+                          'BUKTI WARGA ($evidenceCount)',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size11,
+                            fontWeight: FontWeight.w700,
+                            color: SigapColors.textTertiary,
+                            letterSpacing: SigapTypography.letterSpacingLabel,
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.sm),
+                        Row(
+                          children: List.generate(evidenceCount, (index) {
+                            return Expanded(
+                              child: AspectRatio(
+                                aspectRatio: 1,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    right: index < evidenceCount - 1
+                                        ? SigapSpacing.sm
+                                        : 0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: SigapColors.surface,
+                                    borderRadius: BorderRadius.circular(
+                                      SigapRadius.x9,
+                                    ),
+                                    border: Border.all(
+                                      color: SigapColors.border,
+                                    ),
+                                  ),
+                                  // Striped placeholder pattern
+                                  child: CustomPaint(
+                                    painter: _StripedPlaceholderPainter(),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.image_outlined,
+                                        size: 28,
+                                        color: SigapColors.textMuted,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
                           }),
-                          onCaptureGps: () => _captureGps(itemId),
-                          onCapturePhoto: (source) =>
-                              _capturePhoto(itemId, source),
-                          onNotesChanged: (v) => setState(() {
-                            _checklistData[itemId]?.notes = v;
-                          }),
-                        );
-                      },
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
+
+                        // Offline status banner
+                        if (_isOfflineMode)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: SigapSpacing.md,
+                              vertical: SigapSpacing.md,
+                            ),
+                            decoration: BoxDecoration(
+                              color: SigapColors.primaryLight,
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.md,
+                              ),
+                              border: Border.all(
+                                color: SigapColors.successBorder,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: const BoxDecoration(
+                                    color: SigapColors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.cloud_download,
+                                    size: SigapTypography.size12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: SigapSpacing.sm),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Siap dikerjakan offline',
+                                        style: TextStyle(
+                                          fontSize: SigapTypography.size12_5,
+                                          fontWeight: FontWeight.w600,
+                                          color: SigapColors.primaryDark,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Peta area + bukti diunduh · 12,4 MB',
+                                        style:
+                                            TextStyle(
+                                              fontSize: SigapTypography.size11,
+                                              color: SigapColors.primaryDark,
+                                            ).copyWith(
+                                              color: SigapColors.primaryDark
+                                                  .withValues(alpha: 0.8),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        // Extra spacing at bottom for scroll
+                        const SizedBox(height: SigapSpacing.xl),
+                      ],
                     ),
                   ),
-                  // Submit button
+                  // Action bar
                   Container(
-                    padding: EdgeInsets.only(
-                      left: SigapSpacing.lg,
-                      right: SigapSpacing.lg,
-                      top: SigapSpacing.md,
-                      bottom:
-                          MediaQuery.of(context).padding.bottom +
-                          SigapSpacing.md,
+                    padding: const EdgeInsets.only(
+                      left: 18,
+                      right: 18,
+                      top: 12,
+                      bottom: 22,
                     ),
                     decoration: BoxDecoration(
-                      color: SigapColors.surface,
-                      boxShadow: [
-                        BoxShadow(
-                          color: SigapColors.textPrimary.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, -2),
-                        ),
-                      ],
+                      color: SigapColors.bgCard,
+                      border: const Border(
+                        top: BorderSide(color: SigapColors.border),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -533,18 +1045,27 @@ class _SurveyorTaskDetailScreenState
                             ),
                             child: Text(
                               'Error: $_error',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: SigapColors.perluTindakan,
-                                fontSize: 12,
+                                fontSize: SigapTypography.size12,
                               ),
                             ),
                           ),
+                        // Primary button - Terima & mulai survei
                         ElevatedButton(
                           onPressed: _submitting ? null : _submitVisit,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: SigapColors.primary,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: SigapSpacing.md,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.x12,
+                              ),
+                            ),
+                            elevation: 0,
                           ),
                           child: _submitting
                               ? const SizedBox(
@@ -556,10 +1077,95 @@ class _SurveyorTaskDetailScreenState
                                   ),
                                 )
                               : Text(
-                                  _isOfflineMode
-                                      ? 'Simpan (Kirim Saat Online)'
-                                      : 'Kirim Kunjungan',
+                                  'Terima & mulai survei',
+                                  style: TextStyle(
+                                    fontSize: SigapTypography.size15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
+                        ),
+                        const SizedBox(height: SigapSpacing.sm),
+                        // Secondary buttons row
+                        Row(
+                          children: [
+                            // Minta klarifikasi button
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: _requestingClarification
+                                    ? null
+                                    : _showClarificationDialog,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: SigapColors.textPrimary,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: SigapSpacing.md,
+                                  ),
+                                  side: const BorderSide(
+                                    color: SigapColors.border,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      SigapRadius.x10,
+                                    ),
+                                  ),
+                                ),
+                                child: _requestingClarification
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: SigapColors.textPrimary,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Minta klarifikasi',
+                                        style: TextStyle(
+                                          fontSize: SigapTypography.size12_5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: SigapSpacing.sm),
+                            // Tolak button
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: _rejecting
+                                    ? null
+                                    : _showRejectDialog,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: SigapColors.dangerTextStrong,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: SigapSpacing.md,
+                                  ),
+                                  side: const BorderSide(
+                                    color: SigapColors.dangerBorder,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      SigapRadius.x10,
+                                    ),
+                                  ),
+                                ),
+                                child: _rejecting
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: SigapColors.dangerTextStrong,
+                                        ),
+                                      )
+                                    : Text(
+                                        Strings.tolak,
+                                        style: TextStyle(
+                                          fontSize: SigapTypography.size12_5,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -572,6 +1178,42 @@ class _SurveyorTaskDetailScreenState
       ),
     );
   }
+}
+
+/// Custom painter for striped placeholder pattern
+/// Matches design: repeating-linear-gradient(135deg, #e4e7e2, #e4e7e2 6px, #eef0ec 6px, #eef0ec 12px)
+class _StripedPlaceholderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    const color1 = Color(0xFFE4E7E2); // #e4e7e2
+    const color2 = Color(0xFFEEF0EC); // #eef0ec
+    const stripeWidth = 6.0;
+    const pairWidth = 12.0;
+
+    // Rotate canvas 45° so stripes appear at 135° (diagonal)
+    canvas.save();
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.rotate(-math.pi / 4);
+    canvas.translate(-size.width / 2, -size.height / 2);
+
+    // Draw alternating colored stripes horizontally (becomes diagonal after rotation)
+    final diagonal = size.width + size.height;
+    for (double i = -diagonal; i < diagonal; i += pairWidth) {
+      canvas.drawRect(
+        Rect.fromLTWH(i, -size.height, stripeWidth, diagonal * 2),
+        Paint()..color = color1,
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(i + stripeWidth, -size.height, stripeWidth, diagonal * 2),
+        Paint()..color = color2,
+      );
+    }
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _ChecklistEntry {
@@ -587,230 +1229,4 @@ class _ChecklistEntry {
     required this.photoExifJson,
     required this.notes,
   });
-}
-
-class _ChecklistItemCard extends StatefulWidget {
-  final String label;
-  final bool required;
-  final bool checked;
-  final (double, double)? gps;
-  final String? photoPath;
-  final String notes;
-  final ValueChanged<bool?> onCheckedChanged;
-  final VoidCallback onCaptureGps;
-  final void Function(ImageSource) onCapturePhoto;
-  final ValueChanged<String> onNotesChanged;
-
-  const _ChecklistItemCard({
-    required this.label,
-    required this.required,
-    required this.checked,
-    required this.gps,
-    required this.photoPath,
-    required this.notes,
-    required this.onCheckedChanged,
-    required this.onCaptureGps,
-    required this.onCapturePhoto,
-    required this.onNotesChanged,
-  });
-
-  @override
-  State<_ChecklistItemCard> createState() => _ChecklistItemCardState();
-}
-
-class _ChecklistItemCardState extends State<_ChecklistItemCard> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.notes);
-  }
-
-  @override
-  void didUpdateWidget(_ChecklistItemCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.notes != widget.notes && _controller.text != widget.notes) {
-      _controller.text = widget.notes;
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: SigapSpacing.md),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        side: const BorderSide(color: SigapColors.border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(SigapSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Checkbox(
-                  value: widget.checked,
-                  onChanged: widget.onCheckedChanged,
-                ),
-                Expanded(
-                  child: Text(
-                    widget.label + (widget.required ? ' *' : ''),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-
-            // GPS
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.location_on,
-                    color: widget.gps != null
-                        ? SigapColors.selesai
-                        : SigapColors.textMuted,
-                  ),
-                  onPressed: widget.onCaptureGps,
-                  tooltip: 'Capture GPS',
-                  iconSize: 20,
-                ),
-                if (widget.gps != null)
-                  Expanded(
-                    child: Text(
-                      '${widget.gps!.$1.toStringAsFixed(5)}, ${widget.gps!.$2.toStringAsFixed(5)}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
-                  )
-                else
-                  const Expanded(
-                    child: Text(
-                      'GPS belum di-capture',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: SigapColors.textMuted,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            // Photo
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.camera_alt,
-                    color: widget.photoPath != null
-                        ? SigapColors.selesai
-                        : SigapColors.textMuted,
-                  ),
-                  onPressed: () => _showPhotoSourceDialog(context),
-                  tooltip: 'Ambil Foto',
-                  iconSize: 20,
-                ),
-                if (widget.photoPath != null)
-                  Expanded(
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: Image.file(
-                            File(widget.photoPath!),
-                            width: 48,
-                            height: 48,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const Icon(Icons.image, size: 20),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            'Foto tersimpan',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: SigapColors.selesai,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  const Expanded(
-                    child: Text(
-                      'Foto belum diambil',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: SigapColors.textMuted,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            // Notes
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Catatan',
-                border: OutlineInputBorder(),
-                isDense: true,
-              ),
-              style: const TextStyle(fontSize: 13),
-              maxLines: 2,
-              controller: _controller,
-              onChanged: (value) {
-                widget.onNotesChanged(value);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showPhotoSourceDialog(BuildContext ctx) {
-    showModalBottomSheet(
-      context: ctx,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Kamera'),
-              onTap: () {
-                Navigator.pop(ctx);
-                widget.onCapturePhoto(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Galeri'),
-              onTap: () {
-                Navigator.pop(ctx);
-                widget.onCapturePhoto(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

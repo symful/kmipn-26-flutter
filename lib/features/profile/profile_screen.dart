@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/tokens.dart';
 
@@ -13,7 +14,7 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil'),
+        title: const Text(Strings.profil),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -56,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: SigapSpacing.lg),
             ElevatedButton.icon(
               icon: const Icon(Icons.logout),
-              label: const Text('Keluar'),
+              label: const Text(Strings.keluar),
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.perluTindakan,
               ),
@@ -72,12 +73,12 @@ class ProfileScreen extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Keluar'),
+        title: const Text(Strings.keluar),
         content: const Text('Apakah Anda yakin ingin keluar?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () {
@@ -88,7 +89,7 @@ class ProfileScreen extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: SigapColors.perluTindakan,
             ),
-            child: const Text('Keluar'),
+            child: const Text(Strings.keluar),
           ),
         ],
       ),
@@ -142,7 +143,11 @@ class _UserInfoCard extends StatelessWidget {
             backgroundColor: SigapColors.primary,
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : '?',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
             ),
           ),
           const SizedBox(width: SigapSpacing.md),

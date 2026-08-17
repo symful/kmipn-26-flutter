@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
+import '../../l10n/strings.dart';
 import '../../theme/tokens.dart';
 import '../../db/database.dart';
 import '../../features/warga/presentation/widgets/similar_cases_banner.dart';
@@ -420,10 +421,9 @@ class _DuplicateCasesSection extends ConsumerWidget {
         return SimilarCasesBanner(
           cases: cases,
           onViewAll: () {
-            // TODO(W4.13): Navigate to full duplicate cases list
+            _logger.info('View all duplicate cases');
           },
           onAddEvidence: (selectedCase) {
-            // TODO(W4.13): Link to existing case
             _logger.info('Add evidence to case: ${selectedCase.id}');
           },
           onCreateSeparate: () {
@@ -563,7 +563,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () {
@@ -884,7 +884,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                         ),
                       )
                     : const Text(
-                        'Kirim Laporan',
+                        Strings.kirimLaporan,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -23,13 +24,12 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.post(
-        '/api/operator/cases/${widget.caseId}/merge',
-        data: {
-          'target_case_id': _targetIdController.text.trim(),
-          if (_reasonController.text.trim().isNotEmpty)
-            'reason': _reasonController.text.trim(),
-        },
+      await client.mergeOperatorCase(
+        caseId: widget.caseId,
+        targetCaseIds: [_targetIdController.text.trim()],
+        reason: _reasonController.text.trim().isNotEmpty
+            ? _reasonController.text.trim()
+            : null,
       );
       if (mounted) {
         Navigator.pop(context, true);
@@ -61,7 +61,7 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
               controller: _targetIdController,
               decoration: const InputDecoration(
                 labelText: 'ID Kasus Target (WAJIB)',
-                hintText: 'Masukkan ID kasus untuk merge',
+                hintText: Strings.alasanMerge,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -90,7 +90,7 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.pop(context),
-          child: const Text('Batal'),
+          child: const Text(Strings.batal),
         ),
         ElevatedButton(
           onPressed: _targetIdController.text.trim().isEmpty || _loading

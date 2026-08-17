@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 
@@ -117,11 +118,11 @@ class _RtRwVerifyScreenState extends ConsumerState<RtRwVerifyScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Konfirmasi'),
+            child: const Text(Strings.konfirmasi),
           ),
         ],
       ),
@@ -331,7 +332,7 @@ class _RtRwVerifyScreenState extends ConsumerState<RtRwVerifyScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: Text(
-                _loading ? 'Mengirim...' : 'Kirim Verifikasi',
+                _loading ? Strings.mengirim : Strings.kirimVerifikasi,
                 style: const TextStyle(fontSize: 16),
               ),
             ),

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:exif/exif.dart';
 import '../../db/database.dart';
+import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../components/app_icons.dart';
@@ -37,6 +38,11 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   bool _submitting = false;
   String? _submitError;
   bool _success = false;
+
+  // Kondisi: 0=Ringan, 1=Berat, 2=Kritis
+  int _selectedKondisi = 0;
+  // Rekomendasi: 0=Perbaikan, 1=Penggantian, 2=Monitoring
+  int _selectedRekomendasi = 0;
 
   bool get _canSubmit {
     if (_damageDescriptionController.text.trim().length < 10) return false;
@@ -248,7 +254,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                         ),
                         const SizedBox(height: AppSpacing.lg),
                         const Text(
-                          'Survei berhasil dikirim!',
+                          Strings.surveiBerhasilDikirim,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -294,9 +300,11 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
           StatusBar(),
           Expanded(
             child: Scaffold(
-              appBar: AppBar(title: const Text('Form Survei')),
+              backgroundColor: AppColors.bgScreen,
               body: Column(
                 children: [
+                  // Custom Header with Back Arrow, Title, Task ID, Timestamp, Progress
+                  _buildCustomHeader(),
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -309,66 +317,32 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                           _buildGpsCard(),
                           const SizedBox(height: AppSpacing.xl),
 
-                          // Photo Grid Section
-                          _buildSectionHeader('Foto Bukti', AppIcons.camera),
+                          // Photo Grid Section - "Foto per sudut"
+                          _buildSectionHeader(
+                            'Foto per sudut',
+                            AppIcons.camera,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          _buildPhotoCounter(),
                           const SizedBox(height: AppSpacing.sm),
                           _buildPhotoGrid(),
                           const SizedBox(height: AppSpacing.xl),
 
-                          // Damage Description
-                          _buildSectionHeader('Deskripsi Kerusakan', null),
+                          // Kondisi Segmented Control
+                          _buildSectionHeader('Kondisi', null),
                           const SizedBox(height: AppSpacing.sm),
-                          TextField(
-                            controller: _damageDescriptionController,
-                            maxLines: 4,
-                            maxLength: 500,
-                            decoration: InputDecoration(
-                              hintText:
-                                  'Jelaskan kerusakan atau temuan survei...',
-                              hintStyle: TextStyle(
-                                color: AppColors.textTertiary,
-                              ),
-                              filled: true,
-                              fillColor: AppColors.bgCard,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.md,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: AppColors.borderCard,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.md,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: AppColors.borderCard,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.md,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            onChanged: (_) => setState(() {}),
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
+                          _buildKondisiSegmentedControl(),
+                          const SizedBox(height: AppSpacing.xl),
 
-                          // Notes
-                          _buildSectionHeader('Catatan Tambahan', null),
+                          // Catatan Lapangan
+                          _buildSectionHeader('Catatan lapangan', null),
                           const SizedBox(height: AppSpacing.sm),
                           TextField(
                             controller: _notesController,
                             maxLines: 3,
                             maxLength: 300,
                             decoration: InputDecoration(
-                              hintText: 'Tambahkan catatan jika diperlukan...',
+                              hintText: 'Tambahkan catatan lapangan...',
                               hintStyle: TextStyle(
                                 color: AppColors.textTertiary,
                               ),
@@ -401,6 +375,13 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                               ),
                             ),
                           ),
+                          const SizedBox(height: AppSpacing.xl),
+
+                          // Rekomendasi Radio Buttons
+                          _buildSectionHeader('Rekomendasi', null),
+                          const SizedBox(height: AppSpacing.sm),
+                          _buildRekomendasiRadioGroup(),
+                          const SizedBox(height: AppSpacing.xl),
 
                           // Error message
                           if (_submitError != null) ...[
@@ -484,7 +465,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                               ),
                             )
                           : const Text(
-                              'Kirim Hasil',
+                              'Lanjut ke review hasil',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -514,6 +495,279 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCustomHeader() {
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + AppSpacing.md,
+        left: AppSpacing.md,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.md,
+      ),
+      decoration: const BoxDecoration(
+        color: AppColors.bgCard,
+        border: Border(bottom: BorderSide(color: AppColors.borderCard)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top row: Back arrow + Title + Task ID
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => context.pop(),
+                icon: AppIcons.arrowBack,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              const Text(
+                'Form survei',
+                style: TextStyle(
+                  fontSize: AppTypography.size20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Text(
+                'TGS-3402',
+                style: TextStyle(
+                  fontSize: AppTypography.size11,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'IBM Plex Mono',
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              Text(
+                ' · offline',
+                style: TextStyle(
+                  fontSize: AppTypography.size11,
+                  color: AppColors.textTertiary,
+                ),
+              ),
+              const Spacer(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    'Tersimpan 10:02',
+                    style: TextStyle(
+                      fontSize: AppTypography.size11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          // Progress bar (66%)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 6,
+                decoration: BoxDecoration(
+                  color: AppColors.borderCard,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.66,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                '66%',
+                style: TextStyle(
+                  fontSize: AppTypography.size10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoCounter() {
+    final filledCount = _photos.length.clamp(0, 3);
+    return Row(
+      children: [
+        Text(
+          '$filledCount dari 3',
+          style: TextStyle(
+            fontSize: AppTypography.size13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const Spacer(),
+        if (filledCount < 3)
+          GestureDetector(
+            onTap: _showPhotoSourceDialog,
+            child: Text(
+              'Tambah foto',
+              style: TextStyle(
+                fontSize: AppTypography.size13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  String _getPhotoLabel(int index) {
+    const labels = ['Depan', 'Samping', 'Atas'];
+    if (index < _photos.length) {
+      return '${labels[index]} ✓';
+    }
+    return labels[index];
+  }
+
+  Color _getPhotoLabelColor(int index) {
+    if (index < _photos.length) {
+      return AppColors.textSecondary;
+    }
+    return AppColors.danger;
+  }
+
+  Widget _buildKondisiSegmentedControl() {
+    const kondisiOptions = ['Ringan', 'Berat', 'Kritis'];
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.borderCard),
+      ),
+      child: Row(
+        children: List.generate(3, (index) {
+          final isSelected = _selectedKondisi == index;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedKondisi = index),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.horizontal(
+                    left: index == 0
+                        ? const Radius.circular(AppRadius.lg - 1)
+                        : Radius.zero,
+                    right: index == 2
+                        ? const Radius.circular(AppRadius.lg - 1)
+                        : Radius.zero,
+                  ),
+                ),
+                child: Text(
+                  kondisiOptions[index],
+                  style: TextStyle(
+                    fontSize: AppTypography.size13,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildRekomendasiRadioGroup() {
+    const rekomendasiOptions = [
+      ('Valid — perlu tindak lanjut', ''),
+      ('Tidak ditemukan di lokasi', ''),
+    ];
+
+    return Column(
+      children: List.generate(2, (index) {
+        final isSelected = _selectedRekomendasi == index;
+        final (label, desc) = rekomendasiOptions[index];
+        return GestureDetector(
+          onTap: () => setState(() => _selectedRekomendasi = index),
+          child: Container(
+            margin: EdgeInsets.only(bottom: index < 1 ? AppSpacing.sm : 0),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primaryLight : AppColors.bgCard,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.borderCard,
+                width: isSelected ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected ? AppColors.primary : Colors.white,
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.borderSoft,
+                      width: 2,
+                    ),
+                  ),
+                  child: isSelected
+                      ? Center(
+                          child: Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: AppTypography.size13,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected
+                          ? AppColors.primaryDark
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 
@@ -550,7 +804,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               children: [
                 Text(
                   _capturedGps != null
-                      ? 'GPS Tertangkap'
+                      ? '${_capturedGps!.$1.toStringAsFixed(6)}, ${_capturedGps!.$2.toStringAsFixed(6)}'
                       : 'GPS Belum Tertangkap',
                   style: TextStyle(
                     color: AppColors.textPrimary,
@@ -559,212 +813,175 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  _capturedGps != null
-                      ? '${_capturedGps!.$1.toStringAsFixed(6)}, ${_capturedGps!.$2.toStringAsFixed(6)}'
-                      : 'Ketuk tombol untuk menangkap koordinat GPS',
-                  style: TextStyle(color: AppColors.textTertiary, fontSize: 12),
-                ),
+                if (_capturedGps != null)
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.xs,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(AppRadius.x1),
+                        ),
+                        child: Text(
+                          'Akurasi baik',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: AppTypography.size10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    'Ketuk untuk menangkap koordinat GPS',
+                    style: TextStyle(
+                      color: AppColors.textTertiary,
+                      fontSize: 12,
+                    ),
+                  ),
               ],
             ),
           ),
           if (_capturedGps != null)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-              ),
+            GestureDetector(
+              onTap: _captureGps,
               child: Text(
-                'OK',
+                'Ambil ulang',
                 style: TextStyle(
                   color: AppColors.primary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontSize: AppTypography.size13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             )
           else
-            TextButton(
-              onPressed: _gpsLoading ? null : _captureGps,
-              child: _gpsLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Capture'),
-            ),
+            _gpsLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : GestureDetector(
+                    onTap: _captureGps,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                      ),
+                      child: const Text(
+                        'Ambil GPS',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: AppTypography.size12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
         ],
       ),
     );
   }
 
   Widget _buildPhotoGrid() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (_photos.isEmpty)
-          GestureDetector(
-            onTap: _showPhotoSourceDialog,
-            child: Container(
-              height: 160,
-              decoration: BoxDecoration(
-                color: AppColors.bgSurface,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(
-                  color: AppColors.borderCard,
-                  style: BorderStyle.solid,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.add_a_photo_outlined,
-                    size: 48,
-                    color: AppColors.textTertiary,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Belum ada foto',
-                    style: TextStyle(
-                      color: AppColors.textTertiary,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Ketuk untuk menambahkan foto',
-                    style: TextStyle(
-                      color: AppColors.textTertiary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: AppSpacing.sm,
-              mainAxisSpacing: AppSpacing.sm,
-              childAspectRatio: 1,
-            ),
-            itemCount: _photos.length + 1,
-            itemBuilder: (context, index) {
-              if (index == _photos.length) {
-                // Add photo button
-                return GestureDetector(
-                  onTap: _showPhotoSourceDialog,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.bgSurface,
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(color: AppColors.borderCard),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add, color: AppColors.primary, size: 32),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Tambah Foto',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 12,
+    // Always show 3 photo slots
+    return Row(
+      children: List.generate(3, (index) {
+        final hasPhoto = index < _photos.length;
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: index < 2 ? AppSpacing.sm : 0),
+            child: Column(
+              children: [
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: hasPhoto
+                      ? Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                              child: Image.file(
+                                File(_photos[index].path),
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  color: AppColors.bgSurface,
+                                  child: const Icon(Icons.image, size: 32),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: () => _removePhoto(index),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.textPrimary.withValues(
+                                      alpha: 0.54,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : GestureDetector(
+                          onTap: _showPhotoSourceDialog,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.bgSurface,
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                              border: Border.all(
+                                color: AppColors.borderCard,
+                                style: BorderStyle.solid,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.add,
+                                  size: 22,
+                                  color: AppColors.textMuted,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-
-              // Photo thumbnail
-              return Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    child: Image.file(
-                      File(_photos[index].path),
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: AppColors.bgSurface,
-                        child: const Icon(Icons.image, size: 40),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: GestureDetector(
-                      onTap: () => _removePhoto(index),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.textPrimary.withValues(alpha: 0.54),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-
-        if (_photos.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt, size: 18),
-                  label: const Text('Kamera'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.md,
-                    ),
-                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_library, size: 18),
-                  label: const Text('Galeri'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.md,
-                    ),
+                const SizedBox(height: 4),
+                Text(
+                  _getPhotoLabel(index),
+                  style: TextStyle(
+                    color: _getPhotoLabelColor(index),
+                    fontSize: AppTypography.size10,
+                    fontWeight: FontWeight.w500,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
-      ],
+        );
+      }),
     );
   }
 }

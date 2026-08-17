@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -30,7 +31,7 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/admin-daerah/sla');
+      final data = await client.getAdminDaerahSla();
       setState(() {
         _items = (data['data'] as List? ?? []).cast();
         _loading = false;
@@ -46,9 +47,6 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
   Future<void> _editItem(Map<String, dynamic> item) async {
     final slaHoursController = TextEditingController(
       text: (item['jam'] ?? '').toString(),
-    );
-    final descriptionController = TextEditingController(
-      text: item['description'] as String? ?? '',
     );
     final saved = await showDialog<bool>(
       context: context,
@@ -68,37 +66,23 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
                 ),
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: SigapSpacing.sm),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Deskripsi',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 2,
-              ),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: const Text(Strings.batal),
           ),
           ElevatedButton(
             onPressed: () async {
               if (slaHoursController.text.trim().isEmpty) return;
               try {
                 final client = ref.read(apiClientProvider);
-                final id = item['id'];
-                await client.post(
-                  '/api/admin-daerah/sla/$id',
-                  data: {
-                    'sla_hours':
-                        int.tryParse(slaHoursController.text.trim()) ?? 0,
-                    if (descriptionController.text.trim().isNotEmpty)
-                      'description': descriptionController.text.trim(),
-                  },
+                final id = item['id'].toString();
+                await client.updateAdminDaerahSla(
+                  id,
+                  jam: int.tryParse(slaHoursController.text.trim()) ?? 0,
                 );
                 if (ctx.mounted) Navigator.pop(ctx, true);
               } catch (e) {
@@ -109,7 +93,7 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
                 }
               }
             },
-            child: const Text('Simpan'),
+            child: const Text(Strings.simpan),
           ),
         ],
       ),

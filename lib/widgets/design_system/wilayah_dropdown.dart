@@ -8,7 +8,7 @@ class WilayahDropdown extends StatelessWidget {
 
   const WilayahDropdown({
     super.key,
-    this.label = 'Wilayah aktif',
+    required this.label,
     required this.value,
     this.onTap,
   });
@@ -35,7 +35,7 @@ class WilayahDropdown extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: AppColors.textPrimary, // #17191c per M-05 spec
                 ),
               ),
               const SizedBox(width: 4),

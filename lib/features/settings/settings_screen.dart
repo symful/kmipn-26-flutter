@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/strings.dart';
 import '../../theme/tokens.dart';
 import '../../providers/settings_provider.dart';
 
@@ -144,7 +145,7 @@ class _LanguageSelector extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Batal'),
+                child: const Text(Strings.batal),
               ),
               TextButton(
                 onPressed: () {

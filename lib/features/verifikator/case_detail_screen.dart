@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
@@ -53,9 +54,7 @@ class _VerifikasiCaseDetailScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final caseData = await client.get(
-        '/api/verifikator/cases/${widget.caseId}',
-      );
+      final caseData = await client.getVerifikatorCase(widget.caseId);
       Map<String, dynamic>? assessmentData;
       try {
         assessmentData = await client.get(
@@ -101,7 +100,7 @@ class _VerifikasiCaseDetailScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      await client.verifikatorDecide(
+      await client.decideVerifikatorCase(
         caseId: widget.caseId,
         decision: _selectedDecision!,
         reason: _reasonController.text.trim().isNotEmpty
@@ -226,7 +225,7 @@ class _VerifikasiCaseDetailScreenState
                   foregroundColor: SigapColors.surface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Kirim Keputusan'),
+                child: const Text(Strings.kirimKeputusan),
               ),
             ],
           ),
@@ -275,14 +274,14 @@ class _VerifikasiCaseDetailScreenState
 
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Kasus')),
+        appBar: AppBar(title: const Text(Strings.detailKasus)),
         body: const VerifikatorCaseDetailSkeleton(),
       );
     }
 
     if (_error != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Kasus')),
+        appBar: AppBar(title: const Text(Strings.detailKasus)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -319,7 +318,7 @@ class _VerifikasiCaseDetailScreenState
     final lng = (caseData['lng'] as num?)?.toDouble();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Kasus Verifikasi')),
+      appBar: AppBar(title: const Text(Strings.detailKasusVerifikasi)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
@@ -408,7 +407,7 @@ class _VerifikasiCaseDetailScreenState
                   OutlinedButton.icon(
                     onPressed: () => context.push('/map'),
                     icon: const Icon(Icons.map, size: 16),
-                    label: const Text('Lihat di Peta'),
+                    label: const Text(Strings.lihatDiPeta),
                   ),
                 ],
               ),
@@ -559,7 +558,7 @@ class _StatusBadge extends StatelessWidget {
   String get _label {
     switch (status.toLowerCase()) {
       case 'submitted':
-        return 'Submitted';
+        return Strings.submitted;
       case 'under_review':
         return 'Under Review';
       case 'verified':
@@ -569,9 +568,9 @@ class _StatusBadge extends StatelessWidget {
       case 'resolved':
         return 'Resolved';
       case 'rejected':
-        return 'Rejected';
+        return Strings.rejected;
       case 'duplicate_merged':
-        return 'Duplikat';
+        return Strings.duplikat;
       default:
         return status;
     }
@@ -726,55 +725,55 @@ class _DecisionPanel extends StatelessWidget {
           decision: 'needs_completion',
           onTap: () => onDecisionSelected(
             'needs_completion',
-            'Perlu Lengkapi',
+            Strings.perluLengkapi,
             SigapColors.diproses,
           ),
         ),
         _DecisionButton(
           icon: Icons.search,
-          label: 'Survei',
-          sublabel: 'Kirim surveyor',
+          label: Strings.survei,
+          sublabel: Strings.kirimSurveyor,
           color: SigapColors.primary,
           decision: 'needs_survey',
           onTap: () => onDecisionSelected(
             'needs_survey',
-            'Perlu Survei',
+            Strings.perluSurvei,
             SigapColors.primary,
           ),
         ),
         _DecisionButton(
           icon: Icons.link,
-          label: 'Duplikat',
-          sublabel: 'Merge duplikat',
+          label: Strings.duplikat,
+          sublabel: Strings.mergeDuplikat,
           color: SigapColors.diproses,
           decision: 'duplicate',
           onTap: () => onDecisionSelected(
             'duplicate',
-            'Tandai Duplikat',
+            Strings.tandaiDuplikat,
             SigapColors.offlineDot,
           ),
         ),
         _DecisionButton(
           icon: Icons.block,
-          label: 'Diluar',
-          sublabel: 'Di luar jangkauan',
+          label: Strings.dilute,
+          sublabel: Strings.diluteJangkauan,
           color: SigapColors.offlineDot,
           decision: 'out_of_scope',
           onTap: () => onDecisionSelected(
             'out_of_scope',
-            'Diluar Jangkauan',
+            Strings.diluteJangkauan,
             SigapColors.offlineDot,
           ),
         ),
         _DecisionButton(
           icon: Icons.cancel,
-          label: 'Tolak',
-          sublabel: 'Tolak laporan',
+          label: Strings.tolak,
+          sublabel: Strings.tolakLaporan,
           color: SigapColors.perluTindakan,
           decision: 'rejected',
           onTap: () => onDecisionSelected(
             'rejected',
-            'Ditolak',
+            Strings.ditolak,
             SigapColors.perluTindakan,
           ),
         ),

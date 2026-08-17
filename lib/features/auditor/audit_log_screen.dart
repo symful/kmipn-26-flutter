@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../api/exceptions.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../utils/logger.dart';
@@ -32,7 +33,6 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
   DateTimeRange? _dateRange;
   String? _objectTypeFilter;
   String? _objectIdFilter;
-  String? _wilayahFilter;
 
   final _actorIdController = TextEditingController();
   final _objectIdController = TextEditingController();
@@ -58,37 +58,26 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
     });
     try {
       final client = ref.read(apiClientProvider);
-      final params = <String, dynamic>{
-        'limit': _pageSize,
-        'offset': _offset,
-        if (_actorIdFilter != null && _actorIdFilter!.isNotEmpty)
-          'actor_id': _actorIdFilter,
-        if (_actionFilter != null && _actionFilter!.isNotEmpty)
-          'action': _actionFilter,
-        if (_dateRange != null) 'from': _dateRange!.start.toIso8601String(),
-        if (_dateRange != null) 'to': _dateRange!.end.toIso8601String(),
-        if (_objectTypeFilter != null && _objectTypeFilter!.isNotEmpty)
-          'object_type': _objectTypeFilter,
-        if (_objectIdFilter != null && _objectIdFilter!.isNotEmpty)
-          'object_id': _objectIdFilter,
-        if (_wilayahFilter != null && _wilayahFilter!.isNotEmpty)
-          'wilayah': _wilayahFilter,
-      };
-      final queryString = params.entries
-          .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
-          .join('&');
-      final data = await client.get(
-        '/api/auditor/audit-search${queryString.isNotEmpty ? "?$queryString" : ""}',
+      final page = (_offset ~/ _pageSize) + 1;
+      final data = await client.getAuditorAuditSearch(
+        actorId: _actorIdFilter,
+        action: _actionFilter,
+        objectType: _objectTypeFilter,
+        objectId: _objectIdFilter,
+        from: _dateRange?.start.toIso8601String(),
+        to: _dateRange?.end.toIso8601String(),
+        page: page,
+        limit: _pageSize,
       );
-      final items = (data['items'] as List? ?? data['data'] as List? ?? [])
+      final entries = (data['entries'] as List? ?? [])
           .cast<Map<String, dynamic>>();
       setState(() {
         if (reset) {
-          _logs = items;
+          _logs = entries;
         } else {
-          _logs.addAll(items);
+          _logs.addAll(entries);
         }
-        _hasMore = items.length >= _pageSize;
+        _hasMore = entries.length >= _pageSize;
         _loading = false;
       });
     } catch (e, _) {
@@ -131,7 +120,7 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
                 Row(
                   children: [
                     const Text(
-                      'Filter',
+                      Strings.filter,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -146,13 +135,12 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
                           _dateRange = null;
                           _objectTypeFilter = null;
                           _objectIdFilter = null;
-                          _wilayahFilter = null;
                           _actorIdController.clear();
                           _objectIdController.clear();
                           _wilayahController.clear();
                         });
                       },
-                      child: const Text('Reset'),
+                      child: const Text(Strings.reset),
                     ),
                   ],
                 ),
@@ -181,7 +169,6 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
                     labelText: 'Wilayah',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (v) => setSheetState(() => _wilayahFilter = v),
                 ),
                 const SizedBox(height: SigapSpacing.sm),
                 DropdownButtonFormField<String>(
@@ -249,9 +236,6 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
                         : null;
                     _objectIdFilter = _objectIdController.text.trim().isNotEmpty
                         ? _objectIdController.text.trim()
-                        : null;
-                    _wilayahFilter = _wilayahController.text.trim().isNotEmpty
-                        ? _wilayahController.text.trim()
                         : null;
                     Navigator.pop(ctx);
                     _load(reset: true);
@@ -360,36 +344,20 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
 
     try {
       final client = ref.read(apiClientProvider);
-      final params = <String, dynamic>{
-        if (_actorIdFilter != null && _actorIdFilter!.isNotEmpty)
-          'actor_id': _actorIdFilter,
-        if (_actionFilter != null && _actionFilter!.isNotEmpty)
-          'action': _actionFilter,
-        if (_dateRange != null) 'from': _dateRange!.start.toIso8601String(),
-        if (_dateRange != null) 'to': _dateRange!.end.toIso8601String(),
-        if (_objectTypeFilter != null && _objectTypeFilter!.isNotEmpty)
-          'object_type': _objectTypeFilter,
-        if (_objectIdFilter != null && _objectIdFilter!.isNotEmpty)
-          'object_id': _objectIdFilter,
-        if (_wilayahFilter != null && _wilayahFilter!.isNotEmpty)
-          'wilayah': _wilayahFilter,
-        'format': result,
-      };
-      final queryString = params.entries
-          .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
-          .join('&');
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Mengunduh data...')));
 
-      final data = await client.get(
-        '/api/auditor/audit-export${queryString.isNotEmpty ? "?$queryString" : ""}',
+      final content = await client.getAuditorAuditExport(
+        actorId: _actorIdFilter,
+        action: _actionFilter,
+        objectType: _objectTypeFilter,
+        objectId: _objectIdFilter,
+        from: _dateRange?.start.toIso8601String(),
+        to: _dateRange?.end.toIso8601String(),
+        format: result,
       );
-
-      final content = result == 'json'
-          ? const JsonEncoder.withIndent('  ').convert(data)
-          : _convertToCsv(data);
 
       await Share.share(
         content,
@@ -402,42 +370,6 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
         );
       }
     }
-  }
-
-  String _convertToCsv(Map<String, dynamic> data) {
-    final items =
-        (data['items'] as List? ??
-        data['data'] as List? ??
-        <Map<String, dynamic>>[]);
-
-    if (items.isEmpty) {
-      return 'No data';
-    }
-
-    final headers = items.first.keys.toList();
-    final buffer = StringBuffer();
-
-    // Header row
-    buffer.writeln(headers.join(','));
-
-    // Data rows
-    for (final item in items) {
-      final row = headers
-          .map((h) {
-            final value = item[h]?.toString() ?? '';
-            // Escape values that contain commas or quotes
-            if (value.contains(',') ||
-                value.contains('"') ||
-                value.contains('\n')) {
-              return '"${value.replaceAll('"', '""')}"';
-            }
-            return value;
-          })
-          .join(',');
-      buffer.writeln(row);
-    }
-
-    return buffer.toString();
   }
 
   @override
@@ -457,7 +389,7 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showFilterSheet,
-            tooltip: 'Filter',
+            tooltip: Strings.filter,
           ),
           IconButton(
             icon: const Icon(Icons.download),

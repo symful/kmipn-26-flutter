@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../db/database.dart';
+import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/tokens.dart';
@@ -148,20 +149,20 @@ String _serverStatusLabel(String? status) {
   switch (status) {
     case 'submitted':
     case 'under_review':
-      return 'Perlu Tindakan';
+      return Strings.perluTindakanCapital;
     case 'verified':
     case 'in_progress':
-      return 'Diproses';
+      return Strings.diproses;
     case 'resolved':
-      return 'Selesai';
+      return Strings.selesai;
     case 'rejected':
-      return 'Ditolak';
+      return Strings.ditolak;
     case 'duplicate_merged':
-      return 'Duplikat';
+      return Strings.duplikat;
     case 'needs_survey':
-      return 'Perlu Survei';
+      return Strings.perluSurvei;
     default:
-      return status ?? 'Unknown';
+      return status ?? Strings.unknown;
   }
 }
 
@@ -523,6 +524,7 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
     final connectivityAsync = ref.watch(connectivityProvider);
     final pendingAsync = ref.watch(pendingCountProvider);
     final statsAsync = ref.watch(wargaStatsProvider);
+    final selectedWilayah = ref.watch(selectedWilayahNameProvider);
 
     final isOffline =
         connectivityAsync.whenOrNull(
@@ -599,6 +601,9 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
           ),
         ),
       );
+    } else {
+      // Show empty section when position is unavailable
+      nearbySection = const SizedBox.shrink();
     }
 
     return PhoneFrame(
@@ -609,13 +614,13 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
             child: Scaffold(
               appBar: AppBar(
                 title: WilayahDropdown(
-                  label: 'Wilayah aktif',
-                  value: authState.activeRole ?? authState.userRole ?? 'Warga',
-                  onTap: () {},
+                  label: 'Wilayah',
+                  value: '$selectedWilayah ▾',
+                  onTap: null,
                 ),
                 automaticallyImplyLeading: false,
                 actions: [
-                  // Offline badge
+                  // Online/Offline pill
                   if (isOffline)
                     Container(
                       margin: const EdgeInsets.only(right: 8),
@@ -647,21 +652,42 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                           ),
                         ],
                       ),
+                    )
+                  else
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                        border: Border.all(color: AppColors.successBorder),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            'Online',
+                            style: TextStyle(
+                              color: AppColors.primaryDark,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  // Sync Now button
-                  TextButton.icon(
-                    onPressed: () {
-                      ref.read(syncWorkerProvider).syncNow();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Sinkronisasi dimulai…'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.sync, size: 18),
-                    label: const Text('Sync Now'),
-                  ),
                   // Role switcher (only if multi-role)
                   if (authState.roles.length > 1)
                     IconButton(
@@ -671,9 +697,11 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                     ),
                   IconButton(
                     onPressed: () {
-                      // TODO: Navigate to notifications screen
+                      context.push('/notifications');
                     },
-                    icon: const NotificationBell(unreadCount: 0),
+                    icon: NotificationBell(
+                      unreadCount: ref.watch(unreadCountProvider),
+                    ),
                   ),
                 ],
               ),
@@ -688,27 +716,12 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Welcome header
-                      Text(
-                        'Selamat datang, ${authState.userName ?? "Warga"}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Peran aktif: ${authState.activeRole ?? authState.userRole ?? "warga"}',
-                        style: const TextStyle(
-                          color: SigapColors.textSecondary,
-                        ),
-                      ),
                       const SizedBox(height: SigapSpacing.lg),
 
                       // Buat Laporan CTA
                       CtaButton(
                         label: 'Buat laporan',
-                        subtitle: 'from LatLng? then...',
+                        subtitle: 'Foto, lokasi, dan kondisi lapangan',
                         onPressed: () => context.push('/create'),
                       ),
                       const SizedBox(height: SigapSpacing.md),
@@ -745,6 +758,37 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
 
                       // Nearby cases section
                       if (nearbySection != null) nearbySection,
+
+                      // Laporan saya header with Lihat semua link
+                      Padding(
+                        padding: const EdgeInsets.only(top: SigapSpacing.md),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              Strings.laporanSaya,
+                              style: TextStyle(
+                                fontSize: AppTypography.size13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.push('/laporan'),
+                              child: const Text(
+                                Strings.lihatSemua,
+                                style: TextStyle(
+                                  fontSize: AppTypography.size12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: SigapSpacing.sm),
 
                       // Report list
                       Expanded(
@@ -794,7 +838,7 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
             Icon(Icons.inbox_outlined, size: 48, color: SigapColors.textMuted),
             SizedBox(height: SigapSpacing.md),
             Text(
-              'Belum ada aktivitas',
+              Strings.belumAdaAktivitas,
               style: TextStyle(color: SigapColors.textMuted, fontSize: 16),
             ),
           ],

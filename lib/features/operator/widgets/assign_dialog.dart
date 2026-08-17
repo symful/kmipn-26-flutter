@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -24,15 +25,15 @@ class _OperatorAssignDialogState extends ConsumerState<OperatorAssignDialog> {
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.post(
-        '/api/operator/cases/${widget.caseId}/assign',
-        data: {
-          'unit_id': _unitController.text.trim(),
-          if (_instructionsController.text.trim().isNotEmpty)
-            'instructions': _instructionsController.text.trim(),
-          if (_deadline != null)
-            'deadline': _deadline!.toIso8601String().split('T').first,
-        },
+      await client.assignOperatorCase(
+        caseId: widget.caseId,
+        unitId: _unitController.text.trim(),
+        instructions: _instructionsController.text.trim().isNotEmpty
+            ? _instructionsController.text.trim()
+            : null,
+        deadline: _deadline != null
+            ? _deadline!.toIso8601String().split('T').first
+            : null,
       );
       if (mounted) {
         Navigator.pop(context, true);
@@ -64,7 +65,7 @@ class _OperatorAssignDialogState extends ConsumerState<OperatorAssignDialog> {
               controller: _unitController,
               decoration: const InputDecoration(
                 labelText: 'ID Unit (WAJIB)',
-                hintText: 'Masukkan ID unit tugas',
+                hintText: Strings.idUnitTugas,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -115,7 +116,7 @@ class _OperatorAssignDialogState extends ConsumerState<OperatorAssignDialog> {
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.pop(context),
-          child: const Text('Batal'),
+          child: const Text(Strings.batal),
         ),
         ElevatedButton(
           onPressed: _unitController.text.trim().isEmpty || _loading

@@ -10,6 +10,10 @@ import 'package:path/path.dart' as p;
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../utils/logger.dart';
+import '../../../widgets/design_system/bottom_nav_5.dart';
+import 'presentation/widgets/task_filter_chips.dart';
+import 'presentation/widgets/offline_ready_badge.dart';
+import 'presentation/widgets/connectivity_indicator.dart';
 
 class SurveyorTaskListScreen extends ConsumerStatefulWidget {
   const SurveyorTaskListScreen({super.key});
@@ -31,6 +35,12 @@ class _SurveyorTaskListScreenState
   final Set<String> _downloadingTaskIds = {};
   // Download progress: taskId -> (current, total)
   final Map<String, (int, int)> _downloadProgress = {};
+  // Filter state: 0=Hari ini, 1=Terlambat, 2=Belum diunduh, null=all
+  int? _filterIndex;
+  // Sort state
+  String _sortValue = 'SLA terdekat';
+  // Selected nav index for BottomNav5
+  int _selectedNavIndex = 0;
 
   @override
   void initState() {
@@ -312,43 +322,72 @@ class _SurveyorTaskListScreenState
 
   @override
   Widget build(BuildContext context) {
+    final filteredTasks = _applyFilter(_tasks, _filterIndex);
+    final taskCount = filteredTasks.length;
+
+    // Calculate filter counts for chips
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final todayCount = _tasks.where((t) {
+      final createdAt = _parseDate(t['created_at'] ?? t['assigned_date']);
+      return createdAt != null &&
+          createdAt.year == today.year &&
+          createdAt.month == today.month &&
+          createdAt.day == today.day;
+    }).length;
+    final overdueCount = _tasks.where((t) {
+      final dueDate = _parseDate(t['sla_due_date'] ?? t['due_date']);
+      return dueDate != null && dueDate.isBefore(now);
+    }).length;
+    final notDownloadedCount = _tasks
+        .where((t) => !_downloadedIds.contains(t['id']?.toString()))
+        .length;
+
     return Scaffold(
+      backgroundColor: AppColors.bgSurface,
       appBar: AppBar(
-        title: const Text('Tugas Survei'),
+        backgroundColor: AppColors.bgCard,
+        elevation: 0,
         automaticallyImplyLeading: false,
-        actions: [
-          if (_isOfflineMode)
-            Container(
-              margin: const EdgeInsets.only(right: SigapSpacing.md),
-              padding: const EdgeInsets.symmetric(
-                horizontal: SigapSpacing.sm,
-                vertical: SigapSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: SigapColors.offlineBg,
-                borderRadius: BorderRadius.circular(SigapRadius.sm),
-              ),
-              child: const Row(
+        titleSpacing: 0,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: Row(
+            children: [
+              // Title + Subtitle column
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.cloud_off,
-                    size: 14,
-                    color: SigapColors.offlineText,
-                  ),
-                  SizedBox(width: 4),
                   Text(
-                    'OFFLINE',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: SigapColors.offlineText,
+                    'Tugas hari ini',
+                    style: const TextStyle(
+                      fontSize: AppTypography.size19,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  // S-01 subtitle: "N tugas · M siap offline" in mono font
+                  Text(
+                    '$taskCount tugas · ${_downloadedIds.length} siap offline',
+                    style: const TextStyle(
+                      fontFamily: 'IBM Plex Mono',
+                      fontSize: AppTypography.size12,
+                      color: AppColors.textTertiary,
                     ),
                   ),
                 ],
               ),
-            ),
-        ],
+              const Spacer(),
+              ConnectivityIndicator(
+                status: _isOfflineMode
+                    ? ConnectivityStatus.offline
+                    : ConnectivityStatus.online,
+              ),
+            ],
+          ),
+        ),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -356,26 +395,190 @@ class _SurveyorTaskListScreenState
           ? _ErrorRetry(error: _error!, onRetry: _load)
           : _tasks.isEmpty
           ? const Center(child: Text('Tidak ada tugas survei'))
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(SigapSpacing.lg),
-                itemCount: _tasks.length,
-                itemBuilder: (context, index) {
-                  final task = _tasks[index];
-                  final taskId = task['id'] as String;
-                  return _SurveyorTaskCard(
-                    task: task,
-                    isDownloaded: _downloadedIds.contains(taskId),
-                    isDownloading: _downloadingTaskIds.contains(taskId),
-                    progress: _downloadProgress[taskId],
-                    onTap: () => context.push('/surveyor/tasks/$taskId'),
-                    onDownloadToggle: () => _toggleDownload(task),
-                  );
-                },
-              ),
+          : Column(
+              children: [
+                // Filter chips with counts - S-01 design
+                TaskFilterChips(
+                  selectedIndex: _filterIndex,
+                  onChipSelected: (index) {
+                    setState(() {
+                      _filterIndex = index;
+                    });
+                  },
+                  todayCount: todayCount,
+                  overdueCount: overdueCount,
+                  notDownloadedCount: notDownloadedCount,
+                ),
+                // Sort row - S-01 design: "Urutkan: SLA terdekat ▾" + "Unduh N tugas"
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      // Sort label with dropdown value
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Urutkan: ',
+                            style: const TextStyle(
+                              fontSize: AppTypography.size12,
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
+                          DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _sortValue,
+                              items: ['Terbaru', 'SLA terdekat', 'Prioritas']
+                                  .map((option) {
+                                    return DropdownMenuItem<String>(
+                                      value: option,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            option,
+                                            style: const TextStyle(
+                                              fontSize: AppTypography.size12,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.textPrimary,
+                                            ),
+                                          ),
+                                          const Text(
+                                            ' ▾',
+                                            style: TextStyle(
+                                              fontSize: AppTypography.size12,
+                                              color: AppColors.textTertiary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  })
+                                  .toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _sortValue = value;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          // Batch download action
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Fitur unduh batch belum tersedia'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Unduh $taskCount tugas',
+                          style: const TextStyle(
+                            fontSize: AppTypography.size12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Task list
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _load,
+                    color: AppColors.primary,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      itemCount: filteredTasks.length,
+                      itemBuilder: (context, index) {
+                        final task = filteredTasks[index];
+                        final taskId = task['id'] as String;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: _SurveyorTaskCard(
+                            task: task,
+                            isDownloaded: _downloadedIds.contains(taskId),
+                            isDownloading: _downloadingTaskIds.contains(taskId),
+                            progress: _downloadProgress[taskId],
+                            onTap: () =>
+                                context.push('/surveyor/tasks/$taskId'),
+                            onDownloadToggle: () => _toggleDownload(task),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
+      bottomNavigationBar: BottomNav5(
+        variant: BottomNavVariant.surveyor,
+        selectedIndex: _selectedNavIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedNavIndex = index;
+          });
+          if (index == 1) {
+            // Peta tab
+            context.go('/surveyor/map');
+          } else if (index == 4) {
+            // Akun tab
+            context.go('/profile');
+          }
+        },
+      ),
     );
+  }
+
+  /// Applies filter based on selected chip index
+  List<Map<String, dynamic>> _applyFilter(
+    List<Map<String, dynamic>> tasks,
+    int? filterIndex,
+  ) {
+    if (filterIndex == null) return tasks;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    switch (filterIndex) {
+      case 0: // Hari ini
+        return tasks.where((t) {
+          final createdAt = _parseDate(t['created_at'] ?? t['assigned_date']);
+          return createdAt != null &&
+              createdAt.year == today.year &&
+              createdAt.month == today.month &&
+              createdAt.day == today.day;
+        }).toList();
+      case 1: // Terlambat
+        return tasks.where((t) {
+          final dueDate = _parseDate(t['sla_due_date'] ?? t['due_date']);
+          return dueDate != null && dueDate.isBefore(now);
+        }).toList();
+      case 2: // Belum diunduh
+        return tasks.where((t) {
+          final taskId = t['id']?.toString();
+          return taskId != null && !_downloadedIds.contains(taskId);
+        }).toList();
+      default:
+        return tasks;
+    }
+  }
+
+  /// Parses a date string from API response
+  DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    return DateTime.tryParse(value.toString());
   }
 }
 
@@ -396,128 +599,345 @@ class _SurveyorTaskCard extends StatelessWidget {
     required this.onDownloadToggle,
   });
 
-  String get _statusLabel {
+  /// Priority level based on SLA urgency or status
+  /// S-01 Design: urgent (red), high (amber), normal (teal), low (gray)
+  TaskPriorityLevel get _priority {
+    final dueDate = _parseDate(task['sla_due_date'] ?? task['due_date']);
+    if (dueDate != null) {
+      final now = DateTime.now();
+      final difference = dueDate.difference(now).inDays;
+      final hours = dueDate.difference(now).inHours;
+      if (difference < 0 || hours < 0) {
+        return TaskPriorityLevel.urgent;
+      } else if (difference <= 1) {
+        return TaskPriorityLevel.high;
+      } else if (difference <= 2) {
+        return TaskPriorityLevel.high;
+      }
+    }
+    // Fall back to status-based priority
     switch ((task['status'] ?? '').toString().toLowerCase()) {
       case 'pending':
-        return 'Menunggu';
+        return TaskPriorityLevel.low;
       case 'assigned':
-        return 'Ditugaskan';
+        return TaskPriorityLevel.normal;
       case 'in_progress':
-        return 'Diproses';
+        return TaskPriorityLevel.normal;
       case 'completed':
-        return 'Selesai';
+        return TaskPriorityLevel.normal;
       default:
-        return task['status']?.toString() ?? '-';
+        return TaskPriorityLevel.low;
     }
   }
 
-  Color get _statusColor {
-    switch ((task['status'] ?? '').toString().toLowerCase()) {
-      case 'pending':
-        return SigapColors.offlineDot;
-      case 'assigned':
-        return SigapColors.diproses;
-      case 'in_progress':
-        return SigapColors.primary;
-      case 'completed':
-        return SigapColors.selesai;
-      default:
-        return SigapColors.textMuted;
+  /// Returns SLA badge text matching S-01 design
+  String get _slaLabel {
+    final dueDate = _parseDate(task['sla_due_date'] ?? task['due_date']);
+    if (dueDate != null) {
+      final now = DateTime.now();
+      final difference = dueDate.difference(now).inDays;
+      final hours = dueDate.difference(now).inHours;
+      if (difference < 0 || hours < 0) {
+        final overdueHours = hours.abs();
+        if (overdueHours < 1) {
+          return 'Terlambat <1j';
+        }
+        return 'Terlambat ${overdueHours}h';
+      } else if (difference == 0) {
+        if (hours < 1) {
+          return 'SLA <1j';
+        }
+        return 'SLA ${hours}j';
+      } else if (difference == 1) {
+        return 'SLA besok';
+      } else {
+        return 'SLA ${difference}d';
+      }
     }
+    return '';
+  }
+
+  /// Background color for SLA badge (S-01 design)
+  Color get _slaBadgeColor {
+    final dueDate = _parseDate(task['sla_due_date'] ?? task['due_date']);
+    if (dueDate != null) {
+      final now = DateTime.now();
+      final hours = dueDate.difference(now).inHours;
+      if (hours < 0) {
+        return const Color(0xFFF8E2DE); // #f8e2de - red bg
+      } else if (hours < 24) {
+        return const Color(0xFFF8ECD6); // #f8ecd6 - amber bg
+      }
+    }
+    return const Color(0xFFEEF0EC); // #eef0ec - gray bg
+  }
+
+  /// Text color for SLA badge (S-01 design)
+  Color get _slaTextColor {
+    final dueDate = _parseDate(task['sla_due_date'] ?? task['due_date']);
+    if (dueDate != null) {
+      final now = DateTime.now();
+      final hours = dueDate.difference(now).inHours;
+      if (hours < 0) {
+        return const Color(0xFFA5271A); // #a5271a - red text
+      } else if (hours < 24) {
+        return const Color(0xFF8A5808); // #8a5808 - amber text
+      }
+    }
+    return const Color(0xFF616770); // #616770 - gray text
+  }
+
+  /// Priority label in Indonesian (S-01 design)
+  String get _priorityLabel {
+    switch (_priority) {
+      case TaskPriorityLevel.urgent:
+        return 'Prioritas tinggi';
+      case TaskPriorityLevel.high:
+        return 'Prioritas sedang';
+      case TaskPriorityLevel.normal:
+        return 'Prioritas normal';
+      case TaskPriorityLevel.low:
+        return 'Prioritas rendah';
+    }
+  }
+
+  /// Priority dot color (S-01 design)
+  Color get _priorityDotColor {
+    switch (_priority) {
+      case TaskPriorityLevel.urgent:
+        return AppColors.danger; // #c0392b
+      case TaskPriorityLevel.high:
+        return AppColors.warning; // #b8730a
+      case TaskPriorityLevel.normal:
+        return AppColors.primary; // #0f7a6b
+      case TaskPriorityLevel.low:
+        return AppColors.textTertiary; // #8a9099
+    }
+  }
+
+  /// Border color for left stripe (S-01 design)
+  Color get _borderColor {
+    switch (_priority) {
+      case TaskPriorityLevel.urgent:
+        return AppColors.danger; // #c0392b
+      case TaskPriorityLevel.high:
+        return AppColors.warning; // #b8730a
+      case TaskPriorityLevel.normal:
+        return AppColors.primary; // #0f7a6b
+      case TaskPriorityLevel.low:
+        return AppColors.borderSoft; // #d3d7d0
+    }
+  }
+
+  /// Location string from task data
+  String get _location {
+    // Try various location fields
+    final location = task['location'] as String?;
+    final address = task['address'] as String?;
+    final wilayah = task['wilayah'] as String?;
+    final rw = task['rw'] as String?;
+    final distance =
+        task['distance'] as String? ?? task['distance_km'] as String?;
+
+    final parts = <String>[];
+    if (rw != null && rw.toString().isNotEmpty) {
+      parts.add('RW $rw');
+    } else if (wilayah != null && wilayah.toString().isNotEmpty) {
+      parts.add(wilayah.toString());
+    } else if (address != null && address.toString().isNotEmpty) {
+      parts.add(address.toString());
+    } else if (location != null && location.toString().isNotEmpty) {
+      parts.add(location.toString());
+    }
+
+    if (distance != null && distance.toString().isNotEmpty) {
+      parts.add('$distance km');
+    }
+
+    return parts.isEmpty ? 'Lokasi tidak tersedia' : parts.join(' · ');
+  }
+
+  /// Task ID display string (e.g., "TGS-3391")
+  String get _taskIdDisplay {
+    final taskId = task['id']?.toString() ?? '-';
+    if (taskId.startsWith('TGS-')) {
+      return taskId;
+    }
+    return 'TGS-$taskId';
+  }
+
+  /// 2-letter avatar initials from title
+  String get _avatarInitials {
+    final title = task['title'] as String? ?? '-';
+    if (title.isEmpty || title == '-') return '--';
+
+    // Get first letter of first two words
+    final words = title.split(' ').where((w) => w.isNotEmpty).toList();
+    if (words.length >= 2) {
+      return '${words[0][0]}${words[1][0]}'.toUpperCase();
+    } else if (words.isNotEmpty && words[0].length >= 2) {
+      return words[0].substring(0, 2).toUpperCase();
+    }
+    return '--';
+  }
+
+  DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    return DateTime.tryParse(value.toString());
   }
 
   @override
   Widget build(BuildContext context) {
     final title = task['title'] as String? ?? '-';
-    final desc =
-        task['description'] as String? ??
-        task['instructions'] as String? ??
-        '-';
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: SigapSpacing.md),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        side: const BorderSide(color: SigapColors.border),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.bgCard,
+          borderRadius: BorderRadius.circular(AppRadius.x12),
+          border: Border(left: BorderSide(color: _borderColor, width: 4)),
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(SigapSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Top row: Avatar + Title/ID + SLA Badge
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
+                  // Avatar with initials
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight, // #e2f1ee
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        _avatarInitials,
+                        style: const TextStyle(
+                          fontFamily: 'IBM Plex Mono',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryDark, // #0a5c50
+                        ),
                       ),
                     ),
                   ),
+                  const SizedBox(width: 9),
+                  // Title + Task ID
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: AppTypography.size13_5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _taskIdDisplay,
+                          style: const TextStyle(
+                            fontFamily: 'IBM Plex Mono',
+                            fontSize: AppTypography.size11,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // SLA Badge
+                  if (_slaLabel.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _slaBadgeColor,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        _slaLabel,
+                        style: TextStyle(
+                          fontSize: AppTypography.size11,
+                          fontWeight: FontWeight.w700,
+                          color: _slaTextColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 11),
+              // Location
+              Text(
+                _location,
+                style: const TextStyle(
+                  fontSize: AppTypography.size11_5,
+                  color: AppColors.textTertiary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 10),
+              // Bottom row: Priority badge + Offline badge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Priority indicator
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: _priorityDotColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        _priorityLabel,
+                        style: TextStyle(
+                          fontSize: AppTypography.size11,
+                          fontWeight: FontWeight.w600,
+                          color: _priorityTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Offline badge or download button
                   if (isDownloading)
-                    const SizedBox(
-                      width: 48,
-                      height: 48,
+                    SizedBox(
+                      width: 24,
+                      height: 24,
                       child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        padding: const EdgeInsets.all(4),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.primary,
+                        ),
                       ),
                     )
                   else
-                    IconButton(
-                      icon: Icon(
-                        isDownloaded
-                            ? Icons.download_done
-                            : Icons.download_for_offline_outlined,
-                        color: isDownloaded
-                            ? SigapColors.selesai
-                            : SigapColors.textMuted,
-                      ),
-                      onPressed: onDownloadToggle,
-                      tooltip: isDownloaded
-                          ? 'Hapus offline'
-                          : 'Download offline',
+                    OfflineReadyBadge(
+                      isOfflineAvailable: isDownloaded,
+                      onDownloadTap: isDownloaded ? null : onDownloadToggle,
                     ),
-                ],
-              ),
-              const SizedBox(height: SigapSpacing.xs),
-              Text(
-                desc.toString().length > 100
-                    ? '${desc.toString().substring(0, 100)}...'
-                    : desc.toString(),
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: SigapColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: SigapSpacing.sm),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.sm,
-                      vertical: SigapSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(SigapRadius.sm),
-                    ),
-                    child: Text(
-                      _statusLabel,
-                      style: TextStyle(
-                        color: _statusColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  TextButton(onPressed: onTap, child: const Text('Buka')),
                 ],
               ),
             ],
@@ -526,7 +946,22 @@ class _SurveyorTaskCard extends StatelessWidget {
       ),
     );
   }
+
+  Color get _priorityTextColor {
+    switch (_priority) {
+      case TaskPriorityLevel.urgent:
+        return AppColors.dangerTextStrong; // #a5271a
+      case TaskPriorityLevel.high:
+        return AppColors.warningText; // #8a5808
+      case TaskPriorityLevel.normal:
+        return AppColors.primaryDark; // #0a5c50
+      case TaskPriorityLevel.low:
+        return AppColors.textTertiary; // #616770
+    }
+  }
 }
+
+enum TaskPriorityLevel { urgent, high, normal, low }
 
 class _ErrorRetry extends StatelessWidget {
   final String error;

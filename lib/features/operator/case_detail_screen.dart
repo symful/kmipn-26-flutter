@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/skeleton_loaders.dart';
@@ -54,13 +55,13 @@ class _OperatorCaseDetailScreenState
   Widget build(BuildContext context) {
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Kasus')),
+        appBar: AppBar(title: const Text(Strings.detailKasus)),
         body: const OperatorCaseDetailSkeleton(),
       );
     }
     if (_error != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Detail Kasus')),
+        appBar: AppBar(title: const Text(Strings.detailKasus)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -94,7 +95,7 @@ class _OperatorCaseDetailScreenState
         (data['assignee'] as Map<String, dynamic>?)?['name'] as String?;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Kasus Operator')),
+      appBar: AppBar(title: const Text(Strings.detailKasusOperator)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
