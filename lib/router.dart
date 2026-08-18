@@ -36,7 +36,7 @@ import 'screens/warga/laporan_detail_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/role_switcher/role_switcher_screen.dart';
-import 'screens/verifikator/queue_screen.dart';
+import 'features/verifikator/verifikator_queue_screen.dart';
 import 'screens/petugas/dashboard.dart';
 import 'providers/auth_provider.dart';
 import 'providers/providers.dart';

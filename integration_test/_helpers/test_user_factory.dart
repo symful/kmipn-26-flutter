@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'api_client_builder.dart';
 
 /// Seeded test user credentials for staging environment.
 class SeededCredentials {
@@ -156,6 +157,51 @@ class TestUserFactory {
         return SeededCredentials.warga;
       default:
         throw ArgumentError('Unknown role: $role');
+    }
+  }
+
+  /// Returns a TestApiClient authenticated as the given role.
+  ///
+  /// Logs in using seeded credentials and returns a TestApiClient
+  /// with the access_token already set.
+  Future<TestApiClient> getSeededUserToken(String role) async {
+    final email = _getEmailForRole(role);
+    final password = SeededCredentials.passwords[email];
+
+    if (email.isEmpty || password == null) {
+      throw ArgumentError('Unknown role: $role');
+    }
+
+    final result = await login(email, password);
+
+    if (!result.success || result.accessToken == null) {
+      throw Exception(
+        'Failed to login as $role ($email): ${result.errorMessage}',
+      );
+    }
+
+    final client = TestApiClient(baseUrl: baseUrl);
+    client.setAccessToken(result.accessToken);
+    return client;
+  }
+
+  /// Resets the staging environment by calling POST /api/test/reset.
+  ///
+  /// Uses the test secret header for authentication.
+  Future<void> cleanup() async {
+    const testSecret =
+        'HNjAW4i5xCxJFow5mrTLXvSW0PDJpfFJXo8PPUnbP38rVfe1/vcwdt4gGR/rR9Fu';
+    try {
+      await _client.post(
+        Uri.parse('$baseUrl/api/test/reset'),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Test-Secret': testSecret,
+        },
+      );
+    } catch (e) {
+      // Log but don't throw - cleanup failures shouldn't fail tests
+      print('TestUserFactory.cleanup() failed: $e');
     }
   }
 

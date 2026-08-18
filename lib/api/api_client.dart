@@ -18,6 +18,7 @@ class ConnectivityException implements Exception {
 
 class ApiClient {
   final Dio _dio;
+  final Dio _publicDio;
   final Future<void> Function()? _checkConnectivityFn;
 
   ApiClient({
@@ -35,7 +36,14 @@ class ApiClient {
                receiveTimeout: const Duration(seconds: 30),
              ),
            ),
-       _checkConnectivityFn = checkConnectivity {
+       _checkConnectivityFn = checkConnectivity,
+       _publicDio = Dio(
+         BaseOptions(
+           baseUrl: baseUrl ?? ApiConfig.baseUrl,
+           connectTimeout: const Duration(seconds: 30),
+           receiveTimeout: const Duration(seconds: 30),
+         ),
+       ) {
     // Only add interceptor if we're using the internally created Dio
     if (dio == null) {
       final effectiveStorage =
@@ -1519,26 +1527,45 @@ class ApiClient {
     required double lat,
     required double lng,
     String? title,
+    List<String>? photos,
     String? captchaToken,
   }) async {
-    final data = await _execute<Map<String, dynamic>>(
-      dioCall: () => _dio.post(
-        '/api/public/anonymous-reports',
-        data: {
-          'idempotency_key': idempotencyKey,
-          'device_id': deviceId,
-          'category_id': categoryId,
-          'description': description,
-          'lat': lat,
-          'lng': lng,
-          if (title != null) 'title': title,
-          if (captchaToken != null) 'captcha_token': captchaToken,
-        },
-      ),
-      endpoint: '/api/public/anonymous-reports',
-      parse: (data) => (data as Map).cast<String, dynamic>(),
-    );
-    return AnonymousReportResult.fromJson(data);
+    await _checkConnectivity();
+    try {
+      final Map<String, dynamic> body = {
+        'idempotency_key': idempotencyKey,
+        'device_id': deviceId,
+        'category_id': categoryId,
+        'description': description,
+        'lat': lat,
+        'lng': lng,
+        if (title != null) 'title': title,
+        if (captchaToken != null) 'captcha_token': captchaToken,
+      };
+
+      Response<Map<String, dynamic>> res;
+      if (photos != null && photos.isNotEmpty) {
+        final formData = FormData.fromMap({...body, 'photos': photos});
+        res = await _publicDio.post(
+          '/api/public/anonymous-reports',
+          data: formData,
+        );
+      } else {
+        res = await _publicDio.post(
+          '/api/public/anonymous-reports',
+          data: body,
+        );
+      }
+      return AnonymousReportResult.fromJson(res.data!);
+    } on DioException catch (e) {
+      final userMessage = extractErrorMessage(e);
+      throw ApiException(
+        statusCode: e.response?.statusCode ?? 0,
+        body: e.response?.data?.toString(),
+        endpoint: '/api/public/anonymous-reports',
+        userMessage: userMessage,
+      );
+    }
   }
 
   /// Fetches public reports GeoJSON for map clustering.

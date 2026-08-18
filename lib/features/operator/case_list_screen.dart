@@ -54,10 +54,12 @@ class _OperatorCaseListScreenState
     setState(() => _exporting = true);
     try {
       final client = ref.read(apiClientProvider);
-      final bytes = await client.exportPdf();
-      final dir = await getApplicationDocumentsDirectory();
+      final bytes = await client.exportPdf(
+        status: _statusFilter == 'all' ? null : _statusFilter,
+      );
+      final dir = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${dir.path}/case_list_$timestamp.pdf');
+      final file = File('${dir.path}/sigap-reports-$timestamp.pdf');
       await file.writeAsBytes(bytes);
       if (mounted) {
         ScaffoldMessenger.of(

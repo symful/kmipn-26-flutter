@@ -29,6 +29,7 @@ class _VerifikasiCaseDetailScreenState
   static final _logger = Logger('VerifikasiCaseDetailScreen');
   Map<String, dynamic>? _caseData;
   Map<String, dynamic>? _assessmentData;
+  Map<String, dynamic>? _timelineData;
   bool _loading = true;
   String? _error;
 
@@ -65,9 +66,17 @@ class _VerifikasiCaseDetailScreenState
         // Assessment may not exist for all cases
         assessmentData = null;
       }
+      Map<String, dynamic>? timelineData;
+      try {
+        timelineData = await client.getReportTimeline(widget.caseId);
+      } catch (e, s) {
+        _logger.warning('Error fetching timeline', e, s);
+        timelineData = null;
+      }
       setState(() {
         _caseData = caseData;
         _assessmentData = assessmentData;
+        _timelineData = timelineData;
         _loading = false;
       });
     } catch (e) {
@@ -466,6 +475,14 @@ class _VerifikasiCaseDetailScreenState
             if (_assessmentData != null) ...[
               _SectionHeader(title: 'Penilaian AI'),
               _AssessmentCard(data: _assessmentData!),
+              const SizedBox(height: SigapSpacing.lg),
+            ],
+
+            // Timeline
+            if (_timelineData != null &&
+                (_timelineData!['events'] as List?)?.isNotEmpty == true) ...[
+              _SectionHeader(title: 'Timeline'),
+              _TimelineCard(data: _timelineData!),
               const SizedBox(height: SigapSpacing.lg),
             ],
 
@@ -897,5 +914,127 @@ class _PhotoFullScreenState extends State<_PhotoFullScreen> {
         },
       ),
     );
+  }
+}
+
+class _TimelineCard extends StatelessWidget {
+  final Map<String, dynamic> data;
+  const _TimelineCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final events =
+        (data['events'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+
+    return Container(
+      padding: const EdgeInsets.all(SigapSpacing.md),
+      decoration: BoxDecoration(
+        color: SigapColors.surface,
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        border: Border.all(color: SigapColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int i = 0; i < events.length; i++) ...[
+            _TimelineEvent(event: events[i], isLast: i == events.length - 1),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TimelineEvent extends StatelessWidget {
+  final Map<String, dynamic> event;
+  final bool isLast;
+  const _TimelineEvent({required this.event, required this.isLast});
+
+  @override
+  Widget build(BuildContext context) {
+    final action =
+        event['action'] as String? ?? event['type'] as String? ?? '-';
+    final actor = event['actor'] as String? ?? event['user'] as String? ?? '-';
+    final timestamp =
+        event['timestamp'] as String? ?? event['created_at'] as String? ?? '';
+    final note = event['note'] as String? ?? event['description'] as String?;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: SigapColors.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+            if (!isLast)
+              Container(width: 2, height: 40, color: SigapColors.border),
+          ],
+        ),
+        const SizedBox(width: SigapSpacing.sm),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  action,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: SigapColors.textPrimary,
+                  ),
+                ),
+                if (actor != '-') ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'oleh: $actor',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                ],
+                if (timestamp.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    _formatDateTime(timestamp),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: SigapColors.textTertiary,
+                    ),
+                  ),
+                ],
+                if (note != null && note.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    note,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatDateTime(String iso) {
+    try {
+      final dt = DateTime.parse(iso);
+      return '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return iso;
+    }
   }
 }

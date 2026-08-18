@@ -567,28 +567,24 @@ class GeoJSONPoint {
 
 class AnonymousReportResult {
   final String id;
+  final String idempotencyKey;
   final String status;
-  final DateTime createdAt;
   AnonymousReportResult({
     required this.id,
+    required this.idempotencyKey,
     required this.status,
-    required this.createdAt,
   });
 
   factory AnonymousReportResult.fromJson(Map<String, dynamic> json) {
     return AnonymousReportResult(
       id: json['id'] as String,
+      idempotencyKey: json['idempotency_key'] as String,
       status: json['status'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'status': status,
-      'created_at': createdAt.toIso8601String(),
-    };
+    return {'id': id, 'idempotency_key': idempotencyKey, 'status': status};
   }
 }
 

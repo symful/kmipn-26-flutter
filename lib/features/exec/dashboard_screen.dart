@@ -323,7 +323,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
       // Save to file
       final dir = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${dir.path}/exec_dashboard_$timestamp.pdf');
+      final file = File('${dir.path}/sigap-reports-$timestamp.pdf');
       await file.writeAsBytes(bytes);
 
       // Share the file
