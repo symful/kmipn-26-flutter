@@ -9,14 +9,17 @@ class AuthInterceptor extends Interceptor {
   final FlutterSecureStorage _storage;
   final Dio _dio;
   final Future<void> Function() _onLogout;
+  final String? _testAccessToken;
 
   AuthInterceptor({
     required FlutterSecureStorage storage,
     required Dio dio,
     required Future<void> Function() onLogout,
+    String? testAccessToken,
   }) : _storage = storage,
        _dio = dio,
-       _onLogout = onLogout;
+       _onLogout = onLogout,
+       _testAccessToken = testAccessToken;
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
@@ -27,11 +30,16 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _storage.read(key: _accessTokenKey);
+    final String? token;
+    if (_testAccessToken != null) {
+      token = _testAccessToken;
+    } else {
+      token = await _storage.read(key: _accessTokenKey);
+    }
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
-    // Wire X-Active-Role header from storage
+    // Wire X-Active-Role header from storage (always, even in test mode)
     final activeRole = await _storage.read(key: _activeRoleKey);
     if (activeRole != null) {
       options.headers['X-Active-Role'] = activeRole;

@@ -27,6 +27,7 @@ class ApiClient {
     Future<void> Function()? onLogout,
     Dio? dio,
     Future<void> Function()? checkConnectivity,
+    String? testAccessToken,
   }) : _dio =
            dio ??
            Dio(
@@ -56,6 +57,7 @@ class ApiClient {
           storage: effectiveStorage,
           dio: _dio,
           onLogout: onLogout ?? () async {},
+          testAccessToken: testAccessToken,
         ),
       );
     }
