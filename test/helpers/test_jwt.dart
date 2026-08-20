@@ -4,15 +4,15 @@ import 'package:http/http.dart' as http;
 class TestJwtCache {
   static final Map<String, String> _cache = {};
 
-  static String get _baseUrl => const String.fromEnvironment(
+  static String get testBaseUrl => const String.fromEnvironment(
     'TEST_API_BASE_URL',
-    defaultValue: 'https://sigap.live',
+    defaultValue: 'https://kmipn-26-deno.careday17.workers.dev',
   );
 
   static Future<String> getToken(String role) async {
     if (_cache.containsKey(role)) return _cache[role]!;
 
-    final uri = Uri.parse('$_baseUrl/api/test/login-as');
+    final uri = Uri.parse('${testBaseUrl}/api/test/login-as');
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
