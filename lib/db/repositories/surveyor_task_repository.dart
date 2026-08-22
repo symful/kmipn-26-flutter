@@ -79,6 +79,12 @@ class SurveyorTaskRepository {
     return query.get();
   }
 
+  Future<List<LocalSurveyorVisit>> getAllVisits() {
+    final query = _db.select(_db.localSurveyorVisits)
+      ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]);
+    return query.get();
+  }
+
   Future<LocalSurveyorVisit?> getVisitByIdempotencyKey(String key) {
     final query = _db.select(_db.localSurveyorVisits)
       ..where((t) => t.idempotencyKey.equals(key));

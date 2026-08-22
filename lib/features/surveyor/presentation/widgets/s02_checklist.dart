@@ -20,7 +20,7 @@ import '../../../../theme/tokens.dart';
 /// S02Checklist(
 ///   items: ['Periksa kondisi jalan', 'Foto lokasi', 'Tanda tangan surveyor'],
 ///   checkedItems: {0, 1},
-///   onItemToggled: (index) => print('Toggled item $index'),
+///   onItemToggled: (index) { /* Handle toggle */ },
 /// )
 /// ```
 class S02Checklist extends StatelessWidget {

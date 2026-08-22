@@ -38,7 +38,7 @@ class _SurveyorTaskListScreenState
   // Filter state: 0=Hari ini, 1=Terlambat, 2=Belum diunduh, null=all
   int? _filterIndex;
   // Sort state
-  String _sortValue = 'SLA terdekat';
+  String _sortValue = 'Terbaru';
   // Selected nav index for BottomNav5
   int _selectedNavIndex = 0;
 
@@ -322,7 +322,10 @@ class _SurveyorTaskListScreenState
 
   @override
   Widget build(BuildContext context) {
-    final filteredTasks = _applyFilter(_tasks, _filterIndex);
+    final filteredTasks = _applySort(
+      _applyFilter(_tasks, _filterIndex),
+      _sortValue,
+    );
     final taskCount = filteredTasks.length;
 
     // Calculate filter counts for chips
@@ -431,33 +434,33 @@ class _SurveyorTaskListScreenState
                           DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: _sortValue,
-                              items: ['Terbaru', 'SLA terdekat', 'Prioritas']
-                                  .map((option) {
-                                    return DropdownMenuItem<String>(
-                                      value: option,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            option,
-                                            style: const TextStyle(
-                                              fontSize: AppTypography.size12,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.textPrimary,
-                                            ),
-                                          ),
-                                          const Text(
-                                            ' ▾',
-                                            style: TextStyle(
-                                              fontSize: AppTypography.size12,
-                                              color: AppColors.textTertiary,
-                                            ),
-                                          ),
-                                        ],
+                              items: ['Terbaru', 'Paling mendesak'].map((
+                                option,
+                              ) {
+                                return DropdownMenuItem<String>(
+                                  value: option,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        option,
+                                        style: const TextStyle(
+                                          fontSize: AppTypography.size12,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textPrimary,
+                                        ),
                                       ),
-                                    );
-                                  })
-                                  .toList(),
+                                      const Text(
+                                        ' ▾',
+                                        style: TextStyle(
+                                          fontSize: AppTypography.size12,
+                                          color: AppColors.textTertiary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
                               onChanged: (value) {
                                 if (value != null) {
                                   setState(() {
@@ -579,6 +582,39 @@ class _SurveyorTaskListScreenState
     if (value == null) return null;
     if (value is DateTime) return value;
     return DateTime.tryParse(value.toString());
+  }
+
+  /// Applies sort based on selected sort value
+  List<Map<String, dynamic>> _applySort(
+    List<Map<String, dynamic>> tasks,
+    String sortValue,
+  ) {
+    final sorted = List<Map<String, dynamic>>.from(tasks);
+    switch (sortValue) {
+      case 'Terbaru':
+        sorted.sort((a, b) {
+          final dateA = _parseDate(a['created_at'] ?? a['assigned_date']);
+          final dateB = _parseDate(b['created_at'] ?? b['assigned_date']);
+          if (dateA == null && dateB == null) return 0;
+          if (dateA == null) return 1;
+          if (dateB == null) return -1;
+          return dateB.compareTo(dateA); // newest first
+        });
+      case 'Paling mendesak':
+        sorted.sort((a, b) {
+          final dueDateA = _parseDate(a['sla_due_date'] ?? a['due_date']);
+          final dueDateB = _parseDate(b['sla_due_date'] ?? b['due_date']);
+          final now = DateTime.now();
+          if (dueDateA == null && dueDateB == null) return 0;
+          if (dueDateA == null) return 1;
+          if (dueDateB == null) return -1;
+          // Most urgent (soonest deadline) first
+          return dueDateA.difference(now).compareTo(dueDateB.difference(now));
+        });
+      default:
+        break;
+    }
+    return sorted;
   }
 }
 

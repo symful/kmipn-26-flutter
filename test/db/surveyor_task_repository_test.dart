@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sigap/db/database.dart';
@@ -19,8 +18,6 @@ void main() {
   });
 
   group('SurveyorTaskRepository', () {
-    final now = DateTime.now();
-
     List<Map<String, dynamic>> sampleChecklist = [
       {'item': 'Check exterior', 'done': false},
       {'item': 'Take photos', 'done': false},

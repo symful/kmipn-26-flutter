@@ -105,11 +105,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final res = await _client.dio.post(
-        '/api/auth/login',
-        data: {'email': email, 'password': password},
-      );
-      final data = res.data as Map<String, dynamic>;
+      final data = await _client.login(email, password);
       final accessToken = data['access_token'] as String;
       final refreshToken = data['refresh_token'] as String;
       final user = data['user'] as Map<String, dynamic>?;
@@ -188,10 +184,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final refreshToken = await _storage.read(key: _refreshTokenKey);
       if (refreshToken != null) {
-        await _client.dio.post(
-          '/api/auth/logout',
-          data: {'refresh_token': refreshToken},
-        );
+        await _client.logout(refreshToken);
       }
     } catch (e, st) {
       _logger.warning('logout failed', e, st);

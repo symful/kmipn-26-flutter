@@ -20,7 +20,7 @@ import '../../../../theme/tokens.dart';
 /// RekomendasiSelector(
 ///   selectedValue: 'Normal',
 ///   options: ['Normal', 'Perbaikan', 'Penggantian', 'Darurat'],
-///   onChanged: (value) => print('Selected: $value'),
+///   onChanged: (value) { /* Handle selection */ },
 /// )
 /// ```
 class RekomendasiSelector extends StatelessWidget {

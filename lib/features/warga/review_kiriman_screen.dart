@@ -1,8 +1,12 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+import '../../db/database.dart';
 import '../../providers/providers.dart';
+import '../../services/photo_service.dart';
 import '../../theme/tokens.dart';
 import 'presentation/screens/review_app_bar.dart';
 import 'presentation/widgets/report_summary_card.dart';
@@ -89,37 +93,128 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
   bool _isTruthStatementChecked = false;
 
   /// Handle user choosing to add evidence to existing case
-  Future<void> _handleLinkToCase() async {
+  Future<void> _handleLinkToCase(SimilarCase selectedCase) async {
     setState(() => _isSubmitting = true);
 
-    if (!mounted) return;
+    try {
+      final client = ref.read(apiClientProvider);
+      await client.wargaSubmitEvidence(
+        reportId: selectedCase.id,
+        description: widget.description,
+        photoPaths: widget.photoPath != null ? [widget.photoPath!] : [],
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Menambahkan bukti ke kasus...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+      if (!mounted) return;
 
-    // Navigate back to previous screen
-    context.pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bukti berhasil ditambahkan ke kasus'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+
+      // Navigate to the case detail page
+      context.go('/warga/laporan/${selectedCase.id}');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menambahkan bukti: $e'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
   }
 
   /// Handle user choosing to create a separate report
   Future<void> _handleCreateSeparate() async {
+    if (widget.categoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kategori laporan tidak tersedia'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
-    if (!mounted) return;
+    try {
+      final idempotencyKey = const Uuid().v4();
+      final reportRepo = ref.read(reportRepositoryProvider);
+      final db = ref.read(databaseProvider);
 
-    // Proceed with creating a separate case
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Membuat laporan terpisah...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+      // Save report locally
+      await reportRepo.saveLocal(
+        LocalReportsCompanion.insert(
+          idempotencyKey: idempotencyKey,
+          categoryId: widget.categoryId!,
+          description: widget.description,
+          lat: widget.lat,
+          lng: widget.lng,
+          photoPath: Value(widget.photoPath),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
 
-    context.pop();
+      // Upload photo if available
+      if (widget.photoPath != null) {
+        try {
+          final photoService = PhotoService(ref.read(apiClientProvider));
+          final r2Url = await photoService.uploadPhotoAndGetUrl(
+            widget.photoPath!,
+            idempotencyKey,
+          );
+
+          // Insert photo record with R2 URL
+          await db.insertPhoto(
+            reportIdempotencyKey: idempotencyKey,
+            filePath: r2Url,
+            capturedAt: DateTime.now().millisecondsSinceEpoch,
+          );
+        } catch (photoError) {
+          // Photo upload failed, but report is saved locally
+          // Insert with local path as fallback
+          await db.insertPhoto(
+            reportIdempotencyKey: idempotencyKey,
+            filePath: widget.photoPath!,
+            capturedAt: DateTime.now().millisecondsSinceEpoch,
+          );
+        }
+      }
+
+      // Enqueue for sync
+      final queueRepo = ref.read(syncQueueRepositoryProvider);
+      await queueRepo.enqueue(idempotencyKey);
+
+      // Invalidate providers to refresh data
+      ref.invalidate(localReportsProvider);
+      ref.invalidate(pendingCountProvider);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Laporan tersimpan. Akan sinkron otomatis.'),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+
+      // Navigate back to warga home
+      context.go('/warga');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menyimpan: $e'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
   }
 
   @override
@@ -154,7 +249,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
                     SimilarCasesBanner(
                       cases: similarCases,
                       onAddEvidence: (selectedCase) {
-                        _handleLinkToCase();
+                        _handleLinkToCase(selectedCase);
                       },
                       onCreateSeparate: () {
                         _handleCreateSeparate();
@@ -182,12 +277,16 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
                       accuracy: 'Akurasi baik',
                       timestamp: _formatTimestamp(DateTime.now()),
                       impact: 'Keselamatan · akses terganggu',
+                      canEditLocation: false,
+                      canEditTimestamp: false,
                     ),
                     onEditLocation: () {
-                      // TODO(flutter): Navigate to edit location screen
+                      // Location editing is not available at the final review step.
+                      // User should go back to the location selection step to modify location.
                     },
                     onEditTimestamp: () {
-                      // TODO(flutter): Navigate to edit timestamp screen
+                      // Timestamp editing is not available at the final review step.
+                      // User should go back to an earlier step to modify the timestamp.
                     },
                   ),
 

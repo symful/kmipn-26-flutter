@@ -15,9 +15,9 @@ import 'package:sigap/theme/tokens.dart';
 /// Example:
 /// ```dart
 /// S02ActionBar(
-///   onTolak: () => print('Tolak'),
-///   onMintaClarifikasi: () => print('Clarifikasi'),
-///   onTerima: () => print('Terima'),
+///   onTolak: () { /* Handle tolak */ },
+///   onMintaClarifikasi: () { /* Handle clarifikasi */ },
+///   onTerima: () { /* Handle terima */ },
 /// )
 /// ```
 class S02ActionBar extends StatelessWidget {

@@ -641,7 +641,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   }
 
   String _getPhotoLabel(int index) {
-    const labels = ['Depan', 'Samping', 'Atas'];
+    const labels = ['Depan', 'Kanan', 'Kiri'];
     if (index < _photos.length) {
       return '${labels[index]} ✓';
     }
@@ -656,7 +656,12 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   }
 
   Widget _buildKondisiSegmentedControl() {
-    const kondisiOptions = ['Ringan', 'Berat', 'Kritis'];
+    const kondisiOptions = [
+      'Baik',
+      'Rusak Ringan',
+      'Rusak Sedang',
+      'Rusak Berat',
+    ];
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgCard,
@@ -664,7 +669,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         border: Border.all(color: AppColors.borderCard),
       ),
       child: Row(
-        children: List.generate(3, (index) {
+        children: List.generate(4, (index) {
           final isSelected = _selectedKondisi == index;
           return Expanded(
             child: GestureDetector(
@@ -677,7 +682,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                     left: index == 0
                         ? const Radius.circular(AppRadius.lg - 1)
                         : Radius.zero,
-                    right: index == 2
+                    right: index == 3
                         ? const Radius.circular(AppRadius.lg - 1)
                         : Radius.zero,
                   ),
@@ -701,8 +706,8 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   Widget _buildRekomendasiRadioGroup() {
     const rekomendasiOptions = [
-      ('Valid — perlu tindak lanjut', ''),
-      ('Tidak ditemukan di lokasi', ''),
+      ('Verifikasi', ''),
+      ('Tidak Dapat Diverifikasi', ''),
     ];
 
     return Column(

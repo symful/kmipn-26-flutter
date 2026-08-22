@@ -1,37 +1,90 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'dart:math';
+import 'package:dio/dio.dart';
+
+/// Available roles for test authentication.
+enum Role {
+  ADMIN,
+  ADMIN_DAERAH,
+  PETUGAS,
+  SURVEYOR,
+  WARGA,
+  VERIFIKATOR,
+  PENGAMBIL_KEPUTUSAN,
+}
 
 class TestJwtCache {
-  static final Map<String, String> _cache = {};
+  static final Map<Role, String> _cache = {};
+  static final Map<Role, DateTime> _cooldowns = {};
+  static const _baseUrl = 'https://kmipn-26-deno.careday17.workers.dev';
 
-  static String get testBaseUrl => const String.fromEnvironment(
-    'TEST_API_BASE_URL',
-    defaultValue: 'https://kmipn-26-deno.careday17.workers.dev',
-  );
-
-  static Future<String> getToken(String role) async {
-    if (_cache.containsKey(role)) return _cache[role]!;
-
-    final uri = Uri.parse('${testBaseUrl}/api/test/login-as');
-    final response = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'role': role}),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to get token for role $role: ${response.statusCode} ${response.body}',
-      );
+  /// Fetches a real JWT token from the production server for the given role.
+  /// Tokens are cached for 30 minutes to avoid unnecessary API calls.
+  ///
+  /// Throws if token fetch fails after retries.
+  static Future<String> getToken(Role role) async {
+    final cached = _cache[role];
+    final lastFetch = _cooldowns[role];
+    if (cached != null && lastFetch != null) {
+      final age = DateTime.now().difference(lastFetch).inMinutes;
+      if (age < 30) return cached;
     }
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final token = data['access_token'] as String;
-    _cache[role] = token;
-    return token;
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: _baseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    );
+
+    int attempt = 0;
+    const maxRetries = 5;
+
+    while (true) {
+      try {
+        final resp = await dio.post(
+          '/api/test/login-as',
+          data: {'role': role.name},
+        );
+
+        if (resp.statusCode == 429 && attempt < maxRetries - 1) {
+          attempt++;
+          final delay = Duration(
+            milliseconds: (1000 * (1 << attempt)) + Random().nextInt(1000),
+          );
+          await Future.delayed(delay);
+          continue;
+        }
+
+        if (resp.statusCode != 200) {
+          throw DioException(
+            requestOptions: resp.requestOptions,
+            response: resp,
+            message:
+                'Failed to get test token: ${resp.statusCode} ${resp.data}',
+          );
+        }
+
+        // Server returns access_token, but spec pattern shows token
+        final token =
+            (resp.data['token'] ?? resp.data['access_token']) as String;
+        _cache[role] = token;
+        _cooldowns[role] = DateTime.now();
+        return token;
+      } catch (e) {
+        if (attempt >= maxRetries - 1) {
+          throw Exception(
+            'Failed to fetch token for ${role.name} after $maxRetries attempts: $e',
+          );
+        }
+        attempt++;
+        await Future.delayed(Duration(seconds: attempt));
+      }
+    }
   }
 
   static void clearCache() {
     _cache.clear();
+    _cooldowns.clear();
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 
@@ -23,7 +22,6 @@ class _VerifikatorQueueScreenState
   String? _kategoriFilter;
   List<Map<String, dynamic>> _entries = [];
   bool _loading = true;
-  String? _error;
 
   @override
   void initState() {
@@ -34,7 +32,6 @@ class _VerifikatorQueueScreenState
   Future<void> _loadQueue() async {
     setState(() {
       _loading = true;
-      _error = null;
     });
     try {
       final client = ref.read(apiClientProvider);
@@ -50,7 +47,6 @@ class _VerifikatorQueueScreenState
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
         _loading = false;
       });
     }
@@ -422,7 +418,7 @@ class _FilterSheetState extends State<_FilterSheet> {
               const Text(
                 'Filter Antrean',
                 style: TextStyle(
-                  fontSize: AppTypography.size18,
+                  fontSize: AppTypography.size19,
                   fontWeight: FontWeight.bold,
                 ),
               ),

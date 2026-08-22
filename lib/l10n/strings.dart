@@ -114,6 +114,8 @@ abstract class Strings {
   static const String hariIni = 'Hari ini';
   static const String terlambat = 'Terlambat';
   static const String belumDiunduh = 'Belum diunduh';
+  static const String sinkron = 'Sinkron';
+  static const String riwayat = 'Riwayat';
 
   // Widget labels
   static const String kasusTerdekat = 'Kasus terdekat';

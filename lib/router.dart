@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'theme/tokens.dart';
 import 'api/api_client.dart';
+import 'utils/logger.dart';
 import 'features/create/create_report_screen.dart';
 import 'features/detail/report_detail_screen.dart';
 import 'features/map/map_screen.dart';
@@ -14,8 +15,12 @@ import 'features/operator/case_detail_screen.dart' as operator_detail;
 import 'features/petugas/task_detail_screen.dart';
 import 'features/surveyor/task_list_screen.dart';
 import 'features/surveyor/task_detail_screen.dart';
+import 'features/surveyor/surveyor_tab_screen.dart';
+import 'features/surveyor/sync_center_screen.dart';
+import 'features/surveyor/riwayat_screen.dart';
 
 import 'features/surveyor/form_survei.dart';
+import 'features/surveyor/survey_form_screen.dart';
 import 'features/exec/dashboard_screen.dart';
 import 'features/admin_daerah/wilayah_screen.dart';
 import 'features/admin_daerah/categories_screen.dart';
@@ -32,7 +37,7 @@ import 'features/warga/warga_home_screen.dart';
 import 'features/warga/review_kiriman_screen.dart';
 import 'features/anon/anon_landing_screen.dart';
 import 'features/notifications/notifications_screen.dart';
-import 'screens/warga/laporan_detail_screen.dart';
+
 import 'features/settings/settings_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/role_switcher/role_switcher_screen.dart';
@@ -195,6 +200,7 @@ class SurveyorHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
+  static final _logger = Logger('_SurveyorHomeScreenState');
   List<Map<String, dynamic>> _tasks = [];
   bool _loading = true;
   String? _error;
@@ -305,7 +311,9 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
               completedDate.isAtSameMomentAs(todayStart)) {
             completedToday++;
           }
-        } catch (_) {}
+        } catch (e, stack) {
+          _logger.warning('Date parse failed', e, stack);
+        }
       }
     }
 
@@ -1293,7 +1301,7 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/warga/laporan/:reportId',
           builder: (c, s) =>
-              LaporanDetailScreen(reportId: s.pathParameters['reportId']),
+              ReportDetailScreen(id: s.pathParameters['reportId']!),
         ),
         GoRoute(
           path: '/warga/review',
@@ -1314,7 +1322,15 @@ final appRouter = GoRouter(
         // Surveyor routes
         GoRoute(
           path: '/surveyor',
-          builder: (c, s) => const SurveyorHomeScreen(),
+          builder: (c, s) => const SurveyorTabScreen(),
+        ),
+        GoRoute(
+          path: '/surveyor/sinkron',
+          builder: (c, s) => const SyncCenterScreen(),
+        ),
+        GoRoute(
+          path: '/surveyor/riwayat',
+          builder: (c, s) => const RiwayatScreen(),
         ),
         GoRoute(
           path: '/surveyor/tasks',
@@ -1332,6 +1348,11 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/surveyor/form-survei',
           builder: (c, s) => FormSurveiScreen(taskId: s.extra as String?),
+        ),
+        GoRoute(
+          path: '/surveyor/form-survei/:taskId',
+          builder: (c, s) =>
+              SurveyFormScreen(taskId: s.pathParameters['taskId']!),
         ),
 
         // Verifikator routes

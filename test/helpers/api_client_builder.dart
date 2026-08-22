@@ -1,20 +1,28 @@
+import 'package:dio/dio.dart';
 import 'package:sigap/api/api_client.dart';
 import 'test_jwt.dart';
 
-/// Builds an [ApiClient] pre-authenticated with a test JWT for the given role.
-///
-/// The client is configured with a no-op connectivity check to avoid
-/// needing Flutter bindings in unit tests.
-///
-/// Example:
-/// ```dart
-/// final client = await buildTestApiClient(role: 'operator');
-/// ```
-Future<ApiClient> buildTestApiClient({required String role}) async {
+/// Builds a test ApiClient with a real access token from production server.
+/// Uses a bare Dio instance without FlutterSecureStorage-dependent interceptors.
+Future<ApiClient> buildTestApiClient({required Role role}) async {
   final token = await TestJwtCache.getToken(role);
+
+  // Create a bare Dio without interceptors that require FlutterSecureStorage
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: 'https://kmipn-26-deno.careday17.workers.dev',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  );
+
+  // Add auth header directly
+  dio.options.headers['Authorization'] = 'Bearer $token';
+
   return ApiClient(
-    baseUrl: TestJwtCache.testBaseUrl,
+    baseUrl: 'https://kmipn-26-deno.careday17.workers.dev',
     testAccessToken: token,
     checkConnectivity: () async {},
+    dio: dio,
   );
 }

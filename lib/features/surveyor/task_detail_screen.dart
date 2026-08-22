@@ -775,6 +775,48 @@ class _SurveyorTaskDetailScreenState
                           ],
                         ),
                         const SizedBox(height: 7),
+
+                        // Offline connectivity banner
+                        if (_isOfflineMode)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: SigapSpacing.md,
+                              vertical: SigapSpacing.sm,
+                            ),
+                            margin: const EdgeInsets.only(
+                              bottom: SigapSpacing.sm,
+                            ),
+                            decoration: BoxDecoration(
+                              color: SigapColors.offlineBg,
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.md,
+                              ),
+                              border: Border.all(
+                                color: SigapColors.offlineBorder,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.cloud_off,
+                                  size: SigapTypography.size14,
+                                  color: SigapColors.offlineText,
+                                ),
+                                const SizedBox(width: SigapSpacing.sm),
+                                Expanded(
+                                  child: Text(
+                                    'Mode offline - data akan disinkronkan saat online',
+                                    style: TextStyle(
+                                      fontSize: SigapTypography.size12,
+                                      fontWeight: FontWeight.w500,
+                                      color: SigapColors.offlineText,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         // Task title
                         Text(
                           taskTitle,
@@ -825,6 +867,113 @@ class _SurveyorTaskDetailScreenState
                         ),
                         const SizedBox(height: SigapSpacing.md),
 
+                        // S-02 Detail Tugas Widgets: Checklist
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Color(0xFFE0E0E0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Checklist Survei',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              _ChecklistItem(
+                                'Foto dari 3 sudut (depan, samping, belakang)',
+                              ),
+                              _ChecklistItem(
+                                'Ukur dimensi ruangan (panjang x lebar)',
+                              ),
+                              _ChecklistItem('Tandai koordinat GPS di peta'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
+
+                        // S-02 Detail Tugas Widgets: Bukti Warga Gallery
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Color(0xFFE0E0E0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Bukti Warga',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Row(
+                                children: List.generate(
+                                  3,
+                                  (i) => Padding(
+                                    padding: EdgeInsets.only(right: 8),
+                                    child: Container(
+                                      width: 80,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFF5F5F5),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.image,
+                                        color: Color(0xFFBDBDBD),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
+
+                        // S-02 Detail Tugas Widgets: Offline-ready Indicator
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF00897B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.download_done,
+                                size: 16,
+                                color: Color(0xFF00897B),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Peta area + bukti diunduh · 12.4 MB',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF00897B),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.lg),
+
                         // Checklist section
                         Text(
                           'CHECKLIST WAJIB',
@@ -854,49 +1003,80 @@ class _SurveyorTaskDetailScreenState
                                   item['name'] as String? ??
                                   'Item ${index + 1}';
 
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: SigapSpacing.md,
-                                  vertical: SigapSpacing.md,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: index < _checklistItems.length - 1
-                                      ? const Border(
-                                          bottom: BorderSide(
-                                            color: SigapColors.bgSoft,
-                                            width: 1,
+                              final itemId =
+                                  item['id']?.toString() ??
+                                  item['item_id']?.toString() ??
+                                  '';
+                              final entry = _checklistData[itemId];
+                              final isChecked = entry?.checked ?? false;
+
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _checklistData[itemId] = _ChecklistEntry(
+                                      checked: !isChecked,
+                                      gps: entry?.gps,
+                                      photoPath: entry?.photoPath,
+                                      photoExifJson: entry?.photoExifJson,
+                                      notes: entry?.notes ?? '',
+                                    );
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: SigapSpacing.md,
+                                    vertical: SigapSpacing.md,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: index < _checklistItems.length - 1
+                                        ? const Border(
+                                            bottom: BorderSide(
+                                              color: SigapColors.bgSoft,
+                                              width: 1,
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      // Interactive checkbox
+                                      Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color: isChecked
+                                              ? SigapColors.selesai
+                                              : SigapColors.bgCard,
+                                          borderRadius: BorderRadius.circular(
+                                            SigapRadius.x6,
                                           ),
-                                        )
-                                      : null,
-                                ),
-                                child: Row(
-                                  children: [
-                                    // Empty checkbox square
-                                    Container(
-                                      width: 20,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        color: SigapColors.bgCard,
-                                        borderRadius: BorderRadius.circular(
-                                          SigapRadius.x6,
+                                          border: Border.all(
+                                            color: isChecked
+                                                ? SigapColors.selesai
+                                                : const Color(0xFFcfd3cc),
+                                            width: 2,
+                                          ),
                                         ),
-                                        border: Border.all(
-                                          color: const Color(0xFFcfd3cc),
-                                          width: 2,
+                                        child: isChecked
+                                            ? const Icon(
+                                                Icons.check,
+                                                size: 14,
+                                                color: Colors.white,
+                                              )
+                                            : null,
+                                      ),
+                                      const SizedBox(width: SigapSpacing.md),
+                                      Expanded(
+                                        child: Text(
+                                          label,
+                                          style: TextStyle(
+                                            fontSize: SigapTypography.size13,
+                                            color: SigapColors.textPrimary,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: SigapSpacing.md),
-                                    Expanded(
-                                      child: Text(
-                                        label,
-                                        style: TextStyle(
-                                          fontSize: SigapTypography.size13,
-                                          color: SigapColors.textPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               );
                             }),
@@ -915,41 +1095,46 @@ class _SurveyorTaskDetailScreenState
                           ),
                         ),
                         const SizedBox(height: SigapSpacing.sm),
-                        Row(
-                          children: List.generate(evidenceCount, (index) {
-                            return Expanded(
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: Container(
-                                  margin: EdgeInsets.only(
-                                    right: index < evidenceCount - 1
-                                        ? SigapSpacing.sm
-                                        : 0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: SigapColors.surface,
-                                    borderRadius: BorderRadius.circular(
-                                      SigapRadius.x9,
-                                    ),
-                                    border: Border.all(
-                                      color: SigapColors.border,
-                                    ),
-                                  ),
-                                  // Striped placeholder pattern
-                                  child: CustomPaint(
-                                    painter: _StripedPlaceholderPainter(),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.image_outlined,
-                                        size: 28,
-                                        color: SigapColors.textMuted,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                        // Evidence photo grid
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: SigapSpacing.sm,
+                                mainAxisSpacing: SigapSpacing.sm,
+                                childAspectRatio: 1,
                               ),
-                            );
-                          }),
+                          itemCount: evidenceUrls.isNotEmpty
+                              ? evidenceUrls.length
+                              : evidenceCount,
+                          itemBuilder: (context, index) {
+                            if (evidenceUrls.isNotEmpty) {
+                              // Show actual photo
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  SigapRadius.x9,
+                                ),
+                                child: Image.network(
+                                  evidenceUrls[index],
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      _buildPlaceholder(index),
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return _buildPlaceholder(index);
+                                      },
+                                ),
+                              );
+                            } else {
+                              // Show placeholder
+                              return _buildPlaceholder(index);
+                            }
+                          },
                         ),
                         const SizedBox(height: SigapSpacing.md),
 
@@ -1214,6 +1399,46 @@ class _StripedPlaceholderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+Widget _buildPlaceholder(int index) {
+  return Container(
+    decoration: BoxDecoration(
+      color: SigapColors.surface,
+      borderRadius: BorderRadius.circular(SigapRadius.x9),
+      border: Border.all(color: SigapColors.border),
+    ),
+    child: CustomPaint(
+      painter: _StripedPlaceholderPainter(),
+      child: Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 28,
+          color: SigapColors.textMuted,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _ChecklistItem(String text) {
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            border: Border.all(color: Color(0xFF00897B)),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        SizedBox(width: 12),
+        Expanded(child: Text(text, style: TextStyle(fontSize: 13))),
+      ],
+    ),
+  );
 }
 
 class _ChecklistEntry {

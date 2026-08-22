@@ -31,9 +31,7 @@ class _OperatorAssignDialogState extends ConsumerState<OperatorAssignDialog> {
         instructions: _instructionsController.text.trim().isNotEmpty
             ? _instructionsController.text.trim()
             : null,
-        deadline: _deadline != null
-            ? _deadline!.toIso8601String().split('T').first
-            : null,
+        deadline: _deadline?.toIso8601String().split('T').first,
       );
       if (mounted) {
         Navigator.pop(context, true);

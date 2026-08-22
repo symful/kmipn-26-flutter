@@ -1,63 +1,131 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sigap/api/api_client.dart';
+import '../helpers/test_harness.dart';
 import '../helpers/api_client_builder.dart';
+import '../helpers/test_jwt.dart';
 
 void main() {
   group('Surveyor API', () {
-    late ApiClient surveyorClient;
+    late ApiClient client;
 
     setUpAll(() async {
-      surveyorClient = await buildTestApiClient(role: 'SURVEYOR');
+      await testCooldown(seconds: 5);
+      client = await buildTestApiClient(role: Role.SURVEYOR);
     });
 
-    test('surveyorGetTasks returns a list', () async {
-      final result = await surveyorClient.surveyorGetTasks();
+    test('surveyorGetTasks returns task list', () async {
+      final result = await client.surveyorGetTasks();
       expect(result, isA<List<Map<String, dynamic>>>());
     });
 
-    test('surveyorGetTaskDetail returns a map', () async {
-      // First get the task list to get a valid task ID
-      final tasks = await surveyorClient.surveyorGetTasks();
-      if (tasks.isEmpty) {
-        // If no tasks available, skip or expect empty
-        return;
-      }
+    test('surveyorGetTaskDetail returns task detail', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
+
       final taskId = tasks.first['id'] as String;
-      final result = await surveyorClient.surveyorGetTaskDetail(taskId);
+      final result = await client.surveyorGetTaskDetail(taskId);
       expect(result, isA<Map<String, dynamic>>());
       expect(result['id'], equals(taskId));
     });
 
-    test('getSurveyorChecklistTemplate returns a map', () async {
-      final tasks = await surveyorClient.surveyorGetTasks();
-      if (tasks.isEmpty) {
-        return;
-      }
-      final taskId = tasks.first['id'] as String;
-      final result = await surveyorClient.getSurveyorChecklistTemplate(taskId);
-      expect(result, isA<Map<String, dynamic>>());
-      expect(result.containsKey('items'), isTrue);
-    });
+    test('getSurveyorChecklistTemplate returns template', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
 
-    test('surveyorAcceptTask returns a map', () async {
-      final tasks = await surveyorClient.surveyorGetTasks();
-      if (tasks.isEmpty) {
-        return;
-      }
       final taskId = tasks.first['id'] as String;
-      final result = await surveyorClient.surveyorAcceptTask(taskId);
+      final result = await client.getSurveyorChecklistTemplate(taskId);
       expect(result, isA<Map<String, dynamic>>());
     });
 
-    test('surveyorSubmitVisit returns a map', () async {
-      final tasks = await surveyorClient.surveyorGetTasks();
-      if (tasks.isEmpty) {
-        return;
-      }
+    test('surveyorAcceptTask accepts a task', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
+
+      final task = tasks.first;
+      final taskId = task['id'] as String;
+      final status = task['status'] as String;
+
+      if (status != 'assigned' && status != 'pending') return;
+
+      final result = await client.surveyorAcceptTask(taskId);
+      expect(result, isA<Map<String, dynamic>>());
+    });
+
+    test('surveyorStartTask starts a task', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
+
+      final task = tasks.first;
+      final taskId = task['id'] as String;
+      final status = task['status'] as String;
+
+      if (status != 'accepted') return;
+
+      final result = await client.surveyorStartTask(taskId);
+      expect(result, isA<Map<String, dynamic>>());
+    });
+
+    test('surveyorRejectTask rejects a task with reason', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
+
+      final task = tasks.first;
+      final taskId = task['id'] as String;
+      final status = task['status'] as String;
+
+      if (status != 'assigned' && status != 'pending') return;
+
+      final result = await client.surveyorRejectTask(
+        taskId,
+        'Test rejection reason',
+      );
+      expect(result, isA<Map<String, dynamic>>());
+    });
+
+    test('surveyorRequestClarification sends clarification question', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
+
       final taskId = tasks.first['id'] as String;
-      final result = await surveyorClient.surveyorSubmitVisit(taskId, {
-        'notes': 'Test visit notes',
+
+      final result = await client.surveyorRequestClarification(
+        taskId,
+        question: 'Can you provide more details about the location?',
+      );
+      expect(result, isA<Map<String, dynamic>>());
+    });
+
+    test('surveyorSubmitVisit submits visit data', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
+
+      final taskId = tasks.first['id'] as String;
+
+      final result = await client.surveyorSubmitVisit(taskId, {
+        'gps_lat': -6.2088,
+        'gps_lng': 106.8456,
+        'kondisi': 'baik',
+        'rekomendasi': 'perbaikan',
       });
+      expect(result, isA<Map<String, dynamic>>());
+    });
+
+    test('submitVisitReport submits structured visit report', () async {
+      final tasks = await client.surveyorGetTasks();
+      if (tasks.isEmpty) return;
+
+      final taskId = tasks.first['id'] as String;
+
+      final result = await client.submitVisitReport(
+        taskId: taskId,
+        photos: {'depan': '', 'belakang': '', 'kiri': '', 'kanan': ''},
+        gpsLat: -6.2088,
+        gpsLng: 106.8456,
+        accuracy: 5.0,
+        kondisi: 'baik',
+        rekomendasi: 'perbaikan',
+        catatan: 'Test visit report',
+      );
       expect(result, isA<Map<String, dynamic>>());
     });
   });

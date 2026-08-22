@@ -24,7 +24,7 @@ import 'package:sigap/theme/tokens.dart';
 /// ```dart
 /// // Basic usage with onChanged
 /// CatatanLapangan(
-///   onChanged: (value) => print('Notes: $value'),
+///   onChanged: (value) { /* Handle notes change */ },
 /// )
 ///
 /// // With controller

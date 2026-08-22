@@ -189,6 +189,31 @@ class ApiClient {
     );
   }
 
+  // ─── Auth ─────────────────────────────────────────────────────────────────
+
+  /// Logs in a user with email and password.
+  /// Returns a map containing access_token, refresh_token, and user data.
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/auth/login',
+        data: {'email': email, 'password': password},
+      ),
+      endpoint: '/api/auth/login',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  /// Logs out a user by invalidating the refresh token.
+  Future<void> logout(String refreshToken) async {
+    await _execute<void>(
+      dioCall: () =>
+          _dio.post('/api/auth/logout', data: {'refresh_token': refreshToken}),
+      endpoint: '/api/auth/logout',
+      parse: (_) {},
+    );
+  }
+
   // ─── Categories ────────────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getCategories() async {
@@ -298,7 +323,7 @@ class ApiClient {
   }) async {
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get(
-        '/api/verifikator',
+        '/api/verifikator/queue',
         queryParameters: {
           'page': page,
           'limit': limit,
@@ -306,7 +331,7 @@ class ApiClient {
           if (kategori != null) 'kategori': kategori,
         },
       ),
-      endpoint: '/api/verifikator',
+      endpoint: '/api/verifikator/queue',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
   }
@@ -616,7 +641,7 @@ class ApiClient {
     return await _execute<List<Map<String, dynamic>>>(
       dioCall: () => _dio.get('/api/surveyor/tasks'),
       endpoint: '/api/surveyor/tasks',
-      parse: (data) => (data as List).cast<Map<String, dynamic>>(),
+      parse: (data) => (data['tasks'] as List).cast<Map<String, dynamic>>(),
     );
   }
 
@@ -775,6 +800,9 @@ class ApiClient {
       endpoint: '/api/reports?creator_id=me',
       parse: (data) {
         if (data is List) return data.cast<Map<String, dynamic>>();
+        if (data is Map && data.containsKey('items')) {
+          return (data['items'] as List).cast<Map<String, dynamic>>();
+        }
         if (data is Map && data.containsKey('reports')) {
           return (data['reports'] as List).cast<Map<String, dynamic>>();
         }
@@ -785,7 +813,8 @@ class ApiClient {
 
   Future<Map<String, dynamic>> validateRole(String role) async {
     return await _execute<Map<String, dynamic>>(
-      dioCall: () => _dio.post('/api/auth/validate-role', data: {'role': role}),
+      dioCall: () =>
+          _dio.get('/api/auth/validate-role', queryParameters: {'role': role}),
       endpoint: '/api/auth/validate-role',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
@@ -815,6 +844,9 @@ class ApiClient {
       endpoint: '/api/reports/nearby',
       parse: (data) {
         if (data is List) return data.cast<Map<String, dynamic>>();
+        if (data is Map && data.containsKey('items')) {
+          return (data['items'] as List).cast<Map<String, dynamic>>();
+        }
         if (data is Map && data.containsKey('reports')) {
           return (data['reports'] as List).cast<Map<String, dynamic>>();
         }
@@ -848,6 +880,9 @@ class ApiClient {
         if (data is List) return data.cast<Map<String, dynamic>>();
         if (data is Map && data.containsKey('duplicates')) {
           return (data['duplicates'] as List).cast<Map<String, dynamic>>();
+        }
+        if (data is Map && data.containsKey('candidates')) {
+          return (data['candidates'] as List).cast<Map<String, dynamic>>();
         }
         return <Map<String, dynamic>>[];
       },
@@ -904,7 +939,7 @@ class ApiClient {
   }) async {
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get(
-        '/api/operator/',
+        '/api/operator',
         queryParameters: {
           'page': page,
           'limit': limit,
@@ -914,7 +949,7 @@ class ApiClient {
           if (search != null && search.isNotEmpty) 'search': search,
         },
       ),
-      endpoint: '/api/operator/',
+      endpoint: '/api/operator',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
   }
@@ -1252,7 +1287,7 @@ class ApiClient {
   }) async {
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get(
-        '/api/outbox/',
+        '/api/outbox',
         queryParameters: {
           'page': page,
           'limit': limit,
@@ -1261,7 +1296,7 @@ class ApiClient {
             'target_system': targetSystem,
         },
       ),
-      endpoint: '/api/outbox/',
+      endpoint: '/api/outbox',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
   }
@@ -1779,8 +1814,8 @@ class ApiClient {
   /// Fetches admin daerah dashboard stats.
   Future<Map<String, dynamic>> getAdminDaerahDashboard() async {
     return await _execute<Map<String, dynamic>>(
-      dioCall: () => _dio.get('/api/admin-daerah/'),
-      endpoint: '/api/admin-daerah/',
+      dioCall: () => _dio.get('/api/admin-daerah/dashboard'),
+      endpoint: '/api/admin-daerah/dashboard',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
   }

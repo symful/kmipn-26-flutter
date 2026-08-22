@@ -20,7 +20,7 @@ import '../../../../theme/tokens.dart';
 /// KondisiSelector(
 ///   selectedValue: 'Baik',
 ///   options: ['Baik', 'Rusak Ringan', 'Rusak Sedang', 'Rusak Berat'],
-///   onChanged: (value) => print('Selected: $value'),
+///   onChanged: (value) { /* Handle selection */ },
 /// )
 /// ```
 class KondisiSelector extends StatelessWidget {

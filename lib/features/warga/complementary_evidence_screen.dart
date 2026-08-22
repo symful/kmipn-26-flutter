@@ -44,22 +44,15 @@ class _ComplementaryEvidenceScreenState
   }
 
   /// Strips EXIF data from JPEG bytes to protect privacy (especially GPS).
+  /// Throws [Exception] if stripping fails — never returns original bytes.
   Uint8List _stripExifFromJpeg(Uint8List bytes) {
-    try {
-      final image = img.decodeImage(bytes);
-      if (image == null) {
-        _logger.warning('Failed to decode image for EXIF stripping');
-        return bytes;
-      }
-      final strippedBytes = Uint8List.fromList(
-        img.encodeJpg(image, quality: 85),
-      );
-      _logger.info('EXIF data stripped from image');
-      return strippedBytes;
-    } catch (e, s) {
-      _logger.warning('Error stripping EXIF', e, s);
-      return bytes;
+    final image = img.decodeImage(bytes);
+    if (image == null) {
+      throw Exception('Gagal mendekode gambar untuk menghapus EXIF');
     }
+    final strippedBytes = Uint8List.fromList(img.encodeJpg(image, quality: 85));
+    _logger.info('EXIF data stripped from image');
+    return strippedBytes;
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -96,11 +89,14 @@ class _ComplementaryEvidenceScreenState
           });
         } catch (e, s) {
           _logger.warning('Error processing image', e, s);
-          // If stripping fails, use original path (less ideal but functional)
+          // If stripping fails, abort this photo and show error
           if (mounted) {
-            setState(() {
-              _photos.add(_PhotoData(path: image.path, exifJson: exifJson));
-            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Gagal memproses foto: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         }
       }

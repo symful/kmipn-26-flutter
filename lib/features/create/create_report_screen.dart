@@ -375,8 +375,6 @@ class _DuplicateCasesSection extends ConsumerWidget {
   final double lng;
   final String? categoryId;
 
-  static final _logger = Logger('DuplicateCasesSection');
-
   const _DuplicateCasesSection({
     required this.lat,
     required this.lng,
@@ -410,6 +408,85 @@ class _DuplicateCasesSection extends ConsumerWidget {
     );
   }
 
+  /// Shows a bottom sheet displaying all similar cases with options to view details
+  /// or add evidence to each case.
+  void _showAllSimilarCasesBottomSheet(
+    BuildContext context,
+    List<SimilarCase> cases,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              // Handle bar
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  '${cases.length} Kasus Serupa',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: cases.length,
+                  itemBuilder: (_, index) {
+                    final c = cases[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: const Color(0xFFE3F2FD),
+                        child: Text(
+                          c.initials,
+                          style: const TextStyle(
+                            color: Color(0xFF1565C0),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(c.title),
+                      subtitle: Text(
+                        '${c.distance} · kemiripan ${c.similarityPercent}% · ${c.reportCount} laporan',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        context.push('/warga/laporan/${c.id}');
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final duplicatesAsync = ref.watch(
@@ -425,13 +502,16 @@ class _DuplicateCasesSection extends ConsumerWidget {
         return SimilarCasesBanner(
           cases: cases,
           onViewAll: () {
-            _logger.info('View all duplicate cases');
+            // Show bottom sheet with full list of duplicate cases
+            _showAllSimilarCasesBottomSheet(context, cases);
           },
           onAddEvidence: (selectedCase) {
-            _logger.info('Add evidence to case: ${selectedCase.id}');
+            // Navigate to evidence submission for the selected existing case
+            context.push('/warga/evidence/${selectedCase.id}');
           },
           onCreateSeparate: () {
-            // User chose to create separate case - no action needed
+            // User chose to create separate case - continue with current report
+            // No navigation needed; form continues normally
           },
         );
       },
@@ -458,22 +538,15 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   static const int maxPending = 50;
 
   /// Strips EXIF data from JPEG bytes using the image package.
+  /// Throws [Exception] if stripping fails — never returns original bytes.
   Uint8List _stripExifFromJpeg(Uint8List bytes) {
-    try {
-      final image = img.decodeImage(bytes);
-      if (image == null) {
-        _logger.warning('Failed to decode image for EXIF stripping');
-        return bytes;
-      }
-      final strippedBytes = Uint8List.fromList(
-        img.encodeJpg(image, quality: 85),
-      );
-      _logger.info('EXIF data stripped from image');
-      return strippedBytes;
-    } catch (e, s) {
-      _logger.warning('Error stripping EXIF', e, s);
-      return bytes;
+    final image = img.decodeImage(bytes);
+    if (image == null) {
+      throw Exception('Gagal mendekode gambar untuk menghapus EXIF');
     }
+    final strippedBytes = Uint8List.fromList(img.encodeJpg(image, quality: 85));
+    _logger.info('EXIF data stripped from image');
+    return strippedBytes;
   }
 
   Future<void> _capturePhoto() async {
@@ -511,11 +584,12 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       } catch (e, s) {
         _logger.warning('Error capturing photo', e, s);
         if (mounted) {
-          setState(() {
-            _photoPath = photo.path;
-            _exifDataJson = null;
-          });
-          _onFormChanged();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menghapus metadata foto: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     }

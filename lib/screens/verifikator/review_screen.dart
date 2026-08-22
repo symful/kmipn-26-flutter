@@ -197,12 +197,14 @@ class _VerifikatorReviewScreenState
                       accuracy: 'Akurasi baik',
                       timestamp: _formatTimestamp(DateTime.now()),
                       impact: 'Keselamatan · akses terganggu',
+                      canEditLocation: false,
+                      canEditTimestamp: false,
                     ),
                     onEditLocation: () {
-                      // Navigate to edit location
+                      // Edit location is not available in this screen
                     },
                     onEditTimestamp: () {
-                      // Navigate to edit timestamp
+                      // Edit timestamp is not available in this screen
                     },
                   ),
 
