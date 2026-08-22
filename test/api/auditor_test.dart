@@ -8,7 +8,7 @@ void main() {
 
   setUpAll(() async {
     TestJwtCache.clearCache();
-    client = await buildTestApiClient(role: Role.VERIFIKATOR);
+    client = await buildTestApiClient(role: Role.AUDITOR);
   });
 
   group('Auditor API', () {

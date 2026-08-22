@@ -10,7 +10,7 @@ void main() {
 
     setUpAll(() async {
       await testCooldown(seconds: 5);
-      client = await buildTestApiClient(role: Role.VERIFIKATOR);
+      client = await buildTestApiClient(role: Role.OPERATOR);
     });
 
     test('getOperatorCases returns case list', () async {

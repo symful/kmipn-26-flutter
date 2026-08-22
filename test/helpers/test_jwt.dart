@@ -10,6 +10,9 @@ enum Role {
   WARGA,
   VERIFIKATOR,
   PENGAMBIL_KEPUTUSAN,
+  OPERATOR,
+  AUDITOR,
+  RT_RW,
 }
 
 class TestJwtCache {
@@ -71,14 +74,18 @@ class TestJwtCache {
         _cache[role] = token;
         _cooldowns[role] = DateTime.now();
         return token;
-      } catch (e) {
-        if (attempt >= maxRetries - 1) {
-          throw Exception(
-            'Failed to fetch token for ${role.name} after $maxRetries attempts: $e',
-          );
+      } on DioException catch (e) {
+        // Only retry on network timeouts, not on response errors (401, 500, etc)
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.connectionError) {
+          if (attempt >= maxRetries - 1) rethrow;
+          attempt++;
+          await Future.delayed(Duration(seconds: attempt));
+          continue;
         }
-        attempt++;
-        await Future.delayed(Duration(seconds: attempt));
+        rethrow;
       }
     }
   }
