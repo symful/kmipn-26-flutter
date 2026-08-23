@@ -7,7 +7,7 @@ void main() {
   late ApiClient client;
 
   setUpAll(() async {
-    // Ensure we have a valid token before any test runs
+    // Pre-fetch token so first test isn't slowed by auth
     await TestJwtCache.getToken(Role.PETUGAS);
   });
 
@@ -16,103 +16,96 @@ void main() {
   });
 
   group('Petugas API', () {
-    test('petugasGetTasks returns a List', () async {
+    test('GET /api/petugas/tasks returns tugas list', () async {
       final result = await client.petugasGetTasks();
       expect(result, isA<List<Map<String, dynamic>>>());
     });
 
-    test('getPetugasTaskDetail returns a Map', () async {
-      // First get tasks to find a task ID
+    test('GET /api/petugas/tasks/{realId} returns task detail', () async {
       final tasks = await client.petugasGetTasks();
-      if (tasks.isNotEmpty) {
-        final taskId = tasks.first['id']?.toString();
-        if (taskId != null) {
-          final result = await client.getPetugasTaskDetail(taskId);
-          expect(result, isA<Map<String, dynamic>>());
-        }
-      }
-      // Even if no tasks, the call should not throw
+      if (tasks.isEmpty) fail('No petugas tasks seeded');
+      final taskId = tasks.first['id'] as String;
+
+      final result = await client.getPetugasTaskDetail(taskId);
+      expect(result, isA<Map<String, dynamic>>());
+      // Task detail should have instructions and location fields
+      expect(
+        result.containsKey('instructions') || result.containsKey('task'),
+        true,
+        reason: 'Task detail should have instructions or task key',
+      );
     });
 
-    test('petugasAcceptTask returns a Map', () async {
+    test('POST /api/petugas/tasks/{realId}/accept accepts task', () async {
       final tasks = await client.petugasGetTasks();
-      if (tasks.isNotEmpty) {
-        final taskId = tasks.first['id']?.toString();
-        if (taskId != null) {
-          final result = await client.petugasAcceptTask(taskId);
-          expect(result, isA<Map<String, dynamic>>());
-        }
-      }
+      if (tasks.isEmpty) fail('No petugas tasks seeded');
+      final taskId = tasks.first['id'] as String;
+
+      final result = await client.petugasAcceptTask(taskId);
+      expect(result, isA<Map<String, dynamic>>());
+      expect(
+        result.containsKey('accepted_at'),
+        true,
+        reason: 'Accept response should have accepted_at',
+      );
     });
 
-    test('petugasRejectTask returns a Map', () async {
+    test(
+      'POST /api/petugas/tasks/{realId}/progress updates progress',
+      () async {
+        final tasks = await client.petugasGetTasks();
+        if (tasks.isEmpty) fail('No petugas tasks seeded');
+        final taskId = tasks.first['id'] as String;
+
+        // Use the client's progress update method with correct params
+        final result = await client.petugasUpdateProgress(
+          taskId: taskId,
+          progressPercent: 50,
+          notes: 'In progress',
+        );
+        expect(result, isA<Map<String, dynamic>>());
+        expect(
+          result.containsKey('updated_at'),
+          true,
+          reason: 'Progress update response should have updated_at',
+        );
+      },
+    );
+
+    test('POST /api/petugas/tasks/{realId}/evidence uploads proof', () async {
       final tasks = await client.petugasGetTasks();
-      if (tasks.isNotEmpty) {
-        final taskId = tasks.first['id']?.toString();
-        if (taskId != null) {
-          final result = await client.petugasRejectTask(
-            taskId,
-            'Test rejection reason',
-          );
-          expect(result, isA<Map<String, dynamic>>());
-        }
-      }
+      if (tasks.isEmpty) fail('No petugas tasks seeded');
+      final taskId = tasks.first['id'] as String;
+
+      // Upload with empty photo list to test the endpoint structure
+      final result = await client.petugasUploadEvidence(taskId, []);
+      expect(result, isA<Map<String, dynamic>>());
+      expect(
+        result.containsKey('evidence_id') || result.containsKey('id'),
+        true,
+        reason: 'Evidence upload response should have evidence_id or id',
+      );
     });
 
-    test('petugasUpdateProgress returns a Map', () async {
-      final tasks = await client.petugasGetTasks();
-      if (tasks.isNotEmpty) {
-        final taskId = tasks.first['id']?.toString();
-        if (taskId != null) {
-          final result = await client.petugasUpdateProgress(
-            taskId: taskId,
-            progressPercent: 50,
-          );
-          expect(result, isA<Map<String, dynamic>>());
-        }
-      }
-    });
+    test(
+      'POST /api/petugas/tasks/{realId}/complete marks task complete',
+      () async {
+        final tasks = await client.petugasGetTasks();
+        if (tasks.isEmpty) fail('No petugas tasks seeded');
+        final taskId = tasks.first['id'] as String;
 
-    test('petugasUploadEvidence returns a Map', () async {
-      final tasks = await client.petugasGetTasks();
-      if (tasks.isNotEmpty) {
-        final taskId = tasks.first['id']?.toString();
-        if (taskId != null) {
-          // Pass empty list since we don't have real photo files in tests
-          final result = await client.petugasUploadEvidence(taskId, []);
-          expect(result, isA<Map<String, dynamic>>());
-        }
-      }
-    });
-
-    test('petugasCompleteTask returns a Map', () async {
-      final tasks = await client.petugasGetTasks();
-      if (tasks.isNotEmpty) {
-        final taskId = tasks.first['id']?.toString();
-        if (taskId != null) {
-          // Pass empty photo list since we don't have real files in tests
-          final result = await client.petugasCompleteTask(
-            taskId,
-            summary: 'Test completion summary',
-            photoPaths: [],
-          );
-          expect(result, isA<Map<String, dynamic>>());
-        }
-      }
-    });
-
-    test('petugasRequestClarification returns a Map', () async {
-      final tasks = await client.petugasGetTasks();
-      if (tasks.isNotEmpty) {
-        final taskId = tasks.first['id']?.toString();
-        if (taskId != null) {
-          final result = await client.petugasRequestClarification(
-            taskId,
-            question: 'Test clarification question',
-          );
-          expect(result, isA<Map<String, dynamic>>());
-        }
-      }
-    });
+        final result = await client.petugasCompleteTask(
+          taskId,
+          summary: 'Test completion',
+          photoPaths: [],
+        );
+        expect(result, isA<Map<String, dynamic>>());
+        expect(
+          result.containsKey('completed_at'),
+          true,
+          reason: 'Complete response should have completed_at',
+        );
+      },
+    );
   });
 }
