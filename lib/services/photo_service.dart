@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../api/api_client.dart';
 
@@ -28,16 +29,20 @@ class PhotoService {
       final filename = localFilePath.split('/').last;
       final uploadUrl = '/api/reports/$idempotencyKey/photos/upload-url';
 
-      final result = await _api.uploadPhotoBytes(
-        uploadUrl,
-        photoBytes,
-        filename,
-      );
+      final formData = FormData.fromMap({
+        'photo': MultipartFile.fromBytes(photoBytes, filename: filename),
+      });
+
+      final response = await _api.dio.post(uploadUrl, data: formData);
+
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] as Map<String, dynamic>;
+      final evidenceResult = EvidenceResult.fromJson(data);
 
       // Use typed EvidenceResult.evidenceId field
       // The evidenceId contains the R2 URL for the uploaded photo
-      final evidenceId = result.evidenceId;
-      if (evidenceId.isNotEmpty) {
+      final evidenceId = evidenceResult.evidenceId;
+      if (evidenceId != null && evidenceId.isNotEmpty) {
         return evidenceId;
       }
 

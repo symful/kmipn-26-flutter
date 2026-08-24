@@ -28,7 +28,7 @@ class _SurveyFormScreenState extends ConsumerState<SurveyFormScreen> {
 
   // Checklist state
   List<Map<String, dynamic>> _checklistItems = [];
-  Set<int> _checkedItems = {};
+  final Set<int> _checkedItems = {};
   bool _checklistLoading = true;
   String? _checklistError;
 
