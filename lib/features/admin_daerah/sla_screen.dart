@@ -51,9 +51,7 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
     final saved = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(
-          'Edit SLA: ${item['kategori_nama'] ?? item['name'] ?? item['id']}',
-        ),
+        title: Text('Edit SLA: ${item['kategori_nama'] ?? '-'}'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -134,12 +132,9 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
                 itemCount: _items.length,
                 itemBuilder: (context, index) {
                   final item = _items[index];
-                  final categoryName =
-                      item['kategori_nama'] as String? ??
-                      item['name'] as String? ??
-                      '-';
+                  final categoryName = item['kategori_nama'] as String? ?? '-';
                   final slaHours = item['jam'] ?? '-';
-                  final isActive = item['is_active'] ?? item['active'] ?? true;
+                  final isActive = item['is_active'] ?? true;
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: SigapSpacing.sm),

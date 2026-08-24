@@ -403,8 +403,9 @@ class _DuplicateCasesSection extends ConsumerWidget {
       title: title,
       distance: json['distance']?.toString() ?? '0 m',
       similarityPercent:
-          (json['similarity_percent'] ?? json['similarityPercent'] ?? 0) as int,
-      reportCount: (json['report_count'] ?? json['reportCount'] ?? 1) as int,
+          (((json['similarity_score'] as num?)?.toDouble() ?? 0.0) * 100)
+              .round(),
+      reportCount: 1,
     );
   }
 
