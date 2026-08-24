@@ -121,19 +121,6 @@ class AdminChecklistTemplatesPage {
   });
 }
 
-class AdminPriorityConfigPage {
-  final List<Map<String, dynamic>> entries;
-  final int total;
-  final int page;
-  final int limit;
-  AdminPriorityConfigPage({
-    required this.entries,
-    required this.total,
-    required this.page,
-    required this.limit,
-  });
-}
-
 class AdminFailedAssessmentsPage {
   final List<Map<String, dynamic>> entries;
   final int total;
@@ -1904,6 +1891,16 @@ class ApiClient {
     );
   }
 
+  /// Fetches a single operator case by ID.
+  Future<OperatorCase> getOperatorCase(String caseId) async {
+    return await _execute<OperatorCase>(
+      dioCall: () => _dio.get('/api/operator/cases/$caseId'),
+      endpoint: '/api/operator/cases/$caseId',
+      parse: (data) =>
+          OperatorCase.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
   /// Merges multiple cases into one primary case.
   Future<MergeOperatorResult> mergeOperatorCase({
     required String caseId,
@@ -2119,26 +2116,18 @@ class ApiClient {
   }
 
   /// Fetches admin priority config versions (paginated).
-  Future<AdminPriorityConfigPage> getAdminPriorityConfig({
+  Future<PriorityConfigPage> getAdminPriorityConfig({
     int page = 1,
     int limit = 20,
   }) async {
-    final data = await _execute<Map<String, dynamic>>(
+    return await _execute<PriorityConfigPage>(
       dioCall: () => _dio.get(
         '/api/admin/priority-config',
         queryParameters: {'page': page, 'limit': limit},
       ),
       endpoint: '/api/admin/priority-config',
-      parse: (data) => (data as Map).cast<String, dynamic>(),
-    );
-    final entriesData = _expectKey(data, 'entries');
-    return AdminPriorityConfigPage(
-      entries: (entriesData as List)
-          .map((e) => (e as Map).cast<String, dynamic>())
-          .toList(),
-      total: data['total'] as int? ?? 0,
-      page: data['page'] as int? ?? page,
-      limit: data['limit'] as int? ?? limit,
+      parse: (data) =>
+          PriorityConfigPage.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 

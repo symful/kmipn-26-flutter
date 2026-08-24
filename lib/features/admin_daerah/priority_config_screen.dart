@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
+import '../../api/types.g.dart';
 
 class AdminDaerahPriorityConfigScreen extends ConsumerStatefulWidget {
   const AdminDaerahPriorityConfigScreen({super.key});
@@ -14,7 +15,7 @@ class AdminDaerahPriorityConfigScreen extends ConsumerStatefulWidget {
 
 class _AdminDaerahPriorityConfigScreenState
     extends ConsumerState<AdminDaerahPriorityConfigScreen> {
-  Map<String, dynamic>? _config;
+  PriorityConfig? _config;
   bool _loading = true;
   String? _error;
 
@@ -34,7 +35,7 @@ class _AdminDaerahPriorityConfigScreenState
       final data = await client.getAdminPriorityConfig();
       setState(() {
         // Extract the first (most recent) priority config entry from the paginated response
-        _config = data.entries.isNotEmpty ? data.entries.first : null;
+        _config = data.data.isNotEmpty ? data.data.first : null;
         _loading = false;
       });
     } catch (e) {
@@ -133,7 +134,7 @@ class _AdminDaerahPriorityConfigScreenState
 }
 
 class _PriorityForm extends StatefulWidget {
-  final Map<String, dynamic> config;
+  final PriorityConfig config;
   final void Function(Map<String, dynamic>) onSave;
   const _PriorityForm({required this.config, required this.onSave});
 
@@ -148,7 +149,7 @@ class _PriorityFormState extends State<_PriorityForm> {
   void initState() {
     super.initState();
     _weights = {};
-    final saved = (widget.config['weights'] ?? {}) as Map<String, dynamic>;
+    final saved = widget.config.weights ?? const <String, double>{};
     final defaults = {
       'severity': 0.3,
       'recency': 0.2,
@@ -157,7 +158,7 @@ class _PriorityFormState extends State<_PriorityForm> {
       'history': 0.15,
     };
     for (final key in defaults.keys) {
-      _weights[key] = (saved[key] as num?)?.toDouble() ?? defaults[key]!;
+      _weights[key] = saved[key] ?? defaults[key]!;
     }
   }
 

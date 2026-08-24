@@ -1549,6 +1549,67 @@ class SurveyorTaskDetail {
   }
 }
 
+class PriorityConfig {
+  final String? id;
+  final int? version;
+  final Map<String, dynamic>? weights;
+  final bool? isActive;
+  final String? activatedAt;
+  final String? activatedBy;
+  final String? createdAt;
+  PriorityConfig({this.id, this.version, this.weights, this.isActive, this.activatedAt, this.activatedBy, this.createdAt});
+
+  factory PriorityConfig.fromJson(Map<String, dynamic> json) {
+    return PriorityConfig(
+      id: json['id'] as String?,
+      version: json['version'] as int?,
+      weights: json['weights'] as Map<String, dynamic>?,
+      isActive: json['is_active'] as bool?,
+      activatedAt: json['activated_at'] as String?,
+      activatedBy: json['activated_by'] as String?,
+      createdAt: json['created_at'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'version': version,
+      'weights': weights,
+      'is_active': isActive,
+      'activated_at': activatedAt,
+      'activated_by': activatedBy,
+      'created_at': createdAt,
+    };
+  }
+}
+
+class PriorityConfigPage {
+  final List<PriorityConfig> data;
+  final int? total;
+  final int? page;
+  final int? limit;
+  PriorityConfigPage({required this.data, this.total, this.page, this.limit});
+
+  factory PriorityConfigPage.fromJson(Map<String, dynamic> json) {
+    return PriorityConfigPage(
+      data: (json['data'] as List?)?.map((e) => PriorityConfig.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+      total: json['total'] as int?,
+      page: json['page'] as int?,
+      limit: json['limit'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data,
+      'total': total,
+      'page': page,
+      'limit': limit,
+    };
+  }
+}
+
 class AuditEntry {
   final String? id;
   final String? actor;
@@ -1755,6 +1816,7 @@ class DecideResult {
 class OperatorCase {
   final String? id;
   final String? categoryId;
+  final String? title;
   final String? description;
   final double? lng;
   final double? lat;
@@ -1762,15 +1824,18 @@ class OperatorCase {
   final int? severity;
   final List<String>? photoUrls;
   final DateTime? createdAt;
-  final double? priorityScore;
+  final Map<String, dynamic>? priorityScore;
   final String? assignedTo;
   final DateTime? deadline;
-  OperatorCase({this.id, this.categoryId, this.description, this.lng, this.lat, this.status, this.severity, this.photoUrls, this.createdAt, this.priorityScore, this.assignedTo, this.deadline});
+  final Map<String, dynamic>? category;
+  final Map<String, dynamic>? assignee;
+  OperatorCase({this.id, this.categoryId, this.title, this.description, this.lng, this.lat, this.status, this.severity, this.photoUrls, this.createdAt, this.priorityScore, this.assignedTo, this.deadline, this.category, this.assignee});
 
   factory OperatorCase.fromJson(Map<String, dynamic> json) {
     return OperatorCase(
       id: json['id'] as String?,
       categoryId: json['category_id'] as String?,
+      title: json['title'] as String?,
       description: json['description'] as String?,
       lng: (json['lng'] as num?)?.toDouble(),
       lat: (json['lat'] as num?)?.toDouble(),
@@ -1778,9 +1843,11 @@ class OperatorCase {
       severity: json['severity'] as int?,
       photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      priorityScore: (json['priority_score'] as num?)?.toDouble(),
+      priorityScore: json['priority_score'] as Map<String, dynamic>?,
       assignedTo: json['assigned_to'] as String?,
       deadline: json['deadline'] != null ? DateTime.parse(json['deadline'] as String) : null,
+      category: json['category'] as Map<String, dynamic>?,
+      assignee: json['assignee'] as Map<String, dynamic>?,
     );
   }
 
@@ -1788,6 +1855,7 @@ class OperatorCase {
     return {
       'id': id,
       'category_id': categoryId,
+      'title': title,
       'description': description,
       'lng': lng,
       'lat': lat,
@@ -1798,6 +1866,8 @@ class OperatorCase {
       'priority_score': priorityScore,
       'assigned_to': assignedTo,
       'deadline': deadline?.toIso8601String(),
+      'category': category,
+      'assignee': assignee,
     };
   }
 }
