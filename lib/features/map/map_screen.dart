@@ -380,16 +380,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           return SigapColors.perluTindakan;
         case ReportStatus.underReview:
         case ReportStatus.needsSurvey:
-          return SigapColors.diproses;
         case ReportStatus.verified:
         case ReportStatus.inProgress:
+        case ReportStatus.needsCompletion:
           return SigapColors.diproses;
         case ReportStatus.resolved:
           return SigapColors.selesai;
         case ReportStatus.rejected:
         case ReportStatus.duplicateMerged:
+        case ReportStatus.outOfScope:
           return SigapColors.textMuted;
-        default:
+        case ReportStatus.assigned:
+        case ReportStatus.closed:
+        case ReportStatus.merged:
+        case ReportStatus.separated:
+        case ReportStatus.draft:
           return SigapColors.primary;
       }
     } catch (e, s) {
@@ -654,6 +659,10 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
         return 'Duplicate';
       case ReportStatus.needsSurvey:
         return 'Needs Survey';
+      case ReportStatus.needsCompletion:
+        return 'Needs Completion';
+      case ReportStatus.outOfScope:
+        return 'Out of Scope';
       default:
         return status.value;
     }

@@ -13,10 +13,12 @@ enum ReportStatus {
   duplicateMerged("duplicate_merged"),
   needsSurvey("needs_survey"),
   merged("merged"),
-  separated("separated");
+  separated("separated"),
+  needsCompletion("needs_completion"),
+  outOfScope("out_of_scope");
   final String value;
   const ReportStatus(this.value);
-  static const allValues = <ReportStatus>[ReportStatus.draft, ReportStatus.submitted, ReportStatus.underReview, ReportStatus.verified, ReportStatus.assigned, ReportStatus.inProgress, ReportStatus.resolved, ReportStatus.closed, ReportStatus.rejected, ReportStatus.duplicateMerged, ReportStatus.needsSurvey, ReportStatus.merged, ReportStatus.separated];
+  static const allValues = <ReportStatus>[ReportStatus.draft, ReportStatus.submitted, ReportStatus.underReview, ReportStatus.verified, ReportStatus.assigned, ReportStatus.inProgress, ReportStatus.resolved, ReportStatus.closed, ReportStatus.rejected, ReportStatus.duplicateMerged, ReportStatus.needsSurvey, ReportStatus.merged, ReportStatus.separated, ReportStatus.needsCompletion, ReportStatus.outOfScope];
   static ReportStatus fromJson(String value) => allValues.firstWhere((e) => e.value == value);
 }
 

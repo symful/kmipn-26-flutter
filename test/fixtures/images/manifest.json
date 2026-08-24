@@ -1,0 +1,65 @@
+﻿{
+    "generated_at":  "2026-08-24T23:11:44.1009478+07:00",
+    "items":  [
+                  {
+                      "slug":  "bridge-damage",
+                      "file":  "bridge-damage.jpg",
+                      "bytes":  686507,
+                      "sha256":  "B4D84BF4AD7858C0476ED0100C1D84BC3B7BB95ECD67C62C2AC6D51412B1345A"
+                  },
+                  {
+                      "slug":  "broken-streetlight",
+                      "file":  "broken-streetlight.jpg",
+                      "bytes":  288293,
+                      "sha256":  "E7E3F08262CF38132B9E54FC74B538C1FAFF2B8539972EB111B3D1DACD06824E"
+                  },
+                  {
+                      "slug":  "cracked-building",
+                      "file":  "cracked-building.jpg",
+                      "bytes":  573390,
+                      "sha256":  "4B747681468EB6D84902AAA92E2619D26FCE4D42A4168C86F0BD3BE2B1477100"
+                  },
+                  {
+                      "slug":  "drainage-clog",
+                      "file":  "drainage-clog.jpg",
+                      "bytes":  663990,
+                      "sha256":  "B60543CF7ECFFD18F87E72FF3D736D4AF7A34F114FF86D0DB5F3BD6315B77C85"
+                  },
+                  {
+                      "slug":  "flood-street",
+                      "file":  "flood-street.jpg",
+                      "bytes":  474328,
+                      "sha256":  "7568B0F2F1DB99BBD65816F497E3AFF34E8365EB9D0D0E44AFF403B17EBE6AB2"
+                  },
+                  {
+                      "slug":  "garbage-pile",
+                      "file":  "garbage-pile.jpg",
+                      "bytes":  630380,
+                      "sha256":  "94AF7F568FCEF9EDA16C4A3F05D545609011E208C7E6F87AAB0F482F8300BF61"
+                  },
+                  {
+                      "slug":  "playground-rust",
+                      "file":  "playground-rust.jpg",
+                      "bytes":  499357,
+                      "sha256":  "614D4AAB51D92E18FE7EE1D2AF1571FF3B6BFC3CD86AC8915A027BB4480D3E1F"
+                  },
+                  {
+                      "slug":  "road-pothole",
+                      "file":  "road-pothole.jpg",
+                      "bytes":  415841,
+                      "sha256":  "E3F56182860FA1162DB1BFD344D475B01B43B5A3445A07BBE71E438625EDAC43"
+                  },
+                  {
+                      "slug":  "sidewalk-crack",
+                      "file":  "sidewalk-crack.jpg",
+                      "bytes":  525281,
+                      "sha256":  "328AFD61F4088E5B0CD43B950AF3FD27455AB42E0CE60AE450F3A6BF4FA4975E"
+                  },
+                  {
+                      "slug":  "water-pump-cracked",
+                      "file":  "water-pump-cracked.jpg",
+                      "bytes":  310855,
+                      "sha256":  "53123F5B9568A9AF616E55C45FAC4D747897A2791F19A80D14565F00040F5188"
+                  }
+              ]
+}
