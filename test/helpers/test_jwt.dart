@@ -3,20 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:dio/dio.dart';
 
-/// Available roles for test authentication.
-// ignore_for_file: constant_identifier_names
-enum Role {
-  ADMIN,
-  ADMIN_DAERAH,
-  PETUGAS,
-  SURVEYOR,
-  WARGA,
-  VERIFIKATOR,
-  PENGAMBIL_KEPUTUSAN,
-  OPERATOR,
-  AUDITOR,
-  RT_RW,
-}
+import 'package:sigap/api/types.g.dart';
 
 class TestJwtCache {
   static final Map<Role, String> _cache = {};
@@ -44,7 +31,7 @@ class TestJwtCache {
 
       final raw = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
       for (final entry in raw.entries) {
-        final role = Role.values.where((r) => r.name == entry.key).firstOrNull;
+        final role = Role.values.where((r) => r.value == entry.key).firstOrNull;
         if (role == null) continue;
 
         final data = entry.value as Map<String, dynamic>;
@@ -69,7 +56,7 @@ class TestJwtCache {
     try {
       final Map<String, dynamic> data = {};
       for (final role in _cache.keys) {
-        data[role.name] = {
+        data[role.value] = {
           'token': _cache[role],
           'fetchedAt': _cooldowns[role]?.millisecondsSinceEpoch,
         };
@@ -107,7 +94,7 @@ class TestJwtCache {
       try {
         final resp = await dio.post(
           '/api/test/login-as',
-          data: {'role': role.name},
+          data: {'role': role.value},
         );
 
         if (resp.statusCode == 429 && attempt < maxRetries - 1) {
@@ -180,23 +167,23 @@ class TestJwtCache {
         final age = DateTime.now().difference(lastFetch).inMinutes;
         if (age < 25) {
           print(
-            '[TestJwtCache] prewarm SKIP ${role.name} (cache HIT, ${age}min old)',
+            '[TestJwtCache] prewarm SKIP ${role.value} (cache HIT, ${age}min old)',
           );
           continue;
         }
       }
 
       // Fetch fresh token with 429 tracking
-      print('[TestJwtCache] prewarm FETCH ${role.name}...');
+      print('[TestJwtCache] prewarm FETCH ${role.value}...');
       try {
         final resp = await dio.post(
           '/api/test/login-as',
-          data: {'role': role.name},
+          data: {'role': role.value},
         );
 
         if (resp.statusCode == 429) {
           _prewarm429Count++;
-          print('[TestJwtCache] prewarm 429 for ${role.name}');
+          print('[TestJwtCache] prewarm 429 for ${role.value}');
         } else if (resp.statusCode != 200) {
           throw DioException(
             requestOptions: resp.requestOptions,
@@ -210,7 +197,7 @@ class TestJwtCache {
           _cache[role] = token;
           _cooldowns[role] = DateTime.now();
           _saveToDisk();
-          print('[TestJwtCache] prewarm OK ${role.name}');
+          print('[TestJwtCache] prewarm OK ${role.value}');
         }
       } on DioException catch (e) {
         if (e.type == DioExceptionType.connectionTimeout ||
@@ -218,7 +205,7 @@ class TestJwtCache {
             e.type == DioExceptionType.sendTimeout ||
             e.type == DioExceptionType.connectionError) {
           print(
-            '[TestJwtCache] prewarm network error for ${role.name}: ${e.message}',
+            '[TestJwtCache] prewarm network error for ${role.value}: ${e.message}',
           );
           rethrow;
         }

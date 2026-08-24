@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sigap/api/types.g.dart';
 import 'backend_gate.dart';
 import 'test_jwt.dart';
 
@@ -13,19 +14,19 @@ void main() {
     test('flowBootstrap passes twice with cache HIT on second pass', () async {
       // First pass — populates cache
       await flowBootstrap([
-        Role.ADMIN,
-        Role.WARGA,
-        Role.VERIFIKATOR,
-        Role.PETUGAS,
+        Role.admin,
+        Role.warga,
+        Role.verifikator,
+        Role.petugas,
       ]);
 
       // Second pass — should hit cache (see "cache HIT" in output)
       // If any role is still fresh in cache (< 25 min), it will be skipped.
       await flowBootstrap([
-        Role.ADMIN,
-        Role.WARGA,
-        Role.VERIFIKATOR,
-        Role.PETUGAS,
+        Role.admin,
+        Role.warga,
+        Role.verifikator,
+        Role.petugas,
       ]);
 
       // If we get here without throwing, both passes succeeded.
@@ -41,7 +42,7 @@ void main() {
 
     test('cache is cleared by clearCache', () async {
       // Populate
-      await TestJwtCache.prewarmRoles([Role.ADMIN]);
+      await TestJwtCache.prewarmRoles([Role.admin]);
       TestJwtCache.clearCache();
       // After clear, next prewarm should fetch fresh (no "cache HIT").
       // We just verify clearCache() doesn't throw.

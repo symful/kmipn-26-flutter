@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sigap/api/types.g.dart';
 import 'test_jwt.dart';
 
 /// Exception thrown when a test suite should be skipped due to environment

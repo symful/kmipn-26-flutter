@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:sigap/api/api_client.dart';
-import 'test_jwt.dart';
+import 'package:sigap/api/types.g.dart';
 import 'api_client_builder.dart';
 
 /// Thrown when seed data cannot be retrieved from the backend.
@@ -19,59 +19,59 @@ void _warn(String message) {
 
 /// Fetches a real category ID from the API.
 Future<String> getRealCategoryId() async {
-  final client = await buildTestApiClient(role: Role.ADMIN);
+  final client = await buildTestApiClient(role: Role.admin);
   final resp = await client.getCategories();
   if (resp.isEmpty) {
     const msg = 'No categories found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
   }
-  return resp.first['id'] as String;
+  return resp.first.id ?? "";
 }
 
 /// Fetches a real wilayah ID from the API.
 Future<String> getRealWilayahId() async {
-  final client = await buildTestApiClient(role: Role.ADMIN);
+  final client = await buildTestApiClient(role: Role.admin);
   final resp = await client.getWilayahList();
   if (resp.isEmpty) {
     const msg = 'No wilayah found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
   }
-  return resp.first['id'] as String;
+  return resp.first.id ?? "";
 }
 
 /// Fetches a real report ID for the current warga user from the API.
 Future<String> getRealReportId() async {
-  final client = await buildTestApiClient(role: Role.WARGA);
+  final client = await buildTestApiClient(role: Role.warga);
   final resp = await client.getWargaReports();
-  if (resp.isEmpty) {
+  if (resp.items.isEmpty) {
     const msg = 'No reports found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
   }
-  return resp.first['id'] as String;
+  return resp.items.first.id ?? "";
 }
 
 /// Fetches a real operator case ID from the API.
 Future<String> getRealCaseId() async {
-  final client = await buildTestApiClient(role: Role.OPERATOR);
+  final client = await buildTestApiClient(role: Role.operator);
   final resp = await client.getOperatorCases();
-  final items = resp['items'] as List?;
-  if (items == null || items.isEmpty) {
+  final items = resp.items;
+  if (items.isEmpty) {
     const msg = 'No operator cases found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
   }
-  return items.first['id'] as String;
+  return items.first.id ?? "";
 }
 
 /// Fetches a real unit ID from the API.
 Future<String> getRealUnitId() async {
-  final client = await buildTestApiClient(role: Role.ADMIN_DAERAH);
+  final client = await buildTestApiClient(role: Role.adminDaerah);
   final resp = await client.getAdminUnits();
-  final items = resp['items'] as List?;
-  if (items == null || items.isEmpty) {
+  final items = resp.entries;
+  if (items.isEmpty) {
     const msg = 'No units found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
@@ -81,15 +81,15 @@ Future<String> getRealUnitId() async {
 
 /// Fetches a real verifikator case queue item ID from the API.
 Future<String> getRealVerifikatorCaseId() async {
-  final client = await buildTestApiClient(role: Role.VERIFIKATOR);
+  final client = await buildTestApiClient(role: Role.verifikator);
   final resp = await client.getVerifikatorQueue();
-  final items = resp['items'] as List?;
-  if (items == null || items.isEmpty) {
+  final items = resp.items;
+  if (items.isEmpty) {
     const msg = 'No verifikator cases found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
   }
-  return items.first['id'] as String;
+  return items.first.id ?? "";
 }
 
 /// Fetches a real verifikator case queue item ID filtered by case status.
@@ -100,7 +100,7 @@ Future<String> getRealVerifikatorCaseIdByStatus(
   int limit = 50,
 }) async {
   final resp = await client.getVerifikatorQueue();
-  final items = (resp['items'] as List?) ?? [];
+  final items = resp.items;
   for (final item in items) {
     final m = item as Map<String, dynamic>;
     final status = m['status'] as String?;
@@ -114,30 +114,30 @@ Future<String> getRealVerifikatorCaseIdByStatus(
 }
 
 /// Fetches a real petugas task ID from the API.
-Future<String> getRealPetugasTaskId() async {
-  final client = await buildTestApiClient(role: Role.PETUGAS);
+Future<String> getRealpetugasTaskId() async {
+  final client = await buildTestApiClient(role: Role.petugas);
   final resp = await client.petugasGetTasks();
-  if (resp.isEmpty) {
+  if (resp.tasks.isEmpty) {
     const msg = 'No petugas tasks found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
   }
-  return resp.first['id'] as String;
+  return resp.tasks.first.id ?? "";
 }
 
 /// Fetches a real petugas task ID filtered by task status.
-Future<String> getRealPetugasTaskIdByStatus(
+Future<String> getRealpetugasTaskIdByStatus(
   ApiClient client, {
   required List<String> statuses,
   int page = 1,
   int limit = 50,
 }) async {
   final resp = await client.petugasGetTasks();
-  for (final task in resp) {
+  for (final task in resp.tasks) {
     final m = task;
-    final status = m['status'] as String?;
+    final status = m.status;
     if (status != null && statuses.contains(status)) {
-      return m['id'] as String;
+      return m.id ?? "";
     }
   }
   throw SeedUnavailableException(
@@ -147,14 +147,14 @@ Future<String> getRealPetugasTaskIdByStatus(
 
 /// Fetches a real surveyor task ID from the API.
 Future<String> getRealSurveyorTaskId() async {
-  final client = await buildTestApiClient(role: Role.SURVEYOR);
+  final client = await buildTestApiClient(role: Role.surveyor);
   final resp = await client.surveyorGetTasks();
-  if (resp.isEmpty) {
+  if (resp.tasks.isEmpty) {
     const msg = 'No surveyor tasks found';
     _warn(msg);
     throw const SeedUnavailableException(msg);
   }
-  return resp.first['id'] as String;
+  return resp.tasks.first.id ?? "";
 }
 
 /// Fetches a real surveyor task ID filtered by task status.
@@ -168,11 +168,11 @@ Future<String> getRealSurveyorTaskByStatus(
   int limit = 50,
 }) async {
   final resp = await client.surveyorGetTasks();
-  for (final task in resp) {
+  for (final task in resp.tasks) {
     final m = task;
-    final status = m['status'] as String?;
+    final status = m.status;
     if (status != null && statuses.contains(status)) {
-      return m['id'] as String;
+      return m.id ?? "";
     }
   }
   throw SeedUnavailableException(
@@ -190,11 +190,11 @@ Future<String> pickCaseInStatus(
   int limit = 50,
 }) async {
   final res = await client.getOperatorCases(page: page, limit: limit);
-  final items = (res['items'] as List?) ?? [];
+  final items = res.items;
   for (final c in items) {
     final status = (c as Map<String, dynamic>)['status'] as String?;
     if (status != null && eligibleStatuses.contains(status)) {
-      return c['id'] as String;
+      return c.id ?? "";
     }
   }
   throw SeedUnavailableException(

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:sigap/api/api_client.dart';
+import 'package:sigap/api/types.g.dart';
 import 'test_jwt.dart';
 
 /// Builds a test ApiClient with a real access token from production server.
