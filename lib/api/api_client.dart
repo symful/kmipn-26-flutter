@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -16,7 +16,7 @@ class ConnectivityException implements Exception {
   String toString() => 'ConnectivityException: $message';
 }
 
-// ─── Paginated response wrappers ───────────────────────────────────────────
+// â”€â”€â”€ Paginated response wrappers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class PaginatedItems<T> {
   final List<T> items;
@@ -705,7 +705,7 @@ class AiAssessmentResult {
   }
 }
 
-// ─── API Client ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ API Client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class ApiClient {
   final Dio _dio;
@@ -832,7 +832,7 @@ class ApiClient {
     }
   }
 
-  // ─── Auth ─────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Logs in a user with email and password.
   /// Returns a [LoginResponse] containing token and user data.
@@ -872,7 +872,7 @@ class ApiClient {
     );
   }
 
-  // ─── Categories ────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Categories â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches all categories.
   Future<List<Category>> getCategories() async {
@@ -889,7 +889,7 @@ class ApiClient {
         .toList();
   }
 
-  // ─── Sync/Batch ───────────────────────────────────────────────────────────
+  // â”€â”€â”€ Sync/Batch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Syncs batch of reports from offline queue.
   Future<SyncBatchResult> syncBatch({
@@ -908,7 +908,7 @@ class ApiClient {
     );
   }
 
-  // ─── Agent/AI Assessment ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Agent/AI Assessment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches AI pre-verification assessment for a report.
   Future<AiAssessmentResult> getAiAssessment(String reportId) async {
@@ -928,7 +928,7 @@ class ApiClient {
     );
   }
 
-  // ─── Reports (Warga) ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Reports (Warga) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches warga's own reports.
   Future<WargaReportsPage> getWargaReports() async {
@@ -949,7 +949,7 @@ class ApiClient {
     );
   }
 
-  // ─── Reports Actions ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Reports Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Uploads a photo and returns the public URL.
   Future<UploadPhotoResult> uploadSinglePhoto(
@@ -1109,7 +1109,7 @@ class ApiClient {
     );
   }
 
-  // ─── Cases ──────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Cases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches the verifikator/operator queue (list of cases pending review).
   Future<VerifikatorQueuePage> getVerifikatorQueue({
@@ -1185,7 +1185,7 @@ class ApiClient {
     );
   }
 
-  // ─── RT-RW ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ RT-RW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Verifies a report via RT/RW.
   Future<RtRwVerifyResult> rtRwVerify({
@@ -1219,7 +1219,7 @@ class ApiClient {
     );
   }
 
-  // ─── Tasks (Petugas) ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Tasks (Petugas) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches petugas task list.
   Future<TaskListPage> petugasGetTasks() async {
@@ -1267,7 +1267,7 @@ class ApiClient {
     );
   }
 
-  // ─── Tasks (Surveyor) ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Tasks (Surveyor) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches surveyor task list.
   Future<TaskListPage> surveyorGetTasks() async {
@@ -1337,7 +1337,7 @@ class ApiClient {
     );
   }
 
-  // ─── Warga Stats ───────────────────────────────────────────────────────────
+  // â”€â”€â”€ Warga Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches warga statistics.
   Future<WargaStats> getWargaStats() async {
@@ -1350,7 +1350,7 @@ class ApiClient {
     );
   }
 
-  // ─── Stats ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches role-shaped statistics.
   Future<StatsResponse> getStats() async {
@@ -1363,7 +1363,7 @@ class ApiClient {
     );
   }
 
-  // ─── Executive ──────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Executive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches executive dashboard summary.
   Future<StatsResponse> getExecutiveDashboard() async {
@@ -1401,7 +1401,7 @@ class ApiClient {
     );
   }
 
-  // ─── Export ───────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Exports reports as PDF.
   Future<Uint8List> exportPdf({
@@ -1447,7 +1447,7 @@ class ApiClient {
     );
   }
 
-  // ─── Notifications ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches notifications from the server.
   Future<NotificationPage> getNotifications({
@@ -1499,7 +1499,7 @@ class ApiClient {
     );
   }
 
-  // ─── Wilayah ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Wilayah â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches the wilayah (region) list.
   Future<List<Wilayah>> getWilayahList() async {
@@ -1517,7 +1517,7 @@ class ApiClient {
         .toList();
   }
 
-  // ─── Units ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Units â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches units list (for admin daerah).
   Future<UnitsPage> getUnits({
@@ -1554,7 +1554,7 @@ class ApiClient {
     );
   }
 
-  // ─── Geocode ───────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Geocode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches reverse geocoded address for given coordinates.
   Future<GeocodeResult> getGeocodeReverse({
@@ -1573,7 +1573,7 @@ class ApiClient {
     );
   }
 
-  // ─── Facilities ─────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Facilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches facilities list.
   Future<List<Facility>> getFacilities() async {
@@ -1611,7 +1611,7 @@ class ApiClient {
     );
   }
 
-  // ─── Surveyors ──────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Surveyors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches surveyors list.
   Future<List<UserResponse>> getSurveyors() async {
@@ -1629,7 +1629,7 @@ class ApiClient {
         .toList();
   }
 
-  // ─── Users ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches users list (admin).
   Future<UsersPage> getUsers({
@@ -1679,7 +1679,7 @@ class ApiClient {
     );
   }
 
-  // ─── SLA ──────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ SLA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches SLA configs.
   Future<SlaPage> getSlaConfigs({
@@ -1718,7 +1718,7 @@ class ApiClient {
     );
   }
 
-  // ─── Checklist Templates ─────────────────────────────────────────────────
+  // â”€â”€â”€ Checklist Templates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches checklist templates.
   Future<ChecklistTemplatesPage> getChecklistTemplates({
@@ -1756,7 +1756,7 @@ class ApiClient {
     );
   }
 
-  // ─── Priority Config ─────────────────────────────────────────────────────
+  // â”€â”€â”€ Priority Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches priority config versions.
   Future<PriorityConfigPage> getPriorityConfigs({
@@ -1786,7 +1786,7 @@ class ApiClient {
     );
   }
 
-  // ─── Auditor ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Auditor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches auditor audit search results.
   Future<AuditPage> getAuditorAuditSearch({
@@ -1904,7 +1904,7 @@ class ApiClient {
     return res.data.toString();
   }
 
-  // ─── Me/Data ───────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Me/Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches the current user's data.
   Future<UserResponse> getMeData() async {
@@ -1917,7 +1917,7 @@ class ApiClient {
     );
   }
 
-  // ─── Warga Profile ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Warga Profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches warga profile.
   Future<WargaProfile> getWargaProfile() async {
@@ -1930,7 +1930,7 @@ class ApiClient {
     );
   }
 
-  // ─── Wilayah Boundary ─────────────────────────────────────────────────────
+  // â”€â”€â”€ Wilayah Boundary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches the boundary geometry for a wilayah as GeoJSON.
   Future<GeoJSONFeatureCollection> getWilayahBoundary(String id) async {
@@ -1943,7 +1943,7 @@ class ApiClient {
     );
   }
 
-  // ─── Admin: Generate RT-RW Token ──────────────────────────────────────────
+  // â”€â”€â”€ Admin: Generate RT-RW Token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Generates an RT/RW verification token for a report.
   Future<GenerateRtRwTokenResult> getAdminGenerateRtRwToken({
@@ -1962,7 +1962,7 @@ class ApiClient {
     );
   }
 
-  // ─── Admin: Failed Assessments ───────────────────────────────────────────
+  // â”€â”€â”€ Admin: Failed Assessments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches admin failed assessments.
   Future<FailedAssessmentsPage> getAdminFailedAssessments({
@@ -2017,7 +2017,7 @@ class ApiClient {
     );
   }
 
-  // ─── Health ───────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Health â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Checks API health status.
   Future<HealthResult> getHealth() async {
@@ -2030,7 +2030,7 @@ class ApiClient {
     );
   }
 
-  // ─── Client Errors ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Client Errors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Reports a client error to the server.
   Future<ClientErrorResult> postClientError({
@@ -2054,7 +2054,7 @@ class ApiClient {
     );
   }
 
-  // ─── Public Endpoints (orphan-safe - no callers in flutter-usage-map) ────
+  // â”€â”€â”€ Public Endpoints (orphan-safe - no callers in flutter-usage-map) â”€â”€â”€â”€
 
   /// Fetches public reports as GeoJSON.
   Future<GeoJSONFeatureCollection> getPublicGeojson({
@@ -2193,7 +2193,7 @@ class ApiClient {
     );
   }
 
-  // ─── Audit (non-Auditor role) ──────────────────────────────────────────────
+  // â”€â”€â”€ Audit (non-Auditor role) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches audit log entries with pagination and filters.
   Future<AuditPage> getAuditSearch({
@@ -2259,7 +2259,7 @@ class ApiClient {
     return res.data.toString();
   }
 
-  // ─── Export CSV ──────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Export CSV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Exports reports as CSV file content.
   Future<String> getExportCsv({String? status, String? categoryId}) async {
@@ -2273,7 +2273,7 @@ class ApiClient {
     return res.data.toString();
   }
 
-  // ─── Reports CRUD (orphan-safe) ───────────────────────────────────────────
+  // â”€â”€â”€ Reports CRUD (orphan-safe) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches a single report by ID.
   Future<Report> getReportById(String id) async {
@@ -2352,7 +2352,7 @@ class ApiClient {
     );
   }
 
-  // ─── Cases Actions (orphan methods kept for future use) ─────────────────────
+  // â”€â”€â”€ Cases Actions (orphan methods kept for future use) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Accepts a case.
   Future<CaseDetail> acceptCase(
@@ -2475,7 +2475,7 @@ class ApiClient {
     );
   }
 
-  // ─── Reports Actions (orphan methods kept for future use) ─────────────────
+  // â”€â”€â”€ Reports Actions (orphan methods kept for future use) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Closes a report.
   Future<Report> closeReport(String id) async {
@@ -2623,7 +2623,7 @@ class ApiClient {
     return EvidenceResult(photoUrls: results);
   }
 
-  // ─── Tasks Actions (orphan methods kept for future use) ─────────────────────
+  // â”€â”€â”€ Tasks Actions (orphan methods kept for future use) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Accepts a task.
   Future<TaskActionResult> acceptTask(String taskId) async {
@@ -2744,7 +2744,7 @@ class ApiClient {
     );
   }
 
-  // ─── Priority Config Actions ───────────────────────────────────────────────
+  // â”€â”€â”€ Priority Config Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Creates or updates priority config.
   Future<PriorityConfig> savePriorityConfig({
@@ -2760,7 +2760,7 @@ class ApiClient {
     );
   }
 
-  // ─── SLA Actions ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ SLA Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Creates SLA config.
   Future<SlaConfig> createSla(SlaConfig config) async {
@@ -2793,7 +2793,7 @@ class ApiClient {
     );
   }
 
-  // ─── User Actions ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ User Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Creates a user.
   Future<UserResponse> createUser({
@@ -2821,7 +2821,7 @@ class ApiClient {
     );
   }
 
-  // ─── RT-RW GET ─────────────────────────────────────────────────────────────
+  // â”€â”€â”€ RT-RW GET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets RT-RW verification info.
   Future<RtRwVerifyInfo> getRtRwVerify({required String token}) async {
@@ -2835,7 +2835,7 @@ class ApiClient {
     );
   }
 
-  // ─── Reports Heatmap ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Reports Heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets reports heatmap data.
   Future<List<Map<String, dynamic>>> getReportsHeatmap({
@@ -2860,7 +2860,7 @@ class ApiClient {
     return (itemsData as List).cast<Map<String, dynamic>>();
   }
 
-  // ─── Reports Stats ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Reports Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets reports statistics.
   Future<StatsResponse> getReportsStats() async {
@@ -2873,7 +2873,7 @@ class ApiClient {
     );
   }
 
-  // ─── Photo Rollback ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Photo Rollback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Rolls back an uploaded photo.
   Future<void> rollbackPhoto(String reportId, String photoId) async {
@@ -2887,44 +2887,7 @@ class ApiClient {
     );
   }
 
-  // ─── Public Sync KPI ──────────────────────────────────────────────────────
-
-  /// Gets public sync KPI.
-  Future<StatsResponse> getPublicSyncKpi() async {
-    return await _execute<StatsResponse>(
-      dioCall: () => _dio.get('/api/public/sync-kpi'),
-      endpoint: '/api/public/sync-kpi',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
-    );
-  }
-
-  /// Posts public sync KPI.
-  Future<StatsResponse> postPublicSyncKpi({
-    required String deviceId,
-    required String platform,
-    required int reportsCount,
-    String? lastSyncAt,
-  }) async {
-    return await _execute<StatsResponse>(
-      dioCall: () => _dio.post(
-        '/api/public/sync-kpi',
-        data: {
-          'device_id': deviceId,
-          'platform': platform,
-          'reports_count': reportsCount,
-          if (lastSyncAt != null) 'last_sync_at': lastSyncAt,
-        },
-      ),
-      endpoint: '/api/public/sync-kpi',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
-    );
-  }
-
-  // ─── Public Cases ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Public Cases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets a public case by ID.
   Future<Report> getPublicCase(String id) async {
@@ -2937,7 +2900,7 @@ class ApiClient {
     );
   }
 
-  // ─── Public Reports Cluster ───────────────────────────────────────────────
+  // â”€â”€â”€ Public Reports Cluster â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets public reports cluster for map.
   Future<GeoJSONFeatureCollection> getPublicReportsCluster({
@@ -2959,7 +2922,7 @@ class ApiClient {
     );
   }
 
-  // ─── Public Map ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Public Map â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets public map data.
   Future<GeoJSONFeatureCollection> getPublicMap({
@@ -2983,7 +2946,7 @@ class ApiClient {
     );
   }
 
-  // ─── Auth Me ─────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Auth Me â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets current user info (auth me).
   Future<LoginResponse> getAuthMe() async {
@@ -2996,7 +2959,7 @@ class ApiClient {
     );
   }
 
-  // ─── Auth Refresh ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Auth Refresh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Refreshes auth token.
   Future<LoginResponse> refreshAuth(String refreshToken) async {
@@ -3010,7 +2973,7 @@ class ApiClient {
     );
   }
 
-  // ─── Auth Register ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Auth Register â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Registers a new user.
   Future<LoginResponse> register({
@@ -3030,7 +2993,7 @@ class ApiClient {
     );
   }
 
-  // ─── Auth Register Verifikator ────────────────────────────────────────────
+  // â”€â”€â”€ Auth Register Verifikator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Registers a verifikator.
   Future<LoginResponse> registerVerifikator({
@@ -3056,7 +3019,7 @@ class ApiClient {
     );
   }
 
-  // ─── Wilayah Detail ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Wilayah Detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets wilayah detail by ID.
   Future<Wilayah> getWilayah(String id) async {
@@ -3069,7 +3032,7 @@ class ApiClient {
     );
   }
 
-  // ─── Public Reports GeoJSON ────────────────────────────────────────────────
+  // â”€â”€â”€ Public Reports GeoJSON â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets public reports as GeoJSON.
   Future<GeoJSONFeatureCollection> getPublicReportsGeojson({
@@ -3091,7 +3054,7 @@ class ApiClient {
     );
   }
 
-  // ─── Photo Upload URL ─────────────────────────────────────────────────────
+  // â”€â”€â”€ Photo Upload URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets presigned URL for photo upload.
   Future<UploadPhotoResult> getPhotoUploadUrl({
