@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../api/api_client.dart';
+import '../api/types.g.dart';
 import '../db/database.dart';
 import '../db/repositories/report_repository.dart';
 import '../db/repositories/category_repository.dart';
@@ -163,7 +164,7 @@ final categoriesProvider = FutureProvider<List<Map<String, dynamic>>>((
 });
 
 /// Fetches warga statistics (submitted, verified, in_progress, resolved).
-final wargaStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final wargaStatsProvider = FutureProvider<WargaStats>((ref) async {
   final api = ref.watch(apiClientProvider);
   return await api.getWargaStats();
 });

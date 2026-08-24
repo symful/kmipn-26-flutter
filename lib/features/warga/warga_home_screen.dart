@@ -739,8 +739,7 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                       // Status grid
                       statsAsync.when(
                         data: (stats) {
-                          final byStatus =
-                              stats['by_status'] as Map<String, dynamic>? ?? {};
+                          final byStatus = stats.byStatus ?? {};
                           final submitted = (byStatus['submitted'] ?? 0) as int;
                           final verified = (byStatus['verified'] ?? 0) as int;
                           final inProgress =

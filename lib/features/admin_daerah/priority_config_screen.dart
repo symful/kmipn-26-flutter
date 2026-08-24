@@ -33,7 +33,8 @@ class _AdminDaerahPriorityConfigScreenState
       final client = ref.read(apiClientProvider);
       final data = await client.getAdminPriorityConfig();
       setState(() {
-        _config = data;
+        // Extract the first (most recent) priority config entry from the paginated response
+        _config = data.entries.isNotEmpty ? data.entries.first : null;
         _loading = false;
       });
     } catch (e) {
@@ -147,7 +148,7 @@ class _PriorityFormState extends State<_PriorityForm> {
   void initState() {
     super.initState();
     _weights = {};
-    final saved = widget.config['weights'] as Map<String, dynamic>? ?? {};
+    final saved = (widget.config['weights'] ?? {}) as Map<String, dynamic>;
     final defaults = {
       'severity': 0.3,
       'recency': 0.2,

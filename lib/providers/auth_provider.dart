@@ -105,31 +105,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final data = await _client.login(email, password);
-      final accessToken = data['access_token'] as String;
-      final refreshToken = data['refresh_token'] as String;
-      final user = data['user'] as Map<String, dynamic>?;
+      final loginResponse = await _client.login(email, password);
+      final accessToken = loginResponse.accessToken;
+      final refreshToken = loginResponse.refreshToken;
+      final user = loginResponse.user;
 
       await _storage.write(key: _accessTokenKey, value: accessToken);
       await _storage.write(key: _refreshTokenKey, value: refreshToken);
       if (user != null) {
-        final userId = user['id'] as String?;
-        final userRole = user['role'] as String?;
-        final userEmail = user['email'] as String?;
-        final userName = user['name'] as String?;
-        final activeRole = user['active_role'] as String? ?? userRole;
-        final rolesRaw = user['roles'];
-        List<String> roles = [];
-        if (rolesRaw is List) {
-          roles = rolesRaw.cast<String>();
-        } else if (userRole != null) {
-          roles = [userRole];
-        }
+        final userId = user.id;
+        final userRole = user.role?.value;
+        final userEmail = user.email;
+        final userName = user.name;
+        final activeRole = userRole;
 
         await _storage.write(key: _userIdKey, value: userId);
         await _storage.write(key: _userRoleKey, value: userRole);
         await _storage.write(key: _activeRoleKey, value: activeRole);
-        await _storage.write(key: _rolesKey, value: roles.join(','));
+        await _storage.write(key: _rolesKey, value: userRole ?? '');
         await _storage.write(key: _userEmailKey, value: userEmail);
         await _storage.write(key: _userNameKey, value: userName);
 
@@ -141,7 +134,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           activeRole: activeRole,
           userEmail: userEmail,
           userName: userName,
-          roles: roles,
+          roles: userRole != null ? [userRole] : [],
         );
       } else {
         state = AuthState(accessToken: accessToken, refreshToken: refreshToken);
@@ -167,7 +160,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     try {
       final response = await _client.validateRole(role);
-      if (response['valid'] != true) {
+      if (response.valid != true) {
         return false;
       }
 

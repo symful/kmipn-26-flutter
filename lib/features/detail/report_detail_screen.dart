@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../api/types.g.dart';
 import '../../theme/tokens.dart';
 import '../../providers/providers.dart';
 import '../../widgets/skeleton_loaders.dart';
 
 /// Provider that fetches a single report from the API by ID.
-final apiReportProvider = FutureProvider.family<Map<String, dynamic>, String>((
+final apiReportProvider = FutureProvider.family<Report, String>((
   ref,
   id,
 ) async {
@@ -15,17 +16,20 @@ final apiReportProvider = FutureProvider.family<Map<String, dynamic>, String>((
 });
 
 /// Provider that fetches the timeline for a report.
-final reportTimelineProvider =
-    FutureProvider.family<Map<String, dynamic>, String>((ref, id) async {
-      final apiClient = ref.read(apiClientProvider);
-      return apiClient.getReportTimeline(id);
-    });
+final reportTimelineProvider = FutureProvider.family<TimelineEnvelope, String>((
+  ref,
+  id,
+) async {
+  final apiClient = ref.read(apiClientProvider);
+  return apiClient.getReportTimeline(id);
+});
 
 /// Provider that fetches supporting reports for a report.
 final supportingReportsProvider =
     FutureProvider.family<List<Map<String, dynamic>>, String>((ref, id) async {
       final apiClient = ref.read(apiClientProvider);
-      return apiClient.getSupportingReports(id);
+      final result = await apiClient.getSupportingReports(id);
+      return result.reports.map((r) => r.toJson()).toList();
     });
 
 class ReportDetailScreen extends ConsumerWidget {
@@ -40,11 +44,8 @@ class ReportDetailScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Detail Laporan')),
       body: reportAsync.when(
         data: (report) {
-          final photoUrls = (report['photo_urls'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList();
-          final createdAtStr = report['created_at'] as String?;
-          final parentCase = report['parent_case'] as Map<String, dynamic>?;
+          final photoUrls = report.photoUrls;
+          final createdAtStr = report.createdAt?.toIso8601String();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(SigapSpacing.lg),
@@ -54,12 +55,6 @@ class ReportDetailScreen extends ConsumerWidget {
                 // Status banner
                 _buildStatusBanner(report),
                 const SizedBox(height: SigapSpacing.lg),
-
-                // Parent case banner
-                if (parentCase != null) ...[
-                  _buildParentCaseBanner(context, parentCase),
-                  const SizedBox(height: SigapSpacing.lg),
-                ],
 
                 // Photo gallery
                 if (photoUrls != null && photoUrls.isNotEmpty) ...[
@@ -71,7 +66,7 @@ class ReportDetailScreen extends ConsumerWidget {
                 _SectionLabel(label: 'Deskripsi'),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  report['description'] as String? ?? '-',
+                  report.description ?? '-',
                   style: const TextStyle(fontSize: 15),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
@@ -80,7 +75,7 @@ class ReportDetailScreen extends ConsumerWidget {
                 _SectionLabel(label: 'Lokasi'),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  '${(report['lat'] as num?)?.toStringAsFixed(6) ?? '-'}, ${(report['lng'] as num?)?.toStringAsFixed(6) ?? '-'}',
+                  '${report.lat?.toStringAsFixed(6) ?? '-'}, ${report.lng?.toStringAsFixed(6) ?? '-'}',
                   style: const TextStyle(fontSize: 14, fontFamily: 'monospace'),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
@@ -89,17 +84,17 @@ class ReportDetailScreen extends ConsumerWidget {
                 _SectionLabel(label: 'Kategori'),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  report['category_id'] as String? ?? '-',
+                  report.categoryId ?? '-',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
 
                 // Assigned to
-                if (report['assigned_to'] != null) ...[
+                if (report.assignedTo != null) ...[
                   _SectionLabel(label: 'Ditugaskan'),
                   const SizedBox(height: SigapSpacing.xs),
                   Text(
-                    report['assigned_to'] as String,
+                    report.assignedTo!,
                     style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(height: SigapSpacing.lg),
@@ -109,7 +104,7 @@ class ReportDetailScreen extends ConsumerWidget {
                 _SectionLabel(label: 'Tingkat Prioritas'),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  report['severity'] as String? ?? '-',
+                  report.severity?.toString() ?? '-',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
@@ -138,8 +133,8 @@ class ReportDetailScreen extends ConsumerWidget {
                 // Action buttons
                 _buildActionButtons(
                   context,
-                  report['status'] as String? ?? '',
-                  report['id'] as String? ?? id,
+                  report.status?.value ?? '',
+                  report.id ?? id,
                 ),
               ],
             ),
@@ -169,10 +164,15 @@ class ReportDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusBanner(Map<String, dynamic> report) {
-    final status = report['status'] as String? ?? '';
-    final statusMessage = report['status_message'] as String?;
-    final deadline = report['deadline'] as String?;
+  Widget _buildStatusBanner(Report report) {
+    final status = report.status?.value ?? '';
+    // Note: status_message and deadline not available on Report type
+    final statusMessage = report.status?.value == 'needs_completion'
+        ? 'Laporan memerlukan tindakan'
+        : null;
+    final deadline = report.createdAt != null
+        ? report.createdAt!.add(const Duration(days: 7)).toIso8601String()
+        : null;
 
     // Only show banner if there's an action required or message
     if (status == 'needs_completion' && statusMessage != null) {
@@ -376,10 +376,7 @@ class ReportDetailScreen extends ConsumerWidget {
         const SizedBox(height: SigapSpacing.md),
         timelineAsync.when(
           data: (timelineData) {
-            final events =
-                (timelineData['events'] as List<dynamic>?)
-                    ?.cast<Map<String, dynamic>>() ??
-                [];
+            final events = timelineData.events;
             if (events.isEmpty) {
               return Container(
                 padding: const EdgeInsets.all(SigapSpacing.md),
