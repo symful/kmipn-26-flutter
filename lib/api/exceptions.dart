@@ -15,6 +15,14 @@ String extractErrorMessage(dynamic error) {
     if (errorObj is Map) {
       final msg = errorObj['message'];
       if (msg is String && msg.isNotEmpty) {
+        // Check for details.fieldErrors before generic translation
+        final details = data['details'] ?? errorObj['details'];
+        if (details is Map) {
+          final fieldErrors = details['fieldErrors'];
+          if (fieldErrors is Map && fieldErrors.isNotEmpty) {
+            return _translateFieldErrors(fieldErrors);
+          }
+        }
         return _translateError(msg);
       }
     }
@@ -44,6 +52,50 @@ String extractErrorMessage(dynamic error) {
     default:
       return 'Terjadi kesalahan. Coba lagi.';
   }
+}
+
+/// Translates field errors to Indonesian and composes a user-friendly message.
+String _translateFieldErrors(Map fieldErrors) {
+  final parts = <String>[];
+  for (final entry in fieldErrors.entries) {
+    final field = entry.key.toString();
+    final messages = entry.value is List ? entry.value as List : [entry.value];
+    for (final msg in messages) {
+      if (msg is String) {
+        parts.add('$field: ${_translateFieldErrorMessage(msg)}');
+      }
+    }
+  }
+  return parts.join('; ');
+}
+
+/// Translates common field error messages to Indonesian.
+String _translateFieldErrorMessage(String message) {
+  final lower = message.toLowerCase();
+  if (lower.contains('at least') && lower.contains('chars') ||
+      lower.contains('minimal') && lower.contains('karakter')) {
+    return 'minimal 10 karakter';
+  }
+  if (lower.contains('required') || lower.contains('tidak boleh kosong')) {
+    return 'tidak boleh kosong';
+  }
+  if (lower.contains('invalid') && lower.contains('email')) {
+    return 'format email tidak valid';
+  }
+  if (lower.contains('too long') || lower.contains('maksimal')) {
+    return 'terlalu panjang';
+  }
+  if (lower.contains('too short') || lower.contains('terlalu pendek')) {
+    return 'terlalu pendek';
+  }
+  // Return translated snippet if recognizable pattern
+  if (lower.contains('must be')) {
+    return message.replaceAll(
+      RegExp(r'must be', caseSensitive: false),
+      'harus',
+    );
+  }
+  return message;
 }
 
 /// Translates known error messages to Indonesian.
@@ -117,12 +169,14 @@ class ApiException implements Exception {
   final String? body;
   final String? endpoint;
   final String? userMessage;
+  final Map<String, List<String>>? fieldErrors;
 
   ApiException({
     required this.statusCode,
     this.body,
     this.endpoint,
     this.userMessage,
+    this.fieldErrors,
   });
 
   @override
