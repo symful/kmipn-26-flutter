@@ -13,9 +13,8 @@ import 'features/verifikator/case_detail_screen.dart';
 import 'features/operator/dashboard_screen.dart';
 import 'features/operator/case_list_screen.dart';
 import 'features/operator/case_detail_screen.dart' as operator_detail;
-import 'features/petugas/task_detail_screen.dart';
-import 'features/surveyor/task_list_screen.dart';
-import 'features/surveyor/task_detail_screen.dart';
+import 'features/tasks/tasks_flow_list_screen.dart';
+import 'features/tasks/tasks_flow_detail_screen.dart';
 import 'features/surveyor/surveyor_tab_screen.dart';
 import 'features/surveyor/sync_center_screen.dart';
 import 'features/surveyor/riwayat_screen.dart';
@@ -42,7 +41,6 @@ import 'features/settings/settings_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/role_switcher/role_switcher_screen.dart';
 import 'features/verifikator/verifikator_queue_screen.dart';
-import 'screens/petugas/dashboard.dart';
 import 'providers/auth_provider.dart';
 import 'providers/providers.dart';
 import 'providers/onboarding_provider.dart';
@@ -1335,16 +1333,18 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/surveyor/tasks',
-          builder: (c, s) => const SurveyorTaskListScreen(),
+          builder: (c, s) => const TasksFlowListScreen(role: 'surveyor'),
         ),
         GoRoute(
           path: '/surveyor/daftar-tugas',
-          builder: (c, s) => const SurveyorTaskListScreen(),
+          builder: (c, s) => const TasksFlowListScreen(role: 'surveyor'),
         ),
         GoRoute(
           path: '/surveyor/tasks/:id',
-          builder: (c, s) =>
-              SurveyorTaskDetailScreen(taskId: s.pathParameters['id']!),
+          builder: (c, s) => TasksFlowDetailScreen(
+            role: 'surveyor',
+            taskId: s.pathParameters['id']!,
+          ),
         ),
         GoRoute(
           path: '/surveyor/form-survei',
@@ -1390,16 +1390,18 @@ final appRouter = GoRouter(
         // Petugas routes
         GoRoute(
           path: '/petugas',
-          builder: (c, s) => const PetugasDashboardScreen(),
+          builder: (c, s) => const TasksFlowListScreen(role: 'petugas'),
         ),
         GoRoute(
           path: '/petugas/tasks',
-          builder: (c, s) => const PetugasDashboardScreen(),
+          builder: (c, s) => const TasksFlowListScreen(role: 'petugas'),
         ),
         GoRoute(
           path: '/petugas/tasks/:id',
-          builder: (c, s) =>
-              PetugasTaskDetailScreen(taskId: s.pathParameters['id']!),
+          builder: (c, s) => TasksFlowDetailScreen(
+            role: 'petugas',
+            taskId: s.pathParameters['id']!,
+          ),
         ),
 
         // Exec route
