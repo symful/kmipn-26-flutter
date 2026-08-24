@@ -59,7 +59,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
           StatusBar(),
           Expanded(
             child: Scaffold(
-              backgroundColor: AppColors.bgSurface,
+              backgroundColor: SigapColors.bgSurface,
               body: Column(
                 children: [
                   // Header with date and wilayah
@@ -68,8 +68,8 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
                   // Online status indicator row
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.sm,
+                      horizontal: SigapSpacing.lg,
+                      vertical: SigapSpacing.sm,
                     ),
                     child: Row(
                       children: [
@@ -84,7 +84,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
                             icon: const Icon(Icons.sync, size: 16),
                             label: const Text('Sinkronkan'),
                             style: TextButton.styleFrom(
-                              foregroundColor: AppColors.primary,
+                              foregroundColor: SigapColors.primary,
                             ),
                           ),
                       ],
@@ -105,8 +105,8 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
                   // Sort row
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.sm,
+                      horizontal: SigapSpacing.lg,
+                      vertical: SigapSpacing.sm,
                     ),
                     child: TaskSortRow(
                       selectedValue: _mapSortToDisplay(sortValue),
@@ -195,14 +195,14 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
         ref.invalidate(surveyorTasksProvider);
         await ref.read(surveyorTasksProvider.future);
       },
-      color: AppColors.primary,
+      color: SigapColors.primary,
       child: ListView.builder(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         itemCount: sortedTasks.length,
         itemBuilder: (context, index) {
           final task = sortedTasks[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            padding: const EdgeInsets.only(bottom: SigapSpacing.md),
             child: SurveyorTaskCard(
               task: _mapToTaskData(task),
               onTap: () {
@@ -338,10 +338,10 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
   /// Builds the loading skeleton
   Widget _buildLoading() {
     return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(SigapSpacing.lg),
       itemCount: 3,
       itemBuilder: (_, __) => Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+        padding: const EdgeInsets.only(bottom: SigapSpacing.md),
         child: const TaskCardSkeleton(),
       ),
     );
@@ -358,31 +358,31 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.bgSurface,
+              color: SigapColors.bgSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.borderCard, width: 2),
+              border: Border.all(color: SigapColors.borderCard, width: 2),
             ),
             child: const Icon(
               Icons.inbox_outlined,
               size: 40,
-              color: AppColors.textTertiary,
+              color: SigapColors.textTertiary,
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: SigapSpacing.lg),
           const Text(
             'Tidak ada tugas',
             style: TextStyle(
-              fontSize: AppTypography.size16,
+              fontSize: SigapTypography.size16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: SigapSpacing.xs),
           const Text(
             'Tugas akan muncul di sini',
             style: TextStyle(
-              fontSize: AppTypography.size13,
-              color: AppColors.textTertiary,
+              fontSize: SigapTypography.size13,
+              color: SigapColors.textTertiary,
             ),
           ),
         ],
@@ -394,42 +394,46 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
   Widget _buildError(Object error, VoidCallback onRetry) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(SigapSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: AppColors.danger),
-            const SizedBox(height: AppSpacing.lg),
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: SigapColors.danger,
+            ),
+            const SizedBox(height: SigapSpacing.lg),
             const Text(
               'Gagal memuat tugas',
               style: TextStyle(
-                fontSize: AppTypography.size16,
+                fontSize: SigapTypography.size16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: SigapSpacing.sm),
             Text(
               error.toString(),
               style: const TextStyle(
-                fontSize: AppTypography.size12,
-                color: AppColors.textTertiary,
+                fontSize: SigapTypography.size12,
+                color: SigapColors.textTertiary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: SigapSpacing.lg),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: const Text('Coba lagi'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: SigapColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.md,
+                  horizontal: SigapSpacing.lg,
+                  vertical: SigapSpacing.md,
                 ),
               ),
             ),
@@ -447,24 +451,24 @@ class _OfflineBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.sm,
+        horizontal: SigapSpacing.lg,
+        vertical: SigapSpacing.sm,
       ),
-      color: AppColors.warning.withValues(alpha: 0.1),
+      color: SigapColors.warning.withValues(alpha: 0.1),
       child: Row(
         children: [
           Icon(
             Icons.wifi_off,
-            size: AppTypography.size14,
-            color: AppColors.warning,
+            size: SigapTypography.size14,
+            color: SigapColors.warning,
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: SigapSpacing.sm),
           Expanded(
             child: Text(
               'Tidak ada koneksi internet',
               style: TextStyle(
-                fontSize: AppTypography.size12,
-                color: AppColors.warning,
+                fontSize: SigapTypography.size12,
+                color: SigapColors.warning,
                 fontWeight: FontWeight.w500,
               ),
             ),
