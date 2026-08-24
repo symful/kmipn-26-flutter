@@ -32,10 +32,10 @@ class _AdminDaerahPriorityConfigScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.getAdminPriorityConfig();
+      final data = await client.getPriorityConfigs();
       setState(() {
         // Extract the first (most recent) priority config entry from the paginated response
-        _config = data.data.isNotEmpty ? data.data.first : null;
+        _config = data.entries.isNotEmpty ? data.entries.first : null;
         _loading = false;
       });
     } catch (e) {
@@ -50,7 +50,7 @@ class _AdminDaerahPriorityConfigScreenState
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.saveAdminPriorityConfig(weights: weights);
+      await client.savePriorityConfig(weights: weights);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -149,7 +149,18 @@ class _PriorityFormState extends State<_PriorityForm> {
   void initState() {
     super.initState();
     _weights = {};
-    final saved = widget.config.weights ?? const <String, double>{};
+    // Convert rules list to weights map: each rule has 'factor'/'weight' keys
+    final saved = <String, double>{};
+    final rules = widget.config.rules;
+    if (rules != null) {
+      for (final r in rules) {
+        final factor = r['factor'] as String?;
+        final weight = r['weight'];
+        if (factor != null && weight != null) {
+          saved[factor] = (weight is num) ? weight.toDouble() : 0.0;
+        }
+      }
+    }
     final defaults = {
       'severity': 0.3,
       'recency': 0.2,

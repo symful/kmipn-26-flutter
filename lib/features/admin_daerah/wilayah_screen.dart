@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../api/api_client.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
@@ -15,7 +16,7 @@ class AdminDaerahWilayahScreen extends ConsumerStatefulWidget {
 
 class _AdminDaerahWilayahScreenState
     extends ConsumerState<AdminDaerahWilayahScreen> {
-  List<Map<String, dynamic>> _items = [];
+  List<Wilayah> _items = [];
   bool _loading = true;
   String? _error;
 
@@ -32,9 +33,9 @@ class _AdminDaerahWilayahScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/admin-daerah/wilayah');
+      final data = await client.getWilayahList();
       setState(() {
-        _items = (data['items'] as List? ?? data['data'] as List? ?? []).cast();
+        _items = data;
         _loading = false;
       });
     } catch (e) {
@@ -93,8 +94,8 @@ class _AdminDaerahWilayahScreenState
               if (nameController.text.trim().isEmpty) return;
               try {
                 final client = ref.read(apiClientProvider);
-                await client.post(
-                  '/api/admin-daerah/wilayah',
+                await client.dio.post(
+                  '/api/wilayah',
                   data: {
                     'name': nameController.text.trim(),
                     if (parentController.text.trim().isNotEmpty)
@@ -140,10 +141,10 @@ class _AdminDaerahWilayahScreenState
                 itemCount: _items.length,
                 itemBuilder: (context, index) {
                   final item = _items[index];
-                  final id = item['id']?.toString() ?? '';
+                  final id = item.id?.toString() ?? '';
                   return _ListTile(
-                    title: item['name'] as String? ?? '-',
-                    subtitle: 'Level: ${item['level'] ?? '-'}',
+                    title: item.name ?? '-',
+                    subtitle: 'Level: ${item.level ?? '-'}',
                     trailing: Text(
                       'ID: ${id.length > 8 ? id.substring(0, 8) : id}',
                       style: const TextStyle(

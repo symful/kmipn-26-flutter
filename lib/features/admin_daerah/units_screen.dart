@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../api/types.g.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
@@ -15,7 +16,7 @@ class AdminDaerahUnitsScreen extends ConsumerStatefulWidget {
 
 class _AdminDaerahUnitsScreenState
     extends ConsumerState<AdminDaerahUnitsScreen> {
-  List<Map<String, dynamic>> _items = [];
+  List<Unit> _items = [];
   bool _loading = true;
   String? _error;
 
@@ -32,9 +33,9 @@ class _AdminDaerahUnitsScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.getAdminDaerahUnits();
+      final data = await client.getUnits(limit: 100);
       setState(() {
-        _items = (data['items'] as List? ?? data['data'] as List? ?? []).cast();
+        _items = data.entries;
         _loading = false;
       });
     } catch (e) {
@@ -87,11 +88,11 @@ class _AdminDaerahUnitsScreenState
               }
               try {
                 final client = ref.read(apiClientProvider);
-                await client.post(
-                  '/api/admin-daerah/units',
+                await client.dio.post(
+                  '/api/units',
                   data: {
                     'name': nameController.text.trim(),
-                    'wilayah_id': wilayahIdController.text.trim(),
+                    'region': wilayahIdController.text.trim(),
                   },
                 );
                 if (ctx.mounted) Navigator.pop(ctx, true);
@@ -156,11 +157,11 @@ class _AdminDaerahUnitsScreenState
                         color: SigapColors.primary,
                       ),
                       title: Text(
-                        item['name'] as String? ?? '-',
+                        item.name ?? '-',
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       subtitle: Text(
-                        'Wilayah: ${item['wilayah_id'] ?? '-'}',
+                        'Region: ${item.region ?? '-'}',
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),

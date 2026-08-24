@@ -32,9 +32,9 @@ class _AdminDaerahCategoriesScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.get('/api/admin-daerah/kategori');
+      final data = await client.getCategories();
       setState(() {
-        _items = (data['items'] as List? ?? data['data'] as List? ?? []).cast();
+        _items = data.map((c) => c.toJson()).toList();
         _loading = false;
       });
     } catch (e) {
@@ -93,8 +93,8 @@ class _AdminDaerahCategoriesScreenState
               if (nameController.text.trim().isEmpty) return;
               try {
                 final client = ref.read(apiClientProvider);
-                await client.post(
-                  '/api/admin-daerah/kategori',
+                await client.dio.post(
+                  '/api/categories',
                   data: {
                     'name': nameController.text.trim(),
                     if (slugController.text.trim().isNotEmpty)

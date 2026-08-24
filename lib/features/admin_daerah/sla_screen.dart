@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
+import '../../../api/types.g.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
@@ -14,7 +15,7 @@ class AdminDaerahSlaScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
-  List<Map<String, dynamic>> _items = [];
+  List<SlaConfig> _items = [];
   bool _loading = true;
   String? _error;
 
@@ -31,9 +32,9 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.getAdminDaerahSla();
+      final data = await client.getSlaConfigs(limit: 100);
       setState(() {
-        _items = (data['data'] as List? ?? []).cast();
+        _items = data.entries;
         _loading = false;
       });
     } catch (e) {
@@ -44,14 +45,14 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
     }
   }
 
-  Future<void> _editItem(Map<String, dynamic> item) async {
+  Future<void> _editItem(SlaConfig item) async {
     final slaHoursController = TextEditingController(
-      text: (item['jam'] ?? '').toString(),
+      text: (item.slaDays ?? '').toString(),
     );
     final saved = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Edit SLA: ${item['kategori_nama'] ?? '-'}'),
+        title: Text('Edit SLA: ${item.name ?? '-'}'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -77,10 +78,15 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
               if (slaHoursController.text.trim().isEmpty) return;
               try {
                 final client = ref.read(apiClientProvider);
-                final id = item['id'].toString();
-                await client.updateAdminDaerahSla(
+                final id = item.id.toString();
+                await client.updateSla(
                   id,
-                  jam: int.tryParse(slaHoursController.text.trim()) ?? 0,
+                  SlaConfig(
+                    name: item.name,
+                    slaDays: int.tryParse(slaHoursController.text.trim()) ?? 0,
+                    priority: item.priority,
+                    isActive: item.isActive,
+                  ),
                 );
                 if (ctx.mounted) Navigator.pop(ctx, true);
               } catch (e) {
@@ -132,9 +138,9 @@ class _AdminDaerahSlaScreenState extends ConsumerState<AdminDaerahSlaScreen> {
                 itemCount: _items.length,
                 itemBuilder: (context, index) {
                   final item = _items[index];
-                  final categoryName = item['kategori_nama'] as String? ?? '-';
-                  final slaHours = item['jam'] ?? '-';
-                  final isActive = item['is_active'] ?? true;
+                  final categoryName = item.name ?? '-';
+                  final slaHours = item.slaDays ?? '-';
+                  final isActive = item.isActive ?? true;
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: SigapSpacing.sm),

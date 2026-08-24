@@ -33,9 +33,9 @@ class _AdminDaerahAccountsScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.getAdminUsers();
+      final data = await client.getUsers(limit: 100);
       setState(() {
-        _items = (data['data'] as List? ?? []).cast<Map<String, dynamic>>();
+        _items = data.entries.map((u) => u.toJson()).toList();
         _loading = false;
       });
     } catch (e) {
@@ -125,13 +125,11 @@ class _AdminDaerahAccountsScreenState
                 }
                 try {
                   final client = ref.read(apiClientProvider);
-                  await client.post(
-                    '/api/admin-daerah/accounts',
-                    data: {
-                      'email': emailController.text.trim(),
-                      'name': nameController.text.trim(),
-                      'role': selectedRole,
-                    },
+                  await client.createUser(
+                    email: emailController.text.trim(),
+                    password: '',
+                    name: nameController.text.trim(),
+                    role: selectedRole!,
                   );
                   if (ctx.mounted) Navigator.pop(ctx, true);
                 } catch (e) {
