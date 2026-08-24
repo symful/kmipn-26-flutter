@@ -231,13 +231,14 @@ class _SurveyorTaskListScreenState
 
     // Extract location for tile pre-fetch
     final location = detail['location'] as Map<String, dynamic>?;
-    final lat = location?['lat'] as double? ?? 0.0;
-    final lng = location?['lng'] as double? ?? 0.0;
+    final lat = location?['lat'] as double?;
+    final lng = location?['lng'] as double?;
 
     // Pre-fetch in parallel
     await Future.wait([
       _prefetchPhotos(taskId, photoUrls),
-      if (lat != 0.0 && lng != 0.0) _prefetchTiles(taskId, lat, lng),
+      if (lat != null && lng != null && lat != 0.0 && lng != 0.0)
+        _prefetchTiles(taskId, lat, lng),
     ]);
   }
 

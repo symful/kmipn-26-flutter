@@ -161,149 +161,6 @@ class _SurveyorTaskDetailScreenState
     }
   }
 
-  Future<void> _submitVisit() async {
-    // Validate: each required item needs GPS + photo
-    final missing = <String>[];
-    for (final item in _checklistItems) {
-      final required = item['required'] == true;
-      if (required) {
-        final id = item['id']?.toString() ?? item['item_id']?.toString() ?? '';
-        final entry = _checklistData[id];
-        if (entry?.gps == null || entry?.photoPath == null) {
-          missing.add(
-            item['label'] as String? ?? item['name'] as String? ?? id,
-          );
-        }
-      }
-    }
-    if (missing.isNotEmpty) {
-      setState(
-        () => _error = 'Item wajib belum lengkap: ${missing.join(", ")}',
-      );
-      return;
-    }
-
-    setState(() {
-      _submitting = true;
-      _error = null;
-    });
-
-    final visitData = <String, dynamic>{
-      'checklist': _checklistItems.map((item) {
-        final id = item['id']?.toString() ?? item['item_id']?.toString() ?? '';
-        final entry = _checklistData[id];
-        return {
-          'item_id': id,
-          'label': item['label'] ?? item['name'],
-          'checked': entry?.checked ?? false,
-          'gps': entry?.gps != null
-              ? {'lat': entry!.gps!.$1, 'lng': entry.gps!.$2}
-              : null,
-          'photo_path': entry?.photoPath,
-          'notes': entry?.notes,
-        };
-      }).toList(),
-      'submitted_at': DateTime.now().toIso8601String(),
-    };
-
-    final idempotencyKey =
-        'surveyor_visit_${widget.taskId}_${DateTime.now().millisecondsSinceEpoch}';
-
-    try {
-      if (!_isOfflineMode) {
-        // Try to submit directly when online
-        final client = ref.read(apiClientProvider);
-
-        // Extract GPS from first checklist entry that has it
-        double? gpsLat;
-        double? gpsLng;
-        double? accuracy;
-        for (final item in _checklistItems) {
-          final id =
-              item['id']?.toString() ?? item['item_id']?.toString() ?? '';
-          final entry = _checklistData[id];
-          if (entry?.gps != null) {
-            gpsLat = entry!.gps!.$1;
-            gpsLng = entry.gps!.$2;
-            accuracy =
-                5.0; // Default accuracy since per-item gps doesn't store it
-            break;
-          }
-        }
-
-        await client.submitVisitReport(
-          taskId: widget.taskId,
-          findings: '', // No findings field in this UI
-          checklist: _checklistItems.map((item) {
-            final id =
-                item['id']?.toString() ?? item['item_id']?.toString() ?? '';
-            final entry = _checklistData[id];
-            return {
-              'item_id': id,
-              'label': item['label'] ?? item['name'],
-              'checked': entry?.checked ?? false,
-              'gps': entry?.gps != null
-                  ? {'lat': entry!.gps!.$1, 'lng': entry.gps!.$2}
-                  : null,
-              'photo_url': entry?.photoPath,
-              'notes': entry?.notes,
-            };
-          }).toList(),
-          photoUrls: [], // No top-level photos in this form
-          gpsLat: gpsLat ?? 0.0,
-          gpsLng: gpsLng ?? 0.0,
-          accuracy: accuracy ?? 0.0,
-          conditionAssessment: '', // No condition selector in this UI
-          recommendation: '', // No recommendation selector in this UI
-          catatan: null, // No catatan in this form
-        );
-        setState(() {
-          _success = true;
-          _submitting = false;
-        });
-      } else {
-        // Queue for later sync when offline
-        final taskRepo = ref.read(surveyorTaskRepositoryProvider);
-        final queueRepo = ref.read(syncQueueRepositoryProvider);
-
-        await taskRepo.saveVisit(
-          idempotencyKey: idempotencyKey,
-          taskId: widget.taskId,
-          visitData: visitData,
-        );
-        await queueRepo.enqueue(idempotencyKey);
-
-        setState(() {
-          _success = true;
-          _submitting = false;
-        });
-      }
-    } catch (e) {
-      // If direct submit fails, queue for later
-      try {
-        final taskRepo = ref.read(surveyorTaskRepositoryProvider);
-        final queueRepo = ref.read(syncQueueRepositoryProvider);
-
-        await taskRepo.saveVisit(
-          idempotencyKey: idempotencyKey,
-          taskId: widget.taskId,
-          visitData: visitData,
-        );
-        await queueRepo.enqueue(idempotencyKey);
-
-        setState(() {
-          _success = true;
-          _submitting = false;
-        });
-      } catch (e) {
-        setState(() {
-          _error = e.toString();
-          _submitting = false;
-        });
-      }
-    }
-  }
-
   Future<void> _showRejectDialog() async {
     final reasonController = TextEditingController();
     final reason = await showDialog<String>(
@@ -1281,7 +1138,9 @@ class _SurveyorTaskDetailScreenState
                           ),
                         // Primary button - Terima & mulai survei
                         ElevatedButton(
-                          onPressed: _submitting ? null : _submitVisit,
+                          onPressed: () => context.push(
+                            '/surveyor/form-survei/${widget.taskId}',
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: SigapColors.primary,
                             foregroundColor: Colors.white,
@@ -1295,22 +1154,13 @@ class _SurveyorTaskDetailScreenState
                             ),
                             elevation: 0,
                           ),
-                          child: _submitting
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : Text(
-                                  'Terima & mulai survei',
-                                  style: TextStyle(
-                                    fontSize: SigapTypography.size15,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
+                          child: Text(
+                            'Terima & mulai survei',
+                            style: TextStyle(
+                              fontSize: SigapTypography.size15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: SigapSpacing.sm),
                         // Secondary buttons row
