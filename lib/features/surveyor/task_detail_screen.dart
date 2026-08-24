@@ -24,8 +24,6 @@ class _SurveyorTaskDetailScreenState
   List<Map<String, dynamic>> _checklistItems = [];
   bool _loading = true;
   String? _error;
-  bool _submitting = false;
-  bool _success = false;
   bool _isOfflineMode = false;
   String? _taskCode;
   String? _slaText;
@@ -286,100 +284,6 @@ class _SurveyorTaskDetailScreenState
 
   @override
   Widget build(BuildContext context) {
-    if (_success) {
-      return PhoneFrame(
-        child: Column(
-          children: [
-            const StatusBar(),
-            Expanded(
-              child: Scaffold(
-                backgroundColor: SigapColors.bgCard,
-                appBar: AppBar(
-                  backgroundColor: SigapColors.bgCard,
-                  elevation: 0,
-                  title: Text(
-                    'Tugas Survei',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size16,
-                      fontWeight: FontWeight.w600,
-                      color: SigapColors.textPrimary,
-                    ),
-                  ),
-                ),
-                body: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: SigapColors.selesai.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check_circle,
-                          color: SigapColors.selesai,
-                          size: 48,
-                        ),
-                      ),
-                      const SizedBox(height: SigapSpacing.lg),
-                      Text(
-                        _isOfflineMode
-                            ? 'Kunjungan disimpan,'
-                            : 'Kunjungan berhasil dikirim!',
-                        style: TextStyle(
-                          fontSize: SigapTypography.size17,
-                          fontWeight: FontWeight.bold,
-                          color: SigapColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      if (_isOfflineMode) ...[
-                        const SizedBox(height: SigapSpacing.xs),
-                        Text(
-                          'akan dikirim saat online!',
-                          style: TextStyle(
-                            fontSize: SigapTypography.size17,
-                            fontWeight: FontWeight.bold,
-                            color: SigapColors.textPrimary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                      const SizedBox(height: SigapSpacing.xl),
-                      ElevatedButton(
-                        onPressed: () => context.go('/surveyor/tasks'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: SigapColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: SigapSpacing.xl,
-                            vertical: SigapSpacing.md,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(SigapRadius.md),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          'Kembali ke Daftar',
-                          style: TextStyle(
-                            fontSize: SigapTypography.size14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     if (_loading) {
       return PhoneFrame(
         child: Column(
