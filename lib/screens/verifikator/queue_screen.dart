@@ -34,11 +34,15 @@ class VerifikatorQueueItem {
   });
 
   factory VerifikatorQueueItem.fromJson(Map<String, dynamic> json) {
+    // Use raw slug for id, show dash if empty/null
+    final idRaw = json['id'] as String?;
+    final statusRaw = json['status'] as String?;
     return VerifikatorQueueItem(
-      id: json['id'] as String? ?? '',
+      id: (idRaw != null && idRaw.isNotEmpty) ? idRaw : '-',
       title: json['title'] as String? ?? json['description'] as String? ?? '-',
       description: json['description'] as String?,
-      status: json['status'] as String? ?? 'pending',
+      // Show raw status slug or dash - no magic 'JALAN' default
+      status: (statusRaw != null && statusRaw.isNotEmpty) ? statusRaw : '-',
       category: json['category'] as String? ?? json['category_name'] as String?,
       wilayah: json['wilayah'] as String? ?? json['village_name'] as String?,
       villageName: json['village_name'] as String?,
@@ -128,35 +132,26 @@ final verifikatorQueueCountsProvider = FutureProvider<Map<String, int>>((
 ) async {
   final api = ref.watch(apiClientProvider);
   try {
-    final res = await api.getVerifikatorQueue();
-    final items = res['items'] as List? ?? [];
-    final queueItems = items
-        .map((e) => VerifikatorQueueItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final page = await api.getVerifikatorQueue();
 
     int menunggu = 0;
     int diproses = 0;
     int diverifikasi = 0;
     int ditolak = 0;
 
-    for (final item in queueItems) {
-      switch (item.status.toLowerCase()) {
-        case 'pending':
-        case 'submitted':
-        case 'under_review':
-          menunggu++;
-          break;
-        case 'in_progress':
-        case 'processing':
-          diproses++;
-          break;
-        case 'verified':
-        case 'completed':
-          diverifikasi++;
-          break;
-        case 'rejected':
-          ditolak++;
-          break;
+    for (final item in page.items) {
+      // Use the generated type's status field (nullable String?)
+      final status = item.status?.toLowerCase() ?? '';
+      if (status == 'pending' ||
+          status == 'submitted' ||
+          status == 'under_review') {
+        menunggu++;
+      } else if (status == 'in_progress' || status == 'processing') {
+        diproses++;
+      } else if (status == 'verified' || status == 'completed') {
+        diverifikasi++;
+      } else if (status == 'rejected') {
+        ditolak++;
       }
     }
 
@@ -165,7 +160,7 @@ final verifikatorQueueCountsProvider = FutureProvider<Map<String, int>>((
       'diproses': diproses,
       'diverifikasi': diverifikasi,
       'ditolak': ditolak,
-      'total': queueItems.length,
+      'total': page.items.length,
     };
   } catch (e) {
     return {
@@ -183,11 +178,27 @@ final verifikatorQueueProvider = FutureProvider<List<VerifikatorQueueItem>>((
   ref,
 ) async {
   final api = ref.watch(apiClientProvider);
-  final res = await api.getVerifikatorQueue();
-  final items = res['items'] as List? ?? [];
-  return items
-      .map((e) => VerifikatorQueueItem.fromJson(e as Map<String, dynamic>))
-      .toList();
+  final page = await api.getVerifikatorQueue();
+  // Use typed page.items and convert to local model for UI fields like title
+  // The generated type doesn't have all UI fields (title, category, wilayah, villageName)
+  // so we rebuild from the raw item data preserved in the generated type
+  return page.items.map((item) {
+    // title falls back to description, category/wilayah/villageName not in generated type
+    // but status and id are available - status is already slug or null
+    return VerifikatorQueueItem(
+      id: item.id ?? '-',
+      title: item.description ?? '-', // use description as title fallback
+      description: item.description,
+      status: item.status ?? '-',
+      category: null, // not in generated type
+      wilayah: null, // not in generated type
+      villageName: null, // not in generated type
+      createdAt: item.createdAt?.toIso8601String(),
+      priority: item.priorityScore?.toInt(),
+      lat: item.lat,
+      lng: item.lng,
+    );
+  }).toList();
 });
 
 /// W-02 KPI Card for verifikator queue counts

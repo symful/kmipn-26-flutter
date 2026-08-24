@@ -26,7 +26,9 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
   String _trendPeriod = 'monthly';
   bool _loading = true;
   bool _exporting = false;
-  String? _error;
+  String? _dashboardError;
+  String? _regionalStatsError;
+  String? _trendDataError;
 
   @override
   void initState() {
@@ -37,26 +39,52 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
   Future<void> _loadAll() async {
     setState(() {
       _loading = true;
-      _error = null;
+      _dashboardError = null;
+      _regionalStatsError = null;
+      _trendDataError = null;
     });
+
+    final client = ref.read(apiClientProvider);
+
+    // Fetch each section independently - one failure doesn't affect others
+    // Dashboard
     try {
-      final client = ref.read(apiClientProvider);
-      final results = await Future.wait([
-        client.getExecutiveDashboard(),
-        client.getExecutiveRegionalStats(),
-        client.getExecutiveTrendAnalysis(_trendPeriod),
-      ]);
-      setState(() {
-        _dashboard = results[0];
-        _regionalStats = results[1];
-        _trendData = results[2];
-        _loading = false;
-      });
+      final dashboard = await client.getExecutiveDashboard();
+      if (mounted) {
+        setState(() => _dashboard = dashboard.toJson());
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() => _dashboardError = e.toString());
+      }
+    }
+
+    // Regional Stats
+    try {
+      final regional = await client.getExecutiveRegionalStats();
+      if (mounted) {
+        setState(() => _regionalStats = regional.toJson());
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _regionalStatsError = e.toString());
+      }
+    }
+
+    // Trend Data
+    try {
+      final trend = await client.getExecutiveTrendAnalysis(_trendPeriod);
+      if (mounted) {
+        setState(() => _trendData = trend.toJson());
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _trendDataError = e.toString());
+      }
+    }
+
+    if (mounted) {
+      setState(() => _loading = false);
     }
   }
 
@@ -128,8 +156,6 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? _ErrorRetry(error: _error!, onRetry: _loadAll)
           : RefreshIndicator(
               onRefresh: _loadAll,
               child: SingleChildScrollView(
@@ -138,32 +164,76 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _SummaryCards(stats: _dashboard!),
-                    const SizedBox(height: AppSpacing.xl),
+                    // Summary section with per-section error handling
+                    if (_dashboardError != null)
+                      _SectionErrorCard(
+                        section: 'Ringkasan',
+                        error: _dashboardError!,
+                        onRetry: _loadAll,
+                      )
+                    else if (_dashboard != null)
+                      _SummaryCards(stats: _dashboard!),
+                    const SizedBox(height: SigapSpacing.xl),
+
                     _TrendPeriodSelector(
                       selected: _trendPeriod,
                       onChanged: _changePeriod,
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    _VerificationTrendSection(data: _trendData!),
-                    const SizedBox(height: AppSpacing.xl),
-                    _RegionalDistribution(
-                      wilayahData: _regionalStats!['by_wilayah'] as List? ?? [],
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    _CategoryDistribution(
-                      categoryData: _dashboard!['by_category'] as List? ?? [],
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    _WilayahCategoryMatrix(
-                      data:
-                          _regionalStats!['by_wilayah_category'] as List? ?? [],
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    _DrillDownSection(
-                      stats: _dashboard!,
-                      regionalStats: _regionalStats!,
-                    ),
+                    const SizedBox(height: SigapSpacing.md),
+
+                    // Trend section with per-section error handling
+                    if (_trendDataError != null)
+                      _SectionErrorCard(
+                        section: 'Tren',
+                        error: _trendDataError!,
+                        onRetry: _loadAll,
+                      )
+                    else if (_trendData != null)
+                      _VerificationTrendSection(data: _trendData!),
+                    const SizedBox(height: SigapSpacing.xl),
+
+                    // Regional section with per-section error handling
+                    if (_regionalStatsError != null)
+                      _SectionErrorCard(
+                        section: 'Distribusi Wilayah',
+                        error: _regionalStatsError!,
+                        onRetry: _loadAll,
+                      )
+                    else if (_regionalStats != null)
+                      _RegionalDistribution(
+                        wilayahData:
+                            _regionalStats!['by_wilayah'] as List? ?? [],
+                      ),
+                    const SizedBox(height: SigapSpacing.xl),
+
+                    // Category section uses _dashboard - shares its error state
+                    if (_dashboardError != null)
+                      const SizedBox.shrink()
+                    else if (_dashboard != null)
+                      _CategoryDistribution(
+                        categoryData: _dashboard!['by_category'] as List? ?? [],
+                      ),
+                    const SizedBox(height: SigapSpacing.xl),
+
+                    // Matrix section uses _regionalStats - shares its error state
+                    if (_regionalStatsError != null)
+                      const SizedBox.shrink()
+                    else if (_regionalStats != null)
+                      _WilayahCategoryMatrix(
+                        data:
+                            _regionalStats!['by_wilayah_category'] as List? ??
+                            [],
+                      ),
+                    const SizedBox(height: SigapSpacing.xl),
+
+                    // DrillDown uses both - only show if both have data
+                    if (_dashboardError != null || _regionalStatsError != null)
+                      const SizedBox.shrink()
+                    else if (_dashboard != null && _regionalStats != null)
+                      _DrillDownSection(
+                        stats: _dashboard!,
+                        regionalStats: _regionalStats!,
+                      ),
                   ],
                 ),
               ),
@@ -268,16 +338,16 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
 
     try {
       final client = ref.read(apiClientProvider);
-      final geojson = await client.get('/api/export/geojson');
+      final geojson = await client.getExportGeojson();
 
-      final features = geojson['features'] as List? ?? [];
+      final features = geojson.features;
       final featureCollection = {
         'type': 'FeatureCollection',
         'metadata': {
           'exported_at': DateTime.now().toIso8601String(),
           'count': features.length,
         },
-        'features': features,
+        'features': features.map((f) => f.toJson()).toList(),
       };
 
       // Save to file
@@ -1314,31 +1384,67 @@ class _DrillDownCard extends StatelessWidget {
   }
 }
 
-class _ErrorRetry extends StatelessWidget {
+/// Per-section error card for partial failure display
+class _SectionErrorCard extends StatelessWidget {
+  final String section;
   final String error;
   final VoidCallback onRetry;
-  const _ErrorRetry({required this.error, required this.onRetry});
+
+  const _SectionErrorCard({
+    required this.section,
+    required this.error,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.danger.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, size: 64, color: AppColors.danger),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'Gagal memuat: $error',
-            style: const TextStyle(color: AppColors.textSecondary),
+          Row(
+            children: [
+              Icon(Icons.error_outline, size: 18, color: AppColors.danger),
+              const SizedBox(width: SigapSpacing.sm),
+              Text(
+                'Error: $section',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.danger,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          ElevatedButton(
+          const SizedBox(height: SigapSpacing.xs),
+          Text(
+            error,
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: SigapSpacing.sm),
+          TextButton(
             onPressed: onRetry,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text('Coba Lagi'),
+            child: Text(
+              'Coba lagi',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.primary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),

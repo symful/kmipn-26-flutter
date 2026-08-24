@@ -309,7 +309,7 @@ class _NotificationTile extends StatelessWidget {
   }
 
   String _formatDate(dynamic value) {
-    if (value == null) return '';
+    if (value == null) return '-';
     try {
       final date = DateTime.parse(value.toString());
       final now = DateTime.now();
@@ -321,8 +321,10 @@ class _NotificationTile extends StatelessWidget {
       if (diff.inDays < 7) return '${diff.inDays} hari lalu';
 
       return '${date.day}/${date.month}/${date.year}';
-    } catch (_) {
-      return '';
+    } catch (e) {
+      // Log the parse error for debugging, show visible fallback label
+      debugPrint('Error parsing date "$value": $e');
+      return 'Tanggal tidak valid';
     }
   }
 

@@ -5,6 +5,7 @@ import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
+import '../../widgets/ai_assessment_card.dart';
 import '../../widgets/skeleton_loaders.dart';
 
 /// Case Review screen for Verifikator to review and make decisions on cases.
@@ -32,6 +33,7 @@ class _VerifikasiCaseDetailScreenState
   Map<String, dynamic>? _timelineData;
   bool _loading = true;
   String? _error;
+  bool _assessmentError = false; // Track if assessment fetch failed
 
   // Decision state
   String? _selectedDecision;
@@ -57,25 +59,38 @@ class _VerifikasiCaseDetailScreenState
       final client = ref.read(apiClientProvider);
       final caseData = await client.getVerifikatorCase(widget.caseId);
       Map<String, dynamic>? assessmentData;
+      bool assessmentError = false;
       try {
-        assessmentData = await client.get(
-          '/api/agent/assessments/${widget.caseId}',
-        );
+        final r = await client.getAiAssessment(widget.caseId);
+        assessmentData = {
+          'confidence': r.confidenceScore,
+          'factors': {
+            'supporting': r.supportingFactors ?? [],
+            'risk': r.riskFactors ?? [],
+            'correlation_ids': (r.duplicateCandidates ?? [])
+                .map((e) => e['id']?.toString() ?? '')
+                .where((id) => id.isNotEmpty)
+                .toList(),
+          },
+        };
       } catch (e, s) {
         _logger.warning('Error fetching assessment', e, s);
-        // Assessment may not exist for all cases
+        // Assessment may not exist for all cases, but show visible error chip
+        assessmentError = true;
         assessmentData = null;
       }
       Map<String, dynamic>? timelineData;
       try {
-        timelineData = await client.getReportTimeline(widget.caseId);
+        final timelineResult = await client.getReportTimeline(widget.caseId);
+        timelineData = timelineResult.toJson();
       } catch (e, s) {
         _logger.warning('Error fetching timeline', e, s);
         timelineData = null;
       }
       setState(() {
-        _caseData = caseData;
+        _caseData = caseData.toJson();
         _assessmentData = assessmentData;
+        _assessmentError = assessmentError;
         _timelineData = timelineData;
         _loading = false;
       });
@@ -112,9 +127,7 @@ class _VerifikasiCaseDetailScreenState
       await client.decideVerifikatorCase(
         caseId: widget.caseId,
         decision: _selectedDecision!,
-        reason: _reasonController.text.trim().isNotEmpty
-            ? _reasonController.text.trim()
-            : null,
+        reason: _reasonController.text.trim(),
         duplicateOfReportId: _selectedDecision == 'duplicate'
             ? (_duplicateIdController.text.trim().isNotEmpty
                   ? _duplicateIdController.text.trim()
@@ -474,7 +487,41 @@ class _VerifikasiCaseDetailScreenState
             // AI Assessment
             if (_assessmentData != null) ...[
               _SectionHeader(title: 'Penilaian AI'),
-              _AssessmentCard(data: _assessmentData!),
+              AiAssessmentCard(assessment: _assessmentData!),
+              const SizedBox(height: SigapSpacing.lg),
+            ] else if (_assessmentError) ...[
+              // Show visible error chip when assessment fetch failed
+              _SectionHeader(title: 'Penilaian AI'),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SigapSpacing.md,
+                  vertical: SigapSpacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: SigapColors.perluTindakan.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                  border: Border.all(color: SigapColors.perluTindakan),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: SigapColors.perluTindakan,
+                    ),
+                    const SizedBox(width: SigapSpacing.sm),
+                    Text(
+                      'Assessment tidak tersedia',
+                      style: TextStyle(
+                        color: SigapColors.perluTindakan,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: SigapSpacing.lg),
             ],
 
@@ -611,93 +658,6 @@ class _StatusBadge extends StatelessWidget {
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
-      ),
-    );
-  }
-}
-
-class _AssessmentCard extends StatelessWidget {
-  final Map<String, dynamic> data;
-  const _AssessmentCard({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    final confidence = (data['confidence'] as num?)?.toDouble();
-    final visionDesc = data['vision_description'] as String?;
-    final duplicateCandidates =
-        (data['duplicate_candidates'] as List?)?.cast<Map<String, dynamic>>() ??
-        [];
-
-    return Container(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: SigapColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (confidence != null) ...[
-            Row(
-              children: [
-                const Text('Confidence: ', style: TextStyle(fontSize: 13)),
-                Text(
-                  '${(confidence * 100).toStringAsFixed(0)}%',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: confidence > 0.7
-                        ? SigapColors.selesai
-                        : confidence > 0.4
-                        ? SigapColors.offlineDot
-                        : SigapColors.perluTindakan,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-          ],
-          if (visionDesc != null && visionDesc.isNotEmpty) ...[
-            const Text(
-              'Deskripsi Visual:',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(visionDesc, style: const TextStyle(fontSize: 13)),
-            const SizedBox(height: SigapSpacing.sm),
-          ],
-          if (duplicateCandidates.isNotEmpty) ...[
-            const Text(
-              'Kandidat Duplikat:',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            ...duplicateCandidates
-                .take(3)
-                .map(
-                  (c) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.link,
-                          size: 14,
-                          color: SigapColors.primary,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            'ID: ${c['report_id'] ?? c['id'] ?? '-'} — ${c['similarity'] ?? c['score'] ?? '-'}',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-          ],
-        ],
       ),
     );
   }

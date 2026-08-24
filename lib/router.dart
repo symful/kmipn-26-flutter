@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'theme/tokens.dart';
 import 'api/api_client.dart';
+import 'api/types.g.dart';
 import 'utils/logger.dart';
 import 'features/create/create_report_screen.dart';
 import 'features/detail/report_detail_screen.dart';
@@ -111,6 +112,8 @@ class RoleBasedRedirectScreen extends ConsumerWidget {
 }
 
 // Helper class for role-based redirect paths
+// Note: RT_RW role does NOT have a navigable dashboard. They access the app exclusively
+// via deep-link /rt-rw/verify/:token/:reportId, sent by warga who want RT/RW verification of their report.
 class RoleRedirectHelper {
   static String getRedirectPath(String? role) {
     switch (role?.toLowerCase()) {
@@ -220,7 +223,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
       final client = ref.read(apiClientProvider);
       final data = await client.surveyorGetTasks();
       setState(() {
-        _tasks = data;
+        _tasks = data.tasks.map((t) => t.toJson()).toList();
         _loading = false;
       });
     } catch (e) {
@@ -522,19 +525,14 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
       final client = ref.read(apiClientProvider);
       // Use the dedicated API method with high limit to get all queue items for dashboard
       final data = await client.getVerifikatorQueue(limit: 100);
-      final items =
-          (data['items'] as List?) ??
-          (data['data'] as List?) ??
-          (data['queue'] as List?) ??
-          [];
 
       int menunggu = 0;
       int diproses = 0;
       int diverifikasi = 0;
       int ditolak = 0;
 
-      for (final item in items) {
-        final status = (item['status'] as String?)?.toLowerCase() ?? '';
+      for (final item in data.items) {
+        final status = item.status?.toLowerCase() ?? '';
         if (status == 'pending' ||
             status == 'submitted' ||
             status == 'under_review') {
@@ -554,9 +552,9 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
           'diproses': diproses,
           'diverifikasi': diverifikasi,
           'ditolak': ditolak,
-          'total': items.length,
+          'total': data.items.length,
         };
-        _recentItems = items.take(5).toList().cast<Map<String, dynamic>>();
+        _recentItems = data.items.take(5).map((item) => item.toJson()).toList();
         _loading = false;
       });
     } catch (e) {
@@ -915,28 +913,40 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
     try {
       final client = ref.read(apiClientProvider);
 
-      // Fetch data from multiple endpoints in parallel
+      // Fetch data from multiple endpoints in parallel using typed methods
       final results = await Future.wait([
-        _safeGet(client, '/api/admin-daerah/wilayah'),
-        _safeGet(client, '/api/admin-daerah/units'),
-        _safeGet(client, '/api/admin-daerah/kategori'),
-        _safeGet(client, '/api/operator/dashboard'),
+        client.getWilayahList(),
+        client.getCategories(),
+        client.getAdminDaerahUnits(),
+        client.getAdminDaerahDashboard(),
       ]);
 
-      final wilayahData = results[0];
-      final unitsData = results[1];
-      final kategoriData = results[2];
-      final operatorData = results[3];
+      final wilayahList = results[0] as List;
+      final kategoriList = results[1] as List;
+      final unitsData = results[2] as AdminDaerahUnitsPage;
+      final dashboardData = results[3] as AdminDaerahDashboard;
+
+      // Extract status counts from byStatus map
+      final byStatus = dashboardData.byStatus ?? {};
+      final pending =
+          byStatus['pending'] as int? ??
+          byStatus['submitted'] as int? ??
+          byStatus['under_review'] as int? ??
+          0;
+      final inProgress =
+          byStatus['in_progress'] as int? ?? byStatus['assigned'] as int? ?? 0;
+      final resolved =
+          byStatus['resolved'] as int? ?? byStatus['closed'] as int? ?? 0;
 
       setState(() {
         _stats = {
-          'wilayah_count': _countItems(wilayahData),
-          'units_count': _countItems(unitsData),
-          'kategori_count': _countItems(kategoriData),
-          'total_cases': operatorData['total_cases'] as int? ?? 0,
-          'pending': operatorData['pending'] as int? ?? 0,
-          'in_progress': operatorData['in_progress'] as int? ?? 0,
-          'resolved': operatorData['resolved'] as int? ?? 0,
+          'wilayah_count': wilayahList.length,
+          'units_count': unitsData.entries.length,
+          'kategori_count': kategoriList.length,
+          'total_cases': dashboardData.total ?? 0,
+          'pending': pending,
+          'in_progress': inProgress,
+          'resolved': resolved,
         };
         _loading = false;
       });
@@ -946,28 +956,6 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
         _loading = false;
       });
     }
-  }
-
-  Future<Map<String, dynamic>> _safeGet(
-    ApiClient client,
-    String endpoint,
-  ) async {
-    try {
-      return await client.get(endpoint);
-    } catch (_) {
-      return {};
-    }
-  }
-
-  int _countItems(Map<String, dynamic> data) {
-    if (data.containsKey('items')) {
-      return (data['items'] as List?)?.length ?? 0;
-    } else if (data.containsKey('data')) {
-      return (data['data'] as List?)?.length ?? 0;
-    } else if (data.containsKey('wilayah')) {
-      return (data['wilayah'] as List?)?.length ?? 0;
-    }
-    return 0;
   }
 
   @override

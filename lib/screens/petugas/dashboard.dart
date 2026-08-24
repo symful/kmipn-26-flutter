@@ -24,10 +24,15 @@ class PetugasTask {
   });
 
   factory PetugasTask.fromJson(Map<String, dynamic> json) {
+    // Show dash for empty/null ids - no silent defaults
+    final id = json['id'] as String?;
+    final reportId = json['report_id'] as String?;
+    final status = json['status'] as String?;
     return PetugasTask(
-      id: json['id'] as String? ?? '',
-      reportId: json['report_id'] as String? ?? '',
-      status: json['status'] as String? ?? 'pending',
+      id: (id != null && id.isNotEmpty) ? id : '-',
+      reportId: (reportId != null && reportId.isNotEmpty) ? reportId : '-',
+      // Status: show raw slug or dash - no magic 'pending' default
+      status: (status != null && status.isNotEmpty) ? status : '-',
       instructions: json['instructions'] as String?,
       deadline: json['deadline'] as String?,
     );
@@ -36,8 +41,19 @@ class PetugasTask {
 
 final petugasTasksProvider = FutureProvider<List<PetugasTask>>((ref) async {
   final api = ref.watch(apiClientProvider);
-  final tasks = await api.petugasGetTasks();
-  return tasks.map((t) => PetugasTask.fromJson(t)).toList();
+  final page = await api.petugasGetTasks();
+  // Use typed page.tasks directly - already List<PetugasTask> from generated type
+  return page.tasks
+      .map(
+        (t) => PetugasTask.fromJson({
+          'id': t.id,
+          'report_id': t.reportId,
+          'status': t.status,
+          'instructions': t.instructions,
+          'deadline': t.deadline?.toIso8601String(),
+        }),
+      )
+      .toList();
 });
 
 class PetugasDashboardScreen extends ConsumerStatefulWidget {
