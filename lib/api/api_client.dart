@@ -991,7 +991,7 @@ class ApiClient {
     );
   }
 
-  /// Uploads a photo via presigned URL (anonymous warga flow).
+  /// Uploads a photo directly via multipart (anonymous warga flow).
   /// Returns the public URL of the uploaded photo.
   Future<String> uploadReportPhotoAnon({
     required String filePath,
@@ -999,25 +999,18 @@ class ApiClient {
   }) async {
     final file = File(filePath);
     final bytes = await file.readAsBytes();
+    final name = filePath.split('/').last;
+    final formData = FormData.fromMap({
+      'photo': MultipartFile.fromBytes(bytes, filename: name),
+      'idempotency_key': idempotencyKey,
+    });
 
-    // Step 1: Get presigned URL from the API
-    final urlRes = await _dio.post(
+    final res = await _publicDio.post(
       '/api/reports/photos/upload-url-anon',
-      data: {'content_type': 'image/jpeg', 'idempotency_key': idempotencyKey},
+      data: formData,
     );
 
-    final uploadUrl = urlRes.data['upload_url'] as String;
-    final publicUrl = urlRes.data['public_url'] as String;
-
-    // Step 2: PUT bytes directly to presigned URL (no auth needed)
-    final uploadDio = Dio();
-    await uploadDio.put(
-      uploadUrl,
-      data: bytes,
-      options: Options(headers: {'Content-Type': 'image/jpeg'}),
-    );
-
-    return publicUrl;
+    return res.data['public_url'] as String;
   }
 
   Future<Report> createReport({
