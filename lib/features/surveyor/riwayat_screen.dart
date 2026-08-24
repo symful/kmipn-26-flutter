@@ -42,8 +42,10 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
       // Parse visit data and create visit items
       final items = <_VisitItem>[];
       for (final visit in allVisits) {
-        final visitData =
-            jsonDecode(visit.visitDataJson) as Map<String, dynamic>;
+        final decoded = jsonDecode(visit.visitDataJson);
+        final visitData = decoded is Map<String, dynamic>
+            ? decoded
+            : <String, dynamic>{};
         items.add(
           _VisitItem(
             idempotencyKey: visit.idempotencyKey,

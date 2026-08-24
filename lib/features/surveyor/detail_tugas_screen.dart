@@ -41,15 +41,16 @@ class _SurveyorDetailTugasScreenState
 
     try {
       final client = ref.read(apiClientProvider);
+      // Fetch task detail and checklist template separately
       final data = await client.surveyorGetTaskDetail(widget.taskId);
-      final checklistTemplate =
-          data['checklist_template'] as List? ??
-          data['checklist'] as List? ??
-          [];
+      final checklistData = await client.getSurveyorChecklistTemplate(
+        widget.taskId,
+      );
+      final checklistItems = checklistData.items ?? [];
 
       setState(() {
-        _task = data;
-        _checklistItems = checklistTemplate.cast<Map<String, dynamic>>();
+        _task = data.toJson();
+        _checklistItems = checklistItems;
         _loading = false;
       });
     } catch (e) {
@@ -139,12 +140,16 @@ class _SurveyorDetailTugasScreenState
     }
 
     final task = _task!;
-    final title = task['title'] as String? ?? '-';
+    // Use reportDescription as title; SurveyorTask doesn't have a 'title' field
+    final title =
+        task['report_description'] as String? ??
+        task['title'] as String? ??
+        '-';
     final description = task['description'] as String? ?? '-';
     final instructions = task['instructions'] as String? ?? '';
     final status = task['status'] as String? ?? 'pending';
-    final category = task['category'] as Map<String, dynamic>?;
-    final location = task['location'] as Map<String, dynamic>?;
+    final categoryName = task['category_name'] as String?;
+    final address = task['address'] as String?;
     final photoUrls = task['photo_urls'] as List?;
     final createdAt = task['created_at'] as String?;
 
@@ -208,7 +213,7 @@ class _SurveyorDetailTugasScreenState
                     // Category
                     _DetailRow(
                       label: 'Kategori',
-                      value: category?['name'] as String? ?? '-',
+                      value: categoryName ?? '-',
                       icon: AppIcons.categoryFilled,
                     ),
                     const Divider(height: AppSpacing.lg),
@@ -216,9 +221,7 @@ class _SurveyorDetailTugasScreenState
                     // Location
                     _DetailRow(
                       label: 'Lokasi',
-                      value: location != null
-                          ? '${location['address'] ?? '-'} (${location['lat'] ?? 0}, ${location['lng'] ?? 0})'
-                          : '-',
+                      value: address ?? '-',
                       icon: AppIcons.location,
                     ),
                     const Divider(height: AppSpacing.lg),

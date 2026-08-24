@@ -65,7 +65,7 @@ class _SurveyorTaskListScreenState
       final downloadedIds = downloadedTasks.map((t) => t.taskId).toSet();
 
       setState(() {
-        _tasks = tasks;
+        _tasks = tasks.tasks.map((t) => t.toJson()).toList();
         _downloadedIds = downloadedIds;
         _isOfflineMode = false;
         _loading = false;
@@ -226,13 +226,16 @@ class _SurveyorTaskListScreenState
     final taskId = detail['id']?.toString() ?? detail['taskId']?.toString();
     if (taskId == null) return;
 
-    // Extract photo URLs from detail
-    final photoUrls = detail['photo_urls'] as List<dynamic>? ?? [];
+    // Extract photo URLs from detail (supports both 'photo_urls' and 'photoUrls' keys)
+    final photoUrlsRaw = detail['photo_urls'] ?? detail['photoUrls'];
+    final photoUrls = (photoUrlsRaw as List<dynamic>?)?.cast<String>() ?? [];
 
-    // Extract location for tile pre-fetch
+    // Extract location for tile pre-fetch (supports both nested 'location' and top-level lat/lng)
     final location = detail['location'] as Map<String, dynamic>?;
-    final lat = location?['lat'] as double?;
-    final lng = location?['lng'] as double?;
+    final lat =
+        location?['lat'] as double? ?? (detail['lat'] as num?)?.toDouble();
+    final lng =
+        location?['lng'] as double? ?? (detail['lng'] as num?)?.toDouble();
 
     // Pre-fetch in parallel
     await Future.wait([
@@ -271,25 +274,30 @@ class _SurveyorTaskListScreenState
 
         final client = ref.read(apiClientProvider);
         final detail = await client.surveyorGetTaskDetail(taskId);
-        final checklistTemplate =
-            (detail['checklist_template'] as List?) ??
-            (detail['checklist'] as List?) ??
-            [];
+        // Fetch checklist template separately
+        final checklistData = await client.getSurveyorChecklistTemplate(taskId);
+        final checklistItems = checklistData.items ?? [];
+
+        // Build a combined map for offline storage
+        final taskJson = detail.task?.toJson() ?? <String, dynamic>{};
+        final combinedMap = Map<String, dynamic>.from(taskJson);
+        combinedMap['checklist_template'] = checklistItems;
 
         await taskRepo.saveDownloadedTask(
           taskId: taskId,
-          title: detail['title'] as String? ?? task['title'] as String? ?? '-',
-          description: detail['description'] as String?,
-          instructions: detail['instructions'] as String?,
-          status:
-              detail['status'] as String? ??
-              task['status'] as String? ??
-              'pending',
-          checklistTemplate: checklistTemplate.cast<Map<String, dynamic>>(),
+          title:
+              detail.task?.reportDescription ??
+              detail.task?.instructions ??
+              task['title'] as String? ??
+              '-',
+          description: detail.task?.reportDescription,
+          instructions: detail.task?.instructions,
+          status: detail.task?.status ?? task['status'] as String? ?? 'pending',
+          checklistTemplate: checklistItems,
         );
 
         // Pre-fetch photos and OSM tiles for offline use
-        await _prefetchTaskOfflineContent(detail);
+        await _prefetchTaskOfflineContent(combinedMap);
 
         setState(() {
           _downloadedIds.add(taskId);

@@ -58,36 +58,33 @@ class _SurveyorTaskDetailScreenState
       // Try API first
       final client = ref.read(apiClientProvider);
       final data = await client.surveyorGetTaskDetail(widget.taskId);
-      final checklistTemplate =
-          data['checklist_template'] as List? ??
-          data['checklist'] as List? ??
-          [];
+      // Fetch checklist template separately
+      final checklistData = await client.getSurveyorChecklistTemplate(
+        widget.taskId,
+      );
+      final checklistItems = checklistData.items ?? [];
 
-      // Extract task metadata from API response
-      final taskCode =
-          data['task_code'] as String? ??
-          data['code'] as String? ??
-          'TGS-${widget.taskId.substring(0, 4)}';
-      final slaHours =
-          data['sla_hours'] as int? ?? data['sla_days'] as int? ?? 4;
+      // Extract task metadata from DTO
+      final task = data.task;
+      final taskCode = task?.code ?? 'TGS-${widget.taskId.substring(0, 4)}';
+      final slaHours = task?.slaHoursRemaining != null
+          ? (task!.slaHoursRemaining! / 3600).ceil()
+          : 4;
       final slaText = '$slaHours jam';
 
       setState(() {
-        _task = data;
-        _checklistItems = checklistTemplate.cast<Map<String, dynamic>>();
+        _task = data.toJson();
+        _checklistItems = checklistItems;
         _loading = false;
         _isOfflineMode = false;
         _taskCode = taskCode;
         _slaText = slaText;
-        _taskCategory = data['category'] as String? ?? 'JALAN';
+        _taskCategory = task?.categoryName ?? 'JALAN';
         _taskTitle =
-            data['title'] as String? ??
-            data['description'] as String? ??
+            task?.reportDescription ??
+            task?.instructions ??
             Strings.detailTugas;
-        _evidenceUrls =
-            (data['evidence_urls'] as List?)?.cast<String>() ??
-            (data['evidence'] as List?)?.cast<String>() ??
-            [];
+        _evidenceUrls = task?.photoUrls ?? [];
       });
 
       // Initialize checklist data map
@@ -106,7 +103,8 @@ class _SurveyorTaskDetailScreenState
       try {
         final localTask = await taskRepo.getDownloadedTask(widget.taskId);
         if (localTask != null) {
-          final checklistTemplate = jsonDecode(localTask.checklistTemplateJson);
+          final decoded = jsonDecode(localTask.checklistTemplateJson);
+          final checklistTemplate = decoded is List ? decoded : <dynamic>[];
 
           setState(() {
             _task = {
@@ -117,8 +115,9 @@ class _SurveyorTaskDetailScreenState
               'status': localTask.status,
               'checklist_template': checklistTemplate,
             };
-            _checklistItems = (checklistTemplate as List)
-                .cast<Map<String, dynamic>>();
+            _checklistItems = checklistTemplate
+                .whereType<Map<String, dynamic>>()
+                .toList();
             _loading = false;
             _isOfflineMode = true;
             _taskCode = localTask.taskId.length >= 4

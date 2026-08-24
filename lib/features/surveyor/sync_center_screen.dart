@@ -41,8 +41,10 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
 
       final items = <_PendingItem>[];
       for (final visit in pendingVisits) {
-        final visitData =
-            jsonDecode(visit.visitDataJson) as Map<String, dynamic>;
+        final decoded = jsonDecode(visit.visitDataJson);
+        final visitData = decoded is Map<String, dynamic>
+            ? decoded
+            : <String, dynamic>{};
         items.add(
           _PendingItem(
             idempotencyKey: visit.idempotencyKey,
