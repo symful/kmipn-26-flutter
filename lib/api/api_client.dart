@@ -165,6 +165,25 @@ class ApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> uploadSinglePhoto(
+    String path, {
+    required String description,
+    required String photoPath,
+  }) async {
+    final file = File(photoPath);
+    final bytes = await file.readAsBytes();
+    final name = photoPath.split('/').last;
+    final formData = FormData.fromMap({
+      'description': description,
+      'photo': MultipartFile.fromBytes(bytes, filename: name),
+    });
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(path, data: formData),
+      endpoint: path,
+      parse: (data) => (data is Map) ? data.cast<String, dynamic>() : {},
+    );
+  }
+
   Future<Map<String, dynamic>> uploadPhotoBytes(
     String url,
     List<int> bytes,
@@ -198,6 +217,7 @@ class ApiClient {
       dioCall: () => _dio.post(
         '/api/auth/login',
         data: {'email': email, 'password': password},
+        options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/auth/login',
       parse: (data) => (data as Map).cast<String, dynamic>(),
@@ -259,6 +279,35 @@ class ApiClient {
     );
   }
 
+  /// Uploads a photo via presigned URL (anonymous warga flow).
+  /// Returns the public URL of the uploaded photo.
+  Future<String> uploadReportPhotoAnon({
+    required String filePath,
+    required String idempotencyKey,
+  }) async {
+    final file = File(filePath);
+    final bytes = await file.readAsBytes();
+
+    // Step 1: Get presigned URL from the API
+    final urlRes = await _dio.post(
+      '/api/reports/photos/upload-url-anon',
+      data: {'content_type': 'image/jpeg', 'idempotency_key': idempotencyKey},
+    );
+
+    final uploadUrl = urlRes.data['upload_url'] as String;
+    final publicUrl = urlRes.data['public_url'] as String;
+
+    // Step 2: PUT bytes directly to presigned URL (no auth needed)
+    final uploadDio = Dio();
+    await uploadDio.put(
+      uploadUrl,
+      data: bytes,
+      options: Options(headers: {'Content-Type': 'image/jpeg'}),
+    );
+
+    return publicUrl;
+  }
+
   Future<Map<String, dynamic>> createReport({
     required String idempotencyKey,
     required String categoryId,
@@ -267,8 +316,21 @@ class ApiClient {
     required double lng,
     String? deviceId,
     String? title,
-    List<Map<String, dynamic>>? photos,
+    List<String>? photoPaths,
   }) async {
+    // Upload photos first via presigned URL if provided
+    List<String>? photoUrls;
+    if (photoPaths != null && photoPaths.isNotEmpty) {
+      photoUrls = [];
+      for (final path in photoPaths) {
+        final publicUrl = await uploadReportPhotoAnon(
+          filePath: path,
+          idempotencyKey: '${idempotencyKey}_photo_${photoUrls.length}',
+        );
+        photoUrls.add(publicUrl);
+      }
+    }
+
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.post(
         '/api/reports',
@@ -280,17 +342,8 @@ class ApiClient {
           'lat': lat,
           'lng': lng,
           if (deviceId != null) 'device_id': deviceId,
-          if (photos != null && photos.isNotEmpty)
-            'photos': photos
-                .map(
-                  (p) => {
-                    'report_idempotency_key': p['report_idempotency_key'],
-                    'file_path': p['file_path'],
-                    if (p['exif_data_json'] != null)
-                      'exif_data_json': p['exif_data_json'],
-                  },
-                )
-                .toList(),
+          if (photoUrls != null && photoUrls.isNotEmpty)
+            'photo_urls': photoUrls,
         },
       ),
       endpoint: '/api/reports',
@@ -309,6 +362,24 @@ class ApiClient {
       ),
       endpoint: '/api/sync/batch',
       parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  // ─── AI Assessment ─────────────────────────────────────────────────────────
+
+  /// Fetches AI pre-verification assessment for a report.
+  ///
+  /// Returns assessment data including confidence score, supporting factors,
+  /// risk factors, and duplicate candidates. Returns an empty map if no
+  /// assessment is available.
+  Future<Map<String, dynamic>> getAiAssessment(String reportId) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get('/api/agent/assessments/$reportId'),
+      endpoint: '/api/agent/assessments/$reportId',
+      parse: (data) {
+        if (data is Map) return data.cast<String, dynamic>();
+        return <String, dynamic>{};
+      },
     );
   }
 
@@ -544,7 +615,11 @@ class ApiClient {
 
   Future<Map<String, dynamic>> petugasAcceptTask(String taskId) async {
     return await _execute<Map<String, dynamic>>(
-      dioCall: () => _dio.post('/api/petugas/tasks/$taskId/accept'),
+      dioCall: () => _dio.post(
+        '/api/petugas/tasks/$taskId/accept',
+        data: {},
+        options: Options(contentType: 'application/json'),
+      ),
       endpoint: '/api/petugas/tasks/$taskId/accept',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
@@ -558,6 +633,7 @@ class ApiClient {
       dioCall: () => _dio.post(
         '/api/petugas/tasks/$taskId/reject',
         data: {'reason': reason},
+        options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/petugas/tasks/$taskId/reject',
       parse: (data) => (data as Map).cast<String, dynamic>(),
@@ -579,6 +655,7 @@ class ApiClient {
           if (estimatedCompletion != null)
             'estimated_completion': estimatedCompletion,
         },
+        options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/petugas/tasks/$taskId/progress',
       parse: (data) => (data as Map).cast<String, dynamic>(),
@@ -613,6 +690,7 @@ class ApiClient {
       dioCall: () => _dio.post(
         '/api/petugas/tasks/$taskId/clarification',
         data: {'question': question},
+        options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/petugas/tasks/$taskId/clarification',
       parse: (data) => (data as Map).cast<String, dynamic>(),
@@ -679,38 +757,42 @@ class ApiClient {
   /// Submits a structured visit report for a surveyor task.
   ///
   /// [taskId] - The surveyor task ID
-  /// [photos] - Map of 4 corner photo paths: {depan, belakang, kiri, kanan}
+  /// [findings] - Survey findings summary text
+  /// [checklist] - List of checklist items with item_id, label, checked, gps, photo_url, notes
+  /// [photoUrls] - List of photo URLs after presigned upload
   /// [gpsLat] - GPS latitude coordinate
   /// [gpsLng] - GPS longitude coordinate
   /// [accuracy] - GPS accuracy in meters
-  /// [kondisi] - Condition selection (e.g., 'baik', 'rusak', 'berbahaya')
-  /// [rekomendasi] - Recommendation selection (e.g., 'perbaikan', 'penggantian', 'pemeliharaan')
-  /// [catatan] - Additional notes text
+  /// [conditionAssessment] - Condition assessment: 'ringan', 'berat', or 'kritis'
+  /// [recommendation] - Recommendation: 'valid_needs_followup' or 'not_found'
+  /// [catatan] - Additional notes text (optional)
   Future<Map<String, dynamic>> submitVisitReport({
     required String taskId,
-    required Map<String, String> photos,
+    required String findings,
+    required List<Map<String, dynamic>> checklist,
+    required List<String> photoUrls,
     required double gpsLat,
     required double gpsLng,
     required double accuracy,
-    required String kondisi,
-    required String rekomendasi,
+    required String conditionAssessment,
+    required String recommendation,
     String? catatan,
   }) async {
     return await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.post(
         '/api/surveyor/tasks/$taskId/visit',
         data: {
-          'photos': photos,
-          'gps_lat': gpsLat,
-          'gps_lng': gpsLng,
-          'accuracy': accuracy,
-          'kondisi': kondisi,
-          'rekomendasi': rekomendasi,
-          if (catatan != null && catatan.isNotEmpty) 'catatan': catatan,
+          'findings': findings,
+          'checklist': checklist,
+          'photo_urls': photoUrls,
+          'condition_assessment': conditionAssessment,
+          'recommendation': recommendation,
+          'gps': {'lat': gpsLat, 'lng': gpsLng, 'accuracy_m': accuracy},
+          if (catatan != null && catatan.isNotEmpty) 'notes': catatan,
         },
       ),
       endpoint: '/api/surveyor/tasks/$taskId/visit',
-      parse: (data) => (data as Map).cast<String, dynamic>(),
+      parse: (data) => (data is Map) ? data.cast<String, dynamic>() : {},
     );
   }
 
@@ -789,9 +871,16 @@ class ApiClient {
     required String description,
     required List<String> photoPaths,
   }) async {
-    return uploadWithPhotos('/api/warga/evidence/$reportId', {
-      'description': description,
-    }, photoPaths);
+    final results = <Map<String, dynamic>>[];
+    for (final photoPath in photoPaths) {
+      final result = await uploadSinglePhoto(
+        '/api/warga/evidence/$reportId',
+        description: description,
+        photoPath: photoPath,
+      );
+      results.add(result);
+    }
+    return results.isNotEmpty ? results.last : <String, dynamic>{};
   }
 
   Future<List<Map<String, dynamic>>> getWargaReports() async {
