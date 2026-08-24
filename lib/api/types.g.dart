@@ -1485,6 +1485,73 @@ class SurveyorTaskDetail {
   }
 }
 
+class AuditEntry {
+  final String? id;
+  final String? actor;
+  final String? action;
+  final String? objectType;
+  final String? objectId;
+  final Map<String, dynamic>? beforeData;
+  final Map<String, dynamic>? afterData;
+  final String? reason;
+  final String? createdAt;
+  AuditEntry({this.id, this.actor, this.action, this.objectType, this.objectId, this.beforeData, this.afterData, this.reason, this.createdAt});
+
+  factory AuditEntry.fromJson(Map<String, dynamic> json) {
+    return AuditEntry(
+      id: json['id'] as String?,
+      actor: json['actor'] as String?,
+      action: json['action'] as String?,
+      objectType: json['object_type'] as String?,
+      objectId: json['object_id'] as String?,
+      beforeData: json['before_data'] as Map<String, dynamic>?,
+      afterData: json['after_data'] as Map<String, dynamic>?,
+      reason: json['reason'] as String?,
+      createdAt: json['created_at'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'actor': actor,
+      'action': action,
+      'object_type': objectType,
+      'object_id': objectId,
+      'before_data': beforeData,
+      'after_data': afterData,
+      'reason': reason,
+      'created_at': createdAt,
+    };
+  }
+}
+
+class AuditSearchPage {
+  final List<AuditEntry> entries;
+  final int total;
+  final int page;
+  final int limit;
+  AuditSearchPage({required this.entries, required this.total, required this.page, required this.limit});
+
+  factory AuditSearchPage.fromJson(Map<String, dynamic> json) {
+    return AuditSearchPage(
+      entries: (json['entries'] as List?)?.map((e) => AuditEntry.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+      total: json['total'] as int,
+      page: json['page'] as int,
+      limit: json['limit'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'entries': entries,
+      'total': total,
+      'page': page,
+      'limit': limit,
+    };
+  }
+}
+
 class ChecklistTemplate {
   final List<Map<String, dynamic>>? items;
   ChecklistTemplate({this.items});
