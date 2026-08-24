@@ -12,6 +12,7 @@ class NotificationService {
   static const String _syncChannelName = 'Sync Notifications';
   static const int _syncSuccessId = 1;
   static const int _syncFailureId = 2;
+  static const int _deadLetterId = 3;
 
   Future<void> initialize() async {
     const androidSettings = AndroidInitializationSettings(
@@ -80,5 +81,27 @@ class NotificationService {
       error ?? 'Gagal menyinkronkan data. Silakan coba lagi.',
       details,
     );
+  }
+
+  /// Shows a notification when an item is moved to dead-letter queue
+  /// (permanent sync failure after max retries).
+  Future<void> showDeadLetter({String? itemKey, String? reason}) async {
+    const androidDetails = AndroidNotificationDetails(
+      _syncChannelId,
+      _syncChannelName,
+      channelDescription: 'Notifications for sync events',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const details = NotificationDetails(android: androidDetails);
+
+    final title = 'Item Gagal Disinkronkan';
+    final body = itemKey != null
+        ? 'Item $itemKey tidak dapat disinkronkan setelah beberapa percobaan.'
+        : 'Beberapa item tidak dapat disinkronkan setelah beberapa percobaan.';
+
+    await _plugin.show(_deadLetterId, title, body, details);
   }
 }
