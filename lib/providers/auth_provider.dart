@@ -106,7 +106,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final loginResponse = await _client.login(email, password);
-      final accessToken = loginResponse.accessToken;
+      final accessToken = loginResponse.token;
       final refreshToken = loginResponse.refreshToken;
       final user = loginResponse.user;
 
@@ -114,7 +114,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _storage.write(key: _refreshTokenKey, value: refreshToken);
       if (user != null) {
         final userId = user.id;
-        final userRole = user.role?.value;
+        final userRole = user.role;
         final userEmail = user.email;
         final userName = user.name;
         final activeRole = userRole;

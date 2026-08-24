@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sigap/api/exceptions.dart';
 import '../api/api_client.dart';
 import '../api/types.g.dart';
 import '../db/database.dart';
@@ -104,14 +105,15 @@ final wargaReportsProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref.watch(syncWorkerProvider); // react to sync state changes
   try {
     final page = await api.getWargaReports();
-    isStaleWargaReportsProvider.state = false;
+
+    ref.read(isStaleWargaReportsProvider.notifier).state = false;
     return page.items.map((r) => r.toJson()).toList();
   } on NetworkException catch (e, st) {
     _logger.warning('wargaReportsProvider network error, trying cache', e, st);
     // Try offline cache
     final localReports = await ref.read(localReportsProvider.future);
     if (localReports.isNotEmpty) {
-      isStaleWargaReportsProvider.state = true;
+      ref.read(isStaleWargaReportsProvider.notifier).state = true;
       return localReports
           .map(
             (r) => {
@@ -134,7 +136,7 @@ final wargaReportsProvider = FutureProvider<List<Map<String, dynamic>>>((
     _logger.warning('wargaReportsProvider offline, trying cache', e, st);
     final localReports = await ref.read(localReportsProvider.future);
     if (localReports.isNotEmpty) {
-      isStaleWargaReportsProvider.state = true;
+      ref.read(isStaleWargaReportsProvider.notifier).state = true;
       return localReports
           .map(
             (r) => {
@@ -156,9 +158,7 @@ final wargaReportsProvider = FutureProvider<List<Map<String, dynamic>>>((
   }
 });
 
-final categoriesProvider = FutureProvider<List<Map<String, dynamic>>>((
-  ref,
-) async {
+final categoriesProvider = FutureProvider<List<Category>>((ref) async {
   final api = ref.watch(apiClientProvider);
   return await api.getCategories();
 });
@@ -180,7 +180,18 @@ final nearbyReportsProvider =
         lat: location.lat,
         lng: location.lng,
       );
-      return reports.map((r) => r.toJson()).toList();
+      return reports
+          .map(
+            (r) => {
+              'id': r.id,
+              'title': r.title,
+              'category': r.category,
+              'status': r.status,
+              'location': r.location,
+              'distance': r.distance,
+            },
+          )
+          .toList();
     });
 
 /// Fetches duplicate case candidates for a given location and category.
@@ -196,7 +207,18 @@ final duplicateCasesProvider =
         lng: params.lng,
         categoryId: params.categoryId,
       );
-      return candidates.map((c) => c.toJson()).toList();
+      return candidates
+          .map(
+            (c) => {
+              'id': c.id,
+              'title': c.title,
+              'category': c.category,
+              'status': c.status,
+              'location': c.location,
+              'similarity_score': c.similarityScore,
+            },
+          )
+          .toList();
     });
 
 /// Fetches the timeline/history events for a given report.
@@ -204,7 +226,19 @@ final reportTimelineProvider =
     FutureProvider.family<Map<String, dynamic>, String>((ref, reportId) async {
       final api = ref.watch(apiClientProvider);
       final timeline = await api.getReportTimeline(reportId);
-      return timeline.toJson();
+      return {
+        'events': timeline.events
+            ?.map(
+              (e) => {
+                'id': e.id,
+                'type': e.type,
+                'message': e.message,
+                'timestamp': e.timestamp,
+                'userId': e.userId,
+              },
+            )
+            .toList(),
+      };
     });
 
 final syncManagerProvider = AsyncNotifierProvider<SyncManager, void>(() {
@@ -255,36 +289,36 @@ final surveyorSortProvider = StateProvider<String>((ref) => 'terbaru');
 final surveyorTasksProvider = FutureProvider<List<SurveyorTask>>((ref) async {
   final api = ref.watch(apiClientProvider);
   final page = await api.surveyorGetTasks();
-  return page.tasks;
+  return page.tasks.cast<SurveyorTask>();
 });
 
 // ─── Surveyor Task Action Providers ─────────────────────────────────────────
 
 /// Accepts a surveyor task by ID.
 final surveyorAcceptTaskProvider =
-    FutureProvider.family<Map<String, dynamic>, String>((ref, taskId) async {
+    FutureProvider.family<TaskActionResult, String>((ref, taskId) async {
       final api = ref.watch(apiClientProvider);
-      return await api.surveyorAcceptTask(taskId);
+      return await api.acceptTask(taskId);
     });
 
 /// Rejects a surveyor task with a reason.
 final surveyorRejectTaskProvider =
-    FutureProvider.family<
-      Map<String, dynamic>,
-      ({String taskId, String reason})
-    >((ref, params) async {
+    FutureProvider.family<TaskActionResult, ({String taskId, String reason})>((
+      ref,
+      params,
+    ) async {
       final api = ref.watch(apiClientProvider);
-      return await api.surveyorRejectTask(params.taskId, params.reason);
+      return await api.rejectTask(params.taskId, params.reason);
     });
 
 /// Requests clarification for a surveyor task.
 final surveyorRequestClarificationProvider =
     FutureProvider.family<
-      Map<String, dynamic>,
+      ClarificationResult,
       ({String taskId, String question})
     >((ref, params) async {
       final api = ref.watch(apiClientProvider);
-      return await api.surveyorRequestClarification(
+      return await api.requestClarification(
         params.taskId,
         question: params.question,
       );
@@ -344,7 +378,11 @@ final surveyorSubmitVisitProvider =
         recommendation: params.rekomendasi,
         catatan: params.catatan,
       );
-      return result.toJson();
+      return {
+        'visit_id': result.visitId,
+        'task_id': result.taskId,
+        'status': result.status,
+      };
     });
 
 // ─── Notifications ─────────────────────────────────────────────────────────────
@@ -377,7 +415,16 @@ final unreadCountProvider = Provider<int>((ref) {
 final wilayahProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final api = ref.watch(apiClientProvider);
   final wilayahs = await api.getWilayahList();
-  return wilayahs.map((w) => w.toJson()).toList();
+  return wilayahs
+      .map(
+        (w) => {
+          'id': w.id,
+          'name': w.name,
+          'level': w.level,
+          'parent_id': w.parentId,
+        },
+      )
+      .toList();
 });
 
 /// Returns the first available wilayah name, or a fallback string if none.

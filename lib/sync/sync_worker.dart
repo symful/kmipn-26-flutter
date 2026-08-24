@@ -202,24 +202,25 @@ class SyncWorker {
         deviceId: _deviceId,
       );
 
-      // Process results - handle partial failures (typed payload from ApiClient DTO)
-      final results = result.results ?? [];
-      final succeededKeys = <String>{};
+      // Process results based on SyncBatchResult (processed/failed counts and errors)
+      // Note: The new API doesn't return individual results, so we mark all
+      // items as succeeded when the batch succeeds (processed > 0, no errors)
+      final processedCount = result.processed ?? 0;
+      final failedCount = result.failed ?? 0;
+      final errors = result.errors;
 
-      for (final r in results) {
-        final map = (r as Map).cast<String, dynamic>();
-        final serverId = map['id'] as String?;
-        final idempotencyKey = map['idempotency_key'] as String?;
-        if (serverId != null && idempotencyKey != null) {
-          await _reportRepo.markSynced(idempotencyKey, serverId);
-          await _queueRepo.remove(idempotencyKey);
-          succeededKeys.add(idempotencyKey);
+      if (processedCount > 0 && (errors == null || errors.isEmpty)) {
+        // Batch succeeded - mark all items as synced
+        // Note: The new API doesn't return individual server IDs, so we use
+        // a placeholder. The actual serverId should be retrieved from the API
+        // when viewing synced reports (the sync was still successful).
+        for (final key in reportIdempotencyKeys) {
+          await _reportRepo.markSynced(key, 'sync_ok');
+          await _queueRepo.remove(key);
         }
-      }
-
-      // Retry failed items (in batch but not in success response)
-      for (final key in reportIdempotencyKeys) {
-        if (!succeededKeys.contains(key)) {
+      } else if (failedCount > 0 || (errors != null && errors.isNotEmpty)) {
+        // Some or all failed - retry each item individually
+        for (final key in reportIdempotencyKeys) {
           final queueItem = await _queueRepo.getByIdempotencyKey(key);
           if (queueItem != null) {
             await _handleReportSyncFailure(key, queueItem.retryCount);
@@ -273,7 +274,25 @@ class SyncWorker {
       final parts = idempotencyKey.split('_');
       final taskId = parts[2];
 
-      await _api.surveyorSubmitVisit(taskId, visitData);
+      final gps = visitData['gps'] as Map<String, dynamic>?;
+      final gpsLat = (gps?['lat'] as num?)?.toDouble() ?? 0.0;
+      final gpsLng = (gps?['lng'] as num?)?.toDouble() ?? 0.0;
+
+      // Map visitData to submitVisitReport parameters
+      // findings uses damage_description, recommendation uses notes
+      await _api.submitVisitReport(
+        taskId: taskId,
+        findings: visitData['damage_description'] as String? ?? '',
+        checklist:
+            <Map<String, dynamic>>[], // offline data doesn't have checklist
+        photoUrls: <String>[], // offline data doesn't have photo URLs
+        gpsLat: gpsLat,
+        gpsLng: gpsLng,
+        accuracy: 0.0, // offline data doesn't have accuracy
+        conditionAssessment: visitData['damage_description'] as String? ?? '',
+        recommendation: visitData['notes'] as String? ?? '',
+        catatan: visitData['notes'] as String?,
+      );
 
       await _surveyorTaskRepo.markVisitSynced(idempotencyKey, 'synced');
       await _queueRepo.remove(idempotencyKey);
