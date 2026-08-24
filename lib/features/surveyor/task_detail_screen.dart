@@ -165,7 +165,7 @@ class _SurveyorTaskDetailScreenState
     // Validate: each required item needs GPS + photo
     final missing = <String>[];
     for (final item in _checklistItems) {
-      final required = item['required'] == true || item['is_required'] == true;
+      final required = item['required'] == true;
       if (required) {
         final id = item['id']?.toString() ?? item['item_id']?.toString() ?? '';
         final entry = _checklistData[id];
@@ -213,7 +213,50 @@ class _SurveyorTaskDetailScreenState
       if (!_isOfflineMode) {
         // Try to submit directly when online
         final client = ref.read(apiClientProvider);
-        await client.surveyorSubmitVisit(widget.taskId, visitData);
+
+        // Extract GPS from first checklist entry that has it
+        double? gpsLat;
+        double? gpsLng;
+        double? accuracy;
+        for (final item in _checklistItems) {
+          final id =
+              item['id']?.toString() ?? item['item_id']?.toString() ?? '';
+          final entry = _checklistData[id];
+          if (entry?.gps != null) {
+            gpsLat = entry!.gps!.$1;
+            gpsLng = entry.gps!.$2;
+            accuracy =
+                5.0; // Default accuracy since per-item gps doesn't store it
+            break;
+          }
+        }
+
+        await client.submitVisitReport(
+          taskId: widget.taskId,
+          findings: '', // No findings field in this UI
+          checklist: _checklistItems.map((item) {
+            final id =
+                item['id']?.toString() ?? item['item_id']?.toString() ?? '';
+            final entry = _checklistData[id];
+            return {
+              'item_id': id,
+              'label': item['label'] ?? item['name'],
+              'checked': entry?.checked ?? false,
+              'gps': entry?.gps != null
+                  ? {'lat': entry!.gps!.$1, 'lng': entry.gps!.$2}
+                  : null,
+              'photo_url': entry?.photoPath,
+              'notes': entry?.notes,
+            };
+          }).toList(),
+          photoUrls: [], // No top-level photos in this form
+          gpsLat: gpsLat ?? 0.0,
+          gpsLng: gpsLng ?? 0.0,
+          accuracy: accuracy ?? 0.0,
+          conditionAssessment: '', // No condition selector in this UI
+          recommendation: '', // No recommendation selector in this UI
+          catatan: null, // No catatan in this form
+        );
         setState(() {
           _success = true;
           _submitting = false;
