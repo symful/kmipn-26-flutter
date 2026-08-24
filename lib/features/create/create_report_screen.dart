@@ -694,7 +694,10 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     }
     if (_lat == null || _lng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tentukan lokasi terlebih dahulu')),
+        const SnackBar(
+          content: Text('Aktifkan lokasi untuk melapor'),
+          backgroundColor: AppColors.danger,
+        ),
       );
       return;
     }
@@ -848,8 +851,11 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   }
 
   /// Autosaves form state to LocalReports with debounce.
+  /// Skips saving if GPS coordinates are not available (prevents Null-Island defaults).
   Future<void> _autosaveDraft() async {
     if (!_isDirty) return;
+    // Skip autosave if GPS is not available - don't save Null-Island coordinates
+    if (_lat == null || _lng == null) return;
     try {
       final reportRepo = ref.read(reportRepositoryProvider);
       final now = DateTime.now();
@@ -858,8 +864,8 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           idempotencyKey: 'draft',
           categoryId: _categoryId ?? '',
           description: _descriptionController.text,
-          lat: _lat ?? 0.0,
-          lng: _lng ?? 0.0,
+          lat: _lat!,
+          lng: _lng!,
           photoPath: Value(_photoPath),
           exifDataJson: Value(_exifDataJson),
           createdAt: now,

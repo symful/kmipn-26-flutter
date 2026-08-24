@@ -144,10 +144,9 @@ class LaporanDetailScreen extends ConsumerWidget {
   ) {
     final status = _parseStatus(report['status'] as String?);
 
-    // Build ID display string (demo: showing local + server IDs)
-    final localId =
-        report['idempotency_key']?.toString() ?? reportId ?? 'LR-0271';
-    final serverId = report['id']?.toString() ?? 'CB-1842';
+    // Build ID display string from report data
+    final localId = report['idempotency_key']?.toString() ?? reportId ?? '';
+    final serverId = report['id']?.toString() ?? '';
 
     // Demo: determine if we show perluTindakan banner
     // In production this would come from report data

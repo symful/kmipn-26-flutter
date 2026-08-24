@@ -28,26 +28,21 @@ class PhotoService {
       final filename = localFilePath.split('/').last;
       final uploadUrl = '/api/reports/$idempotencyKey/photos/upload-url';
 
-      final response = await _api.uploadPhotoBytes(
+      final result = await _api.uploadPhotoBytes(
         uploadUrl,
         photoBytes,
         filename,
       );
 
-      // Extract R2 URL from response - backend returns {url: "https://r2.example.com/..."}
-      final r2Url = response['url'] as String?;
-      if (r2Url != null && r2Url.isNotEmpty) {
-        return r2Url;
+      // Use typed EvidenceResult.evidenceId field
+      // The evidenceId contains the R2 URL for the uploaded photo
+      final evidenceId = result.evidenceId;
+      if (evidenceId.isNotEmpty) {
+        return evidenceId;
       }
 
-      // Fallback: if no URL in response, try 'public_url' field
-      final publicUrl = response['public_url'] as String?;
-      if (publicUrl != null && publicUrl.isNotEmpty) {
-        return publicUrl;
-      }
-
-      // If neither URL found, return local path for offline fallback
-      debugPrint('PhotoService: No R2 URL in response, using local path');
+      // If evidenceId is empty, return local path for offline fallback
+      debugPrint('PhotoService: No evidenceId in result, using local path');
       return localFilePath;
     } catch (e) {
       debugPrint(
