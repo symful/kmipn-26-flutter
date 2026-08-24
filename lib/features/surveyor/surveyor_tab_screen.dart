@@ -165,16 +165,13 @@ class _SinkronTab extends ConsumerWidget {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final task = tasks[index];
-                  final taskId = task['id']?.toString() ?? '';
+                  final taskId = task.taskId ?? '';
                   return Padding(
                     padding: const EdgeInsets.only(bottom: SigapSpacing.md),
                     child: _SinkronTaskCard(
-                      title: task['title']?.toString() ?? '-',
+                      title: task.reportTitle ?? '-',
                       taskId: taskId,
-                      location:
-                          task['location']?.toString() ??
-                          task['address']?.toString() ??
-                          '-',
+                      location: '-',
                       onTap: () {
                         if (taskId.isNotEmpty) {
                           context.push('/surveyor/tasks/$taskId');
@@ -394,7 +391,9 @@ class _Surveyor2TabNav extends StatelessWidget {
             Icon(
               isSelected ? activeIcon : icon,
               size: 24,
-              color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
+              color: isSelected
+                  ? SigapColors.primary
+                  : SigapColors.textTertiary,
             ),
             const SizedBox(height: 4),
             Text(
@@ -402,7 +401,9 @@ class _Surveyor2TabNav extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
+                color: isSelected
+                    ? SigapColors.primary
+                    : SigapColors.textTertiary,
               ),
             ),
           ],

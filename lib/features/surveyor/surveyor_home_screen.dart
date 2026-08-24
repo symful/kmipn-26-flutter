@@ -206,7 +206,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
             child: SurveyorTaskCard(
               task: _mapToTaskData(task),
               onTap: () {
-                final taskId = task.id?.toString();
+                final taskId = task.taskId;
                 if (taskId != null) {
                   context.push('/surveyor/tasks/$taskId');
                 }
@@ -228,17 +228,15 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
     switch (filterIndex) {
       case 0: // Hari ini
         return tasks.where((t) {
-          final createdAt = t.createdAt;
-          return createdAt != null &&
-              createdAt.year == today.year &&
-              createdAt.month == today.month &&
-              createdAt.day == today.day;
+          final parsed = _parseDate(t.assignedAt);
+          return parsed != null &&
+              parsed.year == today.year &&
+              parsed.month == today.month &&
+              parsed.day == today.day;
         }).toList();
       case 1: // Terlambat
-        return tasks.where((t) {
-          final dueDate = t.deadline;
-          return dueDate != null && dueDate.isBefore(now);
-        }).toList();
+        // SurveyorTask has no deadline field; cannot determine overdue
+        return [];
       case 2: // Belum diunduh
         // Filter tasks that are not in offline storage
         // For now, return empty as we'd need to check local DB
@@ -255,8 +253,8 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
     switch (sortValue) {
       case 'terbaru':
         sorted.sort((a, b) {
-          final dateA = a.createdAt;
-          final dateB = b.createdAt;
+          final dateA = _parseDate(a.assignedAt);
+          final dateB = _parseDate(b.assignedAt);
           if (dateA == null && dateB == null) return 0;
           if (dateA == null) return 1;
           if (dateB == null) return -1;
@@ -264,23 +262,10 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
         });
         break;
       case 'sla':
-        sorted.sort((a, b) {
-          final dateA = a.deadline;
-          final dateB = b.deadline;
-          if (dateA == null && dateB == null) return 0;
-          if (dateA == null) return 1;
-          if (dateB == null) return -1;
-          return dateA.compareTo(dateB); // earliest SLA first
-        });
+        // SurveyorTask has no deadline field; keep original order
         break;
       case 'prioritas':
-        sorted.sort((a, b) {
-          // SurveyorTask.priority is a String, but severity is int
-          // Higher severity = higher priority
-          final priorityA = a.severity ?? 0;
-          final priorityB = b.severity ?? 0;
-          return priorityB.compareTo(priorityA); // highest severity first
-        });
+        // SurveyorTask has no severity field; keep original order
         break;
     }
 
@@ -289,30 +274,25 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
 
   /// Maps API task to SurveyorTaskData
   SurveyorTaskData _mapToTaskData(SurveyorTask task) {
-    // Determine priority from task data
-    // Higher severity = higher priority (severity is int in SurveyorTask)
-    TaskPriority priority = TaskPriority.normal;
-    final priorityValue = task.severity ?? 2;
-    if (priorityValue >= 4) {
-      priority = TaskPriority.urgent;
-    } else if (priorityValue >= 3) {
-      priority = TaskPriority.high;
-    } else if (priorityValue >= 2) {
-      priority = TaskPriority.normal;
-    } else {
-      priority = TaskPriority.low;
-    }
+    // SurveyorTask has no severity field; default to normal priority
+    const priority = TaskPriority.normal;
 
-    // Format time ago
-    final timeAgo = _formatTimeAgo(task.createdAt);
+    // Format time ago from assignedAt ISO string
+    final timeAgo = _formatTimeAgo(_parseDate(task.assignedAt));
 
     return SurveyorTaskData(
-      id: task.id?.toString() ?? '',
-      title: task.reportDescription ?? 'Tanpa judul',
-      location: task.address ?? '-',
+      id: task.taskId ?? '',
+      title: task.reportTitle ?? 'Tanpa judul',
+      location: '-',
       timeAgo: timeAgo,
       priority: priority,
     );
+  }
+
+  /// Parses an ISO date string to DateTime.
+  DateTime? _parseDate(String? s) {
+    if (s == null) return null;
+    return DateTime.tryParse(s);
   }
 
   /// Formats a date as "time ago" string

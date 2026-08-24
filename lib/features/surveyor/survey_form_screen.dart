@@ -71,7 +71,7 @@ class _SurveyFormScreenState extends ConsumerState<SurveyFormScreen> {
 
     try {
       final client = ref.read(apiClientProvider);
-      final template = await client.getSurveyorChecklistTemplate(widget.taskId);
+      final template = await client.getTaskChecklistTemplate(widget.taskId);
       final items = template.items ?? [];
 
       // Normalize checklist items - API returns {id, item, required}
