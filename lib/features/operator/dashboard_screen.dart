@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../api/types.g.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/skeleton_loaders.dart';
@@ -15,7 +16,7 @@ class OperatorDashboardScreen extends ConsumerStatefulWidget {
 
 class _OperatorDashboardScreenState
     extends ConsumerState<OperatorDashboardScreen> {
-  Map<String, dynamic>? _stats;
+  StatsResponse? _stats;
   bool _loading = true;
   String? _error;
 
@@ -32,7 +33,7 @@ class _OperatorDashboardScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.getOperatorDashboard();
+      final data = await client.getStats();
       setState(() {
         _stats = data;
         _loading = false;
@@ -76,16 +77,16 @@ class _OperatorDashboardScreenState
 }
 
 class _SummaryCards extends StatelessWidget {
-  final Map<String, dynamic> stats;
+  final StatsResponse stats;
   const _SummaryCards({required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    final total = stats['total_cases'] as int? ?? 0;
-    final pending = stats['pending'] as int? ?? 0;
-    final inProgress = stats['in_progress'] as int? ?? 0;
-    final resolved = stats['resolved'] as int? ?? 0;
-    final slaBreach = stats['sla_breach_count'] as int? ?? 0;
+    final total = stats.total ?? 0;
+    final pending = stats.pendingTasks ?? 0;
+    final inProgress = stats.activeTasks ?? 0;
+    final resolved = stats.resolvedToday ?? 0;
+    final slaBreach = stats.slaBreached ?? 0;
 
     return Column(
       children: [
@@ -243,12 +244,12 @@ class _QuickActionsState extends ConsumerState<_QuickActions> {
 
   Future<void> _showStatsDialog() async {
     final client = ref.read(apiClientProvider);
-    Map<String, dynamic>? stats;
+    StatsResponse? stats;
     String? error;
     bool loading = true;
 
     try {
-      stats = await client.get('/api/reports/stats');
+      stats = await client.getReportsStats();
     } catch (e) {
       error = e.toString();
     } finally {
@@ -279,11 +280,11 @@ class _QuickActionsState extends ConsumerState<_QuickActions> {
     );
   }
 
-  Widget _buildStatsContent(Map<String, dynamic> stats) {
-    final total = (stats['total'] as num?)?.toInt() ?? 0;
-    final slaBreached = (stats['sla_breached'] as num?)?.toInt() ?? 0;
-    final slaAtRisk = (stats['sla_at_risk'] as num?)?.toInt() ?? 0;
-    final byStatus = stats['by_status'] as Map<String, dynamic>? ?? {};
+  Widget _buildStatsContent(StatsResponse stats) {
+    final total = stats.total ?? 0;
+    final slaBreached = stats.slaBreached ?? 0;
+    final slaAtRisk = stats.slaAtRisk ?? 0;
+    final byStatus = stats.byStatus ?? {};
 
     return SingleChildScrollView(
       child: Column(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../api/api_client.dart';
 import '../../api/types.g.dart';
 import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
@@ -29,7 +30,7 @@ class VerifikasiCaseDetailScreen extends ConsumerStatefulWidget {
 class _VerifikasiCaseDetailScreenState
     extends ConsumerState<VerifikasiCaseDetailScreen> {
   static final _logger = Logger('VerifikasiCaseDetailScreen');
-  VerifikatorCase? _caseData;
+  CaseDetail? _caseData;
   Map<String, dynamic>? _assessmentData;
   TimelineEnvelope? _timelineData;
   bool _loading = true;
@@ -69,7 +70,7 @@ class _VerifikasiCaseDetailScreenState
             'supporting': r.supportingFactors ?? [],
             'risk': r.riskFactors ?? [],
             'correlation_ids': (r.duplicateCandidates ?? [])
-                .map((e) => e['id']?.toString() ?? '')
+                .map((e) => e.id?.toString() ?? '')
                 .where((id) => id.isNotEmpty)
                 .toList(),
           },
@@ -329,16 +330,19 @@ class _VerifikasiCaseDetailScreenState
 
     final caseData = _caseData!;
     final report = caseData.report;
-    final photos = report?['photo_urls'] != null
-        ? (report!['photo_urls'] as List).cast<String>()
-        : <String>[];
-    final categoryName = '-';
-    final status = (report?['status'] as String?) ?? '-';
-    final description = (report?['description'] as String?) ?? '-';
-    final title = '-';
-    final createdAt = report?['created_at'] as String?;
-    final lat = (report?['lat'] as num?)?.toDouble();
-    final lng = (report?['lng'] as num?)?.toDouble();
+    final photos =
+        report?.photos
+            ?.map((p) => p.url ?? '')
+            .where((url) => url.isNotEmpty)
+            .toList() ??
+        [];
+    final categoryName = report?.category ?? '-';
+    final status = report?.status?.value ?? '-';
+    final description = report?.description ?? '-';
+    final title = report?.title ?? '-';
+    final createdAt = report?.createdAt;
+    final lat = report?.location?['lat'] as double?;
+    final lng = report?.location?['lng'] as double?;
 
     return Scaffold(
       appBar: AppBar(title: const Text(Strings.detailKasusVerifikasi)),
@@ -528,7 +532,7 @@ class _VerifikasiCaseDetailScreenState
 
             // Timeline
             if (_timelineData != null &&
-                _timelineData!.events.isNotEmpty == true) ...[
+                (_timelineData!.events?.isNotEmpty ?? false)) ...[
               _SectionHeader(title: 'Timeline'),
               _TimelineCard(data: _timelineData!),
               const SizedBox(height: SigapSpacing.lg),
@@ -884,7 +888,7 @@ class _TimelineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final events = data.events;
+    final events = data.events ?? [];
 
     return Container(
       padding: const EdgeInsets.all(SigapSpacing.md),
@@ -906,18 +910,16 @@ class _TimelineCard extends StatelessWidget {
 }
 
 class _TimelineEvent extends StatelessWidget {
-  final Map<String, dynamic> event;
+  final TimelineEvent event;
   final bool isLast;
   const _TimelineEvent({required this.event, required this.isLast});
 
   @override
   Widget build(BuildContext context) {
-    final action =
-        event['action'] as String? ?? event['type'] as String? ?? '-';
-    final actor = event['actor'] as String? ?? event['user'] as String? ?? '-';
-    final timestamp =
-        event['timestamp'] as String? ?? event['created_at'] as String? ?? '';
-    final note = event['note'] as String? ?? event['description'] as String?;
+    final action = event.message ?? event.type ?? '-';
+    final actor = event.userId ?? '-';
+    final timestamp = event.timestamp ?? '';
+    final note = event.message;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

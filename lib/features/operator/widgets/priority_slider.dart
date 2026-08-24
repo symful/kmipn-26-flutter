@@ -24,12 +24,12 @@ class _OperatorPriorityDialogState
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.setOperatorPriority(
-        caseId: widget.caseId,
-        newScore: _priority.round(),
+      await client.setReportPriority(
+        id: widget.caseId,
+        score: _priority.round(),
         reason: _reasonController.text.trim().isNotEmpty
             ? _reasonController.text.trim()
-            : null,
+            : 'Prioritas diubah',
       );
       if (mounted) {
         Navigator.pop(context, true);

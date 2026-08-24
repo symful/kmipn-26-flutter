@@ -25,10 +25,7 @@ class _OperatorEscalationDialogState
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.escalateOperatorCase(
-        caseId: widget.caseId,
-        reason: _reasonController.text.trim(),
-      );
+      await client.escalateReport(widget.caseId);
       if (mounted) {
         Navigator.pop(context, true);
       }

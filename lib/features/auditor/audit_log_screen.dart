@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sigap/api/types.g.dart';
 import '../../../api/exceptions.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
@@ -21,7 +22,7 @@ class AuditorAuditLogScreen extends ConsumerStatefulWidget {
 class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
   static const int _pageSize = 20;
 
-  List<Map<String, dynamic>> _logs = [];
+  List<AuditEntry> _logs = [];
   bool _loading = true;
   String? _error;
   int _offset = 0;
@@ -69,8 +70,7 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
         page: page,
         limit: _pageSize,
       );
-      final entries = (data['entries'] as List? ?? [])
-          .cast<Map<String, dynamic>>();
+      final entries = data.entries;
       setState(() {
         if (reset) {
           _logs = entries;
@@ -250,7 +250,7 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
     );
   }
 
-  void _showDiffViewer(Map<String, dynamic> log) {
+  void _showDiffViewer(AuditEntry log) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -271,7 +271,7 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
                 child: Row(
                   children: [
                     Text(
-                      'Detail: ${log['action'] ?? '-'}',
+                      'Detail: ${log.action ?? '-'}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -294,21 +294,16 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
                     children: [
                       _DiffSection(
                         title: 'Before',
-                        data: log['before'] as Map<String, dynamic>?,
+                        data: log.metadata?['before'],
                       ),
                       const SizedBox(height: SigapSpacing.lg),
                       _DiffSection(
                         title: 'After',
-                        data: log['after'] as Map<String, dynamic>?,
+                        data: log.metadata?['after'],
                       ),
-                      if (log['metadata'] != null || log['extra'] != null) ...[
+                      if (log.metadata != null) ...[
                         const SizedBox(height: SigapSpacing.lg),
-                        _DiffSection(
-                          title: 'Metadata',
-                          data:
-                              (log['metadata'] ?? log['extra'])
-                                  as Map<String, dynamic>?,
-                        ),
+                        _DiffSection(title: 'Metadata', data: log.metadata),
                       ],
                     ],
                   ),
@@ -453,12 +448,12 @@ class _AuditorAuditLogScreenState extends ConsumerState<AuditorAuditLogScreen> {
 }
 
 class _AuditLogCard extends StatelessWidget {
-  final Map<String, dynamic> log;
+  final AuditEntry log;
   final VoidCallback onTap;
   const _AuditLogCard({required this.log, required this.onTap});
 
   Color get _actionColor {
-    switch ((log['action'] ?? '').toString().toUpperCase()) {
+    switch (log.action.toString().toUpperCase()) {
       case 'CREATE':
         return SigapColors.selesai;
       case 'UPDATE':
@@ -487,19 +482,12 @@ class _AuditLogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actorId =
-        log['actor_id'] as String? ??
-        log['actor_name'] as String? ??
-        log['actor'] as String? ??
-        '-';
-    final action = log['action'] as String? ?? '-';
-    final objectType =
-        log['object_type'] as String? ?? log['resource'] as String? ?? '-';
-    final objectId =
-        log['object_id'] as String? ?? log['resource_id'] as String? ?? '-';
-    final wilayah = log['wilayah'] as String? ?? '-';
-    final timestamp =
-        log['timestamp'] as String? ?? log['created_at'] as String?;
+    final actorId = log.userId ?? '-';
+    final action = log.action ?? '-';
+    final objectType = log.resource ?? '-';
+    final objectId = log.resourceId ?? '-';
+    final wilayah = log.metadata?['wilayah'] as String? ?? '-';
+    final timestamp = log.timestamp;
 
     return Card(
       margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
@@ -578,7 +566,8 @@ class _AuditLogCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              if (log['before'] != null || log['after'] != null)
+              if (log.metadata?['before'] != null ||
+                  log.metadata?['after'] != null)
                 Padding(
                   padding: const EdgeInsets.only(top: SigapSpacing.xs),
                   child: Row(

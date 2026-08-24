@@ -71,8 +71,7 @@ final geoJsonReportsProvider = FutureProvider<GeoJSONFeatureCollection>((
   final api = ApiClient(
     onLogout: () => ref.read(authNotifierProvider.notifier).logout(),
   );
-  final data = await api.get('/api/reports/geojson');
-  return GeoJSONFeatureCollection.fromJson(data);
+  return await api.getPublicGeojson();
 });
 
 final deviceLocationProvider = FutureProvider<LatLng?>((ref) async {
@@ -390,6 +389,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         case ReportStatus.rejected:
         case ReportStatus.duplicateMerged:
           return SigapColors.textMuted;
+        default:
+          return SigapColors.primary;
       }
     } catch (e, s) {
       _logger.warning('Error parsing report status "$statusStr"', e, s);
@@ -653,6 +654,8 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
         return 'Duplicate';
       case ReportStatus.needsSurvey:
         return 'Needs Survey';
+      default:
+        return status.value;
     }
   }
 }

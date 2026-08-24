@@ -21,7 +21,7 @@ class _VerifikatorQueueScreenState
   // Filter state
   String? _statusFilter;
   String? _kategoriFilter;
-  List<VerifikatorQueueItem> _entries = [];
+  List<Report> _entries = [];
   bool _loading = true;
 
   @override
@@ -55,7 +55,7 @@ class _VerifikatorQueueScreenState
   Future<void> _acceptCase(String id) async {
     try {
       final client = ref.read(apiClientProvider);
-      await client.acceptVerifikatorCase(id);
+      await client.acceptCase(id);
       await _loadQueue();
       if (mounted) {
         ScaffoldMessenger.of(
@@ -96,7 +96,7 @@ class _VerifikatorQueueScreenState
     if (reason == null) return;
     try {
       final client = ref.read(apiClientProvider);
-      await client.rejectVerifikatorCase(id, reason: reason);
+      await client.rejectCase(id, reason: reason);
       await _loadQueue();
     } catch (e) {
       if (mounted) {
@@ -202,7 +202,7 @@ class _VerifikatorQueueScreenState
 }
 
 class _QueueEntryCard extends StatelessWidget {
-  final VerifikatorQueueItem entry;
+  final Report entry;
   final VoidCallback onTap;
   final VoidCallback onAccept;
   final VoidCallback onReject;
@@ -216,9 +216,9 @@ class _QueueEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryName = entry.categoryId ?? '-';
+    final categoryName = entry.category ?? '-';
     final description = entry.description ?? '';
-    final status = entry.status ?? 'pending';
+    final status = entry.status?.value ?? 'pending';
     final id = entry.id ?? '';
 
     return Card(

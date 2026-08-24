@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../api/api_client.dart' show TimelineEnvelope;
 import '../../api/types.g.dart';
 import '../../theme/tokens.dart';
 import '../../providers/providers.dart';
@@ -24,14 +25,6 @@ final reportTimelineProvider = FutureProvider.family<TimelineEnvelope, String>((
   return apiClient.getReportTimeline(id);
 });
 
-/// Provider that fetches supporting reports for a report.
-final supportingReportsProvider =
-    FutureProvider.family<List<Map<String, dynamic>>, String>((ref, id) async {
-      final apiClient = ref.read(apiClientProvider);
-      final result = await apiClient.getSupportingReports(id);
-      return result.reports.map((r) => r.toJson()).toList();
-    });
-
 class ReportDetailScreen extends ConsumerWidget {
   final String id;
   const ReportDetailScreen({super.key, required this.id});
@@ -44,8 +37,9 @@ class ReportDetailScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Detail Laporan')),
       body: reportAsync.when(
         data: (report) {
-          final photoUrls = report.photoUrls;
-          final createdAtStr = report.createdAt?.toIso8601String();
+          final photoUrls =
+              report.photos?.map((p) => p.url ?? '').toList() ?? [];
+          final createdAtStr = report.createdAt;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(SigapSpacing.lg),
@@ -57,7 +51,7 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.lg),
 
                 // Photo gallery
-                if (photoUrls != null && photoUrls.isNotEmpty) ...[
+                if (photoUrls.isNotEmpty) ...[
                   _buildPhotoGallery(context, photoUrls),
                   const SizedBox(height: SigapSpacing.lg),
                 ],
@@ -75,7 +69,7 @@ class ReportDetailScreen extends ConsumerWidget {
                 _SectionLabel(label: 'Lokasi'),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  '${report.lat?.toStringAsFixed(6) ?? '-'}, ${report.lng?.toStringAsFixed(6) ?? '-'}',
+                  '${report.location?['lat']?.toStringAsFixed(6) ?? '-'}, ${report.location?['lng']?.toStringAsFixed(6) ?? '-'}',
                   style: const TextStyle(fontSize: 14, fontFamily: 'monospace'),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
@@ -84,27 +78,16 @@ class ReportDetailScreen extends ConsumerWidget {
                 _SectionLabel(label: 'Kategori'),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  report.categoryId ?? '-',
+                  report.category ?? '-',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
 
-                // Assigned to
-                if (report.assignedTo != null) ...[
-                  _SectionLabel(label: 'Ditugaskan'),
-                  const SizedBox(height: SigapSpacing.xs),
-                  Text(
-                    report.assignedTo!,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: SigapSpacing.lg),
-                ],
-
-                // Severity
+                // Severity / Priority
                 _SectionLabel(label: 'Tingkat Prioritas'),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  report.severity?.toString() ?? '-',
+                  report.priority?.value ?? '-',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
@@ -120,10 +103,6 @@ class ReportDetailScreen extends ConsumerWidget {
 
                 // Timeline section
                 _buildTimelineSection(context, ref),
-                const SizedBox(height: SigapSpacing.xl),
-
-                // Supporting reports section
-                _buildSupportingReportsSection(context, ref),
                 const SizedBox(height: SigapSpacing.xl),
 
                 // Privacy info
@@ -170,9 +149,6 @@ class ReportDetailScreen extends ConsumerWidget {
     final statusMessage = report.status?.value == 'needs_completion'
         ? 'Laporan memerlukan tindakan'
         : null;
-    final deadline = report.createdAt != null
-        ? report.createdAt!.add(const Duration(days: 7)).toIso8601String()
-        : null;
 
     // Only show banner if there's an action required or message
     if (status == 'needs_completion' && statusMessage != null) {
@@ -212,97 +188,11 @@ class ReportDetailScreen extends ConsumerWidget {
                 color: SigapColors.warningTextStrong,
               ),
             ),
-            if (deadline != null) ...[
-              const SizedBox(height: SigapSpacing.xs),
-              Text(
-                'Tenggat: ${_formatApiDate(deadline)}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: SigapColors.warningText,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
           ],
         ),
       );
     }
     return const SizedBox.shrink();
-  }
-
-  Widget _buildParentCaseBanner(
-    BuildContext context,
-    Map<String, dynamic> parentCase,
-  ) {
-    final parentId = parentCase['id'] as String?;
-    final parentTitle = parentCase['title'] as String? ?? 'Kasus terkait';
-    final categoryInitials =
-        (parentCase['short_code'] as String?)?.substring(0, 2) ?? 'KC';
-
-    return Container(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        border: Border.all(color: SigapColors.border),
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: SigapColors.primaryLight,
-              borderRadius: BorderRadius.circular(SigapRadius.sm),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              categoryInitials,
-              style: const TextStyle(
-                color: SigapColors.primaryDark,
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-              ),
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Bagian dari kasus',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: SigapColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  parentTitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: parentId != null
-                ? () => context.push('/detail/$parentId')
-                : null,
-            child: const Text(
-              'Lihat →',
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: SigapColors.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildPhotoGallery(BuildContext context, List<String> photoUrls) {
@@ -377,7 +267,7 @@ class ReportDetailScreen extends ConsumerWidget {
         timelineAsync.when(
           data: (timelineData) {
             final events = timelineData.events;
-            if (events.isEmpty) {
+            if (events?.isEmpty ?? true) {
               return Container(
                 padding: const EdgeInsets.all(SigapSpacing.md),
                 decoration: BoxDecoration(
@@ -391,7 +281,7 @@ class ReportDetailScreen extends ConsumerWidget {
                 ),
               );
             }
-            return _TimelineWidget(events: events);
+            return _TimelineWidget(events: events ?? []);
           },
           loading: () =>
               const SkeletonBox(height: 100, borderRadius: SigapRadius.md),
@@ -404,66 +294,6 @@ class ReportDetailScreen extends ConsumerWidget {
             ),
             child: const Text(
               'Gagal memuat timeline',
-              style: TextStyle(color: SigapColors.textMuted, fontSize: 13),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSupportingReportsSection(BuildContext context, WidgetRef ref) {
-    final supportingAsync = ref.watch(supportingReportsProvider(id));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionLabel(label: 'Laporan pendukung'),
-        const SizedBox(height: SigapSpacing.md),
-        supportingAsync.when(
-          data: (supportingReports) {
-            if (supportingReports.isEmpty) {
-              return Container(
-                padding: const EdgeInsets.all(SigapSpacing.md),
-                decoration: BoxDecoration(
-                  color: SigapColors.surface,
-                  borderRadius: BorderRadius.circular(SigapRadius.md),
-                  border: Border.all(color: SigapColors.border),
-                ),
-                child: const Text(
-                  'Belum ada laporan pendukung',
-                  style: TextStyle(color: SigapColors.textMuted, fontSize: 13),
-                ),
-              );
-            }
-            return Column(
-              children: supportingReports
-                  .take(5)
-                  .map(
-                    (sr) => _SupportingReportItem(
-                      report: sr,
-                      onTap: () {
-                        final srId = sr['id']?.toString();
-                        if (srId != null) {
-                          context.push('/detail/$srId');
-                        }
-                      },
-                    ),
-                  )
-                  .toList(),
-            );
-          },
-          loading: () =>
-              const SkeletonBox(height: 80, borderRadius: SigapRadius.md),
-          error: (_, __) => Container(
-            padding: const EdgeInsets.all(SigapSpacing.md),
-            decoration: BoxDecoration(
-              color: SigapColors.surface,
-              borderRadius: BorderRadius.circular(SigapRadius.md),
-              border: Border.all(color: SigapColors.border),
-            ),
-            child: const Text(
-              'Gagal memuat laporan pendukung',
               style: TextStyle(color: SigapColors.textMuted, fontSize: 13),
             ),
           ),
@@ -600,7 +430,7 @@ class _SectionLabel extends StatelessWidget {
 
 /// Timeline widget showing report history events.
 class _TimelineWidget extends StatelessWidget {
-  final List<Map<String, dynamic>> events;
+  final List<TimelineEvent> events;
   const _TimelineWidget({required this.events});
 
   @override
@@ -621,7 +451,7 @@ class _TimelineWidget extends StatelessWidget {
 
 /// Individual timeline event item.
 class _TimelineEventItem extends StatelessWidget {
-  final Map<String, dynamic> event;
+  final TimelineEvent event;
   final bool isFirst;
   final bool isLast;
 
@@ -652,12 +482,10 @@ class _TimelineEventItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final eventType =
-        event['event_type'] as String? ?? event['type'] as String?;
-    final title = event['title'] as String? ?? eventType ?? 'Event';
-    final timestamp =
-        event['timestamp'] as String? ?? event['created_at'] as String?;
-    final actor = event['actor'] as String?;
+    final eventType = event.type;
+    final title = event.message ?? eventType ?? 'Event';
+    final timestamp = event.timestamp;
+    final actor = event.userId;
 
     return IntrinsicHeight(
       child: Row(
@@ -726,88 +554,6 @@ class _TimelineEventItem extends StatelessWidget {
     } catch (_) {
       return iso;
     }
-  }
-}
-
-/// Supporting report item widget.
-class _SupportingReportItem extends StatelessWidget {
-  final Map<String, dynamic> report;
-  final VoidCallback onTap;
-
-  const _SupportingReportItem({required this.report, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final title =
-        report['title'] as String? ??
-        report['description'] as String? ??
-        'Laporan pendukung';
-    final status = report['status'] as String?;
-    final shortCode = report['short_code'] as String? ?? 'LP';
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        child: Padding(
-          padding: const EdgeInsets.all(SigapSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: SigapColors.primaryLight,
-                  borderRadius: BorderRadius.circular(SigapRadius.sm),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  shortCode.substring(0, 2),
-                  style: const TextStyle(
-                    color: SigapColors.primaryDark,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              const SizedBox(width: SigapSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (status != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        status,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: SigapColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: SigapColors.textMuted,
-                size: 20,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 

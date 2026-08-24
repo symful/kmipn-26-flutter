@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../api/types.g.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/ai_assessment_card.dart';
-import '../../../widgets/priority_score_card.dart';
 import '../../../widgets/skeleton_loaders.dart';
 import 'widgets/merge_dialog.dart';
 import 'widgets/priority_slider.dart';
@@ -12,6 +12,13 @@ import 'widgets/assign_dialog.dart';
 import 'widgets/escalation_dialog.dart';
 import 'widgets/split_dialog.dart';
 
+/// Unified Case Detail screen for OPERATOR role.
+///
+/// Shows case information with operator actions:
+/// - merge, split, priority, assign SLA, escalate
+/// - timeline + AI assessment
+///
+/// Uses getVerifikatorCase (returns CaseDetail) and typed Report fields.
 class OperatorCaseDetailScreen extends ConsumerStatefulWidget {
   final String caseId;
   const OperatorCaseDetailScreen({super.key, required this.caseId});
@@ -23,11 +30,11 @@ class OperatorCaseDetailScreen extends ConsumerStatefulWidget {
 
 class _OperatorCaseDetailScreenState
     extends ConsumerState<OperatorCaseDetailScreen> {
-  Map<String, dynamic>? _caseData;
+  CaseDetail? _caseDetail;
   Map<String, dynamic>? _assessmentData;
   bool _loading = true;
   String? _error;
-  bool _assessmentError = false; // Track if assessment fetch failed
+  bool _assessmentError = false;
 
   @override
   void initState() {
@@ -42,9 +49,7 @@ class _OperatorCaseDetailScreenState
     });
     try {
       final client = ref.read(apiClientProvider);
-      // Use dio.get directly since there's no typed getOperatorCase endpoint
-      final res = await client.dio.get('/api/operator/cases/${widget.caseId}');
-      final data = (res.data as Map).cast<String, dynamic>();
+      final caseDetail = await client.getVerifikatorCase(widget.caseId);
 
       // Fetch AI assessment if available
       Map<String, dynamic>? assessmentData;
@@ -57,19 +62,18 @@ class _OperatorCaseDetailScreenState
             'supporting': r.supportingFactors ?? [],
             'risk': r.riskFactors ?? [],
             'correlation_ids': (r.duplicateCandidates ?? [])
-                .map((e) => e['id']?.toString() ?? '')
+                .map((e) => e.id?.toString() ?? '')
                 .where((id) => id.isNotEmpty)
                 .toList(),
           },
         };
       } catch (_) {
-        // Assessment may not exist for all cases, but show visible error chip
         assessmentError = true;
         assessmentData = null;
       }
 
       setState(() {
-        _caseData = data;
+        _caseDetail = caseDetail;
         _assessmentData = assessmentData;
         _assessmentError = assessmentError;
         _loading = false;
@@ -114,16 +118,14 @@ class _OperatorCaseDetailScreenState
       );
     }
 
-    final data = _caseData!;
-    final photos = (data['photo_urls'] as List?)?.cast<String>() ?? [];
-    final description = data['description'] ?? '-';
-    final title = data['title'] ?? '-';
-    final status = data['status'] ?? '-';
-    final categoryName =
-        (data['category'] as Map<String, dynamic>?)?['name'] ?? '-';
-    final severity = data['severity'] as int?;
-    final assigneeName =
-        (data['assignee'] as Map<String, dynamic>?)?['name'] as String?;
+    final caseDetail = _caseDetail!;
+    final report = caseDetail.report;
+    final photos = report?.photos ?? [];
+    final description = report?.description ?? '';
+    final title = report?.title ?? '';
+    final status = report?.status?.value ?? '';
+    final categoryName = report?.category;
+    final priority = report?.priority;
 
     return Scaffold(
       appBar: AppBar(title: const Text(Strings.detailKasusOperator)),
@@ -165,14 +167,14 @@ class _OperatorCaseDetailScreenState
                           borderRadius: BorderRadius.circular(SigapRadius.sm),
                         ),
                         child: Text(
-                          categoryName,
+                          categoryName ?? "-",
                           style: const TextStyle(
                             color: SigapColors.primary,
                             fontSize: 12,
                           ),
                         ),
                       ),
-                      if (severity != null) ...[
+                      if (priority != null) ...[
                         const SizedBox(width: SigapSpacing.sm),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -186,7 +188,7 @@ class _OperatorCaseDetailScreenState
                             borderRadius: BorderRadius.circular(SigapRadius.sm),
                           ),
                           child: Text(
-                            'Prioritas: $severity',
+                            'Prioritas: ${priority.value}',
                             style: const TextStyle(
                               color: SigapColors.offlineDot,
                               fontSize: 12,
@@ -197,24 +199,9 @@ class _OperatorCaseDetailScreenState
                       ],
                     ],
                   ),
-                  if (assigneeName != null) ...[
-                    const SizedBox(height: SigapSpacing.sm),
-                    Text(
-                      'Ditugaskan ke: $assigneeName',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: SigapColors.textMuted,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
-            const SizedBox(height: SigapSpacing.lg),
-
-            // Priority Score Card
-            _buildPrioritySection(data),
-
             const SizedBox(height: SigapSpacing.lg),
 
             // Photos
@@ -232,10 +219,11 @@ class _OperatorCaseDetailScreenState
                   separatorBuilder: (_, __) =>
                       const SizedBox(width: SigapSpacing.sm),
                   itemBuilder: (context, index) {
+                    final photo = photos[index];
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(SigapRadius.md),
                       child: Image.network(
-                        photos[index],
+                        photo.url ?? '',
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
@@ -280,7 +268,6 @@ class _OperatorCaseDetailScreenState
               AiAssessmentCard(assessment: _assessmentData!),
               const SizedBox(height: SigapSpacing.lg),
             ] else if (_assessmentError) ...[
-              // Show visible error chip when assessment fetch failed
               const Text(
                 'Penilaian AI',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
@@ -401,50 +388,6 @@ class _OperatorCaseDetailScreenState
     showDialog(
       context: context,
       builder: (ctx) => OperatorEscalationDialog(caseId: widget.caseId),
-    );
-  }
-
-  Widget _buildPrioritySection(Map<String, dynamic> data) {
-    final computedScore =
-        (data['priority_score'] as Map<String, dynamic>?)?['computed_score']
-            as double? ??
-        (data['severity'] as int?)?.toDouble() ??
-        50.0;
-
-    final overrideScore =
-        (data['priority_score'] as Map<String, dynamic>?)?['override_score']
-            as double?;
-
-    final overrideReason =
-        (data['priority_score'] as Map<String, dynamic>?)?['override_reason']
-            as String?;
-
-    final overrideBy =
-        (data['priority_score'] as Map<String, dynamic>?)?['override_by']
-            as String?;
-
-    final overriddenAtStr =
-        (data['priority_score'] as Map<String, dynamic>?)?['overridden_at']
-            as String?;
-    final overriddenAt = overriddenAtStr != null
-        ? DateTime.tryParse(overriddenAtStr)
-        : null;
-
-    final factorBreakdownRaw =
-        (data['priority_score'] as Map<String, dynamic>?)?['factor_breakdown']
-            as Map<String, dynamic>?;
-    final factorBreakdown = factorBreakdownRaw?.map(
-      (k, v) => MapEntry(k, (v as num).toDouble()),
-    );
-
-    return PriorityScoreCard(
-      computedScore: computedScore,
-      overrideScore: overrideScore,
-      overrideReason: overrideReason,
-      overrideBy: overrideBy,
-      overriddenAt: overriddenAt,
-      factorBreakdown: factorBreakdown,
-      onAdjust: () => _showPriorityDialog(context),
     );
   }
 }

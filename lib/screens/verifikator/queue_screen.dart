@@ -15,7 +15,7 @@ class VerifikatorQueueItem {
   final String? wilayah;
   final String? villageName;
   final String? createdAt;
-  final int? priority;
+  final String? priority;
   final double? lat;
   final double? lng;
 
@@ -48,7 +48,7 @@ class VerifikatorQueueItem {
       villageName: json['village_name'] as String?,
       createdAt:
           json['created_at'] as String? ?? json['submitted_at'] as String?,
-      priority: (json['priority'] as num?)?.toInt() ?? json['severity'] as int?,
+      priority: json['priority'] as String? ?? json['severity'] as String?,
       lat: (json['lat'] as num?)?.toDouble(),
       lng: (json['lng'] as num?)?.toDouble(),
     );
@@ -140,8 +140,8 @@ final verifikatorQueueCountsProvider = FutureProvider<Map<String, int>>((
     int ditolak = 0;
 
     for (final item in page.items) {
-      // Use the generated type's status field (nullable String?)
-      final status = item.status?.toLowerCase() ?? '';
+      // Use the generated type's status field (ReportStatus enum -> value)
+      final status = item.status?.value.toLowerCase() ?? '';
       if (status == 'pending' ||
           status == 'submitted' ||
           status == 'under_review') {
@@ -183,20 +183,18 @@ final verifikatorQueueProvider = FutureProvider<List<VerifikatorQueueItem>>((
   // The generated type doesn't have all UI fields (title, category, wilayah, villageName)
   // so we rebuild from the raw item data preserved in the generated type
   return page.items.map((item) {
-    // title falls back to description, category/wilayah/villageName not in generated type
-    // but status and id are available - status is already slug or null
     return VerifikatorQueueItem(
       id: item.id ?? '-',
-      title: item.description ?? '-', // use description as title fallback
+      title: item.description ?? '-',
       description: item.description,
-      status: item.status ?? '-',
-      category: null, // not in generated type
-      wilayah: null, // not in generated type
-      villageName: null, // not in generated type
-      createdAt: item.createdAt?.toIso8601String(),
-      priority: item.priorityScore?.toInt(),
-      lat: item.lat,
-      lng: item.lng,
+      status: item.status?.value ?? 'pending',
+      category: null,
+      wilayah: null,
+      villageName: null,
+      createdAt: item.createdAt,
+      priority: item.priority?.value,
+      lat: null,
+      lng: null,
     );
   }).toList();
 });
@@ -339,7 +337,10 @@ class _VerifikatorKpiSection extends ConsumerWidget {
               SizedBox(width: SigapSpacing.sm),
               Text(
                 'Gagal memuat statistik',
-                style: TextStyle(color: SigapColors.textSecondary, fontSize: 13),
+                style: TextStyle(
+                  color: SigapColors.textSecondary,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -757,7 +758,9 @@ class _VerifikatorQueueScreenState
                 );
               },
               loading: () => ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SigapSpacing.lg,
+                ),
                 itemCount: 5,
                 itemBuilder: (_, __) => _QueueCardSkeleton(),
               ),
@@ -818,7 +821,11 @@ class _VerifikatorQueueScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: SigapColors.danger),
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: SigapColors.danger,
+            ),
             const SizedBox(height: SigapSpacing.lg),
             const Text(
               'Gagal memuat data',

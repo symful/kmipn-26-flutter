@@ -339,7 +339,11 @@ Widget _buildNearbyError(Object error, VoidCallback onRetry) {
         ),
         child: Row(
           children: [
-            const Icon(Icons.error_outline, color: SigapColors.danger, size: 24),
+            const Icon(
+              Icons.error_outline,
+              color: SigapColors.danger,
+              size: 24,
+            ),
             const SizedBox(width: SigapSpacing.x11),
             Expanded(
               child: Text(
@@ -739,16 +743,11 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                       // Status grid
                       statsAsync.when(
                         data: (stats) {
-                          final byStatus = stats.byStatus ?? {};
-                          final submitted = (byStatus['submitted'] ?? 0) as int;
-                          final verified = (byStatus['verified'] ?? 0) as int;
-                          final inProgress =
-                              (byStatus['in_progress'] ?? 0) as int;
-                          final resolved = (byStatus['resolved'] ?? 0) as int;
                           return StatusGrid(
-                            perluTindakan: submitted,
-                            diproses: verified + inProgress,
-                            selesai: resolved,
+                            perluTindakan: stats.submitted ?? 0,
+                            diproses:
+                                (stats.verified ?? 0) + (stats.inProgress ?? 0),
+                            selesai: stats.resolved ?? 0,
                           );
                         },
                         loading: () => _buildStatsLoading(),

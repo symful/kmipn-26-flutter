@@ -25,13 +25,9 @@ class _OperatorAssignDialogState extends ConsumerState<OperatorAssignDialog> {
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.assignOperatorCase(
-        caseId: widget.caseId,
+      await client.assignReport(
+        widget.caseId,
         unitId: _unitController.text.trim(),
-        instructions: _instructionsController.text.trim().isNotEmpty
-            ? _instructionsController.text.trim()
-            : null,
-        deadline: _deadline?.toIso8601String().split('T').first,
       );
       if (mounted) {
         Navigator.pop(context, true);

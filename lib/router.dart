@@ -29,7 +29,6 @@ import 'features/admin_daerah/sla_screen.dart';
 import 'features/admin_daerah/units_screen.dart';
 import 'features/admin_daerah/priority_config_screen.dart';
 import 'features/admin_daerah/accounts_screen.dart';
-import 'features/admin_daerah/integrasi_screen.dart';
 import 'features/auditor/audit_log_screen.dart';
 import 'features/warga/sanggahan_screen.dart';
 import 'features/warga/reopen_request_screen.dart';
@@ -223,7 +222,18 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
       final client = ref.read(apiClientProvider);
       final data = await client.surveyorGetTasks();
       setState(() {
-        _tasks = data.tasks.map((t) => t.toJson()).toList();
+        _tasks = data.tasks
+            .map(
+              (t) => {
+                'taskId': t.taskId,
+                'reportId': t.reportId,
+                'reportTitle': t.reportTitle,
+                'status': t.status,
+                'assignedAt': t.assignedAt,
+                'completedAt': t.completedAt,
+              },
+            )
+            .toList();
         _loading = false;
       });
     } catch (e) {
@@ -505,7 +515,11 @@ class VerifikatorHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
-  Map<String, int> _counts = {};
+  int _total = 0;
+  int _menunggu = 0;
+  int _diproses = 0;
+  int _diverifikasi = 0;
+  int _ditolak = 0;
   List<Map<String, dynamic>> _recentItems = [];
   bool _loading = true;
   String? _error;
@@ -532,7 +546,7 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
       int ditolak = 0;
 
       for (final item in data.items) {
-        final status = item.status?.toLowerCase() ?? '';
+        final status = item.status?.value ?? '';
         if (status == 'pending' ||
             status == 'submitted' ||
             status == 'under_review') {
@@ -547,13 +561,11 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
       }
 
       setState(() {
-        _counts = {
-          'menunggu': menunggu,
-          'diproses': diproses,
-          'diverifikasi': diverifikasi,
-          'ditolak': ditolak,
-          'total': data.items.length,
-        };
+        _total = data.items.length;
+        _menunggu = menunggu;
+        _diproses = diproses;
+        _diverifikasi = diverifikasi;
+        _ditolak = ditolak;
         _recentItems = data.items.take(5).map((item) => item.toJson()).toList();
         _loading = false;
       });
@@ -620,11 +632,11 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
   }
 
   Widget _buildDashboard() {
-    final total = _counts['total'] ?? 0;
-    final menunggu = _counts['menunggu'] ?? 0;
-    final diproses = _counts['diproses'] ?? 0;
-    final diverifikasi = _counts['diverifikasi'] ?? 0;
-    final ditolak = _counts['ditolak'] ?? 0;
+    final total = _total;
+    final menunggu = _menunggu;
+    final diproses = _diproses;
+    final diverifikasi = _diverifikasi;
+    final ditolak = _ditolak;
 
     return RefreshIndicator(
       onRefresh: _loadData,
@@ -917,26 +929,27 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
       final results = await Future.wait([
         client.getWilayahList(),
         client.getCategories(),
-        client.getAdminDaerahUnits(),
-        client.getAdminDaerahDashboard(),
+        client.getUnits(limit: 100),
+        client.getStats(),
       ]);
 
-      final wilayahList = results[0] as List;
-      final kategoriList = results[1] as List;
-      final unitsData = results[2] as AdminDaerahUnitsPage;
-      final dashboardData = results[3] as AdminDaerahDashboard;
+      final wilayahList = results[0] as List<Wilayah>;
+      final kategoriList = results[1] as List<Category>;
+      final unitsData = results[2] as UnitsPage;
+      final dashboardData = results[3] as StatsResponse;
 
       // Extract status counts from byStatus map
-      final byStatus = dashboardData.byStatus ?? {};
+      final byStatus = dashboardData.byStatus ?? <String, dynamic>{};
       final pending =
-          byStatus['pending'] as int? ??
-          byStatus['submitted'] as int? ??
-          byStatus['under_review'] as int? ??
-          0;
+          ((byStatus['pending'] as int?) ?? 0) +
+          ((byStatus['submitted'] as int?) ?? 0) +
+          ((byStatus['under_review'] as int?) ?? 0);
       final inProgress =
-          byStatus['in_progress'] as int? ?? byStatus['assigned'] as int? ?? 0;
+          ((byStatus['in_progress'] as int?) ?? 0) +
+          ((byStatus['assigned'] as int?) ?? 0);
       final resolved =
-          byStatus['resolved'] as int? ?? byStatus['closed'] as int? ?? 0;
+          ((byStatus['resolved'] as int?) ?? 0) +
+          ((byStatus['closed'] as int?) ?? 0);
 
       setState(() {
         _stats = {
@@ -1421,11 +1434,6 @@ final appRouter = GoRouter(
           path: '/admin-daerah/accounts',
           builder: (c, s) => const AdminDaerahAccountsScreen(),
         ),
-        GoRoute(
-          path: '/admin-daerah/integrasi',
-          builder: (c, s) => const AdminDaerahIntegrasiScreen(),
-        ),
-
         // Auditor route
         GoRoute(
           path: '/auditor',

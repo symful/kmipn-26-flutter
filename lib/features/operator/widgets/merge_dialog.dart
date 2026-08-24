@@ -24,9 +24,9 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.mergeOperatorCase(
-        caseId: widget.caseId,
-        targetCaseIds: [_targetIdController.text.trim()],
+      await client.mergeReports(
+        id: widget.caseId,
+        targetReportIds: [_targetIdController.text.trim()],
         reason: _reasonController.text.trim().isNotEmpty
             ? _reasonController.text.trim()
             : null,

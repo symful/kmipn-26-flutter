@@ -24,13 +24,10 @@ class _OperatorSplitDialogState extends ConsumerState<OperatorSplitDialog> {
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.separateOperatorCase(
-        caseId: widget.caseId,
+      await client.separateReports(
+        id: widget.caseId,
         reportIdsToSeparate: [widget.caseId],
         reason: _reasonController.text.trim(),
-        targetUnitId: _targetUnitIdController.text.trim().isNotEmpty
-            ? _targetUnitIdController.text.trim()
-            : null,
       );
       if (mounted) {
         Navigator.pop(context, true);

@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sigap/api/types.g.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:exif/exif.dart';
@@ -123,7 +124,7 @@ class _CategorySection extends ConsumerWidget {
 }
 
 class _CategoryDropdown extends StatelessWidget {
-  final List<Map<String, dynamic>> categories;
+  final List<Category> categories;
   final String? selectedCategoryId;
   final ValueChanged<String?> onChanged;
 
@@ -144,10 +145,7 @@ class _CategoryDropdown extends StatelessWidget {
       ),
       initialValue: selectedCategoryId,
       items: categories.map((cat) {
-        return DropdownMenuItem(
-          value: cat['id'].toString(),
-          child: Text(cat['name']?.toString() ?? ''),
-        );
+        return DropdownMenuItem(value: cat.id, child: Text(cat.name ?? ""));
       }).toList(),
       onChanged: onChanged,
       validator: (v) => v == null ? 'Pilih kategori' : null,
@@ -177,7 +175,10 @@ class _CategoryErrorWidget extends ConsumerWidget {
               Expanded(
                 child: Text(
                   error,
-                  style: const TextStyle(color: SigapColors.danger, fontSize: 12),
+                  style: const TextStyle(
+                    color: SigapColors.danger,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ],
@@ -252,7 +253,10 @@ class _PhotoSection extends StatelessWidget {
               SizedBox(height: 2),
               Text(
                 'Tap untuk membuka kamera',
-                style: TextStyle(color: SigapColors.textSecondary, fontSize: 12),
+                style: TextStyle(
+                  color: SigapColors.textSecondary,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
@@ -289,7 +293,9 @@ class _LocationSection extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(SigapSpacing.md),
             decoration: BoxDecoration(
-              color: hasLocation ? SigapColors.primaryLight : SigapColors.bgSurface,
+              color: hasLocation
+                  ? SigapColors.primaryLight
+                  : SigapColors.bgSurface,
               borderRadius: BorderRadius.circular(SigapRadius.md),
               border: Border.all(
                 color: hasLocation
