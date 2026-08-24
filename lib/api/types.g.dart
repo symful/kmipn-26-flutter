@@ -78,21 +78,21 @@ class Pagination {
 }
 
 class ErrorResponse {
-  final Map<String, dynamic> error;
-  final Map<String, dynamic>? details;
+  final ErrorBody error;
+  final ErrorDetails? details;
   ErrorResponse({required this.error, this.details});
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) {
     return ErrorResponse(
-      error: json['error'] as Map<String, dynamic>,
-      details: json['details'] as Map<String, dynamic>?,
+      error: ErrorBody.fromJson(json['error'] as Map<String, dynamic>),
+      details: json['details'] != null ? ErrorDetails.fromJson(json['details'] as Map<String, dynamic>) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'error': error,
-      'details': details,
+      'error': error.toJson(),
+      'details': details?.toJson(),
     };
   }
 }
@@ -765,7 +765,7 @@ class AnonymousReportResult {
 
 class ReportsStats {
   final int? total;
-  final Map<String, dynamic>? byStatus;
+  final StatusCounts? byStatus;
   final List<Map<String, dynamic>>? byCategory;
   final List<Map<String, dynamic>>? byWilayah;
   final int? slaBreached;
@@ -776,7 +776,7 @@ class ReportsStats {
   factory ReportsStats.fromJson(Map<String, dynamic> json) {
     return ReportsStats(
       total: json['total'] as int?,
-      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byStatus: json['by_status'] != null ? StatusCounts.fromJson(json['by_status'] as Map<String, dynamic>) : null,
       byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       byWilayah: (json['by_wilayah'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       slaBreached: json['sla_breached'] as int?,
@@ -788,7 +788,7 @@ class ReportsStats {
   Map<String, dynamic> toJson() {
     return {
       'total': total,
-      'by_status': byStatus,
+      'by_status': byStatus?.toJson(),
       'by_category': byCategory,
       'by_wilayah': byWilayah,
       'sla_breached': slaBreached,
@@ -800,8 +800,8 @@ class ReportsStats {
 
 class OperatorStats {
   final int? total;
-  final Map<String, dynamic>? byStatus;
-  final Map<String, dynamic>? bySeverity;
+  final StatusCountsOperator? byStatus;
+  final SeverityCounts? bySeverity;
   final int? slaBreached;
   final int? slaAtRisk;
   final double? avgResolutionDays;
@@ -812,8 +812,8 @@ class OperatorStats {
   factory OperatorStats.fromJson(Map<String, dynamic> json) {
     return OperatorStats(
       total: json['total'] as int?,
-      byStatus: json['by_status'] as Map<String, dynamic>?,
-      bySeverity: json['by_severity'] as Map<String, dynamic>?,
+      byStatus: json['by_status'] != null ? StatusCountsOperator.fromJson(json['by_status'] as Map<String, dynamic>) : null,
+      bySeverity: json['by_severity'] != null ? SeverityCounts.fromJson(json['by_severity'] as Map<String, dynamic>) : null,
       slaBreached: json['sla_breached'] as int?,
       slaAtRisk: json['sla_at_risk'] as int?,
       avgResolutionDays: (json['avg_resolution_days'] as num?)?.toDouble(),
@@ -825,8 +825,8 @@ class OperatorStats {
   Map<String, dynamic> toJson() {
     return {
       'total': total,
-      'by_status': byStatus,
-      'by_severity': bySeverity,
+      'by_status': byStatus?.toJson(),
+      'by_severity': bySeverity?.toJson(),
       'sla_breached': slaBreached,
       'sla_at_risk': slaAtRisk,
       'avg_resolution_days': avgResolutionDays,
@@ -838,7 +838,7 @@ class OperatorStats {
 
 class ExecutiveDashboard {
   final int? total;
-  final Map<String, dynamic>? byStatus;
+  final StatusCounts? byStatus;
   final List<Map<String, dynamic>>? byCategory;
   final int? slaBreached;
   final int? slaAtRisk;
@@ -854,7 +854,7 @@ class ExecutiveDashboard {
   factory ExecutiveDashboard.fromJson(Map<String, dynamic> json) {
     return ExecutiveDashboard(
       total: json['total'] as int?,
-      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byStatus: json['by_status'] != null ? StatusCounts.fromJson(json['by_status'] as Map<String, dynamic>) : null,
       byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       slaBreached: json['sla_breached'] as int?,
       slaAtRisk: json['sla_at_risk'] as int?,
@@ -871,7 +871,7 @@ class ExecutiveDashboard {
   Map<String, dynamic> toJson() {
     return {
       'total': total,
-      'by_status': byStatus,
+      'by_status': byStatus?.toJson(),
       'by_category': byCategory,
       'sla_breached': slaBreached,
       'sla_at_risk': slaAtRisk,
@@ -1135,14 +1135,14 @@ class GeoJSONFeatureCollection {
 class GeoJSONFeature {
   final String type;
   final Map<String, dynamic> geometry;
-  final Map<String, dynamic> properties;
+  final FeatureProperties properties;
   GeoJSONFeature({required this.type, required this.geometry, required this.properties});
 
   factory GeoJSONFeature.fromJson(Map<String, dynamic> json) {
     return GeoJSONFeature(
       type: json['type'] as String,
       geometry: json['geometry'] as Map<String, dynamic>,
-      properties: json['properties'] as Map<String, dynamic>,
+      properties: FeatureProperties.fromJson(json['properties'] as Map<String, dynamic>),
     );
   }
 
@@ -1150,7 +1150,42 @@ class GeoJSONFeature {
     return {
       'type': type,
       'geometry': geometry,
-      'properties': properties,
+      'properties': properties.toJson(),
+    };
+  }
+}
+
+class FeatureProperties {
+  final String id;
+  final ReportStatus status;
+  final String categoryId;
+  final String description;
+  final int? severity;
+  final DateTime createdAt;
+  final String? thumbnail;
+  FeatureProperties({required this.id, required this.status, required this.categoryId, required this.description, this.severity, required this.createdAt, this.thumbnail});
+
+  factory FeatureProperties.fromJson(Map<String, dynamic> json) {
+    return FeatureProperties(
+      id: json['id'] as String,
+      status: ReportStatus.fromJson(json['status'] as String),
+      categoryId: json['category_id'] as String,
+      description: json['description'] as String,
+      severity: json['severity'] as int?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      thumbnail: json['thumbnail'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'status': status.value,
+      'category_id': categoryId,
+      'description': description,
+      'severity': severity,
+      'created_at': createdAt.toIso8601String(),
+      'thumbnail': thumbnail,
     };
   }
 }
@@ -1248,22 +1283,22 @@ class ClarificationRequest {
 
 class SurveyorVisitRequest {
   final String findings;
-  final List<Map<String, dynamic>> checklist;
+  final List<ChecklistItem> checklist;
   final List<String>? photoUrls;
   final String? conditionAssessment;
   final String? recommendation;
-  final Map<String, dynamic>? gps;
+  final GpsSchema? gps;
   final String? notes;
   SurveyorVisitRequest({required this.findings, required this.checklist, this.photoUrls, this.conditionAssessment, this.recommendation, this.gps, this.notes});
 
   factory SurveyorVisitRequest.fromJson(Map<String, dynamic> json) {
     return SurveyorVisitRequest(
       findings: json['findings'] as String,
-      checklist: (json['checklist'] as List?)?.map((e) => e as Map<String, dynamic>).toList() ?? [],
+      checklist: (json['checklist'] as List?)?.map((e) => ChecklistItem.fromJson(e as Map<String, dynamic>)).toList() ?? [],
       photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
       conditionAssessment: json['condition_assessment'] as String?,
       recommendation: json['recommendation'] as String?,
-      gps: json['gps'] as Map<String, dynamic>?,
+      gps: json['gps'] != null ? GpsSchema.fromJson(json['gps'] as Map<String, dynamic>) : null,
       notes: json['notes'] as String?,
     );
   }
@@ -1275,7 +1310,7 @@ class SurveyorVisitRequest {
       'photo_urls': photoUrls,
       'condition_assessment': conditionAssessment,
       'recommendation': recommendation,
-      'gps': gps,
+      'gps': gps?.toJson(),
       'notes': notes,
     };
   }
@@ -1552,7 +1587,7 @@ class SurveyorTaskDetail {
 class PriorityConfig {
   final String? id;
   final int? version;
-  final Map<String, dynamic>? weights;
+  final PriorityWeights? weights;
   final bool? isActive;
   final String? activatedAt;
   final String? activatedBy;
@@ -1563,7 +1598,7 @@ class PriorityConfig {
     return PriorityConfig(
       id: json['id'] as String?,
       version: json['version'] as int?,
-      weights: json['weights'] as Map<String, dynamic>?,
+      weights: json['weights'] != null ? PriorityWeights.fromJson(json['weights'] as Map<String, dynamic>) : null,
       isActive: json['is_active'] as bool?,
       activatedAt: json['activated_at'] as String?,
       activatedBy: json['activated_by'] as String?,
@@ -1575,7 +1610,7 @@ class PriorityConfig {
     return {
       'id': id,
       'version': version,
-      'weights': weights,
+      'weights': weights?.toJson(),
       'is_active': isActive,
       'activated_at': activatedAt,
       'activated_by': activatedBy,
@@ -1759,7 +1794,7 @@ class VerifikatorQueueItem {
 }
 
 class VerifikatorCase {
-  final Map<String, dynamic>? report;
+  final VerifikatorCaseReport? report;
   final List<Map<String, dynamic>>? assessments;
   final List<Map<String, dynamic>>? visits;
   final List<Map<String, dynamic>>? audit;
@@ -1767,7 +1802,7 @@ class VerifikatorCase {
 
   factory VerifikatorCase.fromJson(Map<String, dynamic> json) {
     return VerifikatorCase(
-      report: json['report'] as Map<String, dynamic>?,
+      report: json['report'] != null ? VerifikatorCaseReport.fromJson(json['report'] as Map<String, dynamic>) : null,
       assessments: (json['assessments'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       visits: (json['visits'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       audit: (json['audit'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
@@ -1776,7 +1811,7 @@ class VerifikatorCase {
 
   Map<String, dynamic> toJson() {
     return {
-      'report': report,
+      'report': report?.toJson(),
       'assessments': assessments,
       'visits': visits,
       'audit': audit,
@@ -1824,11 +1859,11 @@ class OperatorCase {
   final int? severity;
   final List<String>? photoUrls;
   final DateTime? createdAt;
-  final Map<String, dynamic>? priorityScore;
+  final PriorityScore? priorityScore;
   final String? assignedTo;
   final DateTime? deadline;
-  final Map<String, dynamic>? category;
-  final Map<String, dynamic>? assignee;
+  final CategoryInfo? category;
+  final AssigneeInfo? assignee;
   OperatorCase({this.id, this.categoryId, this.title, this.description, this.lng, this.lat, this.status, this.severity, this.photoUrls, this.createdAt, this.priorityScore, this.assignedTo, this.deadline, this.category, this.assignee});
 
   factory OperatorCase.fromJson(Map<String, dynamic> json) {
@@ -1843,11 +1878,11 @@ class OperatorCase {
       severity: json['severity'] as int?,
       photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-      priorityScore: json['priority_score'] as Map<String, dynamic>?,
+      priorityScore: json['priority_score'] != null ? PriorityScore.fromJson(json['priority_score'] as Map<String, dynamic>) : null,
       assignedTo: json['assigned_to'] as String?,
       deadline: json['deadline'] != null ? DateTime.parse(json['deadline'] as String) : null,
-      category: json['category'] as Map<String, dynamic>?,
-      assignee: json['assignee'] as Map<String, dynamic>?,
+      category: json['category'] != null ? CategoryInfo.fromJson(json['category'] as Map<String, dynamic>) : null,
+      assignee: json['assignee'] != null ? AssigneeInfo.fromJson(json['assignee'] as Map<String, dynamic>) : null,
     );
   }
 
@@ -1863,11 +1898,123 @@ class OperatorCase {
       'severity': severity,
       'photo_urls': photoUrls,
       'created_at': createdAt?.toIso8601String(),
-      'priority_score': priorityScore,
+      'priority_score': priorityScore?.toJson(),
       'assigned_to': assignedTo,
       'deadline': deadline?.toIso8601String(),
-      'category': category,
-      'assignee': assignee,
+      'category': category?.toJson(),
+      'assignee': assignee?.toJson(),
+    };
+  }
+}
+
+class PriorityScore {
+  final double? computedScore;
+  final double? overrideScore;
+  final String? overrideReason;
+  final String? overrideBy;
+  final DateTime? overriddenAt;
+  final PriorityFactorBreakdown? factorBreakdown;
+  PriorityScore({this.computedScore, this.overrideScore, this.overrideReason, this.overrideBy, this.overriddenAt, this.factorBreakdown});
+
+  factory PriorityScore.fromJson(Map<String, dynamic> json) {
+    return PriorityScore(
+      computedScore: (json['computed_score'] as num?)?.toDouble(),
+      overrideScore: (json['override_score'] as num?)?.toDouble(),
+      overrideReason: json['override_reason'] as String?,
+      overrideBy: json['override_by'] as String?,
+      overriddenAt: json['overridden_at'] != null ? DateTime.parse(json['overridden_at'] as String) : null,
+      factorBreakdown: json['factor_breakdown'] != null ? PriorityFactorBreakdown.fromJson(json['factor_breakdown'] as Map<String, dynamic>) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'computed_score': computedScore,
+      'override_score': overrideScore,
+      'override_reason': overrideReason,
+      'override_by': overrideBy,
+      'overridden_at': overriddenAt?.toIso8601String(),
+      'factor_breakdown': factorBreakdown?.toJson(),
+    };
+  }
+}
+
+class PriorityFactorBreakdown {
+  final double? severity;
+  final double? population;
+  final double? vulnerability;
+  final double? sla;
+  PriorityFactorBreakdown({this.severity, this.population, this.vulnerability, this.sla});
+
+  factory PriorityFactorBreakdown.fromJson(Map<String, dynamic> json) {
+    return PriorityFactorBreakdown(
+      severity: (json['severity'] as num?)?.toDouble(),
+      population: (json['population'] as num?)?.toDouble(),
+      vulnerability: (json['vulnerability'] as num?)?.toDouble(),
+      sla: (json['sla'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'severity': severity,
+      'population': population,
+      'vulnerability': vulnerability,
+      'sla': sla,
+    };
+  }
+}
+
+class CategoryInfo {
+  final String? name;
+  CategoryInfo({this.name});
+
+  factory CategoryInfo.fromJson(Map<String, dynamic> json) {
+    return CategoryInfo(
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+    };
+  }
+}
+
+class AssigneeInfo {
+  final String? name;
+  AssigneeInfo({this.name});
+
+  factory AssigneeInfo.fromJson(Map<String, dynamic> json) {
+    return AssigneeInfo(
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+    };
+  }
+}
+
+class OperatorPage {
+  final List<OperatorCase>? items;
+  final Pagination? pagination;
+  OperatorPage({this.items, this.pagination});
+
+  factory OperatorPage.fromJson(Map<String, dynamic> json) {
+    return OperatorPage(
+      items: (json['items'] as List?)?.map((e) => OperatorCase.fromJson(e as Map<String, dynamic>)).toList(),
+      pagination: json['pagination'] != null ? Pagination.fromJson(json['pagination'] as Map<String, dynamic>) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'items': items,
+      'pagination': pagination?.toJson(),
     };
   }
 }
@@ -2212,7 +2359,7 @@ class ExecutiveTrend {
 
 class AdminDaerahDashboard {
   final int? total;
-  final Map<String, dynamic>? byStatus;
+  final StatusCounts? byStatus;
   final List<Map<String, dynamic>>? byCategory;
   final int? activeOperators;
   final int? activePetugas;
@@ -2226,7 +2373,7 @@ class AdminDaerahDashboard {
   factory AdminDaerahDashboard.fromJson(Map<String, dynamic> json) {
     return AdminDaerahDashboard(
       total: json['total'] as int?,
-      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byStatus: json['by_status'] != null ? StatusCounts.fromJson(json['by_status'] as Map<String, dynamic>) : null,
       byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       activeOperators: json['active_operators'] as int?,
       activePetugas: json['active_petugas'] as int?,
@@ -2241,7 +2388,7 @@ class AdminDaerahDashboard {
   Map<String, dynamic> toJson() {
     return {
       'total': total,
-      'by_status': byStatus,
+      'by_status': byStatus?.toJson(),
       'by_category': byCategory,
       'active_operators': activeOperators,
       'active_petugas': activePetugas,
@@ -2256,7 +2403,7 @@ class AdminDaerahDashboard {
 
 class PublicStats {
   final int? total;
-  final Map<String, dynamic>? byStatus;
+  final StatusCounts? byStatus;
   final List<Map<String, dynamic>>? byCategory;
   final int? recentReports_7d;
   final double? resolutionRate_7d;
@@ -2265,7 +2412,7 @@ class PublicStats {
   factory PublicStats.fromJson(Map<String, dynamic> json) {
     return PublicStats(
       total: json['total'] as int?,
-      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byStatus: json['by_status'] != null ? StatusCounts.fromJson(json['by_status'] as Map<String, dynamic>) : null,
       byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       recentReports_7d: json['recent_reports_7d'] as int?,
       resolutionRate_7d: (json['resolution_rate_7d'] as num?)?.toDouble(),
@@ -2275,7 +2422,7 @@ class PublicStats {
   Map<String, dynamic> toJson() {
     return {
       'total': total,
-      'by_status': byStatus,
+      'by_status': byStatus?.toJson(),
       'by_category': byCategory,
       'recent_reports_7d': recentReports_7d,
       'resolution_rate_7d': resolutionRate_7d,
@@ -2371,6 +2518,344 @@ class ExportGeojson {
     return {
       'type': type,
       'features': features,
+    };
+  }
+}
+
+class StatusCounts {
+  final int? draft;
+  final int? submitted;
+  final int? underReview;
+  final int? verified;
+  final int? assigned;
+  final int? inProgress;
+  final int? resolved;
+  final int? closed;
+  final int? rejected;
+  final int? duplicateMerged;
+  final int? needsSurvey;
+  StatusCounts({this.draft, this.submitted, this.underReview, this.verified, this.assigned, this.inProgress, this.resolved, this.closed, this.rejected, this.duplicateMerged, this.needsSurvey});
+
+  factory StatusCounts.fromJson(Map<String, dynamic> json) {
+    return StatusCounts(
+      draft: json['draft'] as int?,
+      submitted: json['submitted'] as int?,
+      underReview: json['under_review'] as int?,
+      verified: json['verified'] as int?,
+      assigned: json['assigned'] as int?,
+      inProgress: json['in_progress'] as int?,
+      resolved: json['resolved'] as int?,
+      closed: json['closed'] as int?,
+      rejected: json['rejected'] as int?,
+      duplicateMerged: json['duplicate_merged'] as int?,
+      needsSurvey: json['needs_survey'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'draft': draft,
+      'submitted': submitted,
+      'under_review': underReview,
+      'verified': verified,
+      'assigned': assigned,
+      'in_progress': inProgress,
+      'resolved': resolved,
+      'closed': closed,
+      'rejected': rejected,
+      'duplicate_merged': duplicateMerged,
+      'needs_survey': needsSurvey,
+    };
+  }
+}
+
+class StatusCountsOperator {
+  final int? draft;
+  final int? submitted;
+  final int? underReview;
+  final int? verified;
+  final int? assigned;
+  final int? inProgress;
+  final int? resolved;
+  final int? closed;
+  final int? rejected;
+  final int? duplicateMerged;
+  final int? needsSurvey;
+  final int? merged;
+  final int? separated;
+  final int? escalated;
+  StatusCountsOperator({this.draft, this.submitted, this.underReview, this.verified, this.assigned, this.inProgress, this.resolved, this.closed, this.rejected, this.duplicateMerged, this.needsSurvey, this.merged, this.separated, this.escalated});
+
+  factory StatusCountsOperator.fromJson(Map<String, dynamic> json) {
+    return StatusCountsOperator(
+      draft: json['draft'] as int?,
+      submitted: json['submitted'] as int?,
+      underReview: json['under_review'] as int?,
+      verified: json['verified'] as int?,
+      assigned: json['assigned'] as int?,
+      inProgress: json['in_progress'] as int?,
+      resolved: json['resolved'] as int?,
+      closed: json['closed'] as int?,
+      rejected: json['rejected'] as int?,
+      duplicateMerged: json['duplicate_merged'] as int?,
+      needsSurvey: json['needs_survey'] as int?,
+      merged: json['merged'] as int?,
+      separated: json['separated'] as int?,
+      escalated: json['escalated'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'draft': draft,
+      'submitted': submitted,
+      'under_review': underReview,
+      'verified': verified,
+      'assigned': assigned,
+      'in_progress': inProgress,
+      'resolved': resolved,
+      'closed': closed,
+      'rejected': rejected,
+      'duplicate_merged': duplicateMerged,
+      'needs_survey': needsSurvey,
+      'merged': merged,
+      'separated': separated,
+      'escalated': escalated,
+    };
+  }
+}
+
+class SeverityCounts {
+  final int? low;
+  final int? medium;
+  final int? high;
+  final int? critical;
+  SeverityCounts({this.low, this.medium, this.high, this.critical});
+
+  factory SeverityCounts.fromJson(Map<String, dynamic> json) {
+    return SeverityCounts(
+      low: json['low'] as int?,
+      medium: json['medium'] as int?,
+      high: json['high'] as int?,
+      critical: json['critical'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'low': low,
+      'medium': medium,
+      'high': high,
+      'critical': critical,
+    };
+  }
+}
+
+class PriorityWeights {
+  final double? severity;
+  final double? impact;
+  final double? vulnerability;
+  final double? sla;
+  PriorityWeights({this.severity, this.impact, this.vulnerability, this.sla});
+
+  factory PriorityWeights.fromJson(Map<String, dynamic> json) {
+    return PriorityWeights(
+      severity: (json['severity'] as num?)?.toDouble(),
+      impact: (json['impact'] as num?)?.toDouble(),
+      vulnerability: (json['vulnerability'] as num?)?.toDouble(),
+      sla: (json['sla'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'severity': severity,
+      'impact': impact,
+      'vulnerability': vulnerability,
+      'sla': sla,
+    };
+  }
+}
+
+class GpsSchema {
+  final double? lat;
+  final double? lng;
+  final double? accuracyM;
+  GpsSchema({this.lat, this.lng, this.accuracyM});
+
+  factory GpsSchema.fromJson(Map<String, dynamic> json) {
+    return GpsSchema(
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      accuracyM: (json['accuracy_m'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'lat': lat,
+      'lng': lng,
+      'accuracy_m': accuracyM,
+    };
+  }
+}
+
+class ExifData {
+  final bool? valid;
+  final String? reason;
+  final Map<String, dynamic>? gps;
+  final String? timestamp;
+  final String? camera;
+  final String? software;
+  ExifData({this.valid, this.reason, this.gps, this.timestamp, this.camera, this.software});
+
+  factory ExifData.fromJson(Map<String, dynamic> json) {
+    return ExifData(
+      valid: json['valid'] as bool?,
+      reason: json['reason'] as String?,
+      gps: json['gps'] as Map<String, dynamic>?,
+      timestamp: json['timestamp'] as String?,
+      camera: json['camera'] as String?,
+      software: json['software'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'valid': valid,
+      'reason': reason,
+      'gps': gps,
+      'timestamp': timestamp,
+      'camera': camera,
+      'software': software,
+    };
+  }
+}
+
+class ErrorBody {
+  final String code;
+  final String message;
+  ErrorBody({required this.code, required this.message});
+
+  factory ErrorBody.fromJson(Map<String, dynamic> json) {
+    return ErrorBody(
+      code: json['code'] as String,
+      message: json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'message': message,
+    };
+  }
+}
+
+class ErrorDetails {
+  final Map<String, dynamic>? fieldErrors;
+  ErrorDetails({this.fieldErrors});
+
+  factory ErrorDetails.fromJson(Map<String, dynamic> json) {
+    return ErrorDetails(
+      fieldErrors: json['fieldErrors'] as Map<String, dynamic>?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fieldErrors': fieldErrors,
+    };
+  }
+}
+
+class ChecklistItem {
+  final String? item;
+  final bool? checked;
+  final String? itemId;
+  final String? label;
+  final String? photoUrl;
+  final String? notes;
+  ChecklistItem({this.item, this.checked, this.itemId, this.label, this.photoUrl, this.notes});
+
+  factory ChecklistItem.fromJson(Map<String, dynamic> json) {
+    return ChecklistItem(
+      item: json['item'] as String?,
+      checked: json['checked'] as bool?,
+      itemId: json['item_id'] as String?,
+      label: json['label'] as String?,
+      photoUrl: json['photo_url'] as String?,
+      notes: json['notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'item': item,
+      'checked': checked,
+      'item_id': itemId,
+      'label': label,
+      'photo_url': photoUrl,
+      'notes': notes,
+    };
+  }
+}
+
+class VerifikatorCaseReport {
+  final String? id;
+  final String? categoryId;
+  final String? description;
+  final double? lng;
+  final double? lat;
+  final String? status;
+  final int? severity;
+  final List<String>? photoUrls;
+  final String? rtRwVerdict;
+  final String? rtRwReason;
+  final DateTime? rtRwAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final String? title;
+  final String? address;
+  VerifikatorCaseReport({this.id, this.categoryId, this.description, this.lng, this.lat, this.status, this.severity, this.photoUrls, this.rtRwVerdict, this.rtRwReason, this.rtRwAt, this.createdAt, this.updatedAt, this.title, this.address});
+
+  factory VerifikatorCaseReport.fromJson(Map<String, dynamic> json) {
+    return VerifikatorCaseReport(
+      id: json['id'] as String?,
+      categoryId: json['category_id'] as String?,
+      description: json['description'] as String?,
+      lng: (json['lng'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      status: json['status'] as String?,
+      severity: json['severity'] as int?,
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      rtRwVerdict: json['rt_rw_verdict'] as String?,
+      rtRwReason: json['rt_rw_reason'] as String?,
+      rtRwAt: json['rt_rw_at'] != null ? DateTime.parse(json['rt_rw_at'] as String) : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      title: json['title'] as String?,
+      address: json['address'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category_id': categoryId,
+      'description': description,
+      'lng': lng,
+      'lat': lat,
+      'status': status,
+      'severity': severity,
+      'photo_urls': photoUrls,
+      'rt_rw_verdict': rtRwVerdict,
+      'rt_rw_reason': rtRwReason,
+      'rt_rw_at': rtRwAt?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'title': title,
+      'address': address,
     };
   }
 }
