@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../../api/types.g.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
+import '../../../widgets/priority_score_card.dart';
 
 class OperatorCaseListScreen extends ConsumerStatefulWidget {
   const OperatorCaseListScreen({super.key});
@@ -16,7 +18,7 @@ class OperatorCaseListScreen extends ConsumerStatefulWidget {
 
 class _OperatorCaseListScreenState
     extends ConsumerState<OperatorCaseListScreen> {
-  List<Map<String, dynamic>> _cases = [];
+  List<OperatorCase> _cases = [];
   bool _loading = true;
   bool _exporting = false;
   String? _error;
@@ -37,9 +39,8 @@ class _OperatorCaseListScreenState
     try {
       final client = ref.read(apiClientProvider);
       final data = await client.getOperatorCases();
-      final items = data['items'] as List? ?? [];
       setState(() {
-        _cases = items.cast<Map<String, dynamic>>();
+        _cases = data.items;
         _loading = false;
       });
     } catch (e) {
@@ -77,26 +78,22 @@ class _OperatorCaseListScreenState
     }
   }
 
-  List<Map<String, dynamic>> get _filteredAndSorted {
+  List<OperatorCase> get _filteredAndSorted {
     var result = _cases;
     if (_statusFilter != 'all') {
       result = result
-          .where((c) => c['status']?.toString().toLowerCase() == _statusFilter)
+          .where((c) => c.status?.toString().toLowerCase() == _statusFilter)
           .toList();
     }
     switch (_sortBy) {
       case 'priority':
-        result.sort(
-          (a, b) => (b['severity'] ?? 0).compareTo(a['severity'] ?? 0),
-        );
+        result.sort((a, b) => (b.severity ?? 0).compareTo(a.severity ?? 0));
         break;
       case 'date':
       default:
         result.sort((a, b) {
-          final aDate =
-              DateTime.tryParse(a['created_at'] ?? '') ?? DateTime.now();
-          final bDate =
-              DateTime.tryParse(b['created_at'] ?? '') ?? DateTime.now();
+          final aDate = a.createdAt ?? DateTime.now();
+          final bDate = b.createdAt ?? DateTime.now();
           return bDate.compareTo(aDate);
         });
     }
@@ -211,11 +208,11 @@ class _OperatorCaseListScreenState
 }
 
 class _CaseCard extends StatelessWidget {
-  final Map<String, dynamic> caseData;
+  final OperatorCase caseData;
   const _CaseCard({required this.caseData});
 
   Color get _statusColor {
-    switch ((caseData['status'] ?? '').toString().toLowerCase()) {
+    switch ((caseData.status ?? '').toString().toLowerCase()) {
       case 'submitted':
         return SigapColors.perluTindakan;
       case 'under_review':
@@ -235,8 +232,8 @@ class _CaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final id = caseData['id'] ?? '-';
-    final desc = caseData['description'] ?? '-';
+    final id = caseData.id ?? '-';
+    final desc = caseData.description ?? '-';
     final truncated = desc.length > 80 ? '${desc.substring(0, 80)}...' : desc;
 
     return Card(
@@ -275,7 +272,7 @@ class _CaseCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(SigapRadius.sm),
                     ),
                     child: Text(
-                      caseData['status'] ?? '-',
+                      caseData.status ?? '-',
                       style: TextStyle(
                         color: _statusColor,
                         fontSize: 11,
@@ -296,7 +293,7 @@ class _CaseCard extends StatelessWidget {
               const SizedBox(height: SigapSpacing.sm),
               Row(
                 children: [
-                  if (caseData['severity'] != null)
+                  if (caseData.severity != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: SigapSpacing.sm,
@@ -307,7 +304,7 @@ class _CaseCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(SigapRadius.sm),
                       ),
                       child: Text(
-                        'Prioritas: ${caseData['severity']}',
+                        'Prioritas: ${caseData.severity}',
                         style: const TextStyle(
                           color: SigapColors.primary,
                           fontSize: 11,
@@ -315,6 +312,8 @@ class _CaseCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  // Priority score badge
+                  _PriorityBadge(caseData: caseData),
                   const Spacer(),
                   const Icon(Icons.chevron_right, size: 20),
                 ],
@@ -343,6 +342,59 @@ class _ErrorRetry extends StatelessWidget {
           Text('Gagal memuat: $error'),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriorityBadge extends StatelessWidget {
+  final OperatorCase caseData;
+  const _PriorityBadge({required this.caseData});
+
+  double get _score {
+    // Use priorityScore if available
+    final ps = caseData.priorityScore;
+    if (ps != null) return ps;
+    // Fallback to old severity field (1-5 scale normalized to 0-100)
+    final severity = caseData.severity;
+    if (severity != null) {
+      return ((severity - 1) / 4 * 100).clamp(0, 100).toDouble();
+    }
+    return 50.0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = PriorityScoreCard.scoreColor(_score);
+    return Container(
+      margin: const EdgeInsets.only(left: SigapSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SigapSpacing.sm,
+        vertical: SigapSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(SigapRadius.sm),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${_score.round()}',
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

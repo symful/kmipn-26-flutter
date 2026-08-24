@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../api/types.g.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 
@@ -20,7 +21,7 @@ class _VerifikatorQueueScreenState
   // Filter state
   String? _statusFilter;
   String? _kategoriFilter;
-  List<Map<String, dynamic>> _entries = [];
+  List<VerifikatorQueueItem> _entries = [];
   bool _loading = true;
 
   @override
@@ -41,8 +42,7 @@ class _VerifikatorQueueScreenState
         limit: 100,
       );
       setState(() {
-        _entries =
-            (result['items'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+        _entries = result.items;
         _loading = false;
       });
     } catch (e) {
@@ -141,9 +141,9 @@ class _VerifikatorQueueScreenState
                         return _QueueEntryCard(
                           entry: entry,
                           onTap: () =>
-                              context.push('/verifikator/cases/${entry['id']}'),
-                          onAccept: () => _acceptCase(entry['id'] as String),
-                          onReject: () => _rejectCase(entry['id'] as String),
+                              context.push('/verifikator/cases/${entry.id}'),
+                          onAccept: () => _acceptCase(entry.id!),
+                          onReject: () => _rejectCase(entry.id!),
                         );
                       },
                     ),
@@ -202,7 +202,7 @@ class _VerifikatorQueueScreenState
 }
 
 class _QueueEntryCard extends StatelessWidget {
-  final Map<String, dynamic> entry;
+  final VerifikatorQueueItem entry;
   final VoidCallback onTap;
   final VoidCallback onAccept;
   final VoidCallback onReject;
@@ -216,15 +216,10 @@ class _QueueEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryName =
-        (entry['category'] is Map
-                ? (entry['category'] as Map)['name']
-                : entry['category'])
-            as String? ??
-        '-';
-    final description = entry['description'] as String? ?? '';
-    final status = entry['status'] as String? ?? 'pending';
-    final id = entry['id'] as String? ?? '';
+    final categoryName = entry.categoryId ?? '-';
+    final description = entry.description ?? '';
+    final status = entry.status ?? 'pending';
+    final id = entry.id ?? '';
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),

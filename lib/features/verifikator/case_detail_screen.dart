@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../api/types.g.dart';
 import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
@@ -28,9 +29,9 @@ class VerifikasiCaseDetailScreen extends ConsumerStatefulWidget {
 class _VerifikasiCaseDetailScreenState
     extends ConsumerState<VerifikasiCaseDetailScreen> {
   static final _logger = Logger('VerifikasiCaseDetailScreen');
-  Map<String, dynamic>? _caseData;
+  VerifikatorCase? _caseData;
   Map<String, dynamic>? _assessmentData;
-  Map<String, dynamic>? _timelineData;
+  TimelineEnvelope? _timelineData;
   bool _loading = true;
   String? _error;
   bool _assessmentError = false; // Track if assessment fetch failed
@@ -79,16 +80,16 @@ class _VerifikasiCaseDetailScreenState
         assessmentError = true;
         assessmentData = null;
       }
-      Map<String, dynamic>? timelineData;
+      TimelineEnvelope? timelineData;
       try {
         final timelineResult = await client.getReportTimeline(widget.caseId);
-        timelineData = timelineResult.toJson();
+        timelineData = timelineResult;
       } catch (e, s) {
         _logger.warning('Error fetching timeline', e, s);
         timelineData = null;
       }
       setState(() {
-        _caseData = caseData.toJson();
+        _caseData = caseData;
         _assessmentData = assessmentData;
         _assessmentError = assessmentError;
         _timelineData = timelineData;
@@ -327,17 +328,17 @@ class _VerifikasiCaseDetailScreenState
     }
 
     final caseData = _caseData!;
-    final photos = (caseData['photo_urls'] as List?)?.cast<String>() ?? [];
-    final categoryName =
-        (caseData['category'] as Map<String, dynamic>?)?['name'] as String? ??
-        caseData['category_id'] as String? ??
-        '-';
-    final status = caseData['status'] as String? ?? '-';
-    final description = caseData['description'] as String? ?? '-';
-    final title = caseData['title'] as String? ?? '-';
-    final createdAt = caseData['created_at'] as String?;
-    final lat = (caseData['lat'] as num?)?.toDouble();
-    final lng = (caseData['lng'] as num?)?.toDouble();
+    final report = caseData.report;
+    final photos = report?['photo_urls'] != null
+        ? (report!['photo_urls'] as List).cast<String>()
+        : <String>[];
+    final categoryName = '-';
+    final status = (report?['status'] as String?) ?? '-';
+    final description = (report?['description'] as String?) ?? '-';
+    final title = '-';
+    final createdAt = report?['created_at'] as String?;
+    final lat = (report?['lat'] as num?)?.toDouble();
+    final lng = (report?['lng'] as num?)?.toDouble();
 
     return Scaffold(
       appBar: AppBar(title: const Text(Strings.detailKasusVerifikasi)),
@@ -527,7 +528,7 @@ class _VerifikasiCaseDetailScreenState
 
             // Timeline
             if (_timelineData != null &&
-                (_timelineData!['events'] as List?)?.isNotEmpty == true) ...[
+                _timelineData!.events.isNotEmpty == true) ...[
               _SectionHeader(title: 'Timeline'),
               _TimelineCard(data: _timelineData!),
               const SizedBox(height: SigapSpacing.lg),
@@ -878,13 +879,12 @@ class _PhotoFullScreenState extends State<_PhotoFullScreen> {
 }
 
 class _TimelineCard extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final TimelineEnvelope data;
   const _TimelineCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
-    final events =
-        (data['events'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final events = data.events;
 
     return Container(
       padding: const EdgeInsets.all(SigapSpacing.md),

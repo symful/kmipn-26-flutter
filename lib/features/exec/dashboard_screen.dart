@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../api/types.g.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../utils/logger.dart';
@@ -20,7 +21,7 @@ class ExecDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
-  Map<String, dynamic>? _dashboard;
+  ExecutiveDashboard? _dashboard;
   Map<String, dynamic>? _regionalStats;
   Map<String, dynamic>? _trendData;
   String _trendPeriod = 'monthly';
@@ -51,7 +52,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
     try {
       final dashboard = await client.getExecutiveDashboard();
       if (mounted) {
-        setState(() => _dashboard = dashboard.toJson());
+        setState(() => _dashboard = dashboard);
       }
     } catch (e) {
       if (mounted) {
@@ -211,7 +212,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
                       const SizedBox.shrink()
                     else if (_dashboard != null)
                       _CategoryDistribution(
-                        categoryData: _dashboard!['by_category'] as List? ?? [],
+                        categoryData: _dashboard!.byCategory ?? [],
                       ),
                     const SizedBox(height: SigapSpacing.xl),
 
@@ -256,29 +257,25 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
 
       // Summary Stats
       buffer.writeln('=== SUMMARY ===');
-      buffer.writeln('Total Reports,${_dashboard!['total']}');
-      buffer.writeln('SLA Breached,${_dashboard!['sla_breached']}');
-      buffer.writeln('SLA At Risk,${_dashboard!['sla_at_risk']}');
+      buffer.writeln('Total Reports,${_dashboard!.total}');
+      buffer.writeln('SLA Breached,${_dashboard!.slaBreached}');
+      buffer.writeln('SLA At Risk,${_dashboard!.slaAtRisk}');
       buffer.writeln(
-        'Recent Submissions (7 days),${_dashboard!['recent_submissions']}',
+        'Recent Submissions (7 days),${_dashboard!.recentSubmissions}',
       );
+      buffer.writeln('Resolved This Month,${_dashboard!.resolvedThisMonth}');
       buffer.writeln(
-        'Resolved This Month,${_dashboard!['resolved_this_month']}',
+        'Avg Verification Days,${_dashboard!.avgVerificationDays}',
       );
-      buffer.writeln(
-        'Avg Verification Days,${_dashboard!['avg_verification_days']}',
-      );
-      buffer.writeln(
-        'Avg Resolution Days,${_dashboard!['avg_resolution_days']}',
-      );
-      buffer.writeln('Active Operators,${_dashboard!['active_operators']}');
-      buffer.writeln('Active Petugas,${_dashboard!['active_petugas']}');
-      buffer.writeln('Total Wilayah,${_dashboard!['total_wilayah']}');
+      buffer.writeln('Avg Resolution Days,${_dashboard!.avgResolutionDays}');
+      buffer.writeln('Active Operators,${_dashboard!.activeOperators}');
+      buffer.writeln('Active Petugas,${_dashboard!.activePetugas}');
+      buffer.writeln('Total Wilayah,${_dashboard!.totalWilayah}');
       buffer.writeln('');
 
       // By Status
       buffer.writeln('=== STATUS BREAKDOWN ===');
-      final byStatus = _dashboard!['by_status'] as Map<String, dynamic>? ?? {};
+      final byStatus = _dashboard!.byStatus ?? {};
       for (final entry in byStatus.entries) {
         buffer.writeln('${entry.key},${entry.value}');
       }
@@ -286,7 +283,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
 
       // By Category
       buffer.writeln('=== CATEGORY BREAKDOWN ===');
-      final byCategory = _dashboard!['by_category'] as List? ?? [];
+      final byCategory = _dashboard!.byCategory ?? [];
       buffer.writeln('Category Name,Count');
       for (final cat in byCategory) {
         buffer.writeln('${cat['name']},${cat['count']}');
@@ -505,20 +502,20 @@ class _PeriodChip extends StatelessWidget {
 }
 
 class _SummaryCards extends StatelessWidget {
-  final Map<String, dynamic> stats;
+  final ExecutiveDashboard stats;
   const _SummaryCards({required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    final total = stats['total'] as int? ?? 0;
-    final slaBreached = stats['sla_breached'] as int? ?? 0;
-    final slaAtRisk = stats['sla_at_risk'] as int? ?? 0;
+    final total = stats.total ?? 0;
+    final slaBreached = stats.slaBreached ?? 0;
+    final slaAtRisk = stats.slaAtRisk ?? 0;
     final backlog = slaBreached + slaAtRisk;
     final slaCompliance = total > 0
         ? ((total - slaBreached) / total * 100)
         : 100.0;
-    final operators = stats['active_operators'] as int? ?? 0;
-    final petugas = stats['active_petugas'] as int? ?? 0;
+    final operators = stats.activeOperators ?? 0;
+    final petugas = stats.activePetugas ?? 0;
 
     return Column(
       children: [
@@ -599,7 +596,8 @@ class _SummaryCards extends StatelessWidget {
             Expanded(
               child: _MiniStat(
                 label: 'Rata-rata Verifikasi',
-                value: '${stats['avg_verification_days'] ?? "-"} hari',
+                value:
+                    '${stats.avgVerificationDays?.toStringAsFixed(1) ?? "-"} hari',
                 icon: Icons.timer,
               ),
             ),
@@ -607,7 +605,8 @@ class _SummaryCards extends StatelessWidget {
             Expanded(
               child: _MiniStat(
                 label: 'Rata-rata Resolusi',
-                value: '${stats['avg_resolution_days'] ?? "-"} hari',
+                value:
+                    '${stats.avgResolutionDays?.toStringAsFixed(1) ?? "-"} hari',
                 icon: Icons.check_circle,
               ),
             ),
@@ -1240,7 +1239,7 @@ class _WilayahCategoryMatrix extends StatelessWidget {
 }
 
 class _DrillDownSection extends StatelessWidget {
-  final Map<String, dynamic> stats;
+  final ExecutiveDashboard stats;
   final Map<String, dynamic> regionalStats;
   const _DrillDownSection({required this.stats, required this.regionalStats});
 
@@ -1264,7 +1263,7 @@ class _DrillDownSection extends StatelessWidget {
               child: _DrillDownCard(
                 icon: Icons.list_alt,
                 label: 'Semua Kasus',
-                subtitle: '${stats['total']} total',
+                subtitle: '${stats.total} total',
                 color: AppColors.primary,
                 onTap: () => context.push('/operator/cases'),
               ),
@@ -1275,7 +1274,7 @@ class _DrillDownSection extends StatelessWidget {
                 icon: Icons.pending_actions,
                 label: 'Menunggu',
                 subtitle:
-                    '${(stats['by_status']?['submitted'] as int? ?? 0) + (stats['by_status']?['under_review'] as int? ?? 0)} kasus',
+                    '${((stats.byStatus?['submitted'] as int?) ?? 0) + ((stats.byStatus?['under_review'] as int?) ?? 0)} kasus',
                 color: AppColors.warning,
                 onTap: () => context.push('/operator/cases?status=pending'),
               ),
@@ -1290,7 +1289,7 @@ class _DrillDownSection extends StatelessWidget {
                 icon: Icons.engineering,
                 label: 'Dalam Proses',
                 subtitle:
-                    '${(stats['by_status']?['in_progress'] as int? ?? 0) + (stats['by_status']?['assigned'] as int? ?? 0) + (stats['by_status']?['verified'] as int? ?? 0)} kasus',
+                    '${((stats.byStatus?['in_progress'] as int?) ?? 0) + ((stats.byStatus?['assigned'] as int?) ?? 0) + ((stats.byStatus?['verified'] as int?) ?? 0)} kasus',
                 color: AppColors.info,
                 onTap: () => context.push('/operator/cases?status=in_progress'),
               ),
@@ -1301,7 +1300,7 @@ class _DrillDownSection extends StatelessWidget {
                 icon: Icons.check_circle,
                 label: 'Selesai',
                 subtitle:
-                    '${(stats['by_status']?['resolved'] as int? ?? 0) + (stats['by_status']?['closed'] as int? ?? 0)} kasus',
+                    '${((stats.byStatus?['resolved'] as int?) ?? 0) + ((stats.byStatus?['closed'] as int?) ?? 0)} kasus',
                 color: AppColors.primary,
                 onTap: () => context.push('/operator/cases?status=resolved'),
               ),
