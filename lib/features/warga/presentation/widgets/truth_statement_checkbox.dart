@@ -34,11 +34,11 @@ class TruthStatementCheckbox extends StatelessWidget {
             width: 18,
             height: 18,
             decoration: BoxDecoration(
-              color: value ? AppColors.primary : Colors.transparent,
+              color: value ? SigapColors.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(5), // Design: 5px
               border: value
                   ? null
-                  : Border.all(color: AppColors.borderSoft, width: 1.5),
+                  : Border.all(color: SigapColors.borderSoft, width: 1.5),
             ),
             alignment: Alignment.center,
             child: value
@@ -52,9 +52,9 @@ class TruthStatementCheckbox extends StatelessWidget {
             child: Text(
               'Saya menyatakan informasi ini benar sesuai kondisi yang saya lihat.',
               style: TextStyle(
-                fontSize: AppTypography.size12,
+                fontSize: SigapTypography.size12,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
                 height: 1.4,
               ),
             ),

@@ -710,13 +710,13 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.md,
-          horizontal: AppSpacing.sm,
+          vertical: SigapSpacing.md,
+          horizontal: SigapSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.borderCard),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+          border: Border.all(color: SigapColors.borderCard),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -725,7 +725,7 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
             Text(
               '$count',
               style: TextStyle(
-                fontSize: AppTypography.size22,
+                fontSize: SigapTypography.size22,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -734,9 +734,9 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
             Text(
               label,
               style: const TextStyle(
-                fontSize: AppTypography.size10,
-                color: AppColors.textTertiary,
-                height: AppTypography.lineHeight125,
+                fontSize: SigapTypography.size10,
+                color: SigapColors.textTertiary,
+                height: SigapTypography.lineHeight125,
               ),
             ),
           ],
@@ -756,9 +756,9 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
       margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
       padding: const EdgeInsets.all(SigapSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Row(
         children: [
@@ -769,9 +769,9 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: AppTypography.size14,
+                    fontSize: SigapTypography.size14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -781,8 +781,8 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
                   Text(
                     category,
                     style: const TextStyle(
-                      fontSize: AppTypography.size12,
-                      color: AppColors.textTertiary,
+                      fontSize: SigapTypography.size12,
+                      color: SigapColors.textTertiary,
                     ),
                   ),
                 ],
@@ -791,17 +791,17 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
           ),
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
+              horizontal: SigapSpacing.sm,
+              vertical: SigapSpacing.xs,
             ),
             decoration: BoxDecoration(
               color: _getStatusColor(status).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppRadius.pill),
+              borderRadius: BorderRadius.circular(SigapRadius.pill),
             ),
             child: Text(
               _getStatusLabel(status),
               style: TextStyle(
-                fontSize: AppTypography.size11,
+                fontSize: SigapTypography.size11,
                 fontWeight: FontWeight.w600,
                 color: _getStatusColor(status),
               ),
@@ -827,7 +827,7 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
       case 'rejected':
         return const Color(0xFFC0392B);
       default:
-        return AppColors.textTertiary;
+        return SigapColors.textTertiary;
     }
   }
 

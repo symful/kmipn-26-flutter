@@ -44,12 +44,12 @@ class S02ActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.x12,
+        horizontal: SigapSpacing.md,
+        vertical: SigapSpacing.x12,
       ),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(top: BorderSide(color: AppColors.borderCard)),
+        color: SigapColors.bgCard,
+        border: Border(top: BorderSide(color: SigapColors.borderCard)),
       ),
       child: SafeArea(
         top: false,
@@ -57,13 +57,13 @@ class S02ActionBar extends StatelessWidget {
           children: [
             // Tolak button - outline/danger style
             Expanded(child: _TolakButton(onPressed: onTolak)),
-            const SizedBox(width: AppSpacing.x7),
+            const SizedBox(width: SigapSpacing.x7),
 
             // Minta Clarifikasi button - secondary style
             Expanded(
               child: _MintaClarifikasiButton(onPressed: onMintaClarifikasi),
             ),
-            const SizedBox(width: AppSpacing.x7),
+            const SizedBox(width: SigapSpacing.x7),
 
             // Terima Tugas button - primary filled style
             Expanded(child: _TerimaTugasButton(onPressed: onTerima)),
@@ -85,17 +85,17 @@ class _TolakButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.dangerTextStrong,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.x12),
-        side: const BorderSide(color: AppColors.dangerBorder),
+        foregroundColor: SigapColors.dangerTextStrong,
+        padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x12),
+        side: const BorderSide(color: SigapColors.dangerBorder),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(SigapRadius.md),
         ),
       ),
       child: Text(
         Strings.tolak,
         style: const TextStyle(
-          fontSize: AppTypography.size13,
+          fontSize: SigapTypography.size13,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -114,17 +114,17 @@ class _MintaClarifikasiButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textSecondary,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.x12),
-        side: const BorderSide(color: AppColors.borderCard),
+        foregroundColor: SigapColors.textSecondary,
+        padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x12),
+        side: const BorderSide(color: SigapColors.borderCard),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(SigapRadius.md),
         ),
       ),
       child: Text(
         'Minta Clarifikasi',
         style: const TextStyle(
-          fontSize: AppTypography.size13,
+          fontSize: SigapTypography.size13,
           fontWeight: FontWeight.w600,
         ),
         overflow: TextOverflow.ellipsis,
@@ -144,18 +144,18 @@ class _TerimaTugasButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
+        backgroundColor: SigapColors.primary,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.x12),
+        padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(SigapRadius.md),
         ),
         elevation: 0,
       ),
       child: Text(
         'Terima Tugas',
         style: const TextStyle(
-          fontSize: AppTypography.size13,
+          fontSize: SigapTypography.size13,
           fontWeight: FontWeight.w600,
         ),
       ),

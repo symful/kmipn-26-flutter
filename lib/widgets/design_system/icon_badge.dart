@@ -13,8 +13,8 @@ class IconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        color: SigapColors.primaryLight,
+        borderRadius: BorderRadius.circular(SigapRadius.sm),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -23,7 +23,7 @@ class IconBadge extends StatelessWidget {
           fontFamily: 'IBM Plex Mono',
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: AppColors.primaryDark,
+          color: SigapColors.primaryDark,
         ),
       ),
     );

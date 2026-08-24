@@ -77,9 +77,9 @@ class BottomNav5 extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: SigapColors.primary,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: AppShadows.fab,
+              boxShadow: SigapShadows.fab,
             ),
             child: const _PlusIcon(),
           ),
@@ -89,7 +89,7 @@ class BottomNav5 extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: SigapColors.primary,
             ),
           ),
         ],
@@ -161,7 +161,7 @@ class _WargaNavItem extends StatelessWidget {
               fontWeight: isSelected
                   ? FontWeight.w600
                   : FontWeight.w400, // w400 per M-05 inactive spec
-              color: isSelected ? AppColors.primary : AppColors.textTertiary,
+              color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
             ),
           ),
         ],
@@ -170,7 +170,7 @@ class _WargaNavItem extends StatelessWidget {
   }
 
   Widget _buildIcon(bool isSelected) {
-    final color = isSelected ? AppColors.primary : AppColors.textTertiary;
+    final color = isSelected ? SigapColors.primary : SigapColors.textTertiary;
 
     switch (index) {
       case 0: // Beranda - rounded square
@@ -228,7 +228,7 @@ class _SurveyorNavItem extends StatelessWidget {
           Icon(
             icon,
             size: 24,
-            color: isSelected ? AppColors.primary : AppColors.textTertiary,
+            color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
           ),
           const SizedBox(height: 4),
           Text(
@@ -236,7 +236,7 @@ class _SurveyorNavItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected ? AppColors.primary : AppColors.textTertiary,
+              color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
             ),
           ),
         ],

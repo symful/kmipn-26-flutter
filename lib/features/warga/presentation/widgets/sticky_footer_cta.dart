@@ -34,13 +34,13 @@ class StickyFooterCTA extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(top: BorderSide(color: AppColors.borderCard, width: 1)),
+        color: SigapColors.bgCard,
+        border: Border(top: BorderSide(color: SigapColors.borderCard, width: 1)),
       ),
       padding: const EdgeInsets.only(
-        left: AppSpacing.x12,
-        right: AppSpacing.x12,
-        top: AppSpacing.x12,
+        left: SigapSpacing.x12,
+        right: SigapSpacing.x12,
+        top: SigapSpacing.x12,
         bottom: 22, // 22px bottom padding per design
       ),
       child: Column(
@@ -48,12 +48,12 @@ class StickyFooterCTA extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Gap between elements: 8px
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: SigapSpacing.sm),
 
           // Offline notice: amber dot + warning text
           if (isOffline) ...[
             _OfflineNoticeRow(),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: SigapSpacing.sm),
           ],
 
           // Primary CTA button
@@ -84,7 +84,7 @@ class _OfflineNoticeRow extends StatelessWidget {
           width: 7,
           height: 7,
           decoration: const BoxDecoration(
-            color: AppColors.warning,
+            color: SigapColors.warning,
             shape: BoxShape.circle,
           ),
         ),
@@ -93,8 +93,8 @@ class _OfflineNoticeRow extends StatelessWidget {
         Text(
           'Tidak ada koneksi — laporan akan masuk antrean.',
           style: const TextStyle(
-            fontSize: AppTypography.size11_5,
-            color: AppColors.warningText,
+            fontSize: SigapTypography.size11_5,
+            color: SigapColors.warningText,
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -123,10 +123,10 @@ class _SubmitButton extends StatelessWidget {
       onTap: isLoading ? null : onPressed,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.x15),
+        padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x15),
         decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(AppRadius.x12),
+          color: SigapColors.primary,
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
         ),
         alignment: Alignment.center,
         child: isLoading
@@ -141,7 +141,7 @@ class _SubmitButton extends StatelessWidget {
             : Text(
                 label,
                 style: const TextStyle(
-                  fontSize: AppTypography.size15,
+                  fontSize: SigapTypography.size15,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),

@@ -109,19 +109,19 @@ extension VerifikatorStatusExt on String {
       case 'pending':
       case 'submitted':
       case 'under_review':
-        return AppColors.warning;
+        return SigapColors.warning;
       case 'in_progress':
       case 'processing':
-        return AppColors.info;
+        return SigapColors.info;
       case 'verified':
       case 'completed':
-        return AppColors.primary;
+        return SigapColors.primary;
       case 'rejected':
-        return AppColors.danger;
+        return SigapColors.danger;
       case 'duplicate_merged':
-        return AppColors.textTertiary;
+        return SigapColors.textTertiary;
       default:
-        return AppColors.textTertiary;
+        return SigapColors.textTertiary;
     }
   }
 }
@@ -218,13 +218,13 @@ class _VerifikatorKpiCard extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.md,
-          horizontal: AppSpacing.sm,
+          vertical: SigapSpacing.md,
+          horizontal: SigapSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.borderCard),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+          border: Border.all(color: SigapColors.borderCard),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +233,7 @@ class _VerifikatorKpiCard extends StatelessWidget {
             Text(
               '$count',
               style: TextStyle(
-                fontSize: AppTypography.size22,
+                fontSize: SigapTypography.size22,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -242,9 +242,9 @@ class _VerifikatorKpiCard extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                fontSize: AppTypography.size10,
-                color: AppColors.textTertiary,
-                height: AppTypography.lineHeight125,
+                fontSize: SigapTypography.size10,
+                color: SigapColors.textTertiary,
+                height: SigapTypography.lineHeight125,
               ),
             ),
           ],
@@ -264,48 +264,48 @@ class _VerifikatorKpiSection extends ConsumerWidget {
 
     return countsAsync.when(
       data: (counts) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
         child: Row(
           children: [
             _VerifikatorKpiCard(
               count: counts['menunggu'] ?? 0,
               label: 'Menunggu',
-              color: AppColors.warning,
+              color: SigapColors.warning,
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: SigapSpacing.sm),
             _VerifikatorKpiCard(
               count: counts['diproses'] ?? 0,
               label: 'Diproses',
-              color: AppColors.info,
+              color: SigapColors.info,
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: SigapSpacing.sm),
             _VerifikatorKpiCard(
               count: counts['diverifikasi'] ?? 0,
               label: 'Diverifikasi',
-              color: AppColors.primary,
+              color: SigapColors.primary,
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: SigapSpacing.sm),
             _VerifikatorKpiCard(
               count: counts['ditolak'] ?? 0,
               label: 'Ditolak',
-              color: AppColors.danger,
+              color: SigapColors.danger,
             ),
           ],
         ),
       ),
       loading: () => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
         child: Row(
           children: List.generate(4, (i) {
             return Expanded(
               child: Padding(
-                padding: EdgeInsets.only(right: i < 3 ? AppSpacing.sm : 0),
+                padding: EdgeInsets.only(right: i < 3 ? SigapSpacing.sm : 0),
                 child: Container(
                   height: 60,
                   decoration: BoxDecoration(
-                    color: AppColors.bgSurface,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: AppColors.borderCard),
+                    color: SigapColors.bgSurface,
+                    borderRadius: BorderRadius.circular(SigapRadius.md),
+                    border: Border.all(color: SigapColors.borderCard),
                   ),
                   child: const Center(
                     child: SizedBox(
@@ -313,7 +313,7 @@ class _VerifikatorKpiSection extends ConsumerWidget {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: AppColors.primary,
+                        color: SigapColors.primary,
                       ),
                     ),
                   ),
@@ -324,22 +324,22 @@ class _VerifikatorKpiSection extends ConsumerWidget {
         ),
       ),
       error: (_, __) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
         child: Container(
           height: 60,
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(SigapSpacing.md),
           decoration: BoxDecoration(
-            color: AppColors.bgSurface,
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: AppColors.borderCard),
+            color: SigapColors.bgSurface,
+            borderRadius: BorderRadius.circular(SigapRadius.md),
+            border: Border.all(color: SigapColors.borderCard),
           ),
           child: const Row(
             children: [
-              Icon(Icons.error_outline, color: AppColors.danger, size: 20),
-              SizedBox(width: AppSpacing.sm),
+              Icon(Icons.error_outline, color: SigapColors.danger, size: 20),
+              SizedBox(width: SigapSpacing.sm),
               Text(
                 'Gagal memuat statistik',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                style: TextStyle(color: SigapColors.textSecondary, fontSize: 13),
               ),
             ],
           ),
@@ -354,12 +354,12 @@ class _QueueCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      padding: const EdgeInsets.all(AppSpacing.md),
+      margin: const EdgeInsets.only(bottom: SigapSpacing.md),
+      padding: const EdgeInsets.all(SigapSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,16 +375,16 @@ class _QueueCardSkeleton extends StatelessWidget {
                       height: 14,
                       width: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.borderCard,
+                        color: SigapColors.borderCard,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: SigapSpacing.sm),
                     Container(
                       height: 12,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: AppColors.borderCard,
+                        color: SigapColors.borderCard,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -393,44 +393,44 @@ class _QueueCardSkeleton extends StatelessWidget {
                       height: 12,
                       width: 150,
                       decoration: BoxDecoration(
-                        color: AppColors.borderCard,
+                        color: SigapColors.borderCard,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: SigapSpacing.md),
               Container(
                 height: 24,
                 width: 70,
                 decoration: BoxDecoration(
-                  color: AppColors.borderCard,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  color: SigapColors.borderCard,
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Container(height: 1, color: AppColors.borderCard),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: SigapSpacing.md),
+          Container(height: 1, color: SigapColors.borderCard),
+          const SizedBox(height: SigapSpacing.md),
           Row(
             children: [
               Container(
                 height: 22,
                 width: 60,
                 decoration: BoxDecoration(
-                  color: AppColors.borderCard,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  color: SigapColors.borderCard,
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: SigapSpacing.sm),
               Container(
                 height: 22,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: AppColors.borderCard,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  color: SigapColors.borderCard,
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
                 ),
               ),
               const Spacer(),
@@ -438,8 +438,8 @@ class _QueueCardSkeleton extends StatelessWidget {
                 height: 32,
                 width: 70,
                 decoration: BoxDecoration(
-                  color: AppColors.borderCard,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  color: SigapColors.borderCard,
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
                 ),
               ),
             ],
@@ -460,18 +460,18 @@ class _VerifikatorQueueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      margin: const EdgeInsets.only(bottom: SigapSpacing.md),
       child: Material(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(SigapRadius.lg),
           child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(SigapSpacing.md),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.borderCard),
-              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: SigapColors.borderCard),
+              borderRadius: BorderRadius.circular(SigapRadius.lg),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,38 +483,38 @@ class _VerifikatorQueueCard extends StatelessWidget {
                     // ID badge
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xs,
+                        horizontal: SigapSpacing.sm,
+                        vertical: SigapSpacing.xs,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.bgSoft,
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        color: SigapColors.bgSoft,
+                        borderRadius: BorderRadius.circular(SigapRadius.sm),
                       ),
                       child: Text(
                         '#${item.id.length > 8 ? item.id.substring(0, 8) : item.id}',
                         style: const TextStyle(
-                          fontSize: AppTypography.size11,
+                          fontSize: SigapTypography.size11,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'monospace',
-                          color: AppColors.textSecondary,
+                          color: SigapColors.textSecondary,
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: SigapSpacing.sm),
                     // Status pill
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xs,
+                        horizontal: SigapSpacing.sm,
+                        vertical: SigapSpacing.xs,
                       ),
                       decoration: BoxDecoration(
                         color: item.status.statusColor().withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                        borderRadius: BorderRadius.circular(SigapRadius.pill),
                       ),
                       child: Text(
                         item.status.statusLabel,
                         style: TextStyle(
-                          fontSize: AppTypography.size11,
+                          fontSize: SigapTypography.size11,
                           fontWeight: FontWeight.w600,
                           color: item.status.statusColor(),
                         ),
@@ -522,36 +522,36 @@ class _VerifikatorQueueCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: SigapSpacing.sm),
 
                 // Title/description
                 Text(
                   item.title,
                   style: const TextStyle(
-                    fontSize: AppTypography.size14,
+                    fontSize: SigapTypography.size14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (item.description != null &&
                     item.description!.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: SigapSpacing.xs),
                   Text(
                     item.description!,
                     style: const TextStyle(
-                      fontSize: AppTypography.size12,
-                      color: AppColors.textSecondary,
+                      fontSize: SigapTypography.size12,
+                      color: SigapColors.textSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
 
-                const SizedBox(height: AppSpacing.md),
-                Container(height: 1, color: AppColors.borderCard),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: SigapSpacing.md),
+                Container(height: 1, color: SigapColors.borderCard),
+                const SizedBox(height: SigapSpacing.md),
 
                 // Bottom row: Category, wilayah, time ago, action
                 Row(
@@ -560,12 +560,12 @@ class _VerifikatorQueueCard extends StatelessWidget {
                     if (item.category != null) ...[
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: AppSpacing.xs,
+                          horizontal: SigapSpacing.sm,
+                          vertical: SigapSpacing.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          color: SigapColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(SigapRadius.sm),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -573,21 +573,21 @@ class _VerifikatorQueueCard extends StatelessWidget {
                             const Icon(
                               Icons.category_outlined,
                               size: 12,
-                              color: AppColors.primary,
+                              color: SigapColors.primary,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               item.category!,
                               style: const TextStyle(
-                                fontSize: AppTypography.size11,
-                                color: AppColors.primary,
+                                fontSize: SigapTypography.size11,
+                                color: SigapColors.primary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: SigapSpacing.sm),
                     ],
 
                     // Location/wilayah
@@ -598,15 +598,15 @@ class _VerifikatorQueueCard extends StatelessWidget {
                             const Icon(
                               Icons.location_on_outlined,
                               size: 12,
-                              color: AppColors.textTertiary,
+                              color: SigapColors.textTertiary,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 item.displayLocation,
                                 style: const TextStyle(
-                                  fontSize: AppTypography.size11,
-                                  color: AppColors.textTertiary,
+                                  fontSize: SigapTypography.size11,
+                                  color: SigapColors.textTertiary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -624,14 +624,14 @@ class _VerifikatorQueueCard extends StatelessWidget {
                         const Icon(
                           Icons.access_time,
                           size: 12,
-                          color: AppColors.textTertiary,
+                          color: SigapColors.textTertiary,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           item.timeAgo,
                           style: const TextStyle(
-                            fontSize: AppTypography.size11,
-                            color: AppColors.textTertiary,
+                            fontSize: SigapTypography.size11,
+                            color: SigapColors.textTertiary,
                           ),
                         ),
                       ],
@@ -665,18 +665,18 @@ class _VerifikatorQueueScreenState
     final queueAsync = ref.watch(verifikatorQueueProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.bgSurface,
+      backgroundColor: SigapColors.bgSurface,
       body: Column(
         children: [
           // App bar
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.md,
+              horizontal: SigapSpacing.lg,
+              vertical: SigapSpacing.md,
             ),
             decoration: const BoxDecoration(
-              color: AppColors.bgCard,
-              border: Border(bottom: BorderSide(color: AppColors.borderCard)),
+              color: SigapColors.bgCard,
+              border: Border(bottom: BorderSide(color: SigapColors.borderCard)),
             ),
             child: SafeArea(
               bottom: false,
@@ -689,17 +689,17 @@ class _VerifikatorQueueScreenState
                         Text(
                           'Antrean Verifikasi',
                           style: TextStyle(
-                            fontSize: AppTypography.size20,
+                            fontSize: SigapTypography.size20,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: SigapColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 2),
                         Text(
                           'Verifikator',
                           style: TextStyle(
-                            fontSize: AppTypography.size12,
-                            color: AppColors.textTertiary,
+                            fontSize: SigapTypography.size12,
+                            color: SigapColors.textTertiary,
                           ),
                         ),
                       ],
@@ -708,7 +708,7 @@ class _VerifikatorQueueScreenState
                   IconButton(
                     icon: const Icon(
                       Icons.refresh,
-                      color: AppColors.textSecondary,
+                      color: SigapColors.textSecondary,
                     ),
                     onPressed: () {
                       ref.invalidate(verifikatorQueueProvider);
@@ -721,9 +721,9 @@ class _VerifikatorQueueScreenState
           ),
 
           // KPI Section
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: SigapSpacing.md),
           const _VerifikatorKpiSection(),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: SigapSpacing.lg),
 
           // Queue list
           Expanded(
@@ -739,10 +739,10 @@ class _VerifikatorQueueScreenState
                     ref.invalidate(verifikatorQueueCountsProvider);
                     await ref.read(verifikatorQueueProvider.future);
                   },
-                  color: AppColors.primary,
+                  color: SigapColors.primary,
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
+                      horizontal: SigapSpacing.lg,
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
@@ -757,7 +757,7 @@ class _VerifikatorQueueScreenState
                 );
               },
               loading: () => ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
                 itemCount: 5,
                 itemBuilder: (_, __) => _QueueCardSkeleton(),
               ),
@@ -779,31 +779,31 @@ class _VerifikatorQueueScreenState
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.bgSurface,
+              color: SigapColors.bgSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.borderCard, width: 2),
+              border: Border.all(color: SigapColors.borderCard, width: 2),
             ),
             child: const Icon(
               Icons.inbox_outlined,
               size: 40,
-              color: AppColors.textTertiary,
+              color: SigapColors.textTertiary,
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: SigapSpacing.lg),
           const Text(
             'Tidak ada antrean',
             style: TextStyle(
-              fontSize: AppTypography.size16,
+              fontSize: SigapTypography.size16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: SigapSpacing.xs),
           const Text(
             'Antrean verifikasi akan muncul di sini',
             style: TextStyle(
-              fontSize: AppTypography.size13,
-              color: AppColors.textTertiary,
+              fontSize: SigapTypography.size13,
+              color: SigapColors.textTertiary,
             ),
           ),
         ],
@@ -814,32 +814,32 @@ class _VerifikatorQueueScreenState
   Widget _buildErrorState(String error) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(SigapSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: AppColors.danger),
-            const SizedBox(height: AppSpacing.lg),
+            const Icon(Icons.error_outline, size: 64, color: SigapColors.danger),
+            const SizedBox(height: SigapSpacing.lg),
             const Text(
               'Gagal memuat data',
               style: TextStyle(
-                fontSize: AppTypography.size16,
+                fontSize: SigapTypography.size16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: SigapSpacing.sm),
             Text(
               error,
               style: const TextStyle(
-                fontSize: AppTypography.size12,
-                color: AppColors.textTertiary,
+                fontSize: SigapTypography.size12,
+                color: SigapColors.textTertiary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: SigapSpacing.lg),
             ElevatedButton.icon(
               onPressed: () {
                 ref.invalidate(verifikatorQueueProvider);
@@ -848,7 +848,7 @@ class _VerifikatorQueueScreenState
               icon: const Icon(Icons.refresh),
               label: const Text('Coba lagi'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: SigapColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -869,8 +869,8 @@ class _VerifikatorQueueScreenState
 
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(top: BorderSide(color: AppColors.borderCard)),
+        color: SigapColors.bgCard,
+        border: Border(top: BorderSide(color: SigapColors.borderCard)),
         boxShadow: [
           BoxShadow(
             color: Color(0x1A000000),
@@ -897,20 +897,20 @@ class _VerifikatorQueueScreenState
                         _getIcon(index),
                         size: 24,
                         color: _selectedNavIndex == index
-                            ? AppColors.primary
-                            : AppColors.textTertiary,
+                            ? SigapColors.primary
+                            : SigapColors.textTertiary,
                       ),
-                      const SizedBox(height: AppSpacing.x4),
+                      const SizedBox(height: SigapSpacing.x4),
                       Text(
                         labels[index],
                         style: TextStyle(
-                          fontSize: AppTypography.size10,
+                          fontSize: SigapTypography.size10,
                           fontWeight: _selectedNavIndex == index
                               ? FontWeight.w600
                               : FontWeight.w500,
                           color: _selectedNavIndex == index
-                              ? AppColors.primary
-                              : AppColors.textTertiary,
+                              ? SigapColors.primary
+                              : SigapColors.textTertiary,
                         ),
                       ),
                     ],

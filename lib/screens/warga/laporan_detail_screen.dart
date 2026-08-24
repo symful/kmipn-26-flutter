@@ -104,14 +104,14 @@ class LaporanDetailScreen extends ConsumerWidget {
             const Icon(
               Icons.search_off,
               size: 64,
-              color: AppColors.textTertiary,
+              color: SigapColors.textTertiary,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             const Text(
               'Laporan tidak ditemukan',
-              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 16, color: SigapColors.textSecondary),
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: SigapSpacing.lg),
             TextButton(
               onPressed: () => context.go('/warga'),
               child: const Text('Kembali ke Beranda'),
@@ -191,7 +191,7 @@ class LaporanDetailScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: AppSpacing.x14),
+                    const SizedBox(height: SigapSpacing.x14),
 
                     // Status Banner
                     if (showNeedsAction)
@@ -209,7 +209,7 @@ class LaporanDetailScreen extends ConsumerWidget {
                     else
                       _buildSimpleStatusBanner(status),
 
-                    const SizedBox(height: AppSpacing.x14),
+                    const SizedBox(height: SigapSpacing.x14),
 
                     // Parent case card
                     ParentCaseCard(
@@ -222,17 +222,17 @@ class LaporanDetailScreen extends ConsumerWidget {
                       },
                     ),
 
-                    const SizedBox(height: AppSpacing.x14),
+                    const SizedBox(height: SigapSpacing.x14),
 
                     // Timeline
                     VerticalTimeline(events: timelineEvents),
 
-                    const SizedBox(height: AppSpacing.x14),
+                    const SizedBox(height: SigapSpacing.x14),
 
                     // Privacy notice
                     const PrivacyNotice(),
 
-                    const SizedBox(height: AppSpacing.xxl),
+                    const SizedBox(height: SigapSpacing.xxl),
                   ],
                 ),
               ),
@@ -248,18 +248,18 @@ class LaporanDetailScreen extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: status.backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
       ),
-      padding: const EdgeInsets.all(AppSpacing.x14),
+      padding: const EdgeInsets.all(SigapSpacing.x14),
       child: Row(
         children: [
           Icon(status.icon, color: status.color, size: 24),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: SigapSpacing.sm),
           Expanded(
             child: Text(
               status.label,
               style: TextStyle(
-                fontSize: AppTypography.size13,
+                fontSize: SigapTypography.size13,
                 fontWeight: FontWeight.w600,
                 color: status.color,
               ),
@@ -289,22 +289,22 @@ extension LaporanStatusExt on LaporanStatus {
   Color get color {
     switch (this) {
       case LaporanStatus.pending:
-        return AppColors.warning;
+        return SigapColors.warning;
       case LaporanStatus.reviewing:
-        return AppColors.info;
+        return SigapColors.info;
       case LaporanStatus.resolved:
-        return AppColors.primary;
+        return SigapColors.primary;
     }
   }
 
   Color get backgroundColor {
     switch (this) {
       case LaporanStatus.pending:
-        return AppColors.warningBg;
+        return SigapColors.warningBg;
       case LaporanStatus.reviewing:
-        return AppColors.infoBg;
+        return SigapColors.infoBg;
       case LaporanStatus.resolved:
-        return AppColors.primaryLight;
+        return SigapColors.primaryLight;
     }
   }
 

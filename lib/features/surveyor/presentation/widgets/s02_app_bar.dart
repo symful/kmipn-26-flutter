@@ -7,9 +7,9 @@ import '../../../../theme/tokens.dart';
 /// colored by urgency.
 ///
 /// SLA badge colors:
-/// - Green (>2 days remaining): AppColors.primary
-/// - Amber (1-2 days remaining): AppColors.warning
-/// - Red (<1 day or overdue): AppColors.danger
+/// - Green (>2 days remaining): SigapColors.primary
+/// - Amber (1-2 days remaining): SigapColors.warning
+/// - Red (<1 day or overdue): SigapColors.danger
 class S02AppBar extends StatelessWidget {
   /// Title text (case category).
   final String title;
@@ -31,7 +31,7 @@ class S02AppBar extends StatelessWidget {
   _SlaBadgeData get _slaBadge {
     if (slaDaysRemaining == null) {
       return _SlaBadgeData(
-        backgroundColor: AppColors.textDisabled,
+        backgroundColor: SigapColors.textDisabled,
         textColor: Colors.white,
         label: 'N/A',
       );
@@ -41,28 +41,28 @@ class S02AppBar extends StatelessWidget {
     if (days <= 0) {
       // Overdue
       return _SlaBadgeData(
-        backgroundColor: AppColors.danger,
+        backgroundColor: SigapColors.danger,
         textColor: Colors.white,
         label: 'Overdue',
       );
     } else if (days < 1) {
       // Less than 1 day
       return _SlaBadgeData(
-        backgroundColor: AppColors.danger,
+        backgroundColor: SigapColors.danger,
         textColor: Colors.white,
         label: '<1d',
       );
     } else if (days <= 2) {
       // 1-2 days
       return _SlaBadgeData(
-        backgroundColor: AppColors.warning,
+        backgroundColor: SigapColors.warning,
         textColor: Colors.white,
         label: '${days}d',
       );
     } else {
       // More than 2 days
       return _SlaBadgeData(
-        backgroundColor: AppColors.primary,
+        backgroundColor: SigapColors.primary,
         textColor: Colors.white,
         label: '${days}d',
       );
@@ -86,22 +86,22 @@ class S02AppBar extends StatelessWidget {
                 child: Text(
                   '←',
                   style: TextStyle(
-                    fontSize: AppTypography.size22,
-                    color: AppColors.textSecondary,
+                    fontSize: SigapTypography.size22,
+                    color: SigapColors.textSecondary,
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.x12),
+          const SizedBox(width: SigapSpacing.x12),
           // Title
           Expanded(
             child: Text(
               title,
               style: const TextStyle(
-                fontSize: AppTypography.size16,
+                fontSize: SigapTypography.size16,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -135,17 +135,17 @@ class _SlaBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x9,
-        vertical: AppSpacing.x4,
+        horizontal: SigapSpacing.x9,
+        vertical: SigapSpacing.x4,
       ),
       decoration: BoxDecoration(
         color: data.backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+        borderRadius: BorderRadius.circular(SigapRadius.pill),
       ),
       child: Text(
         data.label,
         style: TextStyle(
-          fontSize: AppTypography.size11,
+          fontSize: SigapTypography.size11,
           fontWeight: FontWeight.w600,
           color: data.textColor,
         ),

@@ -74,11 +74,11 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.infoBg,
-        border: Border.all(color: AppColors.infoChartBar),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        color: SigapColors.infoBg,
+        border: Border.all(color: SigapColors.infoChartBar),
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
       ),
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(SigapSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,14 +90,14 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
                 child: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: AppTypography.size12_5,
+                    fontSize: SigapTypography.size12_5,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.info,
+                    color: SigapColors.info,
                   ),
                 ),
               ),
               if (widget.onViewAll != null) ...[
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: SigapSpacing.sm),
                 GestureDetector(
                   onTap: () {
                     setState(() => _isExpanded = !_isExpanded);
@@ -106,9 +106,9 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
                   child: Text(
                     _isExpanded ? 'Tutup' : 'Lihat Semua',
                     style: const TextStyle(
-                      fontSize: AppTypography.size12_5,
+                      fontSize: SigapTypography.size12_5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.info,
+                      color: SigapColors.info,
                     ),
                   ),
                 ),
@@ -118,7 +118,7 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
 
           // Expandable case list
           if (_isExpanded && widget.cases.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             ...widget.cases.map(
               (c) => _CaseCard(
                 key: ValueKey(c.id),
@@ -131,7 +131,7 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
 
           // Expandable: show first case even when collapsed
           if (!_isExpanded && widget.cases.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             _CaseCard(
               key: ValueKey(widget.cases.first.id),
               caseItem: widget.cases.first,
@@ -167,9 +167,9 @@ class _CaseCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: const Color(0xFFD5E0FB)),
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
       ),
-      padding: const EdgeInsets.all(AppSpacing.x11),
+      padding: const EdgeInsets.all(SigapSpacing.x11),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -182,7 +182,7 @@ class _CaseCard extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: SigapColors.primaryLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 alignment: Alignment.center,
@@ -192,11 +192,11 @@ class _CaseCard extends StatelessWidget {
                     fontFamily: 'IBM Plex Mono',
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primaryDark,
+                    color: SigapColors.primaryDark,
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.x10),
+              const SizedBox(width: SigapSpacing.x10),
               // Title + meta
               Expanded(
                 child: Column(
@@ -205,17 +205,17 @@ class _CaseCard extends StatelessWidget {
                     Text(
                       caseItem.title,
                       style: const TextStyle(
-                        fontSize: AppTypography.size13,
+                        fontSize: SigapTypography.size13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 1),
                     Text(
                       '${caseItem.distance} · kemiripan ${caseItem.similarityPercent}% · ${caseItem.reportCount} laporan',
                       style: const TextStyle(
-                        fontSize: AppTypography.size11,
-                        color: AppColors.textTertiary,
+                        fontSize: SigapTypography.size11,
+                        color: SigapColors.textTertiary,
                       ),
                     ),
                   ],
@@ -225,7 +225,7 @@ class _CaseCard extends StatelessWidget {
           ),
 
           // Action buttons
-          const SizedBox(height: AppSpacing.x10),
+          const SizedBox(height: SigapSpacing.x10),
           Row(
             children: [
               // Primary: Tambahkan bukti
@@ -235,14 +235,14 @@ class _CaseCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.info,
-                      borderRadius: BorderRadius.circular(AppRadius.x9),
+                      color: SigapColors.info,
+                      borderRadius: BorderRadius.circular(SigapRadius.x9),
                     ),
                     alignment: Alignment.center,
                     child: const Text(
                       'Tambahkan bukti ke kasus ini',
                       style: TextStyle(
-                        fontSize: AppTypography.size12_5,
+                        fontSize: SigapTypography.size12_5,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
@@ -250,7 +250,7 @@ class _CaseCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: SigapSpacing.sm),
               // Secondary: Buat terpisah
               Expanded(
                 child: GestureDetector(
@@ -258,20 +258,20 @@ class _CaseCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 10,
-                      horizontal: AppSpacing.x12,
+                      horizontal: SigapSpacing.x12,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.transparent,
-                      border: Border.all(color: AppColors.infoChartBar),
-                      borderRadius: BorderRadius.circular(AppRadius.x9),
+                      border: Border.all(color: SigapColors.infoChartBar),
+                      borderRadius: BorderRadius.circular(SigapRadius.x9),
                     ),
                     alignment: Alignment.center,
                     child: const Text(
                       'Buat terpisah',
                       style: TextStyle(
-                        fontSize: AppTypography.size12_5,
+                        fontSize: SigapTypography.size12_5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.info,
+                        color: SigapColors.info,
                       ),
                     ),
                   ),

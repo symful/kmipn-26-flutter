@@ -35,13 +35,13 @@ class SurveySubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(top: BorderSide(color: AppColors.borderCard, width: 1)),
+        color: SigapColors.bgCard,
+        border: Border(top: BorderSide(color: SigapColors.borderCard, width: 1)),
       ),
       padding: const EdgeInsets.only(
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-        top: AppSpacing.x12,
+        left: SigapSpacing.lg,
+        right: SigapSpacing.lg,
+        top: SigapSpacing.x12,
         bottom: 22, // 22px bottom padding per design spec
       ),
       child: _SubmitButton(
@@ -67,11 +67,11 @@ class _SubmitButton extends StatelessWidget {
       onTap: isLoading ? null : onPressed,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.x15),
+        padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x15),
         decoration: BoxDecoration(
-          color: isDisabled ? AppColors.textDisabled : AppColors.primary,
-          borderRadius: BorderRadius.circular(AppRadius.x12),
-          boxShadow: isDisabled ? null : AppShadows.buttonPrimary,
+          color: isDisabled ? SigapColors.textDisabled : SigapColors.primary,
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
+          boxShadow: isDisabled ? null : SigapShadows.buttonPrimary,
         ),
         alignment: Alignment.center,
         child: isLoading
@@ -90,16 +90,16 @@ class _SubmitButton extends StatelessWidget {
                   Icon(
                     Icons.send,
                     size: 18,
-                    color: isDisabled ? AppColors.textSecondary : Colors.white,
+                    color: isDisabled ? SigapColors.textSecondary : Colors.white,
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: SigapSpacing.sm),
                   Text(
                     'Kirim Hasil Kunjungan',
                     style: TextStyle(
-                      fontSize: AppTypography.size15,
+                      fontSize: SigapTypography.size15,
                       fontWeight: FontWeight.w700,
                       color: isDisabled
-                          ? AppColors.textSecondary
+                          ? SigapColors.textSecondary
                           : Colors.white,
                     ),
                   ),

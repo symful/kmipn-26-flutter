@@ -36,16 +36,16 @@ class ParentCaseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border.all(color: AppColors.borderCard),
-        borderRadius: BorderRadius.circular(AppRadius.x12),
+        color: SigapColors.bgCard,
+        border: Border.all(color: SigapColors.borderCard),
+        borderRadius: BorderRadius.circular(SigapRadius.x12),
       ),
-      padding: const EdgeInsets.all(AppSpacing.x12),
+      padding: const EdgeInsets.all(SigapSpacing.x12),
       child: Row(
         children: [
           // Avatar with initials
           _Avatar(initials: parentCase.initials),
-          const SizedBox(width: AppSpacing.x10),
+          const SizedBox(width: SigapSpacing.x10),
 
           // Label + title
           Expanded(
@@ -56,17 +56,17 @@ class ParentCaseCard extends StatelessWidget {
                 Text(
                   'Bagian dari kasus',
                   style: TextStyle(
-                    fontSize: AppTypography.size11,
-                    color: AppColors.textTertiary,
+                    fontSize: SigapTypography.size11,
+                    color: SigapColors.textTertiary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   parentCase.title,
                   style: TextStyle(
-                    fontSize: AppTypography.size13,
+                    fontSize: SigapTypography.size13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
               ],
@@ -82,9 +82,9 @@ class ParentCaseCard extends StatelessWidget {
               child: Text(
                 'Lihat \u2192',
                 style: TextStyle(
-                  fontSize: AppTypography.size12_5,
+                  fontSize: SigapTypography.size12_5,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: SigapColors.primary,
                 ),
               ),
             ),
@@ -107,17 +107,17 @@ class _Avatar extends StatelessWidget {
       width: 34,
       height: 34,
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        color: SigapColors.primaryLight,
+        borderRadius: BorderRadius.circular(SigapRadius.sm),
       ),
       alignment: Alignment.center,
       child: Text(
         initials,
         style: const TextStyle(
           fontFamily: 'IBM Plex Mono',
-          fontSize: AppTypography.size12,
+          fontSize: SigapTypography.size12,
           fontWeight: FontWeight.w600,
-          color: AppColors.primaryDark,
+          color: SigapColors.primaryDark,
         ),
       ),
     );

@@ -30,12 +30,12 @@ class TaskSortRow extends StatelessWidget {
         // Sort dropdown
         Container(
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.borderCard),
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            border: Border.all(color: SigapColors.borderCard),
+            borderRadius: BorderRadius.circular(SigapRadius.sm),
           ),
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: AppSpacing.xs,
+            horizontal: SigapSpacing.sm,
+            vertical: SigapSpacing.xs,
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -48,8 +48,8 @@ class TaskSortRow extends StatelessWidget {
                   child: Text(
                     option,
                     style: const TextStyle(
-                      fontSize: AppTypography.size12,
-                      color: AppColors.textPrimary,
+                      fontSize: SigapTypography.size12,
+                      color: SigapColors.textPrimary,
                     ),
                   ),
                 );
@@ -92,19 +92,19 @@ class _UnduhBatchLinkState extends State<_UnduhBatchLink> {
         behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xs,
-            vertical: AppSpacing.xs,
+            horizontal: SigapSpacing.xs,
+            vertical: SigapSpacing.xs,
           ),
           child: Text(
             'Unduh batch',
             style: TextStyle(
-              fontSize: AppTypography.size12,
+              fontSize: SigapTypography.size12,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: SigapColors.primary,
               decoration: _isHovered
                   ? TextDecoration.underline
                   : TextDecoration.none,
-              decorationColor: AppColors.primary,
+              decorationColor: SigapColors.primary,
             ),
           ),
         ),

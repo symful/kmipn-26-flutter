@@ -28,11 +28,11 @@ class LocationRowEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x12,
-        vertical: AppSpacing.x10,
+        horizontal: SigapSpacing.x12,
+        vertical: SigapSpacing.x10,
       ),
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.bgSoft, width: 1)),
+        border: Border(top: BorderSide(color: SigapColors.bgSoft, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -41,8 +41,8 @@ class LocationRowEdit extends StatelessWidget {
           Text(
             'Lokasi',
             style: TextStyle(
-              fontSize: AppTypography.size12,
-              color: AppColors.textTertiary,
+              fontSize: SigapTypography.size12,
+              color: SigapColors.textTertiary,
             ),
           ),
           // Value: address · accuracy + edit icon
@@ -57,9 +57,9 @@ class LocationRowEdit extends StatelessWidget {
                     child: Text(
                       '$address · $accuracy ',
                       style: const TextStyle(
-                        fontSize: AppTypography.size12,
+                        fontSize: SigapTypography.size12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -67,7 +67,7 @@ class LocationRowEdit extends StatelessWidget {
                   const Icon(
                     Icons.edit_outlined,
                     size: 14,
-                    color: AppColors.primary,
+                    color: SigapColors.primary,
                   ),
                 ],
               ),

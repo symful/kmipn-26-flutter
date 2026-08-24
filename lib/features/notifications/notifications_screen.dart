@@ -38,7 +38,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           SnackBar(
             content: Text('Gagal menandai semua: $e'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: AppColors.danger,
+            backgroundColor: SigapColors.danger,
           ),
         );
       }
@@ -58,7 +58,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           SnackBar(
             content: Text('Gagal menandai: $e'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: AppColors.danger,
+            backgroundColor: SigapColors.danger,
           ),
         );
       }
@@ -133,15 +133,15 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(AppSpacing.xl),
+              padding: const EdgeInsets.all(SigapSpacing.xl),
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
+                color: SigapColors.primaryLight,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.notifications_outlined,
                 size: 48,
-                color: AppColors.primary,
+                color: SigapColors.primary,
               ),
             ),
             const SizedBox(height: SigapSpacing.lg),
@@ -150,14 +150,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
             const SizedBox(height: SigapSpacing.xs),
             const Text(
               'Pemberitahuan akan muncul\ndi sini',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 13, color: SigapColors.textSecondary),
             ),
           ],
         ),
@@ -172,14 +172,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppColors.danger),
+            const Icon(Icons.error_outline, size: 48, color: SigapColors.danger),
             const SizedBox(height: SigapSpacing.lg),
             const Text(
               'Gagal memuat notifikasi',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
             const SizedBox(height: SigapSpacing.sm),
@@ -188,7 +188,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: SigapColors.textSecondary,
               ),
             ),
             const SizedBox(height: SigapSpacing.lg),
@@ -227,10 +227,10 @@ class _NotificationTile extends StatelessWidget {
           vertical: SigapSpacing.md,
         ),
         decoration: BoxDecoration(
-          color: isRead ? null : AppColors.primaryLight.withValues(alpha: 0.1),
+          color: isRead ? null : SigapColors.primaryLight.withValues(alpha: 0.1),
           border: Border(
             bottom: BorderSide(
-              color: AppColors.border.withValues(alpha: 0.5),
+              color: SigapColors.border.withValues(alpha: 0.5),
               width: 1,
             ),
           ),
@@ -264,7 +264,7 @@ class _NotificationTile extends StatelessWidget {
                             fontWeight: isRead
                                 ? FontWeight.w500
                                 : FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: SigapColors.textPrimary,
                           ),
                         ),
                       ),
@@ -273,7 +273,7 @@ class _NotificationTile extends StatelessWidget {
                           width: 8,
                           height: 8,
                           decoration: const BoxDecoration(
-                            color: AppColors.primary,
+                            color: SigapColors.primary,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -285,7 +285,7 @@ class _NotificationTile extends StatelessWidget {
                       body,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: SigapColors.textSecondary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -296,7 +296,7 @@ class _NotificationTile extends StatelessWidget {
                     createdAt,
                     style: const TextStyle(
                       fontSize: 11,
-                      color: AppColors.textTertiary,
+                      color: SigapColors.textTertiary,
                     ),
                   ),
                 ],
@@ -357,24 +357,24 @@ class _NotificationTile extends StatelessWidget {
     switch (kind.toLowerCase()) {
       case 'report_update':
       case 'status_change':
-        return AppColors.primary;
+        return SigapColors.primary;
       case 'new_comment':
       case 'comment':
-        return AppColors.info;
+        return SigapColors.info;
       case 'assignment':
       case 'assigned':
-        return AppColors.warning;
+        return SigapColors.warning;
       case 'verification':
       case 'verified':
-        return AppColors.selesai;
+        return SigapColors.selesai;
       case 'resolution':
       case 'resolved':
-        return AppColors.selesai;
+        return SigapColors.selesai;
       case 'alert':
       case 'warning':
-        return AppColors.danger;
+        return SigapColors.danger;
       default:
-        return AppColors.textSecondary;
+        return SigapColors.textSecondary;
     }
   }
 }

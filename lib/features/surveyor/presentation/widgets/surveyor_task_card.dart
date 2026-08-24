@@ -54,12 +54,12 @@ class SurveyorTaskData {
 /// Used in the surveyor home screen task list.
 ///
 /// Design tokens used:
-/// - Urgent: AppColors.danger (#C0392B)
-/// - High: AppColors.warning (#B8730A)
-/// - Normal: AppColors.primary (#0F7A6B)
-/// - Low: AppColors.textDisabled (#8A9099)
-/// - Card background: AppColors.bgCard (#FFFFFF)
-/// - Border radius: AppRadius.x12 (12px)
+/// - Urgent: SigapColors.danger (#C0392B)
+/// - High: SigapColors.warning (#B8730A)
+/// - Normal: SigapColors.primary (#0F7A6B)
+/// - Low: SigapColors.textDisabled (#8A9099)
+/// - Card background: SigapColors.bgCard (#FFFFFF)
+/// - Border radius: SigapRadius.x12 (12px)
 class SurveyorTaskCard extends StatelessWidget {
   /// Task data to display.
   final SurveyorTaskData task;
@@ -73,13 +73,13 @@ class SurveyorTaskCard extends StatelessWidget {
   Color get _borderColor {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return AppColors.danger;
+        return SigapColors.danger;
       case TaskPriority.high:
-        return AppColors.warning;
+        return SigapColors.warning;
       case TaskPriority.normal:
-        return AppColors.primary;
+        return SigapColors.primary;
       case TaskPriority.low:
-        return AppColors.textDisabled;
+        return SigapColors.textDisabled;
     }
   }
 
@@ -108,12 +108,12 @@ class SurveyorTaskCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.x12),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
           border: Border(left: BorderSide(color: _borderColor, width: 4)),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(SigapSpacing.md),
           child: Row(
             children: [
               // Content area
@@ -125,9 +125,9 @@ class SurveyorTaskCard extends StatelessWidget {
                     Text(
                       task.title,
                       style: const TextStyle(
-                        fontSize: AppTypography.size13_5,
+                        fontSize: SigapTypography.size13_5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -138,8 +138,8 @@ class SurveyorTaskCard extends StatelessWidget {
                     Text(
                       task.location,
                       style: const TextStyle(
-                        fontSize: AppTypography.size12,
-                        color: AppColors.textTertiary,
+                        fontSize: SigapTypography.size12,
+                        color: SigapColors.textTertiary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -150,8 +150,8 @@ class SurveyorTaskCard extends StatelessWidget {
                     Text(
                       task.timeAgo,
                       style: const TextStyle(
-                        fontSize: AppTypography.size11,
-                        color: AppColors.textTertiary,
+                        fontSize: SigapTypography.size11,
+                        color: SigapColors.textTertiary,
                       ),
                     ),
                   ],
@@ -159,7 +159,7 @@ class SurveyorTaskCard extends StatelessWidget {
               ),
 
               // Priority indicator
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: SigapSpacing.sm),
               _PriorityIndicator(
                 label: _priorityLabel,
                 dotColor: _priorityDotColor,
@@ -183,12 +183,12 @@ class _PriorityIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x9,
-        vertical: AppSpacing.x4,
+        horizontal: SigapSpacing.x9,
+        vertical: SigapSpacing.x4,
       ),
       decoration: BoxDecoration(
         color: dotColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppRadius.x6),
+        borderRadius: BorderRadius.circular(SigapRadius.x6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -202,7 +202,7 @@ class _PriorityIndicator extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: AppTypography.size11,
+              fontSize: SigapTypography.size11,
               fontWeight: FontWeight.w600,
               color: dotColor,
             ),

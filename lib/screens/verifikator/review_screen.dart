@@ -14,10 +14,10 @@ import '../../features/warga/presentation/widgets/sticky_footer_cta.dart';
 /// Verifikator review screen matching M-11 design from PantauDesa Screens.dc.html.
 ///
 /// Design tokens used:
-/// - AppColors: primary, infoBg, infoChartBar, info, bgCard, borderCard, bgSoft, textPrimary, textSecondary, textTertiary, warningText, primaryLight, primaryDark
-/// - AppSpacing: md, lg, x11, x12, x14, x15, x9, x10
-/// - AppRadius: lg (13px), md (11px), x9 (9px), sm (5px)
-/// - AppTypography: size11, size12, size12_5, size13, size14, size15, size16, size22, letterSpacingLabel, lineHeight135
+/// - SigapColors: primary, infoBg, infoChartBar, info, bgCard, borderCard, bgSoft, textPrimary, textSecondary, textTertiary, warningText, primaryLight, primaryDark
+/// - SigapSpacing: md, lg, x11, x12, x14, x15, x9, x10
+/// - SigapRadius: lg (13px), md (11px), x9 (9px), sm (5px)
+/// - SigapTypography: size11, size12, size12_5, size13, size14, size15, size16, size22, letterSpacingLabel, lineHeight135
 ///
 /// M-11 Design Reference (PantauDesa Screens.dc.html lines 138-197):
 /// - Header with back arrow (22px, #3a3f45) + "Review laporan" title + 5-step stepper
@@ -148,7 +148,7 @@ class _VerifikatorReviewScreenState
         .toList();
 
     return Scaffold(
-      backgroundColor: AppColors.bgScreen,
+      backgroundColor: SigapColors.bgScreen,
       body: Column(
         children: [
           // Custom app bar with stepper
@@ -158,8 +158,8 @@ class _VerifikatorReviewScreenState
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.x14,
-                horizontal: AppSpacing.lg,
+                vertical: SigapSpacing.x14,
+                horizontal: SigapSpacing.lg,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,7 +175,7 @@ class _VerifikatorReviewScreenState
                         _handleCreateSeparate();
                       },
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: SigapSpacing.md),
                   ],
 
                   // Report summary card
@@ -208,7 +208,7 @@ class _VerifikatorReviewScreenState
                     },
                   ),
 
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: SigapSpacing.md),
 
                   // Privacy toggle
                   PrivacyToggle(
@@ -218,7 +218,7 @@ class _VerifikatorReviewScreenState
                     },
                   ),
 
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: SigapSpacing.md),
 
                   // Truth statement checkbox
                   TruthStatementCheckbox(

@@ -61,18 +61,18 @@ class KasusTerdekatCard extends StatelessWidget {
   Color get _statusDotColor {
     switch (status) {
       case KasusStatus.sedangDitangani:
-        return AppColors.info;
+        return SigapColors.info;
       case KasusStatus.terverifikasi:
-        return AppColors.primary;
+        return SigapColors.primary;
     }
   }
 
   Color get _statusBgColor {
     switch (status) {
       case KasusStatus.sedangDitangani:
-        return AppColors.infoBg;
+        return SigapColors.infoBg;
       case KasusStatus.terverifikasi:
-        return AppColors.primaryLight;
+        return SigapColors.primaryLight;
     }
   }
 
@@ -81,7 +81,7 @@ class KasusTerdekatCard extends StatelessWidget {
       case KasusStatus.sedangDitangani:
         return const Color(0xFF1D4ED8); // #1d4ed8 per M-05 spec
       case KasusStatus.terverifikasi:
-        return AppColors.primaryDark;
+        return SigapColors.primaryDark;
     }
   }
 
@@ -97,11 +97,11 @@ class KasusTerdekatCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(SigapSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          border: Border.all(color: AppColors.borderCard),
-          borderRadius: BorderRadius.circular(AppRadius.x12),
+          color: SigapColors.bgCard,
+          border: Border.all(color: SigapColors.borderCard),
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,21 +111,21 @@ class KasusTerdekatCard extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(AppRadius.x9),
+                color: SigapColors.primaryLight,
+                borderRadius: BorderRadius.circular(SigapRadius.x9),
               ),
               alignment: Alignment.center,
               child: Text(
                 initials,
                 style: const TextStyle(
                   fontFamily: 'IBM Plex Mono',
-                  fontSize: AppTypography.size13,
+                  fontSize: SigapTypography.size13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primaryDark,
+                  color: SigapColors.primaryDark,
                 ),
               ),
             ),
-            const SizedBox(width: AppSpacing.x11),
+            const SizedBox(width: SigapSpacing.x11),
 
             // Content
             Expanded(
@@ -136,9 +136,9 @@ class KasusTerdekatCard extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: AppTypography.size13_5,
+                      fontSize: SigapTypography.size13_5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: SigapColors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -149,8 +149,8 @@ class KasusTerdekatCard extends StatelessWidget {
                   Text(
                     '$rw · $_distanceText · $laporanCount laporan pendukung',
                     style: const TextStyle(
-                      fontSize: AppTypography.size11_5,
-                      color: AppColors.textTertiary,
+                      fontSize: SigapTypography.size11_5,
+                      color: SigapColors.textTertiary,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -191,7 +191,7 @@ class _StatusPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(AppRadius.x6),
+        borderRadius: BorderRadius.circular(SigapRadius.x6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -205,7 +205,7 @@ class _StatusPill extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: AppTypography.size11,
+              fontSize: SigapTypography.size11,
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -252,9 +252,9 @@ class KasusTerdekatSection extends StatelessWidget {
             const Text(
               'Kasus terdekat',
               style: TextStyle(
-                fontSize: AppTypography.size13,
+                fontSize: SigapTypography.size13,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
             GestureDetector(
@@ -262,9 +262,9 @@ class KasusTerdekatSection extends StatelessWidget {
               child: const Text(
                 'Lihat peta',
                 style: TextStyle(
-                  fontSize: AppTypography.size12,
+                  fontSize: SigapTypography.size12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: SigapColors.primary,
                 ),
               ),
             ),

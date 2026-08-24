@@ -26,12 +26,12 @@ class SurveyorTaskListHeader extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
+        horizontal: SigapSpacing.lg,
+        vertical: SigapSpacing.md,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(bottom: BorderSide(color: AppColors.borderCard)),
+        color: SigapColors.bgCard,
+        border: Border(bottom: BorderSide(color: SigapColors.borderCard)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,12 +40,12 @@ class SurveyorTaskListHeader extends StatelessWidget {
           Text(
             'Tugas hari ini',
             style: const TextStyle(
-              fontSize: AppTypography.size22,
+              fontSize: SigapTypography.size22,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: SigapSpacing.xs),
           // Row: Date and Wilayah info
           Row(
             children: [
@@ -53,29 +53,29 @@ class SurveyorTaskListHeader extends StatelessWidget {
               Text(
                 _formatDate(displayDate),
                 style: const TextStyle(
-                  fontSize: AppTypography.size12,
-                  color: AppColors.textTertiary,
+                  fontSize: SigapTypography.size12,
+                  color: SigapColors.textTertiary,
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: SigapSpacing.sm),
               // Separator dot
               Container(
                 width: 3,
                 height: 3,
                 decoration: const BoxDecoration(
-                  color: AppColors.textTertiary,
+                  color: SigapColors.textTertiary,
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: SigapSpacing.sm),
               // Wilayah name
               Expanded(
                 child: Text(
                   wilayahName,
                   style: const TextStyle(
-                    fontSize: AppTypography.size12,
+                    fontSize: SigapTypography.size12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: SigapColors.textSecondary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

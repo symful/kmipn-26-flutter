@@ -39,16 +39,16 @@ class TaskAvatar extends StatelessWidget {
 
   /// Background color for SLA badge based on days remaining.
   ///
-  /// - Green (>2 days): AppColors.primary
-  /// - Amber (1-2 days): AppColors.warning
-  /// - Red (<1 day or overdue): AppColors.danger
+  /// - Green (>2 days): SigapColors.primary
+  /// - Amber (1-2 days): SigapColors.warning
+  /// - Red (<1 day or overdue): SigapColors.danger
   Color get _badgeColor {
     if (slaDaysRemaining > 2) {
-      return AppColors.primary;
+      return SigapColors.primary;
     } else if (slaDaysRemaining >= 1) {
-      return AppColors.warning;
+      return SigapColors.warning;
     } else {
-      return AppColors.danger;
+      return SigapColors.danger;
     }
   }
 
@@ -78,7 +78,7 @@ class TaskAvatar extends StatelessWidget {
               width: size,
               height: size,
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
+                color: SigapColors.primaryLight,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -88,7 +88,7 @@ class TaskAvatar extends StatelessWidget {
                   fontFamily: 'IBM Plex Mono',
                   fontSize: size * 0.35,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primaryDark,
+                  color: SigapColors.primaryDark,
                 ),
               ),
             ),
@@ -100,12 +100,12 @@ class TaskAvatar extends StatelessWidget {
             bottom: 0,
             child: Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.x4,
+                horizontal: SigapSpacing.x4,
                 vertical: 2,
               ),
               decoration: BoxDecoration(
                 color: _badgeColor,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
+                borderRadius: BorderRadius.circular(SigapRadius.pill),
                 // Small shadow for depth
                 boxShadow: const [
                   BoxShadow(
@@ -118,7 +118,7 @@ class TaskAvatar extends StatelessWidget {
               child: Text(
                 _badgeText,
                 style: const TextStyle(
-                  fontSize: AppTypography.size9,
+                  fontSize: SigapTypography.size9,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),

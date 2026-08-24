@@ -58,11 +58,11 @@ class StatusActionBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.warningBg,
-        border: Border.all(color: AppColors.warningBorder),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        color: SigapColors.warningBg,
+        border: Border.all(color: SigapColors.warningBorder),
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
       ),
-      padding: const EdgeInsets.all(AppSpacing.x14),
+      padding: const EdgeInsets.all(SigapSpacing.x14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -70,7 +70,7 @@ class StatusActionBanner extends StatelessWidget {
           _StatusBadge(status: data.status),
 
           // Description with deadline
-          const SizedBox(height: AppSpacing.x9),
+          const SizedBox(height: SigapSpacing.x9),
           _DeadlineDescription(
             description: data.description,
             deadline: data.deadline,
@@ -78,7 +78,7 @@ class StatusActionBanner extends StatelessWidget {
 
           // CTA button
           if (data.onActionTap != null) ...[
-            const SizedBox(height: AppSpacing.x11),
+            const SizedBox(height: SigapSpacing.x11),
             _ActionButton(onTap: data.onActionTap!),
           ],
         ],
@@ -96,17 +96,17 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x10,
-        vertical: AppSpacing.x4,
+        horizontal: SigapSpacing.x10,
+        vertical: SigapSpacing.x4,
       ),
       decoration: BoxDecoration(
-        color: AppColors.warning,
-        borderRadius: BorderRadius.circular(AppRadius.x7),
+        color: SigapColors.warning,
+        borderRadius: BorderRadius.circular(SigapRadius.x7),
       ),
       child: Text(
         _statusLabel,
         style: const TextStyle(
-          fontSize: AppTypography.size12,
+          fontSize: SigapTypography.size12,
           fontWeight: FontWeight.w700,
           color: Colors.white,
         ),
@@ -140,9 +140,9 @@ class _DeadlineDescription extends StatelessWidget {
     return Text(
       '$description Tenggat $_formattedDeadline.',
       style: const TextStyle(
-        fontSize: AppTypography.size12_5,
-        color: AppColors.warningTextStrong,
-        height: AppTypography.lineHeight145,
+        fontSize: SigapTypography.size12_5,
+        color: SigapColors.warningTextStrong,
+        height: SigapTypography.lineHeight145,
       ),
     );
   }
@@ -178,18 +178,18 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.x11,
-          horizontal: AppSpacing.x17,
+          vertical: SigapSpacing.x11,
+          horizontal: SigapSpacing.x17,
         ),
         decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          color: SigapColors.primary,
+          borderRadius: BorderRadius.circular(SigapRadius.md),
         ),
         child: const Text(
           'Lengkapi laporan',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: AppTypography.size13,
+            fontSize: SigapTypography.size13,
             fontWeight: FontWeight.w700,
             color: Colors.white,
           ),

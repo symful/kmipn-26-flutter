@@ -23,8 +23,8 @@ class WilayahDropdown extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: AppTypography.size11,
-              color: AppColors.textSecondary,
+              fontSize: SigapTypography.size11,
+              color: SigapColors.textSecondary,
             ),
           ),
           const SizedBox(height: 2),
@@ -35,14 +35,14 @@ class WilayahDropdown extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary, // #17191c per M-05 spec
+                  color: SigapColors.textPrimary, // #17191c per M-05 spec
                 ),
               ),
               const SizedBox(width: 4),
               const Icon(
                 Icons.keyboard_arrow_down,
                 size: 12,
-                color: AppColors.textDisabled,
+                color: SigapColors.textDisabled,
               ),
             ],
           ),

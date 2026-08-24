@@ -44,10 +44,10 @@ class FotoSpot {
 /// Tapping a spot triggers [onPhotoTap] callback for capture/retake.
 ///
 /// Design tokens used:
-/// - Grid gap: AppSpacing.sm (8px)
+/// - Grid gap: SigapSpacing.sm (8px)
 /// - Photo spot size: flexible (fills grid cell)
-/// - Placeholder border radius: AppRadius.md (10px)
-/// - Label font: AppTypography.size11, fontWeight 600
+/// - Placeholder border radius: SigapRadius.md (10px)
+/// - Label font: SigapTypography.size11, fontWeight 600
 /// - Status indicator: small rounded pill
 ///
 /// Example:
@@ -88,8 +88,8 @@ class FotoSudutCapture extends StatelessWidget {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: AppSpacing.sm,
-      crossAxisSpacing: AppSpacing.sm,
+      mainAxisSpacing: SigapSpacing.sm,
+      crossAxisSpacing: SigapSpacing.sm,
       childAspectRatio: 1.0,
       children: FotoSudutDirection.values.map((direction) {
         final directionName = direction.name;
@@ -128,10 +128,10 @@ class _FotoSpotTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.md),
           border: Border.all(
-            color: hasPhoto ? AppColors.primary : AppColors.borderCard,
+            color: hasPhoto ? SigapColors.primary : SigapColors.borderCard,
             width: hasPhoto ? 1.5 : 1,
           ),
         ),
@@ -147,23 +147,23 @@ class _FotoSpotTile extends StatelessWidget {
 
             // Direction label at top-left
             Positioned(
-              top: AppSpacing.x6,
-              left: AppSpacing.x6,
+              top: SigapSpacing.x6,
+              left: SigapSpacing.x6,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.x6,
-                  vertical: AppSpacing.x4,
+                  horizontal: SigapSpacing.x6,
+                  vertical: SigapSpacing.x4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.bgCard.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(AppRadius.x4),
+                  color: SigapColors.bgCard.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(SigapRadius.x4),
                 ),
                 child: Text(
                   direction.label,
                   style: const TextStyle(
-                    fontSize: AppTypography.size11,
+                    fontSize: SigapTypography.size11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
               ),
@@ -171,8 +171,8 @@ class _FotoSpotTile extends StatelessWidget {
 
             // Status indicator at bottom-right
             Positioned(
-              bottom: AppSpacing.x6,
-              right: AppSpacing.x6,
+              bottom: SigapSpacing.x6,
+              right: SigapSpacing.x6,
               child: _StatusIndicator(
                 status: hasPhoto
                     ? FotoSpotStatus.captured
@@ -225,21 +225,21 @@ class _PhotoPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.bgSurface,
+      color: SigapColors.bgSurface,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.camera_alt_outlined,
             size: 28,
-            color: AppColors.textDisabled,
+            color: SigapColors.textDisabled,
           ),
-          const SizedBox(height: AppSpacing.x4),
+          const SizedBox(height: SigapSpacing.x4),
           Text(
             'Tap untuk foto',
             style: TextStyle(
-              fontSize: AppTypography.size10,
-              color: AppColors.textDisabled,
+              fontSize: SigapTypography.size10,
+              color: SigapColors.textDisabled,
             ),
           ),
         ],
@@ -254,14 +254,14 @@ class _PhotoLoadingPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.bgSurface,
+      color: SigapColors.bgSurface,
       child: const Center(
         child: SizedBox(
           width: 24,
           height: 24,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(SigapColors.primary),
           ),
         ),
       ),
@@ -275,21 +275,21 @@ class _PhotoErrorPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.bgSurface,
+      color: SigapColors.bgSurface,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.broken_image_outlined,
             size: 28,
-            color: AppColors.textDisabled,
+            color: SigapColors.textDisabled,
           ),
-          const SizedBox(height: AppSpacing.x4),
+          const SizedBox(height: SigapSpacing.x4),
           Text(
             'Gagal memuat',
             style: TextStyle(
-              fontSize: AppTypography.size10,
-              color: AppColors.textDisabled,
+              fontSize: SigapTypography.size10,
+              color: SigapColors.textDisabled,
             ),
           ),
         ],
@@ -312,19 +312,19 @@ class _StatusIndicator extends StatelessWidget {
 
     switch (status) {
       case FotoSpotStatus.captured:
-        backgroundColor = AppColors.primary;
+        backgroundColor = SigapColors.primary;
         textColor = Colors.white;
         text = Strings.tersimpan;
         icon = Icons.check;
         break;
       case FotoSpotStatus.retake:
-        backgroundColor = AppColors.warning;
+        backgroundColor = SigapColors.warning;
         textColor = Colors.white;
         text = 'Ulangi';
         icon = Icons.refresh;
         break;
       default:
-        backgroundColor = AppColors.textDisabled.withValues(alpha: 0.8);
+        backgroundColor = SigapColors.textDisabled.withValues(alpha: 0.8);
         textColor = Colors.white;
         text = 'Kosong';
         icon = Icons.add;
@@ -333,22 +333,22 @@ class _StatusIndicator extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x6,
-        vertical: AppSpacing.x4,
+        horizontal: SigapSpacing.x6,
+        vertical: SigapSpacing.x4,
       ),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+        borderRadius: BorderRadius.circular(SigapRadius.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 10, color: textColor),
-          const SizedBox(width: AppSpacing.x4),
+          const SizedBox(width: SigapSpacing.x4),
           Text(
             text,
             style: TextStyle(
-              fontSize: AppTypography.size9,
+              fontSize: SigapTypography.size9,
               fontWeight: FontWeight.w600,
               color: textColor,
             ),

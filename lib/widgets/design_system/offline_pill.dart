@@ -8,35 +8,35 @@ class OfflinePill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x9,
-        vertical: AppSpacing.x4,
+        horizontal: SigapSpacing.x9,
+        vertical: SigapSpacing.x4,
       ),
       decoration: BoxDecoration(
-        color: AppColors.warningBg,
-        border: Border.all(color: AppColors.warningBorder),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+        color: SigapColors.warningBg,
+        border: Border.all(color: SigapColors.warningBorder),
+        borderRadius: BorderRadius.circular(SigapRadius.pill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(width: AppSpacing.x7),
+          SizedBox(width: SigapSpacing.x7),
           SizedBox(
             width: 7,
             height: 7,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: AppColors.warning,
+                color: SigapColors.warning,
                 shape: BoxShape.circle,
               ),
             ),
           ),
-          SizedBox(width: AppSpacing.xs),
+          SizedBox(width: SigapSpacing.xs),
           Text(
             'Offline',
             style: TextStyle(
-              fontSize: AppTypography.size11,
+              fontSize: SigapTypography.size11,
               fontWeight: FontWeight.w600,
-              color: AppColors.warningText,
+              color: SigapColors.warningText,
             ),
           ),
         ],

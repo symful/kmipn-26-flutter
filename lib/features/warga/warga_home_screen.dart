@@ -331,22 +331,22 @@ Widget _buildNearbyError(Object error, VoidCallback onRetry) {
     children: [
       const SizedBox(height: SigapSpacing.md),
       Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(SigapSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          border: Border.all(color: AppColors.borderCard),
-          borderRadius: BorderRadius.circular(AppRadius.x12),
+          color: SigapColors.bgCard,
+          border: Border.all(color: SigapColors.borderCard),
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
         ),
         child: Row(
           children: [
-            const Icon(Icons.error_outline, color: AppColors.danger, size: 24),
-            const SizedBox(width: AppSpacing.x11),
+            const Icon(Icons.error_outline, color: SigapColors.danger, size: 24),
+            const SizedBox(width: SigapSpacing.x11),
             Expanded(
               child: Text(
                 'Gagal memuat kasus terdekat',
                 style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: AppTypography.size13_5,
+                  color: SigapColors.textSecondary,
+                  fontSize: SigapTypography.size13_5,
                 ),
               ),
             ),
@@ -355,9 +355,9 @@ Widget _buildNearbyError(Object error, VoidCallback onRetry) {
               child: const Text(
                 'Coba lagi',
                 style: TextStyle(
-                  fontSize: AppTypography.size12,
+                  fontSize: SigapTypography.size12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: SigapColors.primary,
                 ),
               ),
             ),
@@ -661,9 +661,9 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: SigapColors.primaryLight,
                         borderRadius: BorderRadius.circular(SigapRadius.md),
-                        border: Border.all(color: AppColors.successBorder),
+                        border: Border.all(color: SigapColors.successBorder),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -672,7 +672,7 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                             width: 7,
                             height: 7,
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: SigapColors.primary,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -680,7 +680,7 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                           const Text(
                             'Online',
                             style: TextStyle(
-                              color: AppColors.primaryDark,
+                              color: SigapColors.primaryDark,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -771,9 +771,9 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                             const Text(
                               Strings.laporanSaya,
                               style: TextStyle(
-                                fontSize: AppTypography.size13,
+                                fontSize: SigapTypography.size13,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: SigapColors.textPrimary,
                               ),
                             ),
                             GestureDetector(
@@ -781,9 +781,9 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                               child: const Text(
                                 Strings.lihatSemua,
                                 style: TextStyle(
-                                  fontSize: AppTypography.size12,
+                                  fontSize: SigapTypography.size12,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.primary,
+                                  color: SigapColors.primary,
                                 ),
                               ),
                             ),

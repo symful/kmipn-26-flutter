@@ -252,12 +252,10 @@ final surveyorFilterProvider = StateProvider<int?>((ref) => null);
 final surveyorSortProvider = StateProvider<String>((ref) => 'terbaru');
 
 /// Fetches surveyor tasks from the server for S-01 screen.
-final surveyorTasksProvider = FutureProvider<List<Map<String, dynamic>>>((
-  ref,
-) async {
+final surveyorTasksProvider = FutureProvider<List<SurveyorTask>>((ref) async {
   final api = ref.watch(apiClientProvider);
   final page = await api.surveyorGetTasks();
-  return page.tasks.map((t) => t.toJson()).toList();
+  return page.tasks;
 });
 
 // ─── Surveyor Task Action Providers ─────────────────────────────────────────

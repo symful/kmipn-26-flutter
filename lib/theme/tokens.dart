@@ -216,22 +216,3 @@ class SigapTypography {
   static const double letterSpacingTight = -0.01;
   static const double letterSpacingLabel = 0.04;
 }
-
-// ============================================================================
-// Backward-Compatible Aliases (for existing code using old names)
-// ============================================================================
-
-/// Backward-compatible alias for SigapColors.
-typedef AppColors = SigapColors;
-
-/// Backward-compatible alias for SigapSpacing.
-typedef AppSpacing = SigapSpacing;
-
-/// Backward-compatible alias for SigapRadius.
-typedef AppRadius = SigapRadius;
-
-/// Backward-compatible alias for SigapShadows.
-typedef AppShadows = SigapShadows;
-
-/// Backward-compatible alias for SigapTypography.
-typedef AppTypography = SigapTypography;

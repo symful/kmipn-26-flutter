@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 /// Application shadow definitions.
 ///
 /// Provides 6 shadow presets for consistent elevation across the app.
-class AppShadows {
-  AppShadows._();
+class SigapShadows {
+  SigapShadows._();
 
   /// Subtle shadow for cards and small surfaces.
   static List<BoxShadow> get subtle => [

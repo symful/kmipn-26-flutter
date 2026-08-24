@@ -8,12 +8,12 @@ import '../../../../theme/tokens.dart';
 /// Checked items display with strikethrough and muted color.
 ///
 /// Design tokens used:
-/// - Checkbox checked: AppColors.primary (#0F7A6B)
-/// - Checkbox unchecked: AppColors.bgSoft (#EEF0EC)
-/// - Item text: AppColors.textPrimary (#17191C)
-/// - Checked text: AppColors.textDisabled (#8A9099) with strikethrough
-/// - Number badge: AppColors.primaryLight background, AppColors.primaryDark text
-/// - Asterisk: AppColors.danger (#C0392B)
+/// - Checkbox checked: SigapColors.primary (#0F7A6B)
+/// - Checkbox unchecked: SigapColors.bgSoft (#EEF0EC)
+/// - Item text: SigapColors.textPrimary (#17191C)
+/// - Checked text: SigapColors.textDisabled (#8A9099) with strikethrough
+/// - Number badge: SigapColors.primaryLight background, SigapColors.primaryDark text
+/// - Asterisk: SigapColors.danger (#C0392B)
 ///
 /// Example:
 /// ```dart
@@ -55,7 +55,7 @@ class S02Checklist extends StatelessWidget {
             isChecked: checkedItems.contains(i),
             onTap: () => onItemToggled(i),
           ),
-          if (i < items.length - 1) const SizedBox(height: AppSpacing.sm),
+          if (i < items.length - 1) const SizedBox(height: SigapSpacing.sm),
         ],
       ],
     );
@@ -85,33 +85,33 @@ class _ChecklistItem extends StatelessWidget {
         children: [
           // Number badge
           _NumberBadge(number: index + 1),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: SigapSpacing.sm),
 
           // Checkbox
           _Checkbox(isChecked: isChecked),
-          const SizedBox(width: AppSpacing.x9),
+          const SizedBox(width: SigapSpacing.x9),
 
           // Asterisk indicator
           Text(
             '*',
             style: TextStyle(
-              fontSize: AppTypography.size13,
+              fontSize: SigapTypography.size13,
               fontWeight: FontWeight.w700,
-              color: isChecked ? AppColors.textDisabled : AppColors.danger,
+              color: isChecked ? SigapColors.textDisabled : SigapColors.danger,
             ),
           ),
-          const SizedBox(width: AppSpacing.xxs),
+          const SizedBox(width: SigapSpacing.xxs),
 
           // Item text
           Expanded(
             child: Text(
               text,
               style: TextStyle(
-                fontSize: AppTypography.size13,
-                height: AppTypography.lineHeight140,
+                fontSize: SigapTypography.size13,
+                height: SigapTypography.lineHeight140,
                 color: isChecked
-                    ? AppColors.textDisabled
-                    : AppColors.textPrimary,
+                    ? SigapColors.textDisabled
+                    : SigapColors.textPrimary,
                 decoration: isChecked ? TextDecoration.lineThrough : null,
               ),
             ),
@@ -133,16 +133,16 @@ class _NumberBadge extends StatelessWidget {
       width: 20,
       height: 20,
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+        color: SigapColors.primaryLight,
+        borderRadius: BorderRadius.circular(SigapRadius.pill),
       ),
       child: Center(
         child: Text(
           '$number',
           style: const TextStyle(
-            fontSize: AppTypography.size11,
+            fontSize: SigapTypography.size11,
             fontWeight: FontWeight.w600,
-            color: AppColors.primaryDark,
+            color: SigapColors.primaryDark,
           ),
         ),
       ),
@@ -162,11 +162,11 @@ class _Checkbox extends StatelessWidget {
       width: 18,
       height: 18,
       decoration: BoxDecoration(
-        color: isChecked ? AppColors.primary : AppColors.bgSoft,
+        color: isChecked ? SigapColors.primary : SigapColors.bgSoft,
         borderRadius: BorderRadius.circular(5),
         border: isChecked
             ? null
-            : Border.all(color: AppColors.borderSoft, width: 1.5),
+            : Border.all(color: SigapColors.borderSoft, width: 1.5),
       ),
       child: isChecked
           ? const Center(

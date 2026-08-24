@@ -23,12 +23,12 @@ class SurveyFormHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
+        horizontal: SigapSpacing.lg,
+        vertical: SigapSpacing.md,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(bottom: BorderSide(color: AppColors.borderCard)),
+        color: SigapColors.bgCard,
+        border: Border(bottom: BorderSide(color: SigapColors.borderCard)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,12 +37,12 @@ class SurveyFormHeader extends StatelessWidget {
           Text(
             title ?? 'Kunjungan surveyor',
             style: const TextStyle(
-              fontSize: AppTypography.size22,
+              fontSize: SigapTypography.size22,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: SigapSpacing.md),
           // 3-step progress bar with labels
           _buildProgressBar(),
         ],
@@ -64,9 +64,9 @@ class SurveyFormHeader extends StatelessWidget {
             return Expanded(
               child: Container(
                 height: 4,
-                margin: EdgeInsets.only(right: i < 2 ? AppSpacing.xs : 0),
+                margin: EdgeInsets.only(right: i < 2 ? SigapSpacing.xs : 0),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.primary : AppColors.borderCard,
+                  color: isActive ? SigapColors.primary : SigapColors.borderCard,
                   borderRadius: BorderRadius.circular(2),
                 ),
                 child: isCompleted
@@ -76,7 +76,7 @@ class SurveyFormHeader extends StatelessWidget {
             );
           }),
         ),
-        const SizedBox(height: AppSpacing.x4),
+        const SizedBox(height: SigapSpacing.x4),
         // Step labels
         Row(
           children: List.generate(3, (i) {
@@ -85,11 +85,11 @@ class SurveyFormHeader extends StatelessWidget {
               child: Text(
                 steps[i],
                 style: TextStyle(
-                  fontSize: AppTypography.size10,
+                  fontSize: SigapTypography.size10,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   color: isActive
-                      ? AppColors.textPrimary
-                      : AppColors.textTertiary,
+                      ? SigapColors.textPrimary
+                      : SigapColors.textTertiary,
                 ),
                 textAlign: TextAlign.left,
               ),

@@ -28,16 +28,16 @@ class S02CategoryTitle extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _CategoryChip(icon: categoryIcon, name: categoryName),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: SigapSpacing.sm),
         Text(
           title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: AppTypography.size16,
+            fontSize: SigapTypography.size16,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-            height: AppTypography.lineHeight135,
+            color: SigapColors.textPrimary,
+            height: SigapTypography.lineHeight135,
           ),
         ),
       ],
@@ -55,19 +55,19 @@ class _CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.x4,
+        horizontal: SigapSpacing.sm,
+        vertical: SigapSpacing.x4,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+        color: SigapColors.primaryLight,
+        borderRadius: BorderRadius.circular(SigapRadius.pill),
       ),
       child: Text(
         '$icon $name',
         style: const TextStyle(
-          fontSize: AppTypography.size12,
+          fontSize: SigapTypography.size12,
           fontWeight: FontWeight.w600,
-          color: AppColors.primaryDark,
+          color: SigapColors.primaryDark,
         ),
       ),
     );

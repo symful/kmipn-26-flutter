@@ -19,9 +19,9 @@ class StatusBar extends StatelessWidget {
           Text(
             time,
             style: TextStyle(
-              fontSize: AppTypography.size13,
+              fontSize: SigapTypography.size13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
@@ -47,7 +47,7 @@ class StatusBar extends StatelessWidget {
           width: 16,
           height: 9,
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.textPrimary, width: 1.4),
+            border: Border.all(color: SigapColors.textPrimary, width: 1.4),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -56,7 +56,7 @@ class StatusBar extends StatelessWidget {
           width: 6,
           height: 9,
           decoration: BoxDecoration(
-            color: AppColors.textPrimary,
+            color: SigapColors.textPrimary,
             borderRadius: BorderRadius.circular(1),
           ),
         ),
@@ -73,7 +73,7 @@ class StatusBar extends StatelessWidget {
           height: 9,
           decoration: BoxDecoration(
             border: Border.all(
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
               width: 1.4, // Design: 1.4px border
             ),
             borderRadius: BorderRadius.circular(2),
@@ -85,7 +85,7 @@ class StatusBar extends StatelessWidget {
               height: 9,
               margin: const EdgeInsets.only(right: 1),
               decoration: BoxDecoration(
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
                 borderRadius: BorderRadius.circular(1),
               ),
             ),

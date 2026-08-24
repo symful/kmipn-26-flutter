@@ -33,7 +33,7 @@ class _SurveyorTabScreenState extends ConsumerState<SurveyorTabScreen> {
           StatusBar(),
           Expanded(
             child: Scaffold(
-              backgroundColor: AppColors.bgSurface,
+              backgroundColor: SigapColors.bgSurface,
               body: IndexedStack(
                 index: _selectedIndex,
                 children: const [_SinkronTab(), _RiwayatTab()],
@@ -66,11 +66,11 @@ class _SinkronTab extends ConsumerWidget {
       slivers: [
         SliverAppBar(
           floating: true,
-          backgroundColor: AppColors.bgCard,
+          backgroundColor: SigapColors.bgCard,
           automaticallyImplyLeading: false,
           titleSpacing: 0,
           title: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
             child: Row(
               children: [
                 Column(
@@ -80,9 +80,9 @@ class _SinkronTab extends ConsumerWidget {
                     const Text(
                       'Tugas hari ini',
                       style: TextStyle(
-                        fontSize: AppTypography.size19,
+                        fontSize: SigapTypography.size19,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -91,17 +91,17 @@ class _SinkronTab extends ConsumerWidget {
                         '${tasks.length} tugas',
                         style: const TextStyle(
                           fontFamily: 'IBM Plex Mono',
-                          fontSize: AppTypography.size12,
-                          color: AppColors.textTertiary,
+                          fontSize: SigapTypography.size12,
+                          color: SigapColors.textTertiary,
                         ),
                       ),
                       loading: () => const Text(
                         '-',
-                        style: TextStyle(color: AppColors.textTertiary),
+                        style: TextStyle(color: SigapColors.textTertiary),
                       ),
                       error: (_, __) => const Text(
                         '-',
-                        style: TextStyle(color: AppColors.textTertiary),
+                        style: TextStyle(color: SigapColors.textTertiary),
                       ),
                     ),
                   ],
@@ -115,8 +115,8 @@ class _SinkronTab extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.sm,
+              horizontal: SigapSpacing.lg,
+              vertical: SigapSpacing.sm,
             ),
             child: TaskFilterChips(selectedIndex: null, onChipSelected: (_) {}),
           ),
@@ -133,26 +133,26 @@ class _SinkronTab extends ConsumerWidget {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: AppColors.bgSurface,
+                          color: SigapColors.bgSurface,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.borderCard,
+                            color: SigapColors.borderCard,
                             width: 2,
                           ),
                         ),
                         child: const Icon(
                           Icons.inbox_outlined,
                           size: 40,
-                          color: AppColors.textTertiary,
+                          color: SigapColors.textTertiary,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: SigapSpacing.lg),
                       const Text(
                         'Tidak ada tugas',
                         style: TextStyle(
-                          fontSize: AppTypography.size16,
+                          fontSize: SigapTypography.size16,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: SigapColors.textPrimary,
                         ),
                       ),
                     ],
@@ -161,13 +161,13 @@ class _SinkronTab extends ConsumerWidget {
               );
             }
             return SliverPadding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(SigapSpacing.lg),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final task = tasks[index];
                   final taskId = task['id']?.toString() ?? '';
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    padding: const EdgeInsets.only(bottom: SigapSpacing.md),
                     child: _SinkronTaskCard(
                       title: task['title']?.toString() ?? '-',
                       taskId: taskId,
@@ -222,18 +222,18 @@ class _SinkronTaskCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.x12),
-          border: Border.all(color: AppColors.borderCard),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
+          border: Border.all(color: SigapColors.borderCard),
         ),
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(SigapSpacing.md),
         child: Row(
           children: [
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
+                color: SigapColors.primaryLight,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
@@ -241,12 +241,12 @@ class _SinkronTaskCard extends StatelessWidget {
                   title.isNotEmpty ? title.substring(0, 1).toUpperCase() : '-',
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primaryDark,
+                    color: SigapColors.primaryDark,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: SigapSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,9 +254,9 @@ class _SinkronTaskCard extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: AppTypography.size13_5,
+                      fontSize: SigapTypography.size13_5,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: SigapColors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -266,8 +266,8 @@ class _SinkronTaskCard extends StatelessWidget {
                     _taskIdDisplay,
                     style: const TextStyle(
                       fontFamily: 'IBM Plex Mono',
-                      fontSize: AppTypography.size11,
-                      color: AppColors.textTertiary,
+                      fontSize: SigapTypography.size11,
+                      color: SigapColors.textTertiary,
                     ),
                   ),
                   if (location != '-') ...[
@@ -275,8 +275,8 @@ class _SinkronTaskCard extends StatelessWidget {
                     Text(
                       location,
                       style: const TextStyle(
-                        fontSize: AppTypography.size11_5,
-                        color: AppColors.textTertiary,
+                        fontSize: SigapTypography.size11_5,
+                        color: SigapColors.textTertiary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -285,7 +285,7 @@ class _SinkronTaskCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+            const Icon(Icons.chevron_right, color: SigapColors.textTertiary),
           ],
         ),
       ),
@@ -303,19 +303,19 @@ class _RiwayatTab extends ConsumerWidget {
       slivers: [
         SliverAppBar(
           floating: true,
-          backgroundColor: AppColors.bgCard,
+          backgroundColor: SigapColors.bgCard,
           automaticallyImplyLeading: false,
           titleSpacing: 0,
           title: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
             child: Row(
               children: [
                 const Text(
                   'Riwayat',
                   style: TextStyle(
-                    fontSize: AppTypography.size19,
+                    fontSize: SigapTypography.size19,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -332,31 +332,31 @@ class _RiwayatTab extends ConsumerWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.bgSurface,
+                    color: SigapColors.bgSurface,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.borderCard, width: 2),
+                    border: Border.all(color: SigapColors.borderCard, width: 2),
                   ),
                   child: const Icon(
                     Icons.history,
                     size: 40,
-                    color: AppColors.textTertiary,
+                    color: SigapColors.textTertiary,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: SigapSpacing.lg),
                 const Text(
                   'Belum ada riwayat',
                   style: TextStyle(
-                    fontSize: AppTypography.size16,
+                    fontSize: SigapTypography.size16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: SigapSpacing.xs),
                 const Text(
                   'Visit yang dikirim akan muncul di sini',
                   style: TextStyle(
-                    fontSize: AppTypography.size13,
-                    color: AppColors.textTertiary,
+                    fontSize: SigapTypography.size13,
+                    color: SigapColors.textTertiary,
                   ),
                 ),
               ],
@@ -394,7 +394,7 @@ class _Surveyor2TabNav extends StatelessWidget {
             Icon(
               isSelected ? activeIcon : icon,
               size: 24,
-              color: isSelected ? AppColors.primary : AppColors.textTertiary,
+              color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
             ),
             const SizedBox(height: 4),
             Text(
@@ -402,7 +402,7 @@ class _Surveyor2TabNav extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
               ),
             ),
           ],

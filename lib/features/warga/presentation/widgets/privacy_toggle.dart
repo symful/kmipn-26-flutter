@@ -24,11 +24,11 @@ class PrivacyToggle extends StatelessWidget {
     return GestureDetector(
       onTap: onChanged != null ? () => onChanged!(!value) : null,
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.x12),
+        padding: const EdgeInsets.all(SigapSpacing.x12),
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.borderCard),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.lg),
+          border: Border.all(color: SigapColors.borderCard),
         ),
         child: Row(
           children: [
@@ -39,23 +39,23 @@ class PrivacyToggle extends StatelessWidget {
                   Text(
                     'Identitas saya di publik',
                     style: TextStyle(
-                      fontSize: AppTypography.size13,
+                      fontSize: SigapTypography.size13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: SigapColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 1),
                   Text(
                     'Default: privat · hanya petugas melihat',
                     style: TextStyle(
-                      fontSize: AppTypography.size11,
-                      color: AppColors.textTertiary,
+                      fontSize: SigapTypography.size11,
+                      color: SigapColors.textTertiary,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: SigapSpacing.md),
             // Info tooltip icon (stops propagation so it doesn't trigger toggle)
             GestureDetector(
               onTap: () => _showInfoTooltip(context),
@@ -68,7 +68,7 @@ class PrivacyToggle extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppColors.textTertiary,
+                      color: SigapColors.textTertiary,
                       width: 1.5,
                     ),
                   ),
@@ -76,16 +76,16 @@ class PrivacyToggle extends StatelessWidget {
                   child: Text(
                     'i',
                     style: TextStyle(
-                      fontSize: AppTypography.size11,
+                      fontSize: SigapTypography.size11,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textTertiary,
+                      color: SigapColors.textTertiary,
                       height: 1,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: SigapSpacing.sm),
             // Toggle switch from design system
             ds.PrivacyToggle(value: value, onChanged: onChanged),
           ],
@@ -99,22 +99,22 @@ class PrivacyToggle extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(SigapRadius.lg),
         ),
         title: Text(
           'Tentang Privasi',
           style: TextStyle(
-            fontSize: AppTypography.size14,
+            fontSize: SigapTypography.size14,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: SigapColors.textPrimary,
           ),
         ),
         content: Text(
           'Identitas dan lokasi presisi Anda hanya terlihat oleh petugas terkait. '
           'Publik hanya melihat lokasi yang digeneralisasi.',
           style: TextStyle(
-            fontSize: AppTypography.size12,
-            color: AppColors.textSecondary,
+            fontSize: SigapTypography.size12,
+            color: SigapColors.textSecondary,
             height: 1.4,
           ),
         ),
@@ -124,7 +124,7 @@ class PrivacyToggle extends StatelessWidget {
             child: Text(
               'Tutup',
               style: TextStyle(
-                color: AppColors.primary,
+                color: SigapColors.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),

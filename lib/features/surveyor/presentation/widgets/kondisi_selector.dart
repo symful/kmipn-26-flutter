@@ -9,11 +9,11 @@ import '../../../../theme/tokens.dart';
 /// Options are: "Baik", "Rusak Ringan", "Rusak Sedang", "Rusak Berat"
 ///
 /// Design tokens used:
-/// - Selected radio: AppColors.primary (#0F7A6B) fill
-/// - Unselected radio: AppColors.borderSoft (#D3D7D0) border
-/// - Label text: AppColors.textPrimary (#17191C)
-/// - Description text: AppColors.textTertiary (#616770)
-/// - Row spacing: AppSpacing.sm (8px)
+/// - Selected radio: SigapColors.primary (#0F7A6B) fill
+/// - Unselected radio: SigapColors.borderSoft (#D3D7D0) border
+/// - Label text: SigapColors.textPrimary (#17191C)
+/// - Description text: SigapColors.textTertiary (#616770)
+/// - Row spacing: SigapSpacing.sm (8px)
 ///
 /// Example:
 /// ```dart
@@ -54,7 +54,7 @@ class KondisiSelector extends StatelessWidget {
             isSelected: selectedValue == options[i],
             onTap: () => onChanged(options[i]),
           ),
-          if (i < options.length - 1) const SizedBox(height: AppSpacing.sm),
+          if (i < options.length - 1) const SizedBox(height: SigapSpacing.sm),
         ],
       ],
     );
@@ -81,15 +81,15 @@ class _RadioOption extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _RadioCircle(isSelected: isSelected),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: SigapSpacing.sm),
           Expanded(
             child: Text(
               label,
               style: TextStyle(
-                fontSize: AppTypography.size13,
-                height: AppTypography.lineHeight140,
+                fontSize: SigapTypography.size13,
+                height: SigapTypography.lineHeight140,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
           ),
@@ -112,9 +112,9 @@ class _RadioCircle extends StatelessWidget {
       height: 20,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isSelected ? AppColors.primary : Colors.transparent,
+        color: isSelected ? SigapColors.primary : Colors.transparent,
         border: Border.all(
-          color: isSelected ? AppColors.primary : AppColors.borderSoft,
+          color: isSelected ? SigapColors.primary : SigapColors.borderSoft,
           width: 2,
         ),
       ),

@@ -153,7 +153,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.camera_alt, color: AppColors.primary),
+              leading: const Icon(Icons.camera_alt, color: SigapColors.primary),
               title: const Text('Kamera'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -163,7 +163,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
             ListTile(
               leading: const Icon(
                 Icons.photo_library,
-                color: AppColors.primary,
+                color: SigapColors.primary,
               ),
               title: const Text('Galeri'),
               onTap: () {
@@ -243,16 +243,16 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 appBar: AppBar(title: const Text('Form Survei')),
                 body: Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    padding: const EdgeInsets.all(SigapSpacing.xl),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.check_circle,
-                          color: AppColors.primary,
+                          color: SigapColors.primary,
                           size: 64,
                         ),
-                        const SizedBox(height: AppSpacing.lg),
+                        const SizedBox(height: SigapSpacing.lg),
                         const Text(
                           Strings.surveiBerhasilDikirim,
                           style: TextStyle(
@@ -261,24 +261,24 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: SigapSpacing.sm),
                         Text(
                           'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: SigapColors.textSecondary,
                             fontSize: 14,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: AppSpacing.xl),
+                        const SizedBox(height: SigapSpacing.xl),
                         ElevatedButton(
                           onPressed: () => context.go('/surveyor/tasks'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: SigapColors.primary,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.xl,
-                              vertical: AppSpacing.md,
+                              horizontal: SigapSpacing.xl,
+                              vertical: SigapSpacing.md,
                             ),
                           ),
                           child: const Text('Kembali ke Daftar Tugas'),
@@ -300,43 +300,43 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
           StatusBar(),
           Expanded(
             child: Scaffold(
-              backgroundColor: AppColors.bgScreen,
+              backgroundColor: SigapColors.bgScreen,
               body: Column(
                 children: [
                   // Custom Header with Back Arrow, Title, Task ID, Timestamp, Progress
                   _buildCustomHeader(),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      padding: const EdgeInsets.all(SigapSpacing.lg),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // GPS Section
                           _buildSectionHeader('Lokasi GPS', AppIcons.location),
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: SigapSpacing.sm),
                           _buildGpsCard(),
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: SigapSpacing.xl),
 
                           // Photo Grid Section - "Foto per sudut"
                           _buildSectionHeader(
                             'Foto per sudut',
                             AppIcons.camera,
                           ),
-                          const SizedBox(height: AppSpacing.xs),
+                          const SizedBox(height: SigapSpacing.xs),
                           _buildPhotoCounter(),
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: SigapSpacing.sm),
                           _buildPhotoGrid(),
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: SigapSpacing.xl),
 
                           // Kondisi Segmented Control
                           _buildSectionHeader('Kondisi', null),
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: SigapSpacing.sm),
                           _buildKondisiSegmentedControl(),
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: SigapSpacing.xl),
 
                           // Catatan Lapangan
                           _buildSectionHeader('Catatan lapangan', null),
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: SigapSpacing.sm),
                           TextField(
                             controller: _notesController,
                             maxLines: 3,
@@ -344,69 +344,69 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                             decoration: InputDecoration(
                               hintText: 'Tambahkan catatan lapangan...',
                               hintStyle: TextStyle(
-                                color: AppColors.textTertiary,
+                                color: SigapColors.textTertiary,
                               ),
                               filled: true,
-                              fillColor: AppColors.bgCard,
+                              fillColor: SigapColors.bgCard,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(
-                                  AppRadius.md,
+                                  SigapRadius.md,
                                 ),
                                 borderSide: const BorderSide(
-                                  color: AppColors.borderCard,
+                                  color: SigapColors.borderCard,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(
-                                  AppRadius.md,
+                                  SigapRadius.md,
                                 ),
                                 borderSide: const BorderSide(
-                                  color: AppColors.borderCard,
+                                  color: SigapColors.borderCard,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(
-                                  AppRadius.md,
+                                  SigapRadius.md,
                                 ),
                                 borderSide: const BorderSide(
-                                  color: AppColors.primary,
+                                  color: SigapColors.primary,
                                   width: 2,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: SigapSpacing.xl),
 
                           // Rekomendasi Radio Buttons
                           _buildSectionHeader('Rekomendasi', null),
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: SigapSpacing.sm),
                           _buildRekomendasiRadioGroup(),
-                          const SizedBox(height: AppSpacing.xl),
+                          const SizedBox(height: SigapSpacing.xl),
 
                           // Error message
                           if (_submitError != null) ...[
-                            const SizedBox(height: AppSpacing.lg),
+                            const SizedBox(height: SigapSpacing.lg),
                             Container(
-                              padding: const EdgeInsets.all(AppSpacing.md),
+                              padding: const EdgeInsets.all(SigapSpacing.md),
                               decoration: BoxDecoration(
-                                color: AppColors.dangerBg,
+                                color: SigapColors.dangerBg,
                                 borderRadius: BorderRadius.circular(
-                                  AppRadius.sm,
+                                  SigapRadius.sm,
                                 ),
                               ),
                               child: Row(
                                 children: [
                                   const Icon(
                                     Icons.error_outline,
-                                    color: AppColors.danger,
+                                    color: SigapColors.danger,
                                     size: 18,
                                   ),
-                                  const SizedBox(width: AppSpacing.sm),
+                                  const SizedBox(width: SigapSpacing.sm),
                                   Expanded(
                                     child: Text(
                                       _submitError!,
                                       style: TextStyle(
-                                        color: AppColors.danger,
+                                        color: SigapColors.danger,
                                         fontSize: 13,
                                       ),
                                     ),
@@ -427,17 +427,17 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   // Bottom Fixed Submit Button
                   Container(
                     padding: EdgeInsets.only(
-                      left: AppSpacing.lg,
-                      right: AppSpacing.lg,
-                      top: AppSpacing.md,
+                      left: SigapSpacing.lg,
+                      right: SigapSpacing.lg,
+                      top: SigapSpacing.md,
                       bottom:
-                          MediaQuery.of(context).padding.bottom + AppSpacing.md,
+                          MediaQuery.of(context).padding.bottom + SigapSpacing.md,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.bgCard,
+                      color: SigapColors.bgCard,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.textPrimary.withValues(alpha: 0.1),
+                          color: SigapColors.textPrimary.withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, -2),
                         ),
@@ -446,12 +446,12 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                     child: ElevatedButton(
                       onPressed: _canSubmit && !_submitting ? _submit : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: SigapColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.md,
+                          vertical: SigapSpacing.md,
                         ),
-                        disabledBackgroundColor: AppColors.borderCard,
+                        disabledBackgroundColor: SigapColors.borderCard,
                       ),
                       child: _submitting
                           ? const SizedBox(
@@ -485,11 +485,11 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   Widget _buildSectionHeader(String title, Icon? icon) {
     return Row(
       children: [
-        if (icon != null) ...[icon, const SizedBox(width: AppSpacing.sm)],
+        if (icon != null) ...[icon, const SizedBox(width: SigapSpacing.sm)],
         Text(
           title,
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: SigapColors.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -501,14 +501,14 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   Widget _buildCustomHeader() {
     return Container(
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + AppSpacing.md,
-        left: AppSpacing.md,
-        right: AppSpacing.lg,
-        bottom: AppSpacing.md,
+        top: MediaQuery.of(context).padding.top + SigapSpacing.md,
+        left: SigapSpacing.md,
+        right: SigapSpacing.lg,
+        bottom: SigapSpacing.md,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(bottom: BorderSide(color: AppColors.borderCard)),
+        color: SigapColors.bgCard,
+        border: Border(bottom: BorderSide(color: SigapColors.borderCard)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,30 +522,30 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: SigapSpacing.md),
               const Text(
                 'Form survei',
                 style: TextStyle(
-                  fontSize: AppTypography.size20,
+                  fontSize: SigapTypography.size20,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: SigapColors.textPrimary,
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: SigapSpacing.md),
               Text(
                 'TGS-3402',
                 style: TextStyle(
-                  fontSize: AppTypography.size11,
+                  fontSize: SigapTypography.size11,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'IBM Plex Mono',
-                  color: AppColors.textSecondary,
+                  color: SigapColors.textSecondary,
                 ),
               ),
               Text(
                 ' · offline',
                 style: TextStyle(
-                  fontSize: AppTypography.size11,
-                  color: AppColors.textTertiary,
+                  fontSize: SigapTypography.size11,
+                  color: SigapColors.textTertiary,
                 ),
               ),
               const Spacer(),
@@ -557,23 +557,23 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                     height: 7,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primary,
+                      color: SigapColors.primary,
                     ),
                   ),
                   const SizedBox(width: 5),
                   Text(
                     'Tersimpan 10:02',
                     style: TextStyle(
-                      fontSize: AppTypography.size11,
+                      fontSize: SigapTypography.size11,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: SigapColors.primary,
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: SigapSpacing.md),
           // Progress bar (66%)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -581,7 +581,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               Container(
                 height: 6,
                 decoration: BoxDecoration(
-                  color: AppColors.borderCard,
+                  color: SigapColors.borderCard,
                   borderRadius: BorderRadius.circular(3),
                 ),
                 child: FractionallySizedBox(
@@ -589,19 +589,19 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   widthFactor: 0.66,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      color: SigapColors.primary,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: SigapSpacing.xs),
               Text(
                 '66%',
                 style: TextStyle(
-                  fontSize: AppTypography.size10,
+                  fontSize: SigapTypography.size10,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: SigapColors.primary,
                 ),
               ),
             ],
@@ -618,9 +618,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         Text(
           '$filledCount dari 3',
           style: TextStyle(
-            fontSize: AppTypography.size13,
+            fontSize: SigapTypography.size13,
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: SigapColors.textSecondary,
           ),
         ),
         const Spacer(),
@@ -630,9 +630,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
             child: Text(
               'Tambah foto',
               style: TextStyle(
-                fontSize: AppTypography.size13,
+                fontSize: SigapTypography.size13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+                color: SigapColors.primary,
               ),
             ),
           ),
@@ -650,9 +650,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   Color _getPhotoLabelColor(int index) {
     if (index < _photos.length) {
-      return AppColors.textSecondary;
+      return SigapColors.textSecondary;
     }
-    return AppColors.danger;
+    return SigapColors.danger;
   }
 
   Widget _buildKondisiSegmentedControl() {
@@ -664,9 +664,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
     ];
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Row(
         children: List.generate(4, (index) {
@@ -675,24 +675,24 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
             child: GestureDetector(
               onTap: () => setState(() => _selectedKondisi = index),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary : Colors.transparent,
+                  color: isSelected ? SigapColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.horizontal(
                     left: index == 0
-                        ? const Radius.circular(AppRadius.lg - 1)
+                        ? const Radius.circular(SigapRadius.lg - 1)
                         : Radius.zero,
                     right: index == 3
-                        ? const Radius.circular(AppRadius.lg - 1)
+                        ? const Radius.circular(SigapRadius.lg - 1)
                         : Radius.zero,
                   ),
                 ),
                 child: Text(
                   kondisiOptions[index],
                   style: TextStyle(
-                    fontSize: AppTypography.size13,
+                    fontSize: SigapTypography.size13,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                    color: isSelected ? Colors.white : SigapColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -717,13 +717,13 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         return GestureDetector(
           onTap: () => setState(() => _selectedRekomendasi = index),
           child: Container(
-            margin: EdgeInsets.only(bottom: index < 1 ? AppSpacing.sm : 0),
-            padding: const EdgeInsets.all(AppSpacing.md),
+            margin: EdgeInsets.only(bottom: index < 1 ? SigapSpacing.sm : 0),
+            padding: const EdgeInsets.all(SigapSpacing.md),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.primaryLight : AppColors.bgCard,
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              color: isSelected ? SigapColors.primaryLight : SigapColors.bgCard,
+              borderRadius: BorderRadius.circular(SigapRadius.md),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.borderCard,
+                color: isSelected ? SigapColors.primary : SigapColors.borderCard,
                 width: isSelected ? 1.5 : 1,
               ),
             ),
@@ -734,11 +734,11 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   height: 18,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isSelected ? AppColors.primary : Colors.white,
+                    color: isSelected ? SigapColors.primary : Colors.white,
                     border: Border.all(
                       color: isSelected
-                          ? AppColors.primary
-                          : AppColors.borderSoft,
+                          ? SigapColors.primary
+                          : SigapColors.borderSoft,
                       width: 2,
                     ),
                   ),
@@ -755,16 +755,16 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                         )
                       : null,
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: SigapSpacing.sm),
                 Expanded(
                   child: Text(
                     label,
                     style: TextStyle(
-                      fontSize: AppTypography.size13,
+                      fontSize: SigapTypography.size13,
                       fontWeight: FontWeight.w600,
                       color: isSelected
-                          ? AppColors.primaryDark
-                          : AppColors.textPrimary,
+                          ? SigapColors.primaryDark
+                          : SigapColors.textPrimary,
                     ),
                   ),
                 ),
@@ -778,31 +778,31 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   Widget _buildGpsCard() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(SigapSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            padding: const EdgeInsets.all(SigapSpacing.sm),
             decoration: BoxDecoration(
               color: _capturedGps != null
-                  ? AppColors.primaryLight
-                  : AppColors.bgSurface,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+                  ? SigapColors.primaryLight
+                  : SigapColors.bgSurface,
+              borderRadius: BorderRadius.circular(SigapRadius.sm),
             ),
             child: Icon(
               Icons.location_on,
               color: _capturedGps != null
-                  ? AppColors.primary
-                  : AppColors.textTertiary,
+                  ? SigapColors.primary
+                  : SigapColors.textTertiary,
               size: 24,
             ),
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: SigapSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -812,7 +812,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                       ? '${_capturedGps!.$1.toStringAsFixed(6)}, ${_capturedGps!.$2.toStringAsFixed(6)}'
                       : 'GPS Belum Tertangkap',
                   style: TextStyle(
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -823,18 +823,18 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.xs,
+                          horizontal: SigapSpacing.xs,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(AppRadius.x1),
+                          color: SigapColors.primaryLight,
+                          borderRadius: BorderRadius.circular(SigapRadius.x1),
                         ),
                         child: Text(
                           'Akurasi baik',
                           style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: AppTypography.size10,
+                            color: SigapColors.primary,
+                            fontSize: SigapTypography.size10,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -845,7 +845,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   Text(
                     'Ketuk untuk menangkap koordinat GPS',
                     style: TextStyle(
-                      color: AppColors.textTertiary,
+                      color: SigapColors.textTertiary,
                       fontSize: 12,
                     ),
                   ),
@@ -858,8 +858,8 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               child: Text(
                 'Ambil ulang',
                 style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: AppTypography.size13,
+                  color: SigapColors.primary,
+                  fontSize: SigapTypography.size13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -875,18 +875,18 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                     onTap: _captureGps,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.sm,
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                        color: SigapColors.primary,
+                        borderRadius: BorderRadius.circular(SigapRadius.pill),
                       ),
                       child: const Text(
                         'Ambil GPS',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: AppTypography.size12,
+                          fontSize: SigapTypography.size12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -904,7 +904,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         final hasPhoto = index < _photos.length;
         return Expanded(
           child: Padding(
-            padding: EdgeInsets.only(right: index < 2 ? AppSpacing.sm : 0),
+            padding: EdgeInsets.only(right: index < 2 ? SigapSpacing.sm : 0),
             child: Column(
               children: [
                 AspectRatio(
@@ -913,14 +913,14 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                       ? Stack(
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(AppRadius.md),
+                              borderRadius: BorderRadius.circular(SigapRadius.md),
                               child: Image.file(
                                 File(_photos[index].path),
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => Container(
-                                  color: AppColors.bgSurface,
+                                  color: SigapColors.bgSurface,
                                   child: const Icon(Icons.image, size: 32),
                                 ),
                               ),
@@ -933,7 +933,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: AppColors.textPrimary.withValues(
+                                    color: SigapColors.textPrimary.withValues(
                                       alpha: 0.54,
                                     ),
                                     shape: BoxShape.circle,
@@ -952,10 +952,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                           onTap: _showPhotoSourceDialog,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: AppColors.bgSurface,
-                              borderRadius: BorderRadius.circular(AppRadius.md),
+                              color: SigapColors.bgSurface,
+                              borderRadius: BorderRadius.circular(SigapRadius.md),
                               border: Border.all(
-                                color: AppColors.borderCard,
+                                color: SigapColors.borderCard,
                                 style: BorderStyle.solid,
                               ),
                             ),
@@ -965,7 +965,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                                 Icon(
                                   Icons.add,
                                   size: 22,
-                                  color: AppColors.textMuted,
+                                  color: SigapColors.textMuted,
                                 ),
                               ],
                             ),
@@ -977,7 +977,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   _getPhotoLabel(index),
                   style: TextStyle(
                     color: _getPhotoLabelColor(index),
-                    fontSize: AppTypography.size10,
+                    fontSize: SigapTypography.size10,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,

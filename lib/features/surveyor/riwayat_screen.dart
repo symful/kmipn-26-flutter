@@ -77,24 +77,24 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
           StatusBar(),
           Expanded(
             child: Scaffold(
-              backgroundColor: AppColors.bgSurface,
+              backgroundColor: SigapColors.bgSurface,
               appBar: AppBar(
-                backgroundColor: AppColors.bgCard,
+                backgroundColor: SigapColors.bgCard,
                 elevation: 0,
                 automaticallyImplyLeading: false,
                 titleSpacing: 0,
                 title: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
+                    horizontal: SigapSpacing.lg,
                   ),
                   child: Row(
                     children: [
                       const Text(
                         'Riwayat',
                         style: TextStyle(
-                          fontSize: AppTypography.size19,
+                          fontSize: SigapTypography.size19,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: SigapColors.textPrimary,
                         ),
                       ),
                       const Spacer(),
@@ -102,8 +102,8 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
                         '${_visits.length} visit',
                         style: const TextStyle(
                           fontFamily: 'IBM Plex Mono',
-                          fontSize: AppTypography.size12,
-                          color: AppColors.textTertiary,
+                          fontSize: SigapTypography.size12,
+                          color: SigapColors.textTertiary,
                         ),
                       ),
                     ],
@@ -133,31 +133,31 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.bgSurface,
+              color: SigapColors.bgSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.borderCard, width: 2),
+              border: Border.all(color: SigapColors.borderCard, width: 2),
             ),
             child: const Icon(
               Icons.history,
               size: 40,
-              color: AppColors.textTertiary,
+              color: SigapColors.textTertiary,
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: SigapSpacing.lg),
           const Text(
             'Belum ada riwayat',
             style: TextStyle(
-              fontSize: AppTypography.size16,
+              fontSize: SigapTypography.size16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: SigapSpacing.xs),
           const Text(
             'Visit yang dikirim akan muncul di sini',
             style: TextStyle(
-              fontSize: AppTypography.size13,
-              color: AppColors.textTertiary,
+              fontSize: SigapTypography.size13,
+              color: SigapColors.textTertiary,
             ),
           ),
         ],
@@ -168,14 +168,14 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
   Widget _buildVisitList() {
     return RefreshIndicator(
       onRefresh: _load,
-      color: AppColors.primary,
+      color: SigapColors.primary,
       child: ListView.builder(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         itemCount: _visits.length,
         itemBuilder: (context, index) {
           final visit = _visits[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            padding: const EdgeInsets.only(bottom: SigapSpacing.md),
             child: _VisitCard(
               visit: visit,
               onTap: () {
@@ -227,13 +227,13 @@ class _VisitCard extends StatelessWidget {
   Color get _syncStatusColor {
     switch (visit.syncStatus) {
       case 0:
-        return AppColors.warning;
+        return SigapColors.warning;
       case 1:
-        return AppColors.primary;
+        return SigapColors.primary;
       case 2:
-        return AppColors.danger;
+        return SigapColors.danger;
       default:
-        return AppColors.textTertiary;
+        return SigapColors.textTertiary;
     }
   }
 
@@ -269,12 +269,12 @@ class _VisitCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.x12),
-          border: Border.all(color: AppColors.borderCard),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
+          border: Border.all(color: SigapColors.borderCard),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(SigapSpacing.md),
           child: Row(
             children: [
               // Sync status icon
@@ -287,7 +287,7 @@ class _VisitCard extends StatelessWidget {
                 ),
                 child: Icon(_syncStatusIcon, color: _syncStatusColor, size: 20),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: SigapSpacing.md),
               // Title and task ID
               Expanded(
                 child: Column(
@@ -296,9 +296,9 @@ class _VisitCard extends StatelessWidget {
                     Text(
                       _title,
                       style: const TextStyle(
-                        fontSize: AppTypography.size13_5,
+                        fontSize: SigapTypography.size13_5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -308,8 +308,8 @@ class _VisitCard extends StatelessWidget {
                       _taskIdDisplay,
                       style: const TextStyle(
                         fontFamily: 'IBM Plex Mono',
-                        fontSize: AppTypography.size11,
-                        color: AppColors.textTertiary,
+                        fontSize: SigapTypography.size11,
+                        color: SigapColors.textTertiary,
                       ),
                     ),
                   ],
@@ -325,7 +325,7 @@ class _VisitCard extends StatelessWidget {
                 child: Text(
                   _syncStatusLabel,
                   style: TextStyle(
-                    fontSize: AppTypography.size10,
+                    fontSize: SigapTypography.size10,
                     fontWeight: FontWeight.w600,
                     color: _syncStatusColor,
                   ),
@@ -362,17 +362,17 @@ class _ErrorRetry extends StatelessWidget {
             const Text(
               'Gagal memuat riwayat',
               style: TextStyle(
-                fontSize: AppTypography.size16,
+                fontSize: SigapTypography.size16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
             const SizedBox(height: SigapSpacing.sm),
             Text(
               error,
               style: const TextStyle(
-                fontSize: AppTypography.size12,
-                color: AppColors.textTertiary,
+                fontSize: SigapTypography.size12,
+                color: SigapColors.textTertiary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -384,7 +384,7 @@ class _ErrorRetry extends StatelessWidget {
               icon: const Icon(Icons.refresh),
               label: const Text('Coba lagi'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: SigapColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),

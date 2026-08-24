@@ -12,31 +12,31 @@ class AppIcons {
 
   static const Icon warning = Icon(
     Icons.warning_amber_rounded,
-    color: AppColors.warning,
+    color: SigapColors.warning,
   );
 
   static const Icon warningOutlined = Icon(
     Icons.warning_amber_outlined,
-    color: AppColors.warning,
+    color: SigapColors.warning,
   );
 
-  static const Icon error = Icon(Icons.error_outline, color: AppColors.danger);
+  static const Icon error = Icon(Icons.error_outline, color: SigapColors.danger);
 
-  static const Icon errorFilled = Icon(Icons.error, color: AppColors.danger);
+  static const Icon errorFilled = Icon(Icons.error, color: SigapColors.danger);
 
   static const Icon success = Icon(
     Icons.check_circle_outline,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
   static const Icon successFilled = Icon(
     Icons.check_circle,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
-  static const Icon info = Icon(Icons.info_outline, color: AppColors.info);
+  static const Icon info = Icon(Icons.info_outline, color: SigapColors.info);
 
-  static const Icon infoFilled = Icon(Icons.info, color: AppColors.info);
+  static const Icon infoFilled = Icon(Icons.info, color: SigapColors.info);
 
   // ============================================================================
   // Navigation Icons
@@ -44,75 +44,75 @@ class AppIcons {
 
   static const Icon chevronRight = Icon(
     Icons.chevron_right,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon chevronLeft = Icon(
     Icons.chevron_left,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon arrowBack = Icon(
     Icons.arrow_back,
-    color: AppColors.textPrimary,
+    color: SigapColors.textPrimary,
   );
 
   static const Icon home = Icon(
     Icons.home_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
-  static const Icon homeFilled = Icon(Icons.home, color: AppColors.primary);
+  static const Icon homeFilled = Icon(Icons.home, color: SigapColors.primary);
 
   // ============================================================================
   // Action Icons
   // ============================================================================
 
-  static const Icon camera = Icon(Icons.add_a_photo, color: AppColors.primary);
+  static const Icon camera = Icon(Icons.add_a_photo, color: SigapColors.primary);
 
   static const Icon cameraOutlined = Icon(
     Icons.add_a_photo_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon location = Icon(
     Icons.location_on,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
   static const Icon locationOutlined = Icon(
     Icons.location_on_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon report = Icon(
     Icons.description_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon reportFilled = Icon(
     Icons.description,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
-  static const Icon add = Icon(Icons.add, color: AppColors.primary);
+  static const Icon add = Icon(Icons.add, color: SigapColors.primary);
 
   static const Icon edit = Icon(
     Icons.edit_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon delete = Icon(
     Icons.delete_outline,
-    color: AppColors.danger,
+    color: SigapColors.danger,
   );
 
   static const Icon refresh = Icon(
     Icons.refresh,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
-  static const Icon sync = Icon(Icons.sync, color: AppColors.primary);
+  static const Icon sync = Icon(Icons.sync, color: SigapColors.primary);
 
   // ============================================================================
   // Map & Location Icons
@@ -120,30 +120,30 @@ class AppIcons {
 
   static const Icon map = Icon(
     Icons.map_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
-  static const Icon mapFilled = Icon(Icons.map, color: AppColors.primary);
+  static const Icon mapFilled = Icon(Icons.map, color: SigapColors.primary);
 
   static const Icon myLocation = Icon(
     Icons.my_location,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
   // ============================================================================
   // List & Queue Icons
   // ============================================================================
 
-  static const Icon list = Icon(Icons.list, color: AppColors.textSecondary);
+  static const Icon list = Icon(Icons.list, color: SigapColors.textSecondary);
 
-  static const Icon inbox = Icon(Icons.inbox, color: AppColors.textSecondary);
+  static const Icon inbox = Icon(Icons.inbox, color: SigapColors.textSecondary);
 
   static const Icon inboxOutlined = Icon(
     Icons.inbox_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
-  static const Icon queue = Icon(Icons.queue, color: AppColors.primary);
+  static const Icon queue = Icon(Icons.queue, color: SigapColors.primary);
 
   // ============================================================================
   // Category & Tag Icons
@@ -151,15 +151,15 @@ class AppIcons {
 
   static const Icon category = Icon(
     Icons.category_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon categoryFilled = Icon(
     Icons.category,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
-  static const Icon tag = Icon(Icons.tag, color: AppColors.textSecondary);
+  static const Icon tag = Icon(Icons.tag, color: SigapColors.textSecondary);
 
   // ============================================================================
   // User & Role Icons
@@ -167,24 +167,24 @@ class AppIcons {
 
   static const Icon person = Icon(
     Icons.person_outline,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
-  static const Icon personFilled = Icon(Icons.person, color: AppColors.primary);
+  static const Icon personFilled = Icon(Icons.person, color: SigapColors.primary);
 
   static const Icon verified = Icon(
     Icons.verified_outlined,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
   static const Icon verifiedFilled = Icon(
     Icons.verified,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
   static const Icon people = Icon(
     Icons.people_outline,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   // ============================================================================
@@ -193,22 +193,22 @@ class AppIcons {
 
   static const Icon email = Icon(
     Icons.email_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon lock = Icon(
     Icons.lock_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon visibility = Icon(
     Icons.visibility_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   static const Icon visibilityOff = Icon(
     Icons.visibility_off_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   // ============================================================================
@@ -217,22 +217,22 @@ class AppIcons {
 
   static const Icon perluTindakan = Icon(
     Icons.pending_actions,
-    color: AppColors.danger,
+    color: SigapColors.danger,
   );
 
   static const Icon diproses = Icon(
     Icons.pending_outlined,
-    color: AppColors.info,
+    color: SigapColors.info,
   );
 
   static const Icon selesai = Icon(
     Icons.check_circle_outline,
-    color: AppColors.primary,
+    color: SigapColors.primary,
   );
 
   static const Icon timer = Icon(
     Icons.timer_outlined,
-    color: AppColors.textSecondary,
+    color: SigapColors.textSecondary,
   );
 
   // ============================================================================
@@ -242,51 +242,51 @@ class AppIcons {
   static Widget warningIcon({double? size, Color? color}) => Icon(
     Icons.warning_amber_rounded,
     size: size,
-    color: color ?? AppColors.warning,
+    color: color ?? SigapColors.warning,
   );
 
   static Widget errorIcon({double? size, Color? color}) =>
-      Icon(Icons.error_outline, size: size, color: color ?? AppColors.danger);
+      Icon(Icons.error_outline, size: size, color: color ?? SigapColors.danger);
 
   static Widget successIcon({double? size, Color? color}) => Icon(
     Icons.check_circle_outline,
     size: size,
-    color: color ?? AppColors.primary,
+    color: color ?? SigapColors.primary,
   );
 
   static Widget cameraIcon({double? size, Color? color}) =>
-      Icon(Icons.add_a_photo, size: size, color: color ?? AppColors.primary);
+      Icon(Icons.add_a_photo, size: size, color: color ?? SigapColors.primary);
 
   static Widget locationIcon({double? size, Color? color}) =>
-      Icon(Icons.location_on, size: size, color: color ?? AppColors.primary);
+      Icon(Icons.location_on, size: size, color: color ?? SigapColors.primary);
 
   static Widget reportIcon({double? size, Color? color}) => Icon(
     Icons.description_outlined,
     size: size,
-    color: color ?? AppColors.textSecondary,
+    color: color ?? SigapColors.textSecondary,
   );
 
   static Widget homeIcon({double? size, Color? color}) => Icon(
     Icons.home_outlined,
     size: size,
-    color: color ?? AppColors.textSecondary,
+    color: color ?? SigapColors.textSecondary,
   );
 
   static Widget mapIcon({double? size, Color? color}) => Icon(
     Icons.map_outlined,
     size: size,
-    color: color ?? AppColors.textSecondary,
+    color: color ?? SigapColors.textSecondary,
   );
 
   static Widget chevronRightIcon({double? size, Color? color}) => Icon(
     Icons.chevron_right,
     size: size,
-    color: color ?? AppColors.textSecondary,
+    color: color ?? SigapColors.textSecondary,
   );
 
   static Widget categoryIcon({double? size, Color? color}) => Icon(
     Icons.category_outlined,
     size: size,
-    color: color ?? AppColors.textSecondary,
+    color: color ?? SigapColors.textSecondary,
   );
 }

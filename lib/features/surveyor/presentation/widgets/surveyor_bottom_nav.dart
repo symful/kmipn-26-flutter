@@ -10,8 +10,8 @@ import '../../../../theme/tokens.dart';
 /// Design: PantauDesa S-01 region bottom navigation
 ///
 /// Design tokens used:
-/// - Active: AppColors.primary (#0F7A6B) with filled icon
-/// - Inactive: AppColors.textTertiary (#616770) with outlined icon
+/// - Active: SigapColors.primary (#0F7A6B) with filled icon
+/// - Inactive: SigapColors.textTertiary (#616770) with outlined icon
 /// - Buat item: elevated with shadow and primary background
 class SurveyorBottomNav extends StatelessWidget {
   /// Current selected index (0-4).
@@ -48,8 +48,8 @@ class SurveyorBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border(top: BorderSide(color: AppColors.borderCard)),
+        color: SigapColors.bgCard,
+        border: Border(top: BorderSide(color: SigapColors.borderCard)),
         boxShadow: [
           BoxShadow(
             color: Color(0x1A000000),
@@ -88,15 +88,15 @@ class SurveyorBottomNav extends StatelessWidget {
             Icon(
               _getIcon(index, isActive),
               size: 24,
-              color: isActive ? AppColors.primary : AppColors.textTertiary,
+              color: isActive ? SigapColors.primary : SigapColors.textTertiary,
             ),
-            const SizedBox(height: AppSpacing.x4),
+            const SizedBox(height: SigapSpacing.x4),
             Text(
               label,
               style: TextStyle(
-                fontSize: AppTypography.size10,
+                fontSize: SigapTypography.size10,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                color: isActive ? AppColors.primary : AppColors.textTertiary,
+                color: isActive ? SigapColors.primary : SigapColors.textTertiary,
               ),
             ),
           ],
@@ -116,7 +116,7 @@ class SurveyorBottomNav extends StatelessWidget {
         height: 56,
         margin: const EdgeInsets.only(top: 8),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primaryDark : AppColors.primary,
+          color: isActive ? SigapColors.primaryDark : SigapColors.primary,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
@@ -130,11 +130,11 @@ class SurveyorBottomNav extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(_getIcon(index, isActive), size: 24, color: Colors.white),
-            const SizedBox(height: AppSpacing.x4),
+            const SizedBox(height: SigapSpacing.x4),
             Text(
               _label(index),
               style: const TextStyle(
-                fontSize: AppTypography.size10,
+                fontSize: SigapTypography.size10,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),

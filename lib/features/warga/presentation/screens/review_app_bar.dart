@@ -23,15 +23,15 @@ class ReviewAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-        top: AppSpacing.xs,
-        bottom: AppSpacing.x12,
+        left: SigapSpacing.lg,
+        right: SigapSpacing.lg,
+        top: SigapSpacing.xs,
+        bottom: SigapSpacing.x12,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.bgSurface,
+        color: SigapColors.bgSurface,
         border: Border(
-          bottom: BorderSide(color: AppColors.borderCard, width: 1),
+          bottom: BorderSide(color: SigapColors.borderCard, width: 1),
         ),
       ),
       child: Column(
@@ -48,12 +48,12 @@ class ReviewAppBar extends StatelessWidget {
                 child: const Text(
                   '←',
                   style: TextStyle(
-                    fontSize: AppTypography.size22,
-                    color: AppColors.textSecondary,
+                    fontSize: SigapTypography.size22,
+                    color: SigapColors.textSecondary,
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.x12),
+              const SizedBox(width: SigapSpacing.x12),
               // Title and subtitle
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,17 +62,17 @@ class ReviewAppBar extends StatelessWidget {
                   const Text(
                     'Review laporan',
                     style: TextStyle(
-                      fontSize: AppTypography.size16,
+                      fontSize: SigapTypography.size16,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: SigapColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 1),
                   Text(
                     'Langkah $currentStep dari 5',
                     style: const TextStyle(
-                      fontSize: AppTypography.size11_5,
-                      color: AppColors.textTertiary,
+                      fontSize: SigapTypography.size11_5,
+                      color: SigapColors.textTertiary,
                     ),
                   ),
                 ],
@@ -80,7 +80,7 @@ class ReviewAppBar extends StatelessWidget {
             ],
           ),
           // Stepper
-          const SizedBox(height: AppSpacing.x11),
+          const SizedBox(height: SigapSpacing.x11),
           Stepper5(currentStep: currentStep),
         ],
       ),

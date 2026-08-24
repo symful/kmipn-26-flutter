@@ -47,13 +47,13 @@ class VerticalTimeline extends StatelessWidget {
         Text(
           headerText ?? 'Perjalanan laporan',
           style: const TextStyle(
-            fontSize: AppTypography.size12,
+            fontSize: SigapTypography.size12,
             fontWeight: FontWeight.w700,
-            color: AppColors.textTertiary,
-            letterSpacing: AppTypography.letterSpacingLabel,
+            color: SigapColors.textTertiary,
+            letterSpacing: SigapTypography.letterSpacingLabel,
           ),
         ),
-        const SizedBox(height: AppSpacing.x4),
+        const SizedBox(height: SigapSpacing.x4),
         // Timeline entries
         Padding(
           padding: const EdgeInsets.only(left: 4),
@@ -111,7 +111,7 @@ class _TimelineEntry extends StatelessWidget {
               child: Container(
                 width: 2,
                 constraints: const BoxConstraints(minHeight: 22),
-                color: AppColors.borderCard,
+                color: SigapColors.borderCard,
               ),
             ),
         ],
@@ -127,10 +127,10 @@ class _TimelineEntry extends StatelessWidget {
         height: 13,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.warning,
+          color: SigapColors.warning,
           border: Border.all(color: Colors.white, width: 2),
           boxShadow: const [
-            BoxShadow(color: AppColors.warning, spreadRadius: 2, blurRadius: 0),
+            BoxShadow(color: SigapColors.warning, spreadRadius: 2, blurRadius: 0),
           ],
         ),
       );
@@ -142,7 +142,7 @@ class _TimelineEntry extends StatelessWidget {
         margin: const EdgeInsets.only(top: 1),
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.primary,
+          color: SigapColors.primary,
         ),
       );
     }
@@ -157,17 +157,17 @@ class _TimelineEntry extends StatelessWidget {
           Text(
             event.title,
             style: const TextStyle(
-              fontSize: AppTypography.size13,
+              fontSize: SigapTypography.size13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: SigapColors.textPrimary,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             event.meta,
             style: const TextStyle(
-              fontSize: AppTypography.size11,
-              color: AppColors.textTertiary,
+              fontSize: SigapTypography.size11,
+              color: SigapColors.textTertiary,
               fontFeatures: [FontFeature.tabularFigures()],
             ),
           ),

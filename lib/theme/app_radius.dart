@@ -1,8 +1,8 @@
 /// Application radius definitions.
 ///
 /// Provides 13 radius presets for consistent border radius across the app.
-class AppRadius {
-  AppRadius._();
+class SigapRadius {
+  SigapRadius._();
 
   /// Extra small radius for compact elements.
   static const double xs = 4;

@@ -43,7 +43,7 @@ class OfflineReadyBadge extends StatelessWidget {
           Text(
             'Siap offline',
             style: TextStyle(
-              fontSize: AppTypography.size11,
+              fontSize: SigapTypography.size11,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF0A5C50), // #0a5c50
             ),
@@ -57,9 +57,9 @@ class OfflineReadyBadge extends StatelessWidget {
         child: Text(
           'Unduh untuk offline',
           style: TextStyle(
-            fontSize: AppTypography.size11,
+            fontSize: SigapTypography.size11,
             fontWeight: FontWeight.w700,
-            color: AppColors.primary, // #0f7a6b
+            color: SigapColors.primary, // #0f7a6b
           ),
         ),
       );

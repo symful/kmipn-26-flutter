@@ -31,14 +31,14 @@ class SimilarCaseActions extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.info,
-                borderRadius: BorderRadius.circular(AppRadius.x9),
+                color: SigapColors.info,
+                borderRadius: BorderRadius.circular(SigapRadius.x9),
               ),
               alignment: Alignment.center,
               child: const Text(
                 'Tambahkan bukti ke kasus ini',
                 style: TextStyle(
-                  fontSize: AppTypography.size12_5,
+                  fontSize: SigapTypography.size12_5,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
@@ -46,7 +46,7 @@ class SimilarCaseActions extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: SigapSpacing.sm),
         // Secondary: Buat terpisah
         Expanded(
           child: GestureDetector(
@@ -54,20 +54,20 @@ class SimilarCaseActions extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(
                 vertical: 10,
-                horizontal: AppSpacing.x12,
+                horizontal: SigapSpacing.x12,
               ),
               decoration: BoxDecoration(
                 color: Colors.transparent,
-                border: Border.all(color: AppColors.infoChartBar),
-                borderRadius: BorderRadius.circular(AppRadius.x9),
+                border: Border.all(color: SigapColors.infoChartBar),
+                borderRadius: BorderRadius.circular(SigapRadius.x9),
               ),
               alignment: Alignment.center,
               child: const Text(
                 'Buat terpisah',
                 style: TextStyle(
-                  fontSize: AppTypography.size12_5,
+                  fontSize: SigapTypography.size12_5,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.info,
+                  color: SigapColors.info,
                 ),
               ),
             ),

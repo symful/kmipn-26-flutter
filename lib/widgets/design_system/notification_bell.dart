@@ -23,9 +23,9 @@ class NotificationBell extends StatelessWidget {
           width: 34,
           height: 34,
           decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            border: Border.all(color: AppColors.borderCard),
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            color: SigapColors.bgCard,
+            border: Border.all(color: SigapColors.borderCard),
+            borderRadius: BorderRadius.circular(SigapRadius.md),
           ),
           child: Center(
             child: CustomPaint(

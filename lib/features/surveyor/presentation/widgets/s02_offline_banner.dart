@@ -21,29 +21,29 @@ class S02OfflineBanner extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        horizontal: SigapSpacing.md,
+        vertical: SigapSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: AppColors.warningBg,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.warningBorder),
+        color: SigapColors.warningBg,
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        border: Border.all(color: SigapColors.warningBorder),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.cloud_off,
-            size: AppTypography.size12,
-            color: AppColors.warning,
+            size: SigapTypography.size12,
+            color: SigapColors.warning,
           ),
-          const SizedBox(width: AppSpacing.xs),
+          const SizedBox(width: SigapSpacing.xs),
           Text(
             'Siap kerja offline',
             style: TextStyle(
-              fontSize: AppTypography.size12,
+              fontSize: SigapTypography.size12,
               fontWeight: FontWeight.w500,
-              color: AppColors.warningText,
+              color: SigapColors.warningText,
             ),
           ),
         ],

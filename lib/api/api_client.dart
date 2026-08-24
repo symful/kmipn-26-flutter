@@ -1252,26 +1252,6 @@ class ApiClient {
   }
 
   /// Alias for [decideVerifikatorCase] for backward compatibility.
-  Future<DecideResult> verifikatorDecide({
-    required String caseId,
-    required String decision,
-    required String reason,
-    String? duplicateOfReportId,
-    String? surveyorId,
-    String? assignedUnitId,
-    String? deadline,
-  }) async {
-    return decideVerifikatorCase(
-      caseId: caseId,
-      decision: decision,
-      reason: reason,
-      duplicateOfReportId: duplicateOfReportId,
-      surveyorId: surveyorId,
-      assignedUnitId: assignedUnitId,
-      deadline: deadline,
-    );
-  }
-
   /// Reviews a sanggahan (objection) on a verifikator case.
   Future<VerifikatorCase> reviewSanggahan(
     String caseId, {

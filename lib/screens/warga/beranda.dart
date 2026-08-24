@@ -53,7 +53,7 @@ class WargaBerandaScreen extends ConsumerWidget {
           ? null
           : FloatingActionButton(
               onPressed: () => context.push('/create'),
-              backgroundColor: AppColors.primary,
+              backgroundColor: SigapColors.primary,
               foregroundColor: Colors.white,
               elevation: 4,
               child: const Icon(Icons.add),
@@ -77,7 +77,7 @@ class _BottomNavWithCenterFAB extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
+        color: SigapColors.bgCard,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
@@ -88,7 +88,7 @@ class _BottomNavWithCenterFAB extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.sm),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -142,15 +142,15 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? AppColors.primary : AppColors.textSecondary;
+    final color = isSelected ? SigapColors.primary : SigapColors.textSecondary;
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.sm),
+      borderRadius: BorderRadius.circular(SigapRadius.sm),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+          horizontal: SigapSpacing.md,
+          vertical: SigapSpacing.sm,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -187,41 +187,41 @@ class _BerandaTab extends ConsumerWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             // Welcome header
             Text(
               'Selamat datang,',
-              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 14, color: SigapColors.textSecondary),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: SigapSpacing.xs),
             Text(
               authState.userName ?? '--',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: SigapSpacing.xl),
 
             // Quick action card
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(SigapSpacing.lg),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryDark],
+                  colors: [SigapColors.primary, SigapColors.primaryDark],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(AppRadius.xl),
+                borderRadius: BorderRadius.circular(SigapRadius.xl),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
+                    color: SigapColors.primary.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -237,7 +237,7 @@ class _BerandaTab extends ConsumerWidget {
                         color: Colors.white,
                         size: 28,
                       ),
-                      SizedBox(width: AppSpacing.md),
+                      SizedBox(width: SigapSpacing.md),
                       Expanded(
                         child: Text(
                           'Buat Laporan Baru',
@@ -250,12 +250,12 @@ class _BerandaTab extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: SigapSpacing.sm),
                   const Text(
                     'Laporkan masalah di sekitarmu untuk membantu peningkatan layanan desa.',
                     style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: SigapSpacing.lg),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -264,12 +264,12 @@ class _BerandaTab extends ConsumerWidget {
                       label: const Text('Buat Laporan'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: AppColors.primary,
+                        foregroundColor: SigapColors.primary,
                         padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.md,
+                          vertical: SigapSpacing.md,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
                         ),
                       ),
                     ),
@@ -277,7 +277,7 @@ class _BerandaTab extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: SigapSpacing.xl),
 
             // Recent activity header
             const Row(
@@ -288,7 +288,7 @@ class _BerandaTab extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
                 Text(
@@ -296,12 +296,12 @@ class _BerandaTab extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.primary,
+                    color: SigapColors.primary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
 
             // Empty state
             Expanded(
@@ -310,33 +310,33 @@ class _BerandaTab extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      padding: const EdgeInsets.all(SigapSpacing.xl),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: SigapColors.primaryLight,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.inbox_outlined,
                         size: 48,
-                        color: AppColors.primary,
+                        color: SigapColors.primary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: SigapSpacing.lg),
                     const Text(
                       'Belum ada aktivitas',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: SigapSpacing.xs),
                     const Text(
                       'Laporan yang kamu buat akan\ntampil di sini',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: SigapColors.textSecondary,
                       ),
                     ),
                   ],
@@ -358,25 +358,25 @@ class _LaporanTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             const Text(
               'Laporan Saya',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: SigapSpacing.xs),
             Text(
               'Kelola laporan yang telah kamu buat',
-              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 14, color: SigapColors.textSecondary),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: SigapSpacing.xl),
 
             // Empty state
             Expanded(
@@ -385,33 +385,33 @@ class _LaporanTab extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      padding: const EdgeInsets.all(SigapSpacing.xl),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: SigapColors.primaryLight,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.description_outlined,
                         size: 48,
-                        color: AppColors.primary,
+                        color: SigapColors.primary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: SigapSpacing.lg),
                     const Text(
                       'Belum ada laporan',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: SigapSpacing.xs),
                     const Text(
                       'Tap tombol + untuk membuat\nlaporan pertama kamu',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: SigapColors.textSecondary,
                       ),
                     ),
                   ],
@@ -433,25 +433,25 @@ class _NotifikasiTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             const Text(
               'Notifikasi',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: SigapSpacing.xs),
             Text(
               'Pemberitahuan dan update terbaru',
-              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 14, color: SigapColors.textSecondary),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: SigapSpacing.xl),
 
             // Empty state
             Expanded(
@@ -460,33 +460,33 @@ class _NotifikasiTab extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      padding: const EdgeInsets.all(SigapSpacing.xl),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: SigapColors.primaryLight,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.notifications_outlined,
                         size: 48,
-                        color: AppColors.primary,
+                        color: SigapColors.primary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: SigapSpacing.lg),
                     const Text(
                       'Tidak ada notifikasi',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: SigapColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: SigapSpacing.xs),
                     const Text(
                       'Pemberitahuan akan muncul\ndi sini',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: SigapColors.textSecondary,
                       ),
                     ),
                   ],
@@ -510,11 +510,11 @@ class _ProfilTab extends ConsumerWidget {
 
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
 
             // Profile header
             Center(
@@ -522,7 +522,7 @@ class _ProfilTab extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 48,
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: SigapColors.primary,
                     child: Text(
                       (authState.userName ?? 'W')[0].toUpperCase(),
                       style: const TextStyle(
@@ -532,24 +532,24 @@ class _ProfilTab extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: SigapSpacing.md),
                   Text(
                     authState.userName ?? '--',
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: SigapColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: SigapSpacing.xs),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.xs,
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                      color: SigapColors.primaryLight,
+                      borderRadius: BorderRadius.circular(SigapRadius.pill),
                     ),
                     child: Text(
                       authState.activeRole ??
@@ -558,14 +558,14 @@ class _ProfilTab extends ConsumerWidget {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.primary,
+                        color: SigapColors.primary,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: SigapSpacing.xxl),
 
             // Menu items
             _MenuItemCard(
@@ -574,35 +574,35 @@ class _ProfilTab extends ConsumerWidget {
               subtitle: 'Ubah informasi akun kamu',
               onTap: () => context.push('/profile'),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             _MenuItemCard(
               icon: Icons.settings_outlined,
               title: 'Pengaturan',
               subtitle: 'Tema, bahasa, notifikasi',
               onTap: () => context.push('/settings'),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             _MenuItemCard(
               icon: Icons.swap_horiz,
               title: 'Ganti Peran',
               subtitle: 'Switch ke akun lain',
               onTap: () => context.push('/switch-role'),
             ),
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: SigapSpacing.xxl),
 
             // Logout button
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => _handleLogout(context, ref),
-                icon: const Icon(Icons.logout, color: AppColors.danger),
+                icon: const Icon(Icons.logout, color: SigapColors.danger),
                 label: const Text('Keluar'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.danger,
-                  side: const BorderSide(color: AppColors.danger),
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                  foregroundColor: SigapColors.danger,
+                  side: const BorderSide(color: SigapColors.danger),
+                  padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    borderRadius: BorderRadius.circular(SigapRadius.md),
                   ),
                 ),
               ),
@@ -630,7 +630,7 @@ class _ProfilTab extends ConsumerWidget {
               ref.read(authNotifierProvider.notifier).logout();
               context.go('/');
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            style: ElevatedButton.styleFrom(backgroundColor: SigapColors.danger),
             child: const Text('Keluar'),
           ),
         ],
@@ -657,38 +657,38 @@ class _MenuItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.sm,
+          horizontal: SigapSpacing.lg,
+          vertical: SigapSpacing.sm,
         ),
         leading: Container(
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          padding: const EdgeInsets.all(SigapSpacing.sm),
           decoration: BoxDecoration(
-            color: AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            color: SigapColors.primaryLight,
+            borderRadius: BorderRadius.circular(SigapRadius.sm),
           ),
-          child: Icon(icon, color: AppColors.primary, size: 24),
+          child: Icon(icon, color: SigapColors.primary, size: 24),
         ),
         title: Text(
           title,
           style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: SigapColors.textPrimary,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          style: const TextStyle(fontSize: 13, color: SigapColors.textSecondary),
         ),
         trailing: const Icon(
           Icons.chevron_right,
-          color: AppColors.textTertiary,
+          color: SigapColors.textTertiary,
         ),
         onTap: onTap,
       ),

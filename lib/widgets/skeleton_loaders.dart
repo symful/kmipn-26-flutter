@@ -4,9 +4,9 @@ import '../theme/tokens.dart';
 /// Reusable skeleton loader primitives following the app's design system.
 ///
 /// All skeleton widgets use design tokens:
-/// - AppColors.borderCard for placeholder color
-/// - AppRadius / SigapRadius for border radius
-/// - AppSpacing / SigapSpacing for spacing
+/// - SigapColors.borderCard for placeholder color
+/// - SigapRadius / SigapRadius for border radius
+/// - SigapSpacing / SigapSpacing for spacing
 
 /// A basic skeleton box primitive.
 /// Renders a rounded rectangle placeholder with shimmer-like appearance.
@@ -28,7 +28,7 @@ class SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.borderCard,
+        color: SigapColors.borderCard,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );
@@ -57,9 +57,9 @@ class SkeletonStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(SigapSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.borderCard.withValues(alpha: 0.3),
+        color: SigapColors.borderCard.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: AppColors.borderCard),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Row(
         children: [
@@ -67,7 +67,7 @@ class SkeletonStatCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.borderCard,
+              color: SigapColors.borderCard,
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -131,11 +131,11 @@ class SkeletonNearbyCard extends StatelessWidget {
       children: [
         const SizedBox(height: SigapSpacing.md),
         Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(SigapSpacing.md),
           decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            border: Border.all(color: AppColors.borderCard),
-            borderRadius: BorderRadius.circular(AppRadius.x12),
+            color: SigapColors.bgCard,
+            border: Border.all(color: SigapColors.borderCard),
+            borderRadius: BorderRadius.circular(SigapRadius.x12),
           ),
           child: Row(
             children: [
@@ -144,10 +144,10 @@ class SkeletonNearbyCard extends StatelessWidget {
                 height: 38,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.primary,
+                  color: SigapColors.primary,
                 ),
               ),
-              const SizedBox(width: AppSpacing.x11),
+              const SizedBox(width: SigapSpacing.x11),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,12 +219,12 @@ class TaskCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.x12),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.x12),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(SigapSpacing.md),
         child: Row(
           children: [
             // Left border placeholder (priority stripe)
@@ -232,11 +232,11 @@ class TaskCardSkeleton extends StatelessWidget {
               width: 4,
               height: 60,
               decoration: BoxDecoration(
-                color: AppColors.borderCard,
+                color: SigapColors.borderCard,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: SigapSpacing.md),
             // Content
             Expanded(
               child: Column(
@@ -254,16 +254,16 @@ class TaskCardSkeleton extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: SigapSpacing.sm),
             // Priority indicator placeholder
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.x9,
-                vertical: AppSpacing.x4,
+                horizontal: SigapSpacing.x9,
+                vertical: SigapSpacing.x4,
               ),
               decoration: BoxDecoration(
-                color: AppColors.borderCard.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(AppRadius.x6),
+                color: SigapColors.borderCard.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(SigapRadius.x6),
               ),
               child: SkeletonBox(width: 40, height: 10, borderRadius: 4),
             ),
@@ -331,9 +331,9 @@ class _SkeletonActionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(SigapSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.borderCard.withValues(alpha: 0.1),
+        color: SigapColors.borderCard.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: AppColors.borderCard),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Column(
         children: [

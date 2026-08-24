@@ -8,17 +8,17 @@ import 'package:sigap/theme/tokens.dart';
 /// character count indicator below the input.
 ///
 /// Design tokens used:
-/// - Input border: AppColors.borderCard (#E4E7E2)
-/// - Input background: AppColors.bgCard (#FFFFFF)
-/// - Input text: AppColors.textPrimary (#17191C)
-/// - Placeholder text: AppColors.textTertiary (#616770)
-/// - Label text: AppColors.textPrimary (#17191C)
-/// - Character count text: AppColors.textTertiary (#616770)
-/// - Focus border: AppColors.primary (#0F7A6B)
-/// - Border radius: AppRadius.md (10px)
-/// - Label font: AppTypography.size12, fontWeight 600
-/// - Input font: AppTypography.size13
-/// - Character count font: AppTypography.size11
+/// - Input border: SigapColors.borderCard (#E4E7E2)
+/// - Input background: SigapColors.bgCard (#FFFFFF)
+/// - Input text: SigapColors.textPrimary (#17191C)
+/// - Placeholder text: SigapColors.textTertiary (#616770)
+/// - Label text: SigapColors.textPrimary (#17191C)
+/// - Character count text: SigapColors.textTertiary (#616770)
+/// - Focus border: SigapColors.primary (#0F7A6B)
+/// - Border radius: SigapRadius.md (10px)
+/// - Label font: SigapTypography.size12, fontWeight 600
+/// - Input font: SigapTypography.size13
+/// - Character count font: SigapTypography.size11
 ///
 /// Example:
 /// ```dart
@@ -91,12 +91,12 @@ class CatatanLapangan extends StatelessWidget {
         const Text(
           'Catatan lapangan',
           style: TextStyle(
-            fontSize: AppTypography.size12,
+            fontSize: SigapTypography.size12,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: SigapColors.textPrimary,
           ),
         ),
-        const SizedBox(height: AppSpacing.x6),
+        const SizedBox(height: SigapSpacing.x6),
 
         // Text input
         _CatatanTextField(
@@ -111,7 +111,7 @@ class CatatanLapangan extends StatelessWidget {
 
         // Character count (only shown if maxCharacters is set)
         if (maxCharacters != null) ...[
-          const SizedBox(height: AppSpacing.x4),
+          const SizedBox(height: SigapSpacing.x4),
           _CharacterCount(
             controller: controller,
             onChanged: onChanged,
@@ -154,9 +154,9 @@ class _CatatanTextField extends StatelessWidget {
         maxLength: maxCharacters,
         decoration: _inputDecoration(hintText),
         style: const TextStyle(
-          fontSize: AppTypography.size13,
-          color: AppColors.textPrimary,
-          height: AppTypography.lineHeight140,
+          fontSize: SigapTypography.size13,
+          color: SigapColors.textPrimary,
+          height: SigapTypography.lineHeight140,
         ),
         buildCounter:
             (context, {required currentLength, required isFocused, maxLength}) {
@@ -171,9 +171,9 @@ class _CatatanTextField extends StatelessWidget {
         maxLength: maxCharacters,
         decoration: _inputDecoration(hintText),
         style: const TextStyle(
-          fontSize: AppTypography.size13,
-          color: AppColors.textPrimary,
-          height: AppTypography.lineHeight140,
+          fontSize: SigapTypography.size13,
+          color: SigapColors.textPrimary,
+          height: SigapTypography.lineHeight140,
         ),
         buildCounter:
             (context, {required currentLength, required isFocused, maxLength}) {
@@ -187,24 +187,24 @@ class _CatatanTextField extends StatelessWidget {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(
-        fontSize: AppTypography.size13,
-        color: AppColors.textTertiary,
-        height: AppTypography.lineHeight140,
+        fontSize: SigapTypography.size13,
+        color: SigapColors.textTertiary,
+        height: SigapTypography.lineHeight140,
       ),
       filled: true,
-      fillColor: AppColors.bgCard,
-      contentPadding: const EdgeInsets.all(AppSpacing.md),
+      fillColor: SigapColors.bgCard,
+      contentPadding: const EdgeInsets.all(SigapSpacing.md),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: AppColors.borderCard),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        borderSide: const BorderSide(color: SigapColors.borderCard),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: AppColors.borderCard),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        borderSide: const BorderSide(color: SigapColors.borderCard),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        borderSide: const BorderSide(color: SigapColors.primary, width: 1.5),
       ),
     );
   }
@@ -260,12 +260,12 @@ class _CharacterCountState extends State<_CharacterCount> {
         Text(
           '$_currentLength/${widget.maxCharacters}',
           style: TextStyle(
-            fontSize: AppTypography.size11,
+            fontSize: SigapTypography.size11,
             color: isOverLimit
-                ? AppColors.danger
+                ? SigapColors.danger
                 : isNearLimit
-                ? AppColors.warning
-                : AppColors.textTertiary,
+                ? SigapColors.warning
+                : SigapColors.textTertiary,
             fontWeight: isOverLimit ? FontWeight.w600 : FontWeight.w400,
           ),
         ),

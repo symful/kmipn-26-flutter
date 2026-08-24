@@ -99,7 +99,7 @@ class ConnectivityIndicator extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: _backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+        borderRadius: BorderRadius.circular(SigapRadius.pill),
         border: Border.all(color: _borderColor, width: 1),
       ),
       child: Row(
@@ -114,7 +114,7 @@ class ConnectivityIndicator extends StatelessWidget {
           Text(
             _label,
             style: TextStyle(
-              fontSize: AppTypography.size11,
+              fontSize: SigapTypography.size11,
               fontWeight: FontWeight.w600,
               color: _textColor,
             ),

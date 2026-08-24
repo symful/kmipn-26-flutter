@@ -11,12 +11,12 @@ import '../../../../theme/tokens.dart';
 /// - Red (danger): accuracy > 50 meters (buruk)
 ///
 /// Design tokens used:
-/// - Card background: AppColors.bgCard (#FFFFFF)
-/// - Card border: AppColors.borderCard (#E4E7E2)
-/// - Primary text: AppColors.textPrimary (#17191C)
-/// - Secondary text: AppColors.textSecondary (#3A3F45)
-/// - Tertiary text: AppColors.textTertiary (#616770)
-/// - Map pin icon: AppColors.primary (#0F7A6B)
+/// - Card background: SigapColors.bgCard (#FFFFFF)
+/// - Card border: SigapColors.borderCard (#E4E7E2)
+/// - Primary text: SigapColors.textPrimary (#17191C)
+/// - Secondary text: SigapColors.textSecondary (#3A3F45)
+/// - Tertiary text: SigapColors.textTertiary (#616770)
+/// - Map pin icon: SigapColors.primary (#0F7A6B)
 ///
 /// Example:
 /// ```dart
@@ -86,31 +86,31 @@ class GpsCaptureCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onRefresh,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(SigapRadius.lg),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(SigapSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header row with map pin icon and "Lokasi GPS" label
                 _buildHeader(),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: SigapSpacing.sm),
                 // Coordinates display
                 _buildCoordinates(),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: SigapSpacing.sm),
                 // Accuracy indicator row
                 _buildAccuracyRow(status, accuracyColor, accuracyLabel),
                 // Timestamp
                 if (timestamp != null) ...[
-                  const SizedBox(height: AppSpacing.x4),
+                  const SizedBox(height: SigapSpacing.x4),
                   _buildTimestamp(),
                 ],
               ],
@@ -125,14 +125,14 @@ class GpsCaptureCard extends StatelessWidget {
   Widget _buildHeader() {
     return Row(
       children: [
-        const Icon(Icons.location_on, size: 18, color: AppColors.primary),
-        const SizedBox(width: AppSpacing.x4),
+        const Icon(Icons.location_on, size: 18, color: SigapColors.primary),
+        const SizedBox(width: SigapSpacing.x4),
         Text(
           'Lokasi GPS',
           style: TextStyle(
-            fontSize: AppTypography.size12,
+            fontSize: SigapTypography.size12,
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: SigapColors.textSecondary,
           ),
         ),
         const Spacer(),
@@ -142,7 +142,7 @@ class GpsCaptureCard extends StatelessWidget {
             child: const Icon(
               Icons.refresh,
               size: 16,
-              color: AppColors.textTertiary,
+              color: SigapColors.textTertiary,
             ),
           ),
       ],
@@ -164,24 +164,24 @@ class GpsCaptureCard extends StatelessWidget {
               Text(
                 'Latitude',
                 style: TextStyle(
-                  fontSize: AppTypography.size10,
-                  color: AppColors.textTertiary,
+                  fontSize: SigapTypography.size10,
+                  color: SigapColors.textTertiary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 latStr,
                 style: TextStyle(
-                  fontSize: AppTypography.size14,
+                  fontSize: SigapTypography.size14,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'IBM Plex Mono',
-                  color: AppColors.textPrimary,
+                  color: SigapColors.textPrimary,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(width: AppSpacing.md),
+        const SizedBox(width: SigapSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,18 +189,18 @@ class GpsCaptureCard extends StatelessWidget {
               Text(
                 'Longitude',
                 style: TextStyle(
-                  fontSize: AppTypography.size10,
-                  color: AppColors.textTertiary,
+                  fontSize: SigapTypography.size10,
+                  color: SigapColors.textTertiary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 lngStr,
                 style: TextStyle(
-                  fontSize: AppTypography.size14,
+                  fontSize: SigapTypography.size14,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'IBM Plex Mono',
-                  color: AppColors.textPrimary,
+                  color: SigapColors.textPrimary,
                 ),
               ),
             ],
@@ -219,21 +219,21 @@ class GpsCaptureCard extends StatelessWidget {
     return Row(
       children: [
         _AccuracyDot(color: accuracyColor),
-        const SizedBox(width: AppSpacing.x4),
+        const SizedBox(width: SigapSpacing.x4),
         Text(
           '${accuracyMeters.toStringAsFixed(1)} m',
           style: TextStyle(
-            fontSize: AppTypography.size13,
+            fontSize: SigapTypography.size13,
             fontWeight: FontWeight.w600,
             fontFamily: 'IBM Plex Mono',
-            color: AppColors.textPrimary,
+            color: SigapColors.textPrimary,
           ),
         ),
-        const SizedBox(width: AppSpacing.x4),
+        const SizedBox(width: SigapSpacing.x4),
         Text(
           '· $accuracyLabel',
           style: TextStyle(
-            fontSize: AppTypography.size12,
+            fontSize: SigapTypography.size12,
             color: accuracyColor,
           ),
         ),
@@ -248,8 +248,8 @@ class GpsCaptureCard extends StatelessWidget {
     return Text(
       'Diperbarui: $formattedTime',
       style: TextStyle(
-        fontSize: AppTypography.size10,
-        color: AppColors.textTertiary,
+        fontSize: SigapTypography.size10,
+        color: SigapColors.textTertiary,
       ),
     );
   }
@@ -268,11 +268,11 @@ class GpsCaptureCard extends StatelessWidget {
   Color _getAccuracyColor(AccuracyStatus status) {
     switch (status) {
       case AccuracyStatus.good:
-        return AppColors.primary;
+        return SigapColors.primary;
       case AccuracyStatus.moderate:
-        return AppColors.warning;
+        return SigapColors.warning;
       case AccuracyStatus.poor:
-        return AppColors.danger;
+        return SigapColors.danger;
     }
   }
 }

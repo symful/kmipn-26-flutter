@@ -20,11 +20,11 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: SigapColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.xl),
+            borderRadius: BorderRadius.circular(SigapRadius.xl),
           ),
           elevation: 0,
         ),
@@ -40,7 +40,7 @@ class PrimaryButton extends StatelessWidget {
             : Text(
                 label,
                 style: const TextStyle(
-                  fontSize: AppTypography.size15,
+                  fontSize: SigapTypography.size15,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -62,17 +62,17 @@ class SecondaryButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textSecondary,
+          foregroundColor: SigapColors.textSecondary,
           padding: const EdgeInsets.symmetric(vertical: 15),
-          side: const BorderSide(color: AppColors.borderCard),
+          side: const BorderSide(color: SigapColors.borderCard),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(SigapRadius.md),
           ),
         ),
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: AppTypography.size15,
+            fontSize: SigapTypography.size15,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -101,15 +101,15 @@ class CtaButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(boxShadow: AppShadows.buttonPrimary),
+      decoration: const BoxDecoration(boxShadow: SigapShadows.buttonPrimary),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: SigapColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 17, horizontal: 18),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.xl),
+            borderRadius: BorderRadius.circular(SigapRadius.xl),
           ),
           elevation: 0,
         ),
@@ -142,7 +142,7 @@ class CtaButton extends StatelessWidget {
                         Text(
                           label,
                           style: const TextStyle(
-                            fontSize: AppTypography.size16,
+                            fontSize: SigapTypography.size16,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
@@ -152,7 +152,7 @@ class CtaButton extends StatelessWidget {
                           Text(
                             subtitle!,
                             style: TextStyle(
-                              fontSize: AppTypography.size12,
+                              fontSize: SigapTypography.size12,
                               fontWeight: FontWeight.w400,
                               color: Colors.white.withValues(alpha: 0.85),
                             ),
@@ -181,17 +181,17 @@ class DangerButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.dangerTextStrong,
+          foregroundColor: SigapColors.dangerTextStrong,
           padding: const EdgeInsets.symmetric(vertical: 15),
-          side: const BorderSide(color: AppColors.dangerBorder),
+          side: const BorderSide(color: SigapColors.dangerBorder),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(SigapRadius.md),
           ),
         ),
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: AppTypography.size15,
+            fontSize: SigapTypography.size15,
             fontWeight: FontWeight.w600,
           ),
         ),

@@ -22,12 +22,12 @@ class PrivacyNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgSoft,
+        color: SigapColors.bgSoft,
         borderRadius: BorderRadius.circular(11),
       ),
       padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.x12,
-        vertical: AppSpacing.x11,
+        horizontal: SigapSpacing.x12,
+        vertical: SigapSpacing.x11,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,20 +38,20 @@ class PrivacyNotice extends StatelessWidget {
             height: 18,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.textTertiary, width: 2),
+              border: Border.all(color: SigapColors.textTertiary, width: 2),
             ),
             alignment: Alignment.center,
             child: Text(
               'i',
               style: TextStyle(
-                fontSize: AppTypography.size11,
+                fontSize: SigapTypography.size11,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textTertiary,
+                color: SigapColors.textTertiary,
                 height: 1,
               ),
             ),
           ),
-          SizedBox(width: AppSpacing.x9),
+          SizedBox(width: SigapSpacing.x9),
           // Privacy text
           Expanded(
             child: Text(
@@ -60,9 +60,9 @@ class PrivacyNotice extends StatelessWidget {
                   : 'Identitas & lokasi presisi Anda hanya terlihat oleh petugas terkait. '
                         'Publik melihat lokasi yang digeneralisasi.',
               style: TextStyle(
-                fontSize: AppTypography.size11_5,
-                color: AppColors.textSoft,
-                height: AppTypography.lineHeight140,
+                fontSize: SigapTypography.size11_5,
+                color: SigapColors.textSoft,
+                height: SigapTypography.lineHeight140,
               ),
             ),
           ),

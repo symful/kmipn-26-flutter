@@ -12,10 +12,10 @@ import '../../widgets/skeleton_loaders.dart';
 /// Case Review screen for Verifikator to review and make decisions on cases.
 ///
 /// Design tokens used:
-/// - AppColors: primary, danger, info, warning, bgCard, borderCard, textPrimary, textSecondary, textTertiary
-/// - AppSpacing: sm, md, lg, xxl
-/// - AppRadius: sm, md, lg
-/// - AppTypography: size11, size12, size13, size14, size16, size18, size22
+/// - SigapColors: primary, danger, info, warning, bgCard, borderCard, textPrimary, textSecondary, textTertiary
+/// - SigapSpacing: sm, md, lg, xxl
+/// - SigapRadius: sm, md, lg
+/// - SigapTypography: size11, size12, size13, size14, size16, size18, size22
 
 class VerifikasiCaseDetailScreen extends ConsumerStatefulWidget {
   final String caseId;

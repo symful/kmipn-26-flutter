@@ -7,11 +7,11 @@ import 'package:sigap/theme/tokens.dart';
 /// Card has white background, border, and proper padding.
 ///
 /// Design tokens used:
-/// - Background: AppColors.bgCard (#FFFFFF)
-/// - Border: AppColors.borderCard (#E4E7E2)
-/// - Accent: AppColors.primary (#0F7A6B)
-/// - Border radius: AppRadius.x12 (12px)
-/// - Padding: AppSpacing.md (12px)
+/// - Background: SigapColors.bgCard (#FFFFFF)
+/// - Border: SigapColors.borderCard (#E4E7E2)
+/// - Accent: SigapColors.primary (#0F7A6B)
+/// - Border radius: SigapRadius.x12 (12px)
+/// - Padding: SigapSpacing.md (12px)
 ///
 /// Example:
 /// ```dart
@@ -36,16 +36,16 @@ class S02InstruksiCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.x12),
-        border: Border.all(color: AppColors.borderCard),
+        color: SigapColors.bgCard,
+        borderRadius: BorderRadius.circular(SigapRadius.x12),
+        border: Border.all(color: SigapColors.borderCard),
       ),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.x12),
-          border: Border(left: BorderSide(color: AppColors.primary, width: 4)),
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
+          border: Border(left: BorderSide(color: SigapColors.primary, width: 4)),
         ),
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(SigapSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -53,20 +53,20 @@ class S02InstruksiCard extends StatelessWidget {
             Text(
               title,
               style: const TextStyle(
-                fontSize: AppTypography.size12,
+                fontSize: SigapTypography.size12,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textTertiary,
+                color: SigapColors.textTertiary,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: SigapSpacing.sm),
 
             // Body text
             Text(
               body,
               style: const TextStyle(
-                fontSize: AppTypography.size13,
+                fontSize: SigapTypography.size13,
                 height: 1.5,
-                color: AppColors.textPrimary,
+                color: SigapColors.textPrimary,
               ),
             ),
           ],

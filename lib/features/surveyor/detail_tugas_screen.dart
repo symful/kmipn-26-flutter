@@ -129,9 +129,9 @@ class _SurveyorDetailTugasScreenState
             mainAxisSize: MainAxisSize.min,
             children: [
               AppIcons.error,
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: SigapSpacing.md),
               Text('Gagal memuat: $_error'),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: SigapSpacing.md),
               ElevatedButton(onPressed: _load, child: const Text('Coba Lagi')),
             ],
           ),
@@ -171,7 +171,7 @@ class _SurveyorDetailTugasScreenState
         children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(SigapSpacing.lg),
               children: [
                 // Report Details Card
                 _SectionCard(
@@ -181,7 +181,7 @@ class _SurveyorDetailTugasScreenState
                     // Photo
                     if (photoUrls != null && photoUrls.isNotEmpty) ...[
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
                         child: Image.network(
                           photoUrls.first.toString(),
                           width: double.infinity,
@@ -190,16 +190,16 @@ class _SurveyorDetailTugasScreenState
                           errorBuilder: (_, __, ___) => Container(
                             width: double.infinity,
                             height: 200,
-                            color: AppColors.bgSurface,
+                            color: SigapColors.bgSurface,
                             child: const Icon(
                               Icons.image_not_supported,
                               size: 48,
-                              color: AppColors.textTertiary,
+                              color: SigapColors.textTertiary,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.md),
+                      const SizedBox(height: SigapSpacing.md),
                     ],
 
                     // Title
@@ -208,7 +208,7 @@ class _SurveyorDetailTugasScreenState
                       value: title,
                       icon: AppIcons.report,
                     ),
-                    const Divider(height: AppSpacing.lg),
+                    const Divider(height: SigapSpacing.lg),
 
                     // Category
                     _DetailRow(
@@ -216,7 +216,7 @@ class _SurveyorDetailTugasScreenState
                       value: categoryName ?? '-',
                       icon: AppIcons.categoryFilled,
                     ),
-                    const Divider(height: AppSpacing.lg),
+                    const Divider(height: SigapSpacing.lg),
 
                     // Location
                     _DetailRow(
@@ -224,7 +224,7 @@ class _SurveyorDetailTugasScreenState
                       value: address ?? '-',
                       icon: AppIcons.location,
                     ),
-                    const Divider(height: AppSpacing.lg),
+                    const Divider(height: SigapSpacing.lg),
 
                     // Description
                     _DetailRow(
@@ -236,7 +236,7 @@ class _SurveyorDetailTugasScreenState
 
                     // Timestamp
                     if (createdAt != null) ...[
-                      const Divider(height: AppSpacing.lg),
+                      const Divider(height: SigapSpacing.lg),
                       _DetailRow(
                         label: 'Dibuat',
                         value: _formatDateTime(createdAt),
@@ -246,7 +246,7 @@ class _SurveyorDetailTugasScreenState
                   ],
                 ),
 
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: SigapSpacing.lg),
 
                 // Checklist Template Section
                 _SectionCard(
@@ -255,11 +255,11 @@ class _SurveyorDetailTugasScreenState
                   children: [
                     if (_checklistItems.isEmpty)
                       const Padding(
-                        padding: EdgeInsets.all(AppSpacing.md),
+                        padding: EdgeInsets.all(SigapSpacing.md),
                         child: Text(
                           'Tidak ada item checklist',
                           style: TextStyle(
-                            color: AppColors.textTertiary,
+                            color: SigapColors.textTertiary,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -277,7 +277,7 @@ class _SurveyorDetailTugasScreenState
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.sm,
+                            vertical: SigapSpacing.sm,
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,28 +286,28 @@ class _SurveyorDetailTugasScreenState
                                 width: 24,
                                 height: 24,
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryLight,
+                                  color: SigapColors.primaryLight,
                                   borderRadius: BorderRadius.circular(
-                                    AppRadius.sm,
+                                    SigapRadius.sm,
                                   ),
                                 ),
                                 child: Center(
                                   child: Text(
                                     '${index + 1}',
                                     style: const TextStyle(
-                                      color: AppColors.primary,
+                                      color: SigapColors.primary,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 12,
                                     ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: AppSpacing.md),
+                              const SizedBox(width: SigapSpacing.md),
                               Expanded(
                                 child: Text(
                                   label + (required ? ' *' : ''),
                                   style: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: SigapColors.textPrimary,
                                     fontSize: 14,
                                     decoration: required
                                         ? TextDecoration.none
@@ -318,19 +318,19 @@ class _SurveyorDetailTugasScreenState
                               if (required)
                                 Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.sm,
+                                    horizontal: SigapSpacing.sm,
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.warningBg,
+                                    color: SigapColors.warningBg,
                                     borderRadius: BorderRadius.circular(
-                                      AppRadius.sm,
+                                      SigapRadius.sm,
                                     ),
                                   ),
                                   child: const Text(
                                     'Wajib',
                                     style: TextStyle(
-                                      color: AppColors.warning,
+                                      color: SigapColors.warning,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -343,7 +343,7 @@ class _SurveyorDetailTugasScreenState
                   ],
                 ),
 
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: SigapSpacing.lg),
 
                 // Instructions Section
                 if (instructions.isNotEmpty)
@@ -354,7 +354,7 @@ class _SurveyorDetailTugasScreenState
                       Text(
                         instructions,
                         style: const TextStyle(
-                          color: AppColors.textSecondary,
+                          color: SigapColors.textSecondary,
                           fontSize: 14,
                           height: 1.5,
                         ),
@@ -368,16 +368,16 @@ class _SurveyorDetailTugasScreenState
           // Bottom Action Buttons
           Container(
             padding: EdgeInsets.only(
-              left: AppSpacing.lg,
-              right: AppSpacing.lg,
-              top: AppSpacing.md,
-              bottom: MediaQuery.of(context).padding.bottom + AppSpacing.md,
+              left: SigapSpacing.lg,
+              right: SigapSpacing.lg,
+              top: SigapSpacing.md,
+              bottom: MediaQuery.of(context).padding.bottom + SigapSpacing.md,
             ),
             decoration: BoxDecoration(
-              color: AppColors.bgCard,
+              color: SigapColors.bgCard,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.textPrimary.withValues(alpha: 0.08),
+                  color: SigapColors.textPrimary.withValues(alpha: 0.08),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -388,11 +388,11 @@ class _SurveyorDetailTugasScreenState
               children: [
                 if (_error != null)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
                     child: Text(
                       'Error: $_error',
                       style: const TextStyle(
-                        color: AppColors.danger,
+                        color: SigapColors.danger,
                         fontSize: 12,
                       ),
                     ),
@@ -482,29 +482,29 @@ class _SectionCard extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        side: const BorderSide(color: AppColors.borderCard),
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
+        side: const BorderSide(color: SigapColors.borderCard),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 icon,
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: SigapSpacing.sm),
                 Text(
                   title,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: SigapSpacing.md),
             ...children,
           ],
         ),
@@ -534,10 +534,10 @@ class _DetailRow extends StatelessWidget {
           : CrossAxisAlignment.center,
       children: [
         IconTheme(
-          data: const IconThemeData(color: AppColors.textTertiary, size: 18),
+          data: const IconThemeData(color: SigapColors.textTertiary, size: 18),
           child: icon,
         ),
-        const SizedBox(width: AppSpacing.md),
+        const SizedBox(width: SigapSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,7 +546,7 @@ class _DetailRow extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: AppColors.textTertiary,
+                  color: SigapColors.textTertiary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -555,7 +555,7 @@ class _DetailRow extends StatelessWidget {
                 value,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: AppColors.textPrimary,
+                  color: SigapColors.textPrimary,
                 ),
               ),
             ],

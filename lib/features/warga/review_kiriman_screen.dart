@@ -109,7 +109,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Bukti berhasil ditambahkan ke kasus'),
-          backgroundColor: AppColors.primary,
+          backgroundColor: SigapColors.primary,
         ),
       );
 
@@ -121,7 +121,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal menambahkan bukti: $e'),
-          backgroundColor: AppColors.danger,
+          backgroundColor: SigapColors.danger,
         ),
       );
     }
@@ -133,7 +133,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Kategori laporan tidak tersedia'),
-          backgroundColor: AppColors.danger,
+          backgroundColor: SigapColors.danger,
         ),
       );
       return;
@@ -199,7 +199,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Laporan tersimpan. Akan sinkron otomatis.'),
-          backgroundColor: AppColors.primary,
+          backgroundColor: SigapColors.primary,
         ),
       );
 
@@ -211,7 +211,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal menyimpan: $e'),
-          backgroundColor: AppColors.danger,
+          backgroundColor: SigapColors.danger,
         ),
       );
     }
@@ -225,7 +225,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
         .toList();
 
     return Scaffold(
-      backgroundColor: AppColors.bgScreen,
+      backgroundColor: SigapColors.bgScreen,
       body: Column(
         children: [
           // Custom app bar with stepper
@@ -238,8 +238,8 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.x14,
-                horizontal: AppSpacing.lg,
+                vertical: SigapSpacing.x14,
+                horizontal: SigapSpacing.lg,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -255,7 +255,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
                         _handleCreateSeparate();
                       },
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: SigapSpacing.md),
                   ],
 
                   // Report summary card
@@ -290,7 +290,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
                     },
                   ),
 
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: SigapSpacing.md),
 
                   // Privacy toggle
                   PrivacyToggle(
@@ -300,7 +300,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
                     },
                   ),
 
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: SigapSpacing.md),
 
                   // Truth statement checkbox
                   TruthStatementCheckbox(

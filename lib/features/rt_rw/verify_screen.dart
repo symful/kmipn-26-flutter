@@ -143,16 +143,16 @@ class _RtRwVerifyScreenState extends ConsumerState<RtRwVerifyScreen> {
           _verdict == RwVerdict.needsSurvey ||
           _verdict == RwVerdict.outOfScope ||
           _verdict == RwVerdict.rejected) {
-        await client.verifikatorDecide(
+        await client.decideVerifikatorCase(
           caseId: widget.reportId,
           decision: _verdict.apiValue,
-          reason: reason.isNotEmpty ? reason : null,
+          reason: reason.isNotEmpty ? reason : '',
         );
       } else if (_verdict == RwVerdict.duplicate) {
-        await client.verifikatorDecide(
+        await client.decideVerifikatorCase(
           caseId: widget.reportId,
           decision: _verdict.apiValue,
-          reason: reason.isNotEmpty ? reason : null,
+          reason: reason.isNotEmpty ? reason : '',
           duplicateOfReportId: _duplicateIdController.text.trim().isNotEmpty
               ? _duplicateIdController.text.trim()
               : null,

@@ -88,33 +88,33 @@ class ReportSummaryCard extends StatelessWidget {
         const Text(
           'Ringkasan laporan',
           style: TextStyle(
-            fontSize: AppTypography.size12,
+            fontSize: SigapTypography.size12,
             fontWeight: FontWeight.w700,
-            color: AppColors.textTertiary,
-            letterSpacing: AppTypography.letterSpacingLabel,
+            color: SigapColors.textTertiary,
+            letterSpacing: SigapTypography.letterSpacingLabel,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: SigapSpacing.sm),
 
         // Card
         Container(
           decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            border: Border.all(color: AppColors.borderCard),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
+            color: SigapColors.bgCard,
+            border: Border.all(color: SigapColors.borderCard),
+            borderRadius: BorderRadius.circular(SigapRadius.lg),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
               // Photo + info row
               Padding(
-                padding: const EdgeInsets.all(AppSpacing.x11),
+                padding: const EdgeInsets.all(SigapSpacing.x11),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Photo placeholder
                     _PhotoPlaceholder(photoIndex: report.photoIndex),
-                    const SizedBox(width: AppSpacing.x9),
+                    const SizedBox(width: SigapSpacing.x9),
 
                     // Info column
                     Expanded(
@@ -125,12 +125,12 @@ class ReportSummaryCard extends StatelessWidget {
                           Row(
                             children: [
                               _CategoryBadge(initials: report.initials),
-                              const SizedBox(width: AppSpacing.x6),
+                              const SizedBox(width: SigapSpacing.x6),
                               Text(
                                 'Kondisi: ${report.condition}',
                                 style: const TextStyle(
-                                  fontSize: AppTypography.size11,
-                                  color: AppColors.textTertiary,
+                                  fontSize: SigapTypography.size11,
+                                  color: SigapColors.textTertiary,
                                 ),
                               ),
                             ],
@@ -141,10 +141,10 @@ class ReportSummaryCard extends StatelessWidget {
                           Text(
                             report.title,
                             style: const TextStyle(
-                              fontSize: AppTypography.size13,
+                              fontSize: SigapTypography.size13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                              height: AppTypography.lineHeight135,
+                              color: SigapColors.textPrimary,
+                              height: SigapTypography.lineHeight135,
                             ),
                           ),
                         ],
@@ -203,7 +203,7 @@ class _PhotoPlaceholder extends StatelessWidget {
       width: 64,
       height: 64,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.x9),
+        borderRadius: BorderRadius.circular(SigapRadius.x9),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -222,8 +222,8 @@ class _PhotoPlaceholder extends StatelessWidget {
         'foto $photoIndex',
         style: const TextStyle(
           fontFamily: 'IBM Plex Mono',
-          fontSize: AppTypography.size8,
-          color: AppColors.textDisabled,
+          fontSize: SigapTypography.size8,
+          color: SigapColors.textDisabled,
         ),
       ),
     );
@@ -241,16 +241,16 @@ class _CategoryBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        color: SigapColors.primaryLight,
+        borderRadius: BorderRadius.circular(SigapRadius.sm),
       ),
       child: Text(
         initials,
         style: const TextStyle(
           fontFamily: 'IBM Plex Mono',
-          fontSize: AppTypography.size10,
+          fontSize: SigapTypography.size10,
           fontWeight: FontWeight.w600,
-          color: AppColors.primaryDark,
+          color: SigapColors.primaryDark,
         ),
       ),
     );
@@ -263,7 +263,7 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 1, thickness: 1, color: AppColors.bgSoft);
+    return const Divider(height: 1, thickness: 1, color: SigapColors.bgSoft);
   }
 }
 
@@ -291,8 +291,8 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x12,
-        vertical: AppSpacing.x10,
+        horizontal: SigapSpacing.x12,
+        vertical: SigapSpacing.x10,
       ),
       child: Row(
         mainAxisAlignment: isImpact
@@ -305,8 +305,8 @@ class _InfoRow extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: AppTypography.size12,
-              color: AppColors.textTertiary,
+              fontSize: SigapTypography.size12,
+              color: SigapColors.textTertiary,
             ),
           ),
           if (isImpact)
@@ -315,9 +315,9 @@ class _InfoRow extends StatelessWidget {
                 value,
                 textAlign: TextAlign.right,
                 style: const TextStyle(
-                  fontSize: AppTypography.size12,
+                  fontSize: SigapTypography.size12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: SigapColors.textPrimary,
                 ),
               ),
             )
@@ -328,9 +328,9 @@ class _InfoRow extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: AppTypography.size12,
+                    fontSize: SigapTypography.size12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
                 if (canEdit) ...[
@@ -340,8 +340,8 @@ class _InfoRow extends StatelessWidget {
                     child: const Text(
                       '✎',
                       style: TextStyle(
-                        fontSize: AppTypography.size12,
-                        color: AppColors.primary,
+                        fontSize: SigapTypography.size12,
+                        color: SigapColors.primary,
                       ),
                     ),
                   ),
@@ -356,9 +356,9 @@ class _InfoRow extends StatelessWidget {
                   child: Text(
                     accuracy != null ? '$value · $accuracy' : value,
                     style: const TextStyle(
-                      fontSize: AppTypography.size12,
+                      fontSize: SigapTypography.size12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: SigapColors.textPrimary,
                     ),
                   ),
                 ),
@@ -369,8 +369,8 @@ class _InfoRow extends StatelessWidget {
                     child: const Text(
                       '✎',
                       style: TextStyle(
-                        fontSize: AppTypography.size12,
-                        color: AppColors.primary,
+                        fontSize: SigapTypography.size12,
+                        color: SigapColors.primary,
                       ),
                     ),
                   ),

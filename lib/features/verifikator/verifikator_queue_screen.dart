@@ -110,7 +110,7 @@ class _VerifikatorQueueScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgSurface,
+      backgroundColor: SigapColors.bgSurface,
       appBar: AppBar(
         title: const Text('Verifikator - Antrian'),
         automaticallyImplyLeading: true,
@@ -134,7 +134,7 @@ class _VerifikatorQueueScreenState
               child: _entries.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
-                      padding: const EdgeInsets.all(AppSpacing.md),
+                      padding: const EdgeInsets.all(SigapSpacing.md),
                       itemCount: _entries.length,
                       itemBuilder: (context, i) {
                         final entry = _entries[i];
@@ -156,17 +156,17 @@ class _VerifikatorQueueScreenState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inbox_outlined, size: 64, color: AppColors.textTertiary),
-          const SizedBox(height: AppSpacing.md),
+          Icon(Icons.inbox_outlined, size: 64, color: SigapColors.textTertiary),
+          const SizedBox(height: SigapSpacing.md),
           Text(
             'Tidak ada laporan',
             style: TextStyle(
-              fontSize: AppTypography.size16,
-              color: AppColors.textSecondary,
+              fontSize: SigapTypography.size16,
+              color: SigapColors.textSecondary,
             ),
           ),
           if (_statusFilter != null || _kategoriFilter != null) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: SigapSpacing.sm),
             TextButton(
               onPressed: () {
                 setState(() {
@@ -222,12 +222,12 @@ class _QueueEntryCard extends StatelessWidget {
     final id = entry.id ?? '';
 
     return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(SigapSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -235,37 +235,37 @@ class _QueueEntryCard extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
+                      horizontal: SigapSpacing.sm,
+                      vertical: SigapSpacing.xs,
                     ),
                     decoration: BoxDecoration(
                       color: _getStatusColor(status).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderRadius: BorderRadius.circular(SigapRadius.sm),
                     ),
                     child: Text(
                       _getStatusLabel(status),
                       style: TextStyle(
-                        fontSize: AppTypography.size11,
+                        fontSize: SigapTypography.size11,
                         color: _getStatusColor(status),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: SigapSpacing.sm),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
+                      horizontal: SigapSpacing.sm,
+                      vertical: SigapSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      color: SigapColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(SigapRadius.sm),
                     ),
                     child: Text(
                       categoryName,
                       style: TextStyle(
-                        fontSize: AppTypography.size11,
-                        color: AppColors.primary,
+                        fontSize: SigapTypography.size11,
+                        color: SigapColors.primary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -274,24 +274,24 @@ class _QueueEntryCard extends StatelessWidget {
                   Text(
                     '#${id.length > 8 ? id.substring(0, 8) : id}',
                     style: TextStyle(
-                      fontSize: AppTypography.size10,
-                      color: AppColors.textTertiary,
+                      fontSize: SigapTypography.size10,
+                      color: SigapColors.textTertiary,
                       fontFamily: 'monospace',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: SigapSpacing.sm),
               Text(
                 description.isNotEmpty ? description : '-',
                 style: TextStyle(
-                  fontSize: AppTypography.size14,
-                  color: AppColors.textPrimary,
+                  fontSize: SigapTypography.size14,
+                  color: SigapColors.textPrimary,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: SigapSpacing.md),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -325,18 +325,18 @@ class _QueueEntryCard extends StatelessWidget {
     switch (status.toLowerCase()) {
       case 'pending':
       case 'submitted':
-        return AppColors.warning;
+        return SigapColors.warning;
       case 'under_review':
-        return AppColors.info;
+        return SigapColors.info;
       case 'in_progress':
-        return AppColors.diproses;
+        return SigapColors.diproses;
       case 'verified':
       case 'completed':
-        return AppColors.primary;
+        return SigapColors.primary;
       case 'rejected':
-        return AppColors.danger;
+        return SigapColors.danger;
       default:
-        return AppColors.textTertiary;
+        return SigapColors.textTertiary;
     }
   }
 
@@ -399,10 +399,10 @@ class _FilterSheetState extends State<_FilterSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-        top: AppSpacing.lg,
-        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
+        left: SigapSpacing.lg,
+        right: SigapSpacing.lg,
+        top: SigapSpacing.lg,
+        bottom: MediaQuery.of(context).viewInsets.bottom + SigapSpacing.lg,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -413,7 +413,7 @@ class _FilterSheetState extends State<_FilterSheet> {
               const Text(
                 'Filter Antrean',
                 style: TextStyle(
-                  fontSize: AppTypography.size19,
+                  fontSize: SigapTypography.size19,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -424,17 +424,17 @@ class _FilterSheetState extends State<_FilterSheet> {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: SigapSpacing.lg),
           const Text(
             'Status',
             style: TextStyle(
-              fontSize: AppTypography.size14,
+              fontSize: SigapTypography.size14,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: SigapSpacing.sm),
           Wrap(
-            spacing: AppSpacing.sm,
+            spacing: SigapSpacing.sm,
             children: _statusOptions.map((opt) {
               final selected = _selectedStatus == opt.$1;
               return FilterChip(
@@ -448,7 +448,7 @@ class _FilterSheetState extends State<_FilterSheet> {
               );
             }).toList(),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: SigapSpacing.lg),
           Row(
             children: [
               TextButton(

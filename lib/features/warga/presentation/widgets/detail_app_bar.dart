@@ -35,14 +35,14 @@ class DetailAppBar extends StatelessWidget {
                 child: Text(
                   '←',
                   style: TextStyle(
-                    fontSize: AppTypography.size22,
-                    color: AppColors.textSecondary,
+                    fontSize: SigapTypography.size22,
+                    color: SigapColors.textSecondary,
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.x12),
+          const SizedBox(width: SigapSpacing.x12),
           // Title and IDs column
           Expanded(
             child: Column(
@@ -52,18 +52,18 @@ class DetailAppBar extends StatelessWidget {
                 const Text(
                   'Detail laporan',
                   style: TextStyle(
-                    fontSize: AppTypography.size16,
+                    fontSize: SigapTypography.size16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Lokal #$localId · Server #$serverId',
                   style: const TextStyle(
-                    fontSize: AppTypography.size11,
+                    fontSize: SigapTypography.size11,
                     fontFamily: 'IBM Plex Mono',
-                    color: AppColors.textTertiary,
+                    color: SigapColors.textTertiary,
                   ),
                 ),
               ],
@@ -80,8 +80,8 @@ class DetailAppBar extends StatelessWidget {
                 child: Text(
                   '⋯',
                   style: TextStyle(
-                    fontSize: AppTypography.size20,
-                    color: AppColors.textSecondary,
+                    fontSize: SigapTypography.size20,
+                    color: SigapColors.textSecondary,
                   ),
                 ),
               ),

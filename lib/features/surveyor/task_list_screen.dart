@@ -349,14 +349,14 @@ class _SurveyorTaskListScreenState
         .length;
 
     return Scaffold(
-      backgroundColor: AppColors.bgSurface,
+      backgroundColor: SigapColors.bgSurface,
       appBar: AppBar(
-        backgroundColor: AppColors.bgCard,
+        backgroundColor: SigapColors.bgCard,
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
           child: Row(
             children: [
               // Title + Subtitle column
@@ -367,9 +367,9 @@ class _SurveyorTaskListScreenState
                   Text(
                     'Tugas hari ini',
                     style: const TextStyle(
-                      fontSize: AppTypography.size19,
+                      fontSize: SigapTypography.size19,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: SigapColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -378,8 +378,8 @@ class _SurveyorTaskListScreenState
                     '$taskCount tugas · ${_downloadedIds.length} siap offline',
                     style: const TextStyle(
                       fontFamily: 'IBM Plex Mono',
-                      fontSize: AppTypography.size12,
-                      color: AppColors.textTertiary,
+                      fontSize: SigapTypography.size12,
+                      color: SigapColors.textTertiary,
                     ),
                   ),
                 ],
@@ -417,8 +417,8 @@ class _SurveyorTaskListScreenState
                 // Sort row - S-01 design: "Urutkan: SLA terdekat ▾" + "Unduh N tugas"
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.sm,
+                    horizontal: SigapSpacing.lg,
+                    vertical: SigapSpacing.sm,
                   ),
                   child: Row(
                     children: [
@@ -429,8 +429,8 @@ class _SurveyorTaskListScreenState
                           Text(
                             'Urutkan: ',
                             style: const TextStyle(
-                              fontSize: AppTypography.size12,
-                              color: AppColors.textTertiary,
+                              fontSize: SigapTypography.size12,
+                              color: SigapColors.textTertiary,
                             ),
                           ),
                           DropdownButtonHideUnderline(
@@ -447,16 +447,16 @@ class _SurveyorTaskListScreenState
                                       Text(
                                         option,
                                         style: const TextStyle(
-                                          fontSize: AppTypography.size12,
+                                          fontSize: SigapTypography.size12,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.textPrimary,
+                                          color: SigapColors.textPrimary,
                                         ),
                                       ),
                                       const Text(
                                         ' ▾',
                                         style: TextStyle(
-                                          fontSize: AppTypography.size12,
-                                          color: AppColors.textTertiary,
+                                          fontSize: SigapTypography.size12,
+                                          color: SigapColors.textTertiary,
                                         ),
                                       ),
                                     ],
@@ -488,9 +488,9 @@ class _SurveyorTaskListScreenState
                         child: Text(
                           'Unduh $taskCount tugas',
                           style: const TextStyle(
-                            fontSize: AppTypography.size12,
+                            fontSize: SigapTypography.size12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
+                            color: SigapColors.primary,
                           ),
                         ),
                       ),
@@ -501,15 +501,15 @@ class _SurveyorTaskListScreenState
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: _load,
-                    color: AppColors.primary,
+                    color: SigapColors.primary,
                     child: ListView.builder(
-                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      padding: const EdgeInsets.all(SigapSpacing.lg),
                       itemCount: filteredTasks.length,
                       itemBuilder: (context, index) {
                         final task = filteredTasks[index];
                         final taskId = task['id'] as String;
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          padding: const EdgeInsets.only(bottom: SigapSpacing.md),
                           child: _SurveyorTaskCard(
                             task: task,
                             isDownloaded: _downloadedIds.contains(taskId),
@@ -743,13 +743,13 @@ class _SurveyorTaskCard extends StatelessWidget {
   Color get _priorityDotColor {
     switch (_priority) {
       case TaskPriorityLevel.urgent:
-        return AppColors.danger; // #c0392b
+        return SigapColors.danger; // #c0392b
       case TaskPriorityLevel.high:
-        return AppColors.warning; // #b8730a
+        return SigapColors.warning; // #b8730a
       case TaskPriorityLevel.normal:
-        return AppColors.primary; // #0f7a6b
+        return SigapColors.primary; // #0f7a6b
       case TaskPriorityLevel.low:
-        return AppColors.textTertiary; // #8a9099
+        return SigapColors.textTertiary; // #8a9099
     }
   }
 
@@ -757,13 +757,13 @@ class _SurveyorTaskCard extends StatelessWidget {
   Color get _borderColor {
     switch (_priority) {
       case TaskPriorityLevel.urgent:
-        return AppColors.danger; // #c0392b
+        return SigapColors.danger; // #c0392b
       case TaskPriorityLevel.high:
-        return AppColors.warning; // #b8730a
+        return SigapColors.warning; // #b8730a
       case TaskPriorityLevel.normal:
-        return AppColors.primary; // #0f7a6b
+        return SigapColors.primary; // #0f7a6b
       case TaskPriorityLevel.low:
-        return AppColors.borderSoft; // #d3d7d0
+        return SigapColors.borderSoft; // #d3d7d0
     }
   }
 
@@ -833,12 +833,12 @@ class _SurveyorTaskCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.x12),
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
           border: Border(left: BorderSide(color: _borderColor, width: 4)),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(SigapSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -851,7 +851,7 @@ class _SurveyorTaskCard extends StatelessWidget {
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight, // #e2f1ee
+                      color: SigapColors.primaryLight, // #e2f1ee
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -861,7 +861,7 @@ class _SurveyorTaskCard extends StatelessWidget {
                           fontFamily: 'IBM Plex Mono',
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryDark, // #0a5c50
+                          color: SigapColors.primaryDark, // #0a5c50
                         ),
                       ),
                     ),
@@ -875,9 +875,9 @@ class _SurveyorTaskCard extends StatelessWidget {
                         Text(
                           title,
                           style: const TextStyle(
-                            fontSize: AppTypography.size13_5,
+                            fontSize: SigapTypography.size13_5,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: SigapColors.textPrimary,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -887,9 +887,9 @@ class _SurveyorTaskCard extends StatelessWidget {
                           _taskIdDisplay,
                           style: const TextStyle(
                             fontFamily: 'IBM Plex Mono',
-                            fontSize: AppTypography.size11,
+                            fontSize: SigapTypography.size11,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textTertiary,
+                            color: SigapColors.textTertiary,
                           ),
                         ),
                       ],
@@ -910,7 +910,7 @@ class _SurveyorTaskCard extends StatelessWidget {
                       child: Text(
                         _slaLabel,
                         style: TextStyle(
-                          fontSize: AppTypography.size11,
+                          fontSize: SigapTypography.size11,
                           fontWeight: FontWeight.w700,
                           color: _slaTextColor,
                         ),
@@ -924,8 +924,8 @@ class _SurveyorTaskCard extends StatelessWidget {
               Text(
                 _location,
                 style: const TextStyle(
-                  fontSize: AppTypography.size11_5,
-                  color: AppColors.textTertiary,
+                  fontSize: SigapTypography.size11_5,
+                  color: SigapColors.textTertiary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -951,7 +951,7 @@ class _SurveyorTaskCard extends StatelessWidget {
                       Text(
                         _priorityLabel,
                         style: TextStyle(
-                          fontSize: AppTypography.size11,
+                          fontSize: SigapTypography.size11,
                           fontWeight: FontWeight.w600,
                           color: _priorityTextColor,
                         ),
@@ -967,7 +967,7 @@ class _SurveyorTaskCard extends StatelessWidget {
                         padding: const EdgeInsets.all(4),
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: AppColors.primary,
+                          color: SigapColors.primary,
                         ),
                       ),
                     )
@@ -988,13 +988,13 @@ class _SurveyorTaskCard extends StatelessWidget {
   Color get _priorityTextColor {
     switch (_priority) {
       case TaskPriorityLevel.urgent:
-        return AppColors.dangerTextStrong; // #a5271a
+        return SigapColors.dangerTextStrong; // #a5271a
       case TaskPriorityLevel.high:
-        return AppColors.warningText; // #8a5808
+        return SigapColors.warningText; // #8a5808
       case TaskPriorityLevel.normal:
-        return AppColors.primaryDark; // #0a5c50
+        return SigapColors.primaryDark; // #0a5c50
       case TaskPriorityLevel.low:
-        return AppColors.textTertiary; // #616770
+        return SigapColors.textTertiary; // #616770
     }
   }
 }

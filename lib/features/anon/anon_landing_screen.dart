@@ -10,17 +10,17 @@ class AnonLandingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgSurface,
+      backgroundColor: SigapColors.bgSurface,
       appBar: AppBar(
         title: const Text('Lapor Tanpa Akun'),
-        backgroundColor: AppColors.bgCard,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: SigapColors.bgCard,
+        foregroundColor: SigapColors.textPrimary,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(SigapSpacing.lg),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,49 +31,49 @@ class AnonLandingScreen extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: SigapColors.primaryLight,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.announcement,
                   size: 50,
-                  color: AppColors.primary,
+                  color: SigapColors.primary,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: SigapSpacing.xl),
               // Title
               const Text(
                 'Lapor Tanpa Akun',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: SigapColors.textPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: SigapSpacing.md),
               // Description
               const Text(
                 'Laporkan masalah di lingkungan Anda tanpa perlu membuat akun. '
                 'Laporan Anda akan tetap diproses oleh petugas terkait.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: SigapColors.textSecondary,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: SigapSpacing.xxl),
               // CTA Button
               SizedBox(
                 height: 52,
                 child: ElevatedButton(
                   onPressed: () => context.push('/create-anonymous'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: SigapColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
                     ),
                     elevation: 0,
                   ),
@@ -88,10 +88,10 @@ class AnonLandingScreen extends StatelessWidget {
               const Text(
                 'Tidak memiliki akun? Tidak masalah.\n'
                 'Anda tetap bisa melaporkan masalah di sekitar Anda.',
-                style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                style: TextStyle(fontSize: 12, color: SigapColors.textTertiary),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: SigapSpacing.lg),
             ],
           ),
         ),

@@ -32,7 +32,7 @@ class WargaAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 6, left: 18, right: 18, bottom: 12),
-      decoration: const BoxDecoration(color: AppColors.bgSurface),
+      decoration: const BoxDecoration(color: SigapColors.bgSurface),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

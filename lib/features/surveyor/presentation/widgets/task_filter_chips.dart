@@ -60,14 +60,14 @@ class TaskFilterChips extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.sm,
+        horizontal: SigapSpacing.lg,
+        vertical: SigapSpacing.sm,
       ),
       child: Row(
         children: chips.map((chip) {
           final isSelected = chip.index == selectedIndex;
           return Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            padding: const EdgeInsets.only(right: SigapSpacing.sm),
             child: _TaskFilterChip(
               label: chip.label,
               count: chip.count,
@@ -110,30 +110,30 @@ class _TaskFilterChip extends StatelessWidget {
           : const Color(0xFF1F2226).withValues(alpha: 0.7);
     } else if (label == 'Terlambat') {
       // Red background for overdue - dangerBg
-      return AppColors.dangerBg; // #f8e2de
+      return SigapColors.dangerBg; // #f8e2de
     }
     // White background for "Belum diunduh"
-    return AppColors.bgCard; // #ffffff
+    return SigapColors.bgCard; // #ffffff
   }
 
   Color get _textColor {
     if (label == 'Hari ini') {
       return Colors.white;
     } else if (label == 'Terlambat') {
-      return AppColors.dangerTextStrong; // #a5271a
+      return SigapColors.dangerTextStrong; // #a5271a
     }
     return isSelected
-        ? AppColors.textSecondary
-        : AppColors.textTertiary; // #3a3f45 / #616770
+        ? SigapColors.textSecondary
+        : SigapColors.textTertiary; // #3a3f45 / #616770
   }
 
   Color get _borderColor {
     if (label == 'Hari ini') {
       return Colors.transparent;
     } else if (label == 'Terlambat') {
-      return AppColors.dangerBorder; // #ecc4bd
+      return SigapColors.dangerBorder; // #ecc4bd
     }
-    return AppColors.border; // #e4e7e2
+    return SigapColors.border; // #e4e7e2
   }
 
   @override
@@ -144,12 +144,12 @@ class _TaskFilterChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+          horizontal: SigapSpacing.md,
+          vertical: SigapSpacing.sm,
         ),
         decoration: BoxDecoration(
           color: _backgroundColor,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
+          borderRadius: BorderRadius.circular(SigapRadius.pill),
           border: Border.all(color: _borderColor, width: 1),
         ),
         child: Row(
@@ -159,7 +159,7 @@ class _TaskFilterChip extends StatelessWidget {
               label,
               style: TextStyle(
                 color: _textColor,
-                fontSize: AppTypography.size12,
+                fontSize: SigapTypography.size12,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -168,7 +168,7 @@ class _TaskFilterChip extends StatelessWidget {
                 ' $count',
                 style: TextStyle(
                   color: _textColor.withValues(alpha: 0.7),
-                  fontSize: AppTypography.size12,
+                  fontSize: SigapTypography.size12,
                   fontWeight: FontWeight.w600,
                 ),
               ),

@@ -20,9 +20,9 @@ class _StatusCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        border: Border.all(color: AppColors.borderCard),
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        color: SigapColors.bgCard,
+        border: Border.all(color: SigapColors.borderCard),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,7 +31,7 @@ class _StatusCard extends StatelessWidget {
           Text(
             '$count',
             style: TextStyle(
-              fontSize: AppTypography.size22,
+              fontSize: SigapTypography.size22,
               fontWeight: FontWeight.w700,
               color: countColor,
             ),
@@ -40,9 +40,9 @@ class _StatusCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: AppTypography.size11,
-              color: AppColors.textTertiary,
-              height: AppTypography.lineHeight125,
+              fontSize: SigapTypography.size11,
+              color: SigapColors.textTertiary,
+              height: SigapTypography.lineHeight125,
             ),
           ),
         ],
@@ -82,7 +82,7 @@ class StatusGrid extends StatelessWidget {
           child: _StatusCard(
             count: perluTindakan,
             label: 'Perlu tindakan',
-            countColor: AppColors.danger,
+            countColor: SigapColors.danger,
           ),
         ),
         const SizedBox(width: SigapSpacing.sm),
@@ -90,7 +90,7 @@ class StatusGrid extends StatelessWidget {
           child: _StatusCard(
             count: diproses,
             label: 'Diproses',
-            countColor: AppColors.info,
+            countColor: SigapColors.info,
           ),
         ),
         const SizedBox(width: SigapSpacing.sm),
@@ -98,7 +98,7 @@ class StatusGrid extends StatelessWidget {
           child: _StatusCard(
             count: selesai,
             label: 'Selesai',
-            countColor: AppColors.primary,
+            countColor: SigapColors.primary,
           ),
         ),
       ],

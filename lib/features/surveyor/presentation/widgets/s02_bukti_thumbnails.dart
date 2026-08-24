@@ -8,9 +8,9 @@ import 'package:sigap/theme/tokens.dart';
 ///
 /// Design tokens used:
 /// - Thumbnail size: 72x72px
-/// - Border radius: AppRadius.x9 (9px)
-/// - Background: AppColors.bgSurface (#F4F5F3)
-/// - Gap between thumbnails: AppSpacing.sm (8px)
+/// - Border radius: SigapRadius.x9 (9px)
+/// - Background: SigapColors.bgSurface (#F4F5F3)
+/// - Gap between thumbnails: SigapSpacing.sm (8px)
 ///
 /// Example:
 /// ```dart
@@ -48,7 +48,7 @@ class S02BuktiThumbnails extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: imageUrls.length,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+        separatorBuilder: (_, __) => const SizedBox(width: SigapSpacing.sm),
         itemBuilder: (context, index) {
           return _ThumbnailItem(
             imageUrl: imageUrls[index],
@@ -80,8 +80,8 @@ class _ThumbnailItem extends StatelessWidget {
         width: 72,
         height: 72,
         decoration: BoxDecoration(
-          color: AppColors.bgSurface,
-          borderRadius: BorderRadius.circular(AppRadius.x9),
+          color: SigapColors.bgSurface,
+          borderRadius: BorderRadius.circular(SigapRadius.x9),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -107,8 +107,8 @@ class _ThumbnailItem extends StatelessWidget {
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: AppColors.textPrimary.withValues(alpha: 0.54),
-                    borderRadius: BorderRadius.circular(AppRadius.x4),
+                    color: SigapColors.textPrimary.withValues(alpha: 0.54),
+                    borderRadius: BorderRadius.circular(SigapRadius.x4),
                   ),
                   child: const Icon(
                     Icons.zoom_in,
@@ -130,11 +130,11 @@ class _ImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.bgSurface,
+      color: SigapColors.bgSurface,
       child: const Icon(
         Icons.image_outlined,
         size: 28,
-        color: AppColors.textDisabled,
+        color: SigapColors.textDisabled,
       ),
     );
   }
