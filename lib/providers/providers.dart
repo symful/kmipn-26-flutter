@@ -90,17 +90,68 @@ final pendingCountProvider = StreamProvider<int>((ref) {
   return worker.pendingCountNotifier.stream;
 });
 
+/// Tracks whether wargaReportsProvider is serving stale (offline-cached) data.
+final isStaleWargaReportsProvider = StateProvider<bool>((ref) => false);
+
 /// Fetches server-side reports created by the current warga user.
+/// On NetworkException/ConnectivityException with cached Drift rows available,
+/// emits cached data and marks it stale via [isStaleWargaReportsProvider].
 final wargaReportsProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final api = ref.watch(apiClientProvider);
   ref.watch(syncWorkerProvider); // react to sync state changes
   try {
-    return await api.getWargaReports();
-  } catch (e, st) {
-    _logger.warning('wargaReportsProvider failed', e, st);
-    return [];
+    final page = await api.getWargaReports();
+    isStaleWargaReportsProvider.state = false;
+    return page.items.map((r) => r.toJson()).toList();
+  } on NetworkException catch (e, st) {
+    _logger.warning('wargaReportsProvider network error, trying cache', e, st);
+    // Try offline cache
+    final localReports = await ref.read(localReportsProvider.future);
+    if (localReports.isNotEmpty) {
+      isStaleWargaReportsProvider.state = true;
+      return localReports
+          .map(
+            (r) => {
+              'id': r.serverId ?? r.idempotencyKey,
+              'idempotency_key': r.idempotencyKey,
+              'category_id': r.categoryId,
+              'description': r.description,
+              'lat': r.lat,
+              'lng': r.lng,
+              'status': r.status,
+              'created_at': r.createdAt.toIso8601String(),
+              'updated_at': r.updatedAt.toIso8601String(),
+              'device_id': r.deviceId,
+            },
+          )
+          .toList();
+    }
+    rethrow;
+  } on ConnectivityException catch (e, st) {
+    _logger.warning('wargaReportsProvider offline, trying cache', e, st);
+    final localReports = await ref.read(localReportsProvider.future);
+    if (localReports.isNotEmpty) {
+      isStaleWargaReportsProvider.state = true;
+      return localReports
+          .map(
+            (r) => {
+              'id': r.serverId ?? r.idempotencyKey,
+              'idempotency_key': r.idempotencyKey,
+              'category_id': r.categoryId,
+              'description': r.description,
+              'lat': r.lat,
+              'lng': r.lng,
+              'status': r.status,
+              'created_at': r.createdAt.toIso8601String(),
+              'updated_at': r.updatedAt.toIso8601String(),
+              'device_id': r.deviceId,
+            },
+          )
+          .toList();
+    }
+    rethrow;
   }
 });
 
@@ -114,12 +165,7 @@ final categoriesProvider = FutureProvider<List<Map<String, dynamic>>>((
 /// Fetches warga statistics (submitted, verified, in_progress, resolved).
 final wargaStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final api = ref.watch(apiClientProvider);
-  try {
-    return await api.getWargaStats();
-  } catch (e, st) {
-    _logger.warning('wargaStatsProvider failed', e, st);
-    return {'submitted': 0, 'verified': 0, 'in_progress': 0, 'resolved': 0};
-  }
+  return await api.getWargaStats();
 });
 
 /// Fetches nearby reports based on user location.
@@ -129,12 +175,11 @@ final nearbyReportsProvider =
       ({double lat, double lng})
     >((ref, location) async {
       final api = ref.watch(apiClientProvider);
-      try {
-        return await api.getNearbyReports(lat: location.lat, lng: location.lng);
-      } catch (e, st) {
-        _logger.warning('nearbyReportsProvider failed', e, st);
-        return [];
-      }
+      final reports = await api.getNearbyReports(
+        lat: location.lat,
+        lng: location.lng,
+      );
+      return reports.map((r) => r.toJson()).toList();
     });
 
 /// Fetches duplicate case candidates for a given location and category.
@@ -145,28 +190,20 @@ final duplicateCasesProvider =
       ({double lat, double lng, String? categoryId})
     >((ref, params) async {
       final api = ref.watch(apiClientProvider);
-      try {
-        return await api.getDuplicateCases(
-          lat: params.lat,
-          lng: params.lng,
-          categoryId: params.categoryId,
-        );
-      } catch (e, st) {
-        _logger.warning('duplicateCasesProvider failed', e, st);
-        return [];
-      }
+      final candidates = await api.getDuplicateCases(
+        lat: params.lat,
+        lng: params.lng,
+        categoryId: params.categoryId,
+      );
+      return candidates.map((c) => c.toJson()).toList();
     });
 
 /// Fetches the timeline/history events for a given report.
 final reportTimelineProvider =
     FutureProvider.family<Map<String, dynamic>, String>((ref, reportId) async {
       final api = ref.watch(apiClientProvider);
-      try {
-        return await api.getReportTimeline(reportId);
-      } catch (e, st) {
-        _logger.warning('reportTimelineProvider failed', e, st);
-        return {};
-      }
+      final timeline = await api.getReportTimeline(reportId);
+      return timeline.toJson();
     });
 
 final syncManagerProvider = AsyncNotifierProvider<SyncManager, void>(() {
@@ -218,12 +255,8 @@ final surveyorTasksProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final api = ref.watch(apiClientProvider);
-  try {
-    return await api.surveyorGetTasks();
-  } catch (e, st) {
-    _logger.warning('surveyorTasksProvider failed', e, st);
-    return [];
-  }
+  final page = await api.surveyorGetTasks();
+  return page.tasks.map((t) => t.toJson()).toList();
 });
 
 // ─── Surveyor Task Action Providers ─────────────────────────────────────────
@@ -271,6 +304,12 @@ class SurveyorVisitParams {
   final String rekomendasi;
   final String? catatan;
 
+  /// Survey findings summary from form state (required, non-empty).
+  final String findings;
+
+  /// Checklist items from form state (required, non-empty list).
+  final List<Map<String, dynamic>> checklist;
+
   const SurveyorVisitParams({
     required this.taskId,
     required this.photos,
@@ -280,27 +319,33 @@ class SurveyorVisitParams {
     required this.kondisi,
     required this.rekomendasi,
     this.catatan,
+    required this.findings,
+    required this.checklist,
   });
 }
 
 /// Submits a structured visit report for a surveyor task.
-/// Structured fields: 4 corner photos, GPS coordinates, accuracy, kondisi selection, rekomendasi selection, catatan text.
+/// Structured fields: findings, checklist, photos, GPS coordinates, accuracy, kondisi, rekomendasi, catatan.
+/// Throws ArgumentError if findings or checklist is empty (API contract).
 final surveyorSubmitVisitProvider =
     FutureProvider.family<Map<String, dynamic>, SurveyorVisitParams>((
       ref,
       params,
     ) async {
       final api = ref.watch(apiClientProvider);
-      return await api.submitVisitReport(
+      final result = await api.submitVisitReport(
         taskId: params.taskId,
-        photos: params.photos,
+        findings: params.findings,
+        checklist: params.checklist,
+        photoUrls: params.photos.values.toList(),
         gpsLat: params.gpsLat,
         gpsLng: params.gpsLng,
         accuracy: params.accuracy,
-        kondisi: params.kondisi,
-        rekomendasi: params.rekomendasi,
+        conditionAssessment: params.kondisi,
+        recommendation: params.rekomendasi,
         catatan: params.catatan,
       );
+      return result.toJson();
     });
 
 // ─── Notifications ─────────────────────────────────────────────────────────────
@@ -310,12 +355,8 @@ final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final api = ref.watch(apiClientProvider);
-  try {
-    return await api.getNotifications();
-  } catch (e, st) {
-    _logger.warning('notificationsProvider failed', e, st);
-    return [];
-  }
+  final page = await api.getNotifications();
+  return page.entries.map((e) => e.toJson()).toList();
 });
 
 /// Computed provider that returns the count of unread notifications.
@@ -336,12 +377,8 @@ final unreadCountProvider = Provider<int>((ref) {
 /// Returns a list of wilayah objects with id, name, district, city, etc.
 final wilayahProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final api = ref.watch(apiClientProvider);
-  try {
-    return await api.getWilayahList();
-  } catch (e, st) {
-    _logger.warning('wilayahProvider failed', e, st);
-    return [];
-  }
+  final wilayahs = await api.getWilayahList();
+  return wilayahs.map((w) => w.toJson()).toList();
 });
 
 /// Returns the first available wilayah name, or a fallback string if none.
