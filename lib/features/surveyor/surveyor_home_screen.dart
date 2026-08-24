@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../api/types.g.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/phone_frame.dart';
@@ -175,7 +176,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
 
   /// Builds the task list with filtering and sorting applied
   Widget _buildTaskList(
-    List<Map<String, dynamic>> tasks,
+    List<SurveyorTask> tasks,
     int? filterIndex,
     String sortValue,
   ) {
@@ -205,7 +206,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
             child: SurveyorTaskCard(
               task: _mapToTaskData(task),
               onTap: () {
-                final taskId = task['id']?.toString();
+                final taskId = task.id?.toString();
                 if (taskId != null) {
                   context.push('/surveyor/tasks/$taskId');
                 }
@@ -218,10 +219,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
   }
 
   /// Applies filter based on selected chip index
-  List<Map<String, dynamic>> _applyFilter(
-    List<Map<String, dynamic>> tasks,
-    int? filterIndex,
-  ) {
+  List<SurveyorTask> _applyFilter(List<SurveyorTask> tasks, int? filterIndex) {
     if (filterIndex == null) return tasks;
 
     final now = DateTime.now();
@@ -230,7 +228,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
     switch (filterIndex) {
       case 0: // Hari ini
         return tasks.where((t) {
-          final createdAt = _parseDate(t['created_at'] ?? t['assigned_date']);
+          final createdAt = t.createdAt;
           return createdAt != null &&
               createdAt.year == today.year &&
               createdAt.month == today.month &&
@@ -238,7 +236,7 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
         }).toList();
       case 1: // Terlambat
         return tasks.where((t) {
-          final dueDate = _parseDate(t['sla_due_date'] ?? t['due_date']);
+          final dueDate = t.deadline;
           return dueDate != null && dueDate.isBefore(now);
         }).toList();
       case 2: // Belum diunduh
@@ -251,17 +249,14 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
   }
 
   /// Applies sorting based on selected sort option
-  List<Map<String, dynamic>> _applySort(
-    List<Map<String, dynamic>> tasks,
-    String sortValue,
-  ) {
-    final sorted = List<Map<String, dynamic>>.from(tasks);
+  List<SurveyorTask> _applySort(List<SurveyorTask> tasks, String sortValue) {
+    final sorted = List<SurveyorTask>.from(tasks);
 
     switch (sortValue) {
       case 'terbaru':
         sorted.sort((a, b) {
-          final dateA = _parseDate(a['created_at'] ?? a['assigned_date']);
-          final dateB = _parseDate(b['created_at'] ?? b['assigned_date']);
+          final dateA = a.createdAt;
+          final dateB = b.createdAt;
           if (dateA == null && dateB == null) return 0;
           if (dateA == null) return 1;
           if (dateB == null) return -1;
@@ -270,8 +265,8 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
         break;
       case 'sla':
         sorted.sort((a, b) {
-          final dateA = _parseDate(a['sla_due_date'] ?? a['due_date']);
-          final dateB = _parseDate(b['sla_due_date'] ?? b['due_date']);
+          final dateA = a.deadline;
+          final dateB = b.deadline;
           if (dateA == null && dateB == null) return 0;
           if (dateA == null) return 1;
           if (dateB == null) return -1;
@@ -280,9 +275,11 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
         break;
       case 'prioritas':
         sorted.sort((a, b) {
-          final priorityA = (a['priority'] as num?)?.toInt() ?? 0;
-          final priorityB = (b['priority'] as num?)?.toInt() ?? 0;
-          return priorityB.compareTo(priorityA); // highest priority first
+          // SurveyorTask.priority is a String, but severity is int
+          // Higher severity = higher priority
+          final priorityA = a.severity ?? 0;
+          final priorityB = b.severity ?? 0;
+          return priorityB.compareTo(priorityA); // highest severity first
         });
         break;
     }
@@ -290,21 +287,12 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
     return sorted;
   }
 
-  /// Parses a date string from API response
-  DateTime? _parseDate(dynamic value) {
-    if (value == null) return null;
-    if (value is DateTime) return value;
-    return DateTime.tryParse(value.toString());
-  }
-
   /// Maps API task to SurveyorTaskData
-  SurveyorTaskData _mapToTaskData(Map<String, dynamic> task) {
+  SurveyorTaskData _mapToTaskData(SurveyorTask task) {
     // Determine priority from task data
+    // Higher severity = higher priority (severity is int in SurveyorTask)
     TaskPriority priority = TaskPriority.normal;
-    final priorityValue =
-        (task['priority'] as num?)?.toInt() ??
-        (task['severity'] as num?)?.toInt() ??
-        2;
+    final priorityValue = task.severity ?? 2;
     if (priorityValue >= 4) {
       priority = TaskPriority.urgent;
     } else if (priorityValue >= 3) {
@@ -316,20 +304,12 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
     }
 
     // Format time ago
-    final createdAt = _parseDate(task['created_at'] ?? task['assigned_date']);
-    final timeAgo = _formatTimeAgo(createdAt);
+    final timeAgo = _formatTimeAgo(task.createdAt);
 
     return SurveyorTaskData(
-      id: task['id']?.toString() ?? '',
-      title:
-          task['title']?.toString() ??
-          task['description']?.toString() ??
-          'Tanpa judul',
-      location:
-          task['location']?.toString() ??
-          task['address']?.toString() ??
-          task['village_name']?.toString() ??
-          '-',
+      id: task.id?.toString() ?? '',
+      title: task.reportDescription ?? 'Tanpa judul',
+      location: task.address ?? '-',
       timeAgo: timeAgo,
       priority: priority,
     );
