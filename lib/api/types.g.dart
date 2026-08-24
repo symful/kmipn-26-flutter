@@ -11,49 +11,33 @@ enum Role {
   auditor("AUDITOR"),
   rtRw("RT_RW"),
   admin("ADMIN");
-
   final String value;
   const Role(this.value);
-  static const allValues = <Role>[
-    Role.warga,
-    Role.surveyor,
-    Role.verifikator,
-    Role.operator,
-    Role.petugas,
-    Role.pengambilKeputusan,
-    Role.adminDaerah,
-    Role.auditor,
-    Role.rtRw,
-    Role.admin,
-  ];
-  static Role fromJson(String value) =>
-      allValues.firstWhere((e) => e.value == value);
+  static const allValues = <Role>[Role.warga, Role.surveyor, Role.verifikator, Role.operator, Role.petugas, Role.pengambilKeputusan, Role.adminDaerah, Role.auditor, Role.rtRw, Role.admin];
+  static Role fromJson(String value) => allValues.firstWhere((e) => e.value == value);
 }
 
 enum ReportStatus {
+  draft("draft"),
   submitted("submitted"),
   underReview("under_review"),
   verified("verified"),
+  assigned("assigned"),
   inProgress("in_progress"),
   resolved("resolved"),
+  closed("closed"),
   rejected("rejected"),
   duplicateMerged("duplicate_merged"),
-  needsSurvey("needs_survey");
-
+  needsSurvey("needs_survey"),
+  needsCompletion("needs_completion"),
+  outOfScope("out_of_scope"),
+  merged("merged"),
+  separated("separated"),
+  escalated("escalated");
   final String value;
   const ReportStatus(this.value);
-  static const allValues = <ReportStatus>[
-    ReportStatus.submitted,
-    ReportStatus.underReview,
-    ReportStatus.verified,
-    ReportStatus.inProgress,
-    ReportStatus.resolved,
-    ReportStatus.rejected,
-    ReportStatus.duplicateMerged,
-    ReportStatus.needsSurvey,
-  ];
-  static ReportStatus fromJson(String value) =>
-      allValues.firstWhere((e) => e.value == value);
+  static const allValues = <ReportStatus>[ReportStatus.draft, ReportStatus.submitted, ReportStatus.underReview, ReportStatus.verified, ReportStatus.assigned, ReportStatus.inProgress, ReportStatus.resolved, ReportStatus.closed, ReportStatus.rejected, ReportStatus.duplicateMerged, ReportStatus.needsSurvey, ReportStatus.needsCompletion, ReportStatus.outOfScope, ReportStatus.merged, ReportStatus.separated, ReportStatus.escalated];
+  static ReportStatus fromJson(String value) => allValues.firstWhere((e) => e.value == value);
 }
 
 enum AssessmentStatus {
@@ -61,374 +45,54 @@ enum AssessmentStatus {
   timeout("timeout"),
   parseFailed("parse_failed"),
   vlmError("vlm_error");
-
   final String value;
   const AssessmentStatus(this.value);
-  static const allValues = <AssessmentStatus>[
-    AssessmentStatus.completed,
-    AssessmentStatus.timeout,
-    AssessmentStatus.parseFailed,
-    AssessmentStatus.vlmError,
-  ];
-  static AssessmentStatus fromJson(String value) =>
-      allValues.firstWhere((e) => e.value == value);
+  static const allValues = <AssessmentStatus>[AssessmentStatus.completed, AssessmentStatus.timeout, AssessmentStatus.parseFailed, AssessmentStatus.vlmError];
+  static AssessmentStatus fromJson(String value) => allValues.firstWhere((e) => e.value == value);
 }
 
-class User {
-  final String id;
-  final String email;
-  final Role role;
-  final String name;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-  User({
-    required this.id,
-    required this.email,
-    required this.role,
-    required this.name,
-    required this.createdAt,
-    required this.updatedAt,
-    this.deletedAt,
-  });
+class Pagination {
+  final int? page;
+  final int? limit;
+  final int? total;
+  final int? totalPages;
+  Pagination({this.page, this.limit, this.total, this.totalPages});
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      role: Role.fromJson(json['role'] as String),
-      name: json['name'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'] as String)
-          : null,
+  factory Pagination.fromJson(Map<String, dynamic> json) {
+    return Pagination(
+      page: json['page'] as int?,
+      limit: json['limit'] as int?,
+      total: json['total'] as int?,
+      totalPages: json['total_pages'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'email': email,
-      'role': role.value,
-      'name': name,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'deleted_at': deletedAt?.toIso8601String(),
+      'page': page,
+      'limit': limit,
+      'total': total,
+      'total_pages': totalPages,
     };
   }
 }
 
-class Category {
-  final String id;
-  final String slug;
-  final String name;
-  final String? icon;
-  final DateTime createdAt;
-  Category({
-    required this.id,
-    required this.slug,
-    required this.name,
-    this.icon,
-    required this.createdAt,
-  });
+class ErrorResponse {
+  final Map<String, dynamic> error;
+  final Map<String, dynamic>? details;
+  ErrorResponse({required this.error, this.details});
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: json['id'] as String,
-      slug: json['slug'] as String,
-      name: json['name'] as String,
-      icon: json['icon'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+  factory ErrorResponse.fromJson(Map<String, dynamic> json) {
+    return ErrorResponse(
+      error: json['error'] as Map<String, dynamic>,
+      details: json['details'] as Map<String, dynamic>?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'slug': slug,
-      'name': name,
-      'icon': icon,
-      'created_at': createdAt.toIso8601String(),
-    };
-  }
-}
-
-class Wilayah {
-  final String id;
-  final String? parentId;
-  final String name;
-  final String level;
-  final Map<String, dynamic>? geom;
-  final DateTime createdAt;
-  Wilayah({
-    required this.id,
-    this.parentId,
-    required this.name,
-    required this.level,
-    this.geom,
-    required this.createdAt,
-  });
-
-  factory Wilayah.fromJson(Map<String, dynamic> json) {
-    return Wilayah(
-      id: json['id'] as String,
-      parentId: json['parent_id'] as String?,
-      name: json['name'] as String,
-      level: json['level'] as String,
-      geom: json['geom'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'parent_id': parentId,
-      'name': name,
-      'level': level,
-      'geom': geom,
-      'created_at': createdAt.toIso8601String(),
-    };
-  }
-}
-
-class Report {
-  final String id;
-  final String idempotencyKey;
-  final String categoryId;
-  final Category? category;
-  final String description;
-  final Map<String, dynamic>? geom;
-  final double lat;
-  final double lng;
-  final List<String>? photoUrls;
-  final Map<String, dynamic>? exifData;
-  final String? deviceId;
-  final ReportStatus status;
-  final int? severity;
-  final String? assignedTo;
-  final User? assignee;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  Report({
-    required this.id,
-    required this.idempotencyKey,
-    required this.categoryId,
-    this.category,
-    required this.description,
-    this.geom,
-    required this.lat,
-    required this.lng,
-    this.photoUrls,
-    this.exifData,
-    this.deviceId,
-    required this.status,
-    this.severity,
-    this.assignedTo,
-    this.assignee,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  factory Report.fromJson(Map<String, dynamic> json) {
-    return Report(
-      id: json['id'] as String,
-      idempotencyKey: json['idempotency_key'] as String,
-      categoryId: json['category_id'] as String,
-      category: json['category'] != null
-          ? Category.fromJson(json['category'] as Map<String, dynamic>)
-          : null,
-      description: json['description'] as String,
-      geom: json['geom'] as Map<String, dynamic>?,
-      lat: (json['lat'] as num).toDouble(),
-      lng: (json['lng'] as num).toDouble(),
-      photoUrls: (json['photo_urls'] as List?)
-          ?.map((e) => e as String)
-          .toList(),
-      exifData: json['exif_data'] as Map<String, dynamic>?,
-      deviceId: json['device_id'] as String?,
-      status: ReportStatus.fromJson(json['status'] as String),
-      severity: json['severity'] as int?,
-      assignedTo: json['assigned_to'] as String?,
-      assignee: json['assignee'] != null
-          ? User.fromJson(json['assignee'] as Map<String, dynamic>)
-          : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'idempotency_key': idempotencyKey,
-      'category_id': categoryId,
-      'category': category?.toJson(),
-      'description': description,
-      'geom': geom,
-      'lat': lat,
-      'lng': lng,
-      'photo_urls': photoUrls,
-      'exif_data': exifData,
-      'device_id': deviceId,
-      'status': status.value,
-      'severity': severity,
-      'assigned_to': assignedTo,
-      'assignee': assignee?.toJson(),
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
-}
-
-class CreateReportRequest {
-  final String idempotencyKey;
-  final String categoryId;
-  final String description;
-  final double lat;
-  final double lng;
-  final List<String>? photoUrls;
-  final Map<String, dynamic>? exifData;
-  final String? deviceId;
-  CreateReportRequest({
-    required this.idempotencyKey,
-    required this.categoryId,
-    required this.description,
-    required this.lat,
-    required this.lng,
-    this.photoUrls,
-    this.exifData,
-    this.deviceId,
-  });
-
-  factory CreateReportRequest.fromJson(Map<String, dynamic> json) {
-    return CreateReportRequest(
-      idempotencyKey: json['idempotency_key'] as String,
-      categoryId: json['category_id'] as String,
-      description: json['description'] as String,
-      lat: (json['lat'] as num).toDouble(),
-      lng: (json['lng'] as num).toDouble(),
-      photoUrls: (json['photo_urls'] as List?)
-          ?.map((e) => e as String)
-          .toList(),
-      exifData: json['exif_data'] as Map<String, dynamic>?,
-      deviceId: json['device_id'] as String?,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'idempotency_key': idempotencyKey,
-      'category_id': categoryId,
-      'description': description,
-      'lat': lat,
-      'lng': lng,
-      'photo_urls': photoUrls,
-      'exif_data': exifData,
-      'device_id': deviceId,
-    };
-  }
-}
-
-class UpdateReportRequest {
-  final ReportStatus? status;
-  final int? severity;
-  final String? assignedTo;
-  UpdateReportRequest({this.status, this.severity, this.assignedTo});
-
-  factory UpdateReportRequest.fromJson(Map<String, dynamic> json) {
-    return UpdateReportRequest(
-      status: json['status'] != null
-          ? ReportStatus.fromJson(json['status'] as String)
-          : null,
-      severity: json['severity'] as int?,
-      assignedTo: json['assigned_to'] as String?,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'status': status?.value,
-      'severity': severity,
-      'assigned_to': assignedTo,
-    };
-  }
-}
-
-class AgentAssessment {
-  final String id;
-  final String reportId;
-  final String assessmentKind;
-  final AssessmentStatus assessmentStatus;
-  final String? visionDescription;
-  final int? damageSeverity;
-  final Map<String, dynamic>? exifSummary;
-  final List<Map<String, dynamic>>? duplicateCandidates;
-  final double? confidence;
-  final ReportStatus? recommendedStatus;
-  final int? toolCallsMade;
-  final int? latencyMs;
-  final String? modelVersion;
-  final DateTime createdAt;
-  AgentAssessment({
-    required this.id,
-    required this.reportId,
-    required this.assessmentKind,
-    required this.assessmentStatus,
-    this.visionDescription,
-    this.damageSeverity,
-    this.exifSummary,
-    this.duplicateCandidates,
-    this.confidence,
-    this.recommendedStatus,
-    this.toolCallsMade,
-    this.latencyMs,
-    this.modelVersion,
-    required this.createdAt,
-  });
-
-  factory AgentAssessment.fromJson(Map<String, dynamic> json) {
-    return AgentAssessment(
-      id: json['id'] as String,
-      reportId: json['report_id'] as String,
-      assessmentKind: json['assessment_kind'] as String,
-      assessmentStatus: AssessmentStatus.fromJson(
-        json['assessment_status'] as String,
-      ),
-      visionDescription: json['vision_description'] as String?,
-      damageSeverity: json['damage_severity'] as int?,
-      exifSummary: json['exif_summary'] as Map<String, dynamic>?,
-      duplicateCandidates: (json['duplicate_candidates'] as List?)
-          ?.map((e) => e as Map<String, dynamic>)
-          .toList(),
-      confidence: (json['confidence'] as num?)?.toDouble(),
-      recommendedStatus: json['recommended_status'] != null
-          ? ReportStatus.fromJson(json['recommended_status'] as String)
-          : null,
-      toolCallsMade: json['tool_calls_made'] as int?,
-      latencyMs: json['latency_ms'] as int?,
-      modelVersion: json['model_version'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'report_id': reportId,
-      'assessment_kind': assessmentKind,
-      'assessment_status': assessmentStatus.value,
-      'vision_description': visionDescription,
-      'damage_severity': damageSeverity,
-      'exif_summary': exifSummary,
-      'duplicate_candidates': duplicateCandidates,
-      'confidence': confidence,
-      'recommended_status': recommendedStatus?.value,
-      'tool_calls_made': toolCallsMade,
-      'latency_ms': latencyMs,
-      'model_version': modelVersion,
-      'created_at': createdAt.toIso8601String(),
+      'error': error,
+      'details': details,
     };
   }
 }
@@ -446,7 +110,10 @@ class LoginRequest {
   }
 
   Map<String, dynamic> toJson() {
-    return {'email': email, 'password': password};
+    return {
+      'email': email,
+      'password': password,
+    };
   }
 }
 
@@ -455,21 +122,14 @@ class LoginResponse {
   final String refreshToken;
   final int expiresIn;
   final User? user;
-  LoginResponse({
-    required this.accessToken,
-    required this.refreshToken,
-    required this.expiresIn,
-    this.user,
-  });
+  LoginResponse({required this.accessToken, required this.refreshToken, required this.expiresIn, this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
       accessToken: json['access_token'] as String,
       refreshToken: json['refresh_token'] as String,
       expiresIn: json['expires_in'] as int,
-      user: json['user'] != null
-          ? User.fromJson(json['user'] as Map<String, dynamic>)
-          : null,
+      user: json['user'] != null ? User.fromJson(json['user'] as Map<String, dynamic>) : null,
     );
   }
 
@@ -483,20 +143,908 @@ class LoginResponse {
   }
 }
 
-class ErrorResponse {
-  final String error;
-  final String? detail;
-  ErrorResponse({required this.error, this.detail});
+class RefreshTokenRequest {
+  final String refreshToken;
+  RefreshTokenRequest({required this.refreshToken});
 
-  factory ErrorResponse.fromJson(Map<String, dynamic> json) {
-    return ErrorResponse(
-      error: json['error'] as String,
-      detail: json['detail'] as String?,
+  factory RefreshTokenRequest.fromJson(Map<String, dynamic> json) {
+    return RefreshTokenRequest(
+      refreshToken: json['refresh_token'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'error': error, 'detail': detail};
+    return {
+      'refresh_token': refreshToken,
+    };
+  }
+}
+
+class TokenResponse {
+  final String accessToken;
+  final String refreshToken;
+  final int expiresIn;
+  TokenResponse({required this.accessToken, required this.refreshToken, required this.expiresIn});
+
+  factory TokenResponse.fromJson(Map<String, dynamic> json) {
+    return TokenResponse(
+      accessToken: json['access_token'] as String,
+      refreshToken: json['refresh_token'] as String,
+      expiresIn: json['expires_in'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'access_token': accessToken,
+      'refresh_token': refreshToken,
+      'expires_in': expiresIn,
+    };
+  }
+}
+
+class RegisterVerifikatorRequest {
+  final String email;
+  final String password;
+  final String name;
+  final String? wilayahId;
+  RegisterVerifikatorRequest({required this.email, required this.password, required this.name, this.wilayahId});
+
+  factory RegisterVerifikatorRequest.fromJson(Map<String, dynamic> json) {
+    return RegisterVerifikatorRequest(
+      email: json['email'] as String,
+      password: json['password'] as String,
+      name: json['name'] as String,
+      wilayahId: json['wilayah_id'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+      'name': name,
+      'wilayah_id': wilayahId,
+    };
+  }
+}
+
+class User {
+  final String? id;
+  final String? email;
+  final String? name;
+  final Role? role;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
+  User({this.id, this.email, this.name, this.role, this.createdAt, this.updatedAt, this.deletedAt});
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] as String?,
+      email: json['email'] as String?,
+      name: json['name'] as String?,
+      role: json['role'] != null ? Role.fromJson(json['role'] as String) : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      deletedAt: json['deleted_at'] != null ? DateTime.parse(json['deleted_at'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'role': role?.value,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'deleted_at': deletedAt?.toIso8601String(),
+    };
+  }
+}
+
+class UserCreateRequest {
+  final String email;
+  final String password;
+  final String name;
+  final Role role;
+  final String? wilayahId;
+  UserCreateRequest({required this.email, required this.password, required this.name, required this.role, this.wilayahId});
+
+  factory UserCreateRequest.fromJson(Map<String, dynamic> json) {
+    return UserCreateRequest(
+      email: json['email'] as String,
+      password: json['password'] as String,
+      name: json['name'] as String,
+      role: Role.fromJson(json['role'] as String),
+      wilayahId: json['wilayah_id'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+      'name': name,
+      'role': role.value,
+      'wilayah_id': wilayahId,
+    };
+  }
+}
+
+class UserUpdateRequest {
+  final Role? role;
+  final String? password;
+  final bool? disabled;
+  UserUpdateRequest({this.role, this.password, this.disabled});
+
+  factory UserUpdateRequest.fromJson(Map<String, dynamic> json) {
+    return UserUpdateRequest(
+      role: json['role'] != null ? Role.fromJson(json['role'] as String) : null,
+      password: json['password'] as String?,
+      disabled: json['disabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'role': role?.value,
+      'password': password,
+      'disabled': disabled,
+    };
+  }
+}
+
+class Category {
+  final String? id;
+  final String? slug;
+  final String? name;
+  final String? icon;
+  final String? description;
+  final String? parentId;
+  final String? code;
+  final String? shortCode;
+  final String? colorClass;
+  final DateTime? createdAt;
+  Category({this.id, this.slug, this.name, this.icon, this.description, this.parentId, this.code, this.shortCode, this.colorClass, this.createdAt});
+
+  factory Category.fromJson(Map<String, dynamic> json) {
+    return Category(
+      id: json['id'] as String?,
+      slug: json['slug'] as String?,
+      name: json['name'] as String?,
+      icon: json['icon'] as String?,
+      description: json['description'] as String?,
+      parentId: json['parent_id'] as String?,
+      code: json['code'] as String?,
+      shortCode: json['short_code'] as String?,
+      colorClass: json['color_class'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'slug': slug,
+      'name': name,
+      'icon': icon,
+      'description': description,
+      'parent_id': parentId,
+      'code': code,
+      'short_code': shortCode,
+      'color_class': colorClass,
+      'created_at': createdAt?.toIso8601String(),
+    };
+  }
+}
+
+class CategoryCreateRequest {
+  final String name;
+  final String slug;
+  final String? icon;
+  final String? description;
+  final String? parentId;
+  final String? code;
+  final String? shortCode;
+  final String? colorClass;
+  CategoryCreateRequest({required this.name, required this.slug, this.icon, this.description, this.parentId, this.code, this.shortCode, this.colorClass});
+
+  factory CategoryCreateRequest.fromJson(Map<String, dynamic> json) {
+    return CategoryCreateRequest(
+      name: json['name'] as String,
+      slug: json['slug'] as String,
+      icon: json['icon'] as String?,
+      description: json['description'] as String?,
+      parentId: json['parent_id'] as String?,
+      code: json['code'] as String?,
+      shortCode: json['short_code'] as String?,
+      colorClass: json['color_class'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'slug': slug,
+      'icon': icon,
+      'description': description,
+      'parent_id': parentId,
+      'code': code,
+      'short_code': shortCode,
+      'color_class': colorClass,
+    };
+  }
+}
+
+class CategoryUpdateRequest {
+  final String? name;
+  final String? slug;
+  final String? icon;
+  final String? description;
+  final String? parentId;
+  final String? code;
+  final String? shortCode;
+  final String? colorClass;
+  CategoryUpdateRequest({this.name, this.slug, this.icon, this.description, this.parentId, this.code, this.shortCode, this.colorClass});
+
+  factory CategoryUpdateRequest.fromJson(Map<String, dynamic> json) {
+    return CategoryUpdateRequest(
+      name: json['name'] as String?,
+      slug: json['slug'] as String?,
+      icon: json['icon'] as String?,
+      description: json['description'] as String?,
+      parentId: json['parent_id'] as String?,
+      code: json['code'] as String?,
+      shortCode: json['short_code'] as String?,
+      colorClass: json['color_class'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'slug': slug,
+      'icon': icon,
+      'description': description,
+      'parent_id': parentId,
+      'code': code,
+      'short_code': shortCode,
+      'color_class': colorClass,
+    };
+  }
+}
+
+class Wilayah {
+  final String? id;
+  final String? parentId;
+  final String? name;
+  final String? level;
+  Wilayah({this.id, this.parentId, this.name, this.level});
+
+  factory Wilayah.fromJson(Map<String, dynamic> json) {
+    return Wilayah(
+      id: json['id'] as String?,
+      parentId: json['parent_id'] as String?,
+      name: json['name'] as String?,
+      level: json['level'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'parent_id': parentId,
+      'name': name,
+      'level': level,
+    };
+  }
+}
+
+class WilayahCreateRequest {
+  final String name;
+  final String? parentId;
+  final String level;
+  WilayahCreateRequest({required this.name, this.parentId, required this.level});
+
+  factory WilayahCreateRequest.fromJson(Map<String, dynamic> json) {
+    return WilayahCreateRequest(
+      name: json['name'] as String,
+      parentId: json['parent_id'] as String?,
+      level: json['level'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'parent_id': parentId,
+      'level': level,
+    };
+  }
+}
+
+class WilayahUpdateRequest {
+  final String? name;
+  WilayahUpdateRequest({this.name});
+
+  factory WilayahUpdateRequest.fromJson(Map<String, dynamic> json) {
+    return WilayahUpdateRequest(
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+    };
+  }
+}
+
+class Report {
+  final String? id;
+  final String? idempotencyKey;
+  final String? categoryId;
+  final Category? category;
+  final String? description;
+  final Map<String, dynamic>? geom;
+  final double? lat;
+  final double? lng;
+  final List<String>? photoUrls;
+  final Map<String, dynamic>? exifData;
+  final String? deviceId;
+  final ReportStatus? status;
+  final int? severity;
+  final String? assignedTo;
+  final User? assignee;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  Report({this.id, this.idempotencyKey, this.categoryId, this.category, this.description, this.geom, this.lat, this.lng, this.photoUrls, this.exifData, this.deviceId, this.status, this.severity, this.assignedTo, this.assignee, this.createdAt, this.updatedAt});
+
+  factory Report.fromJson(Map<String, dynamic> json) {
+    return Report(
+      id: json['id'] as String?,
+      idempotencyKey: json['idempotency_key'] as String?,
+      categoryId: json['category_id'] as String?,
+      category: json['category'] != null ? Category.fromJson(json['category'] as Map<String, dynamic>) : null,
+      description: json['description'] as String?,
+      geom: json['geom'] as Map<String, dynamic>?,
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      exifData: json['exif_data'] as Map<String, dynamic>?,
+      deviceId: json['device_id'] as String?,
+      status: json['status'] != null ? ReportStatus.fromJson(json['status'] as String) : null,
+      severity: json['severity'] as int?,
+      assignedTo: json['assigned_to'] as String?,
+      assignee: json['assignee'] != null ? User.fromJson(json['assignee'] as Map<String, dynamic>) : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'idempotency_key': idempotencyKey,
+      'category_id': categoryId,
+      'category': category?.toJson(),
+      'description': description,
+      'geom': geom,
+      'lat': lat,
+      'lng': lng,
+      'photo_urls': photoUrls,
+      'exif_data': exifData,
+      'device_id': deviceId,
+      'status': status?.value,
+      'severity': severity,
+      'assigned_to': assignedTo,
+      'assignee': assignee?.toJson(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
+}
+
+class ReportCreateRequest {
+  final String idempotencyKey;
+  final String categoryId;
+  final String description;
+  final double lat;
+  final double lng;
+  final String? deviceId;
+  final List<String>? photoUrls;
+  final DateTime? reportedAt;
+  final String? title;
+  final int? populationAffected;
+  final double? vulnerabilityIndex;
+  final bool? consent;
+  ReportCreateRequest({required this.idempotencyKey, required this.categoryId, required this.description, required this.lat, required this.lng, this.deviceId, this.photoUrls, this.reportedAt, this.title, this.populationAffected, this.vulnerabilityIndex, this.consent});
+
+  factory ReportCreateRequest.fromJson(Map<String, dynamic> json) {
+    return ReportCreateRequest(
+      idempotencyKey: json['idempotency_key'] as String,
+      categoryId: json['category_id'] as String,
+      description: json['description'] as String,
+      lat: (json['lat'] as num).toDouble(),
+      lng: (json['lng'] as num).toDouble(),
+      deviceId: json['device_id'] as String?,
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      reportedAt: json['reported_at'] != null ? DateTime.parse(json['reported_at'] as String) : null,
+      title: json['title'] as String?,
+      populationAffected: json['population_affected'] as int?,
+      vulnerabilityIndex: (json['vulnerability_index'] as num?)?.toDouble(),
+      consent: json['consent'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idempotency_key': idempotencyKey,
+      'category_id': categoryId,
+      'description': description,
+      'lat': lat,
+      'lng': lng,
+      'device_id': deviceId,
+      'photo_urls': photoUrls,
+      'reported_at': reportedAt?.toIso8601String(),
+      'title': title,
+      'population_affected': populationAffected,
+      'vulnerability_index': vulnerabilityIndex,
+      'consent': consent,
+    };
+  }
+}
+
+class ReportUpdateRequest {
+  final ReportStatus? status;
+  final String? description;
+  final int? priority;
+  final String? assignedTo;
+  ReportUpdateRequest({this.status, this.description, this.priority, this.assignedTo});
+
+  factory ReportUpdateRequest.fromJson(Map<String, dynamic> json) {
+    return ReportUpdateRequest(
+      status: json['status'] != null ? ReportStatus.fromJson(json['status'] as String) : null,
+      description: json['description'] as String?,
+      priority: json['priority'] as int?,
+      assignedTo: json['assigned_to'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status?.value,
+      'description': description,
+      'priority': priority,
+      'assigned_to': assignedTo,
+    };
+  }
+}
+
+class PublicReportCreateRequest {
+  final String idempotencyKey;
+  final String categoryId;
+  final String description;
+  final double lat;
+  final double lng;
+  final String deviceId;
+  final List<String>? photoUrls;
+  final DateTime? reportedAt;
+  final String? title;
+  final int? populationAffected;
+  final double? vulnerabilityIndex;
+  final bool? consent;
+  PublicReportCreateRequest({required this.idempotencyKey, required this.categoryId, required this.description, required this.lat, required this.lng, required this.deviceId, this.photoUrls, this.reportedAt, this.title, this.populationAffected, this.vulnerabilityIndex, this.consent});
+
+  factory PublicReportCreateRequest.fromJson(Map<String, dynamic> json) {
+    return PublicReportCreateRequest(
+      idempotencyKey: json['idempotency_key'] as String,
+      categoryId: json['category_id'] as String,
+      description: json['description'] as String,
+      lat: (json['lat'] as num).toDouble(),
+      lng: (json['lng'] as num).toDouble(),
+      deviceId: json['device_id'] as String,
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      reportedAt: json['reported_at'] != null ? DateTime.parse(json['reported_at'] as String) : null,
+      title: json['title'] as String?,
+      populationAffected: json['population_affected'] as int?,
+      vulnerabilityIndex: (json['vulnerability_index'] as num?)?.toDouble(),
+      consent: json['consent'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idempotency_key': idempotencyKey,
+      'category_id': categoryId,
+      'description': description,
+      'lat': lat,
+      'lng': lng,
+      'device_id': deviceId,
+      'photo_urls': photoUrls,
+      'reported_at': reportedAt?.toIso8601String(),
+      'title': title,
+      'population_affected': populationAffected,
+      'vulnerability_index': vulnerabilityIndex,
+      'consent': consent,
+    };
+  }
+}
+
+class AnonymousReportResult {
+  final String id;
+  final String? idempotencyKey;
+  final String? status;
+  final bool? duplicate;
+  AnonymousReportResult({required this.id, this.idempotencyKey, this.status, this.duplicate});
+
+  factory AnonymousReportResult.fromJson(Map<String, dynamic> json) {
+    return AnonymousReportResult(
+      id: json['id'] as String,
+      idempotencyKey: json['idempotency_key'] as String?,
+      status: json['status'] as String?,
+      duplicate: json['duplicate'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'idempotency_key': idempotencyKey,
+      'status': status,
+      'duplicate': duplicate,
+    };
+  }
+}
+
+class ReportsStats {
+  final int? total;
+  final Map<String, dynamic>? byStatus;
+  final List<Map<String, dynamic>>? byCategory;
+  final List<Map<String, dynamic>>? byWilayah;
+  final int? slaBreached;
+  final int? slaAtRisk;
+  final double? avgVerificationDays;
+  ReportsStats({this.total, this.byStatus, this.byCategory, this.byWilayah, this.slaBreached, this.slaAtRisk, this.avgVerificationDays});
+
+  factory ReportsStats.fromJson(Map<String, dynamic> json) {
+    return ReportsStats(
+      total: json['total'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      byWilayah: (json['by_wilayah'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      slaBreached: json['sla_breached'] as int?,
+      slaAtRisk: json['sla_at_risk'] as int?,
+      avgVerificationDays: (json['avg_verification_days'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'by_status': byStatus,
+      'by_category': byCategory,
+      'by_wilayah': byWilayah,
+      'sla_breached': slaBreached,
+      'sla_at_risk': slaAtRisk,
+      'avg_verification_days': avgVerificationDays,
+    };
+  }
+}
+
+class OperatorStats {
+  final int? total;
+  final Map<String, dynamic>? byStatus;
+  final Map<String, dynamic>? bySeverity;
+  final int? slaBreached;
+  final int? slaAtRisk;
+  final double? avgResolutionDays;
+  final List<Map<String, dynamic>>? byCategory;
+  final int? recentEscalations;
+  OperatorStats({this.total, this.byStatus, this.bySeverity, this.slaBreached, this.slaAtRisk, this.avgResolutionDays, this.byCategory, this.recentEscalations});
+
+  factory OperatorStats.fromJson(Map<String, dynamic> json) {
+    return OperatorStats(
+      total: json['total'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      bySeverity: json['by_severity'] as Map<String, dynamic>?,
+      slaBreached: json['sla_breached'] as int?,
+      slaAtRisk: json['sla_at_risk'] as int?,
+      avgResolutionDays: (json['avg_resolution_days'] as num?)?.toDouble(),
+      byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      recentEscalations: json['recent_escalations'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'by_status': byStatus,
+      'by_severity': bySeverity,
+      'sla_breached': slaBreached,
+      'sla_at_risk': slaAtRisk,
+      'avg_resolution_days': avgResolutionDays,
+      'by_category': byCategory,
+      'recent_escalations': recentEscalations,
+    };
+  }
+}
+
+class ExecutiveDashboard {
+  final int? total;
+  final Map<String, dynamic>? byStatus;
+  final List<Map<String, dynamic>>? byCategory;
+  final int? slaBreached;
+  final int? slaAtRisk;
+  final int? recentSubmissions;
+  final int? resolvedThisMonth;
+  final double? avgVerificationDays;
+  final double? avgResolutionDays;
+  final int? activeOperators;
+  final int? activePetugas;
+  final int? totalWilayah;
+  ExecutiveDashboard({this.total, this.byStatus, this.byCategory, this.slaBreached, this.slaAtRisk, this.recentSubmissions, this.resolvedThisMonth, this.avgVerificationDays, this.avgResolutionDays, this.activeOperators, this.activePetugas, this.totalWilayah});
+
+  factory ExecutiveDashboard.fromJson(Map<String, dynamic> json) {
+    return ExecutiveDashboard(
+      total: json['total'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      slaBreached: json['sla_breached'] as int?,
+      slaAtRisk: json['sla_at_risk'] as int?,
+      recentSubmissions: json['recent_submissions'] as int?,
+      resolvedThisMonth: json['resolved_this_month'] as int?,
+      avgVerificationDays: (json['avg_verification_days'] as num?)?.toDouble(),
+      avgResolutionDays: (json['avg_resolution_days'] as num?)?.toDouble(),
+      activeOperators: json['active_operators'] as int?,
+      activePetugas: json['active_petugas'] as int?,
+      totalWilayah: json['total_wilayah'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'by_status': byStatus,
+      'by_category': byCategory,
+      'sla_breached': slaBreached,
+      'sla_at_risk': slaAtRisk,
+      'recent_submissions': recentSubmissions,
+      'resolved_this_month': resolvedThisMonth,
+      'avg_verification_days': avgVerificationDays,
+      'avg_resolution_days': avgResolutionDays,
+      'active_operators': activeOperators,
+      'active_petugas': activePetugas,
+      'total_wilayah': totalWilayah,
+    };
+  }
+}
+
+class AgentAssessRequest {
+  final String reportId;
+  final String? idempotencyKey;
+  AgentAssessRequest({required this.reportId, this.idempotencyKey});
+
+  factory AgentAssessRequest.fromJson(Map<String, dynamic> json) {
+    return AgentAssessRequest(
+      reportId: json['report_id'] as String,
+      idempotencyKey: json['idempotency_key'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'report_id': reportId,
+      'idempotency_key': idempotencyKey,
+    };
+  }
+}
+
+class VerifikatorCombineRequest {
+  final String targetCaseId;
+  final String? reason;
+  VerifikatorCombineRequest({required this.targetCaseId, this.reason});
+
+  factory VerifikatorCombineRequest.fromJson(Map<String, dynamic> json) {
+    return VerifikatorCombineRequest(
+      targetCaseId: json['target_case_id'] as String,
+      reason: json['reason'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'target_case_id': targetCaseId,
+      'reason': reason,
+    };
+  }
+}
+
+class VerifikatorSeparateRequest {
+  final String newCaseDescription;
+  final String? reason;
+  VerifikatorSeparateRequest({required this.newCaseDescription, this.reason});
+
+  factory VerifikatorSeparateRequest.fromJson(Map<String, dynamic> json) {
+    return VerifikatorSeparateRequest(
+      newCaseDescription: json['new_case_description'] as String,
+      reason: json['reason'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'new_case_description': newCaseDescription,
+      'reason': reason,
+    };
+  }
+}
+
+class VerifikatorRejectRequest {
+  final String reason;
+  VerifikatorRejectRequest({required this.reason});
+
+  factory VerifikatorRejectRequest.fromJson(Map<String, dynamic> json) {
+    return VerifikatorRejectRequest(
+      reason: json['reason'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reason': reason,
+    };
+  }
+}
+
+class VerifikatorDecisionRequest {
+  final String decision;
+  final String reason;
+  final String? duplicateOfReportId;
+  final String? surveyorId;
+  final String? assignedUnitId;
+  final DateTime? deadline;
+  VerifikatorDecisionRequest({required this.decision, required this.reason, this.duplicateOfReportId, this.surveyorId, this.assignedUnitId, this.deadline});
+
+  factory VerifikatorDecisionRequest.fromJson(Map<String, dynamic> json) {
+    return VerifikatorDecisionRequest(
+      decision: json['decision'] as String,
+      reason: json['reason'] as String,
+      duplicateOfReportId: json['duplicate_of_report_id'] as String?,
+      surveyorId: json['surveyor_id'] as String?,
+      assignedUnitId: json['assigned_unit_id'] as String?,
+      deadline: json['deadline'] != null ? DateTime.parse(json['deadline'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'decision': decision,
+      'reason': reason,
+      'duplicate_of_report_id': duplicateOfReportId,
+      'surveyor_id': surveyorId,
+      'assigned_unit_id': assignedUnitId,
+      'deadline': deadline?.toIso8601String(),
+    };
+  }
+}
+
+class VerifikatorReviewSanggahanRequest {
+  final String decision;
+  final String reason;
+  VerifikatorReviewSanggahanRequest({required this.decision, required this.reason});
+
+  factory VerifikatorReviewSanggahanRequest.fromJson(Map<String, dynamic> json) {
+    return VerifikatorReviewSanggahanRequest(
+      decision: json['decision'] as String,
+      reason: json['reason'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'decision': decision,
+      'reason': reason,
+    };
+  }
+}
+
+class VerifikatorVerifyCompletionRequest {
+  final String decision;
+  final String reason;
+  final String? completionNotes;
+  VerifikatorVerifyCompletionRequest({required this.decision, required this.reason, this.completionNotes});
+
+  factory VerifikatorVerifyCompletionRequest.fromJson(Map<String, dynamic> json) {
+    return VerifikatorVerifyCompletionRequest(
+      decision: json['decision'] as String,
+      reason: json['reason'] as String,
+      completionNotes: json['completion_notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'decision': decision,
+      'reason': reason,
+      'completion_notes': completionNotes,
+    };
+  }
+}
+
+class PhotoUploadRequest {
+  final String? contentType;
+  final String? idempotencyKey;
+  final String? file;
+  PhotoUploadRequest({this.contentType, this.idempotencyKey, this.file});
+
+  factory PhotoUploadRequest.fromJson(Map<String, dynamic> json) {
+    return PhotoUploadRequest(
+      contentType: json['content_type'] as String?,
+      idempotencyKey: json['idempotency_key'] as String?,
+      file: json['file'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'content_type': contentType,
+      'idempotency_key': idempotencyKey,
+      'file': file,
+    };
+  }
+}
+
+class PhotoBatchUploadRequest {
+  final List<String> photos;
+  PhotoBatchUploadRequest({required this.photos});
+
+  factory PhotoBatchUploadRequest.fromJson(Map<String, dynamic> json) {
+    return PhotoBatchUploadRequest(
+      photos: (json['photos'] as List?)?.map((e) => e as String).toList() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'photos': photos,
+    };
+  }
+}
+
+class SanggahanRequest {
+  final String reason;
+  SanggahanRequest({required this.reason});
+
+  factory SanggahanRequest.fromJson(Map<String, dynamic> json) {
+    return SanggahanRequest(
+      reason: json['reason'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reason': reason,
+    };
+  }
+}
+
+class ReopenRequest {
+  final String reason;
+  ReopenRequest({required this.reason});
+
+  factory ReopenRequest.fromJson(Map<String, dynamic> json) {
+    return ReopenRequest(
+      reason: json['reason'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reason': reason,
+    };
   }
 }
 
@@ -508,16 +1056,15 @@ class GeoJSONFeatureCollection {
   factory GeoJSONFeatureCollection.fromJson(Map<String, dynamic> json) {
     return GeoJSONFeatureCollection(
       type: json['type'] as String,
-      features:
-          (json['features'] as List?)
-              ?.map((e) => GeoJSONFeature.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      features: (json['features'] as List?)?.map((e) => GeoJSONFeature.fromJson(e as Map<String, dynamic>)).toList() ?? [],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'type': type, 'features': features};
+    return {
+      'type': type,
+      'features': features,
+    };
   }
 }
 
@@ -525,11 +1072,7 @@ class GeoJSONFeature {
   final String type;
   final Map<String, dynamic> geometry;
   final Map<String, dynamic> properties;
-  GeoJSONFeature({
-    required this.type,
-    required this.geometry,
-    required this.properties,
-  });
+  GeoJSONFeature({required this.type, required this.geometry, required this.properties});
 
   factory GeoJSONFeature.fromJson(Map<String, dynamic> json) {
     return GeoJSONFeature(
@@ -540,7 +1083,11 @@ class GeoJSONFeature {
   }
 
   Map<String, dynamic> toJson() {
-    return {'type': type, 'geometry': geometry, 'properties': properties};
+    return {
+      'type': type,
+      'geometry': geometry,
+      'properties': properties,
+    };
   }
 }
 
@@ -552,39 +1099,15 @@ class GeoJSONPoint {
   factory GeoJSONPoint.fromJson(Map<String, dynamic> json) {
     return GeoJSONPoint(
       type: json['type'] as String,
-      coordinates:
-          (json['coordinates'] as List?)
-              ?.map((e) => (e as num).toDouble())
-              .toList() ??
-          [],
+      coordinates: (json['coordinates'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? [],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'type': type, 'coordinates': coordinates};
-  }
-}
-
-class AnonymousReportResult {
-  final String id;
-  final String idempotencyKey;
-  final String status;
-  AnonymousReportResult({
-    required this.id,
-    required this.idempotencyKey,
-    required this.status,
-  });
-
-  factory AnonymousReportResult.fromJson(Map<String, dynamic> json) {
-    return AnonymousReportResult(
-      id: json['id'] as String,
-      idempotencyKey: json['idempotency_key'] as String,
-      status: json['status'] as String,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'id': id, 'idempotency_key': idempotencyKey, 'status': status};
+    return {
+      'type': type,
+      'coordinates': coordinates,
+    };
   }
 }
 
@@ -596,23 +1119,1075 @@ class GeoJSONPolygon {
   factory GeoJSONPolygon.fromJson(Map<String, dynamic> json) {
     return GeoJSONPolygon(
       type: json['type'] as String,
-      coordinates:
-          (json['coordinates'] as List?)
-              ?.map(
-                (e) => (e as List)
-                    .map(
-                      (e) => (e as List)
-                          .map((e) => (e as num).toDouble())
-                          .toList(),
-                    )
-                    .toList(),
-              )
-              .toList() ??
-          [],
+      coordinates: (json['coordinates'] as List?)?.map((e) => (e as List).map((e) => (e as List).map((e) => (e as num).toDouble()).toList()).toList()).toList() ?? [],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'type': type, 'coordinates': coordinates};
+    return {
+      'type': type,
+      'coordinates': coordinates,
+    };
+  }
+}
+
+class SurveyorRejectRequest {
+  final String reason;
+  SurveyorRejectRequest({required this.reason});
+
+  factory SurveyorRejectRequest.fromJson(Map<String, dynamic> json) {
+    return SurveyorRejectRequest(
+      reason: json['reason'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reason': reason,
+    };
+  }
+}
+
+class PetugasRejectRequest {
+  final String reason;
+  PetugasRejectRequest({required this.reason});
+
+  factory PetugasRejectRequest.fromJson(Map<String, dynamic> json) {
+    return PetugasRejectRequest(
+      reason: json['reason'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reason': reason,
+    };
+  }
+}
+
+class ClarificationRequest {
+  final String message;
+  ClarificationRequest({required this.message});
+
+  factory ClarificationRequest.fromJson(Map<String, dynamic> json) {
+    return ClarificationRequest(
+      message: json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+    };
+  }
+}
+
+class SurveyorVisitRequest {
+  final String findings;
+  final List<Map<String, dynamic>> checklist;
+  final List<String>? photoUrls;
+  final String? conditionAssessment;
+  final String? recommendation;
+  final Map<String, dynamic>? gps;
+  final String? notes;
+  SurveyorVisitRequest({required this.findings, required this.checklist, this.photoUrls, this.conditionAssessment, this.recommendation, this.gps, this.notes});
+
+  factory SurveyorVisitRequest.fromJson(Map<String, dynamic> json) {
+    return SurveyorVisitRequest(
+      findings: json['findings'] as String,
+      checklist: (json['checklist'] as List?)?.map((e) => e as Map<String, dynamic>).toList() ?? [],
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      conditionAssessment: json['condition_assessment'] as String?,
+      recommendation: json['recommendation'] as String?,
+      gps: json['gps'] as Map<String, dynamic>?,
+      notes: json['notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'findings': findings,
+      'checklist': checklist,
+      'photo_urls': photoUrls,
+      'condition_assessment': conditionAssessment,
+      'recommendation': recommendation,
+      'gps': gps,
+      'notes': notes,
+    };
+  }
+}
+
+class VerifikatorAcceptRequest {
+  final String? reason;
+  final String? assignedUnitId;
+  final DateTime? deadline;
+  final double? priority;
+  VerifikatorAcceptRequest({this.reason, this.assignedUnitId, this.deadline, this.priority});
+
+  factory VerifikatorAcceptRequest.fromJson(Map<String, dynamic> json) {
+    return VerifikatorAcceptRequest(
+      reason: json['reason'] as String?,
+      assignedUnitId: json['assigned_unit_id'] as String?,
+      deadline: json['deadline'] != null ? DateTime.parse(json['deadline'] as String) : null,
+      priority: (json['priority'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reason': reason,
+      'assigned_unit_id': assignedUnitId,
+      'deadline': deadline?.toIso8601String(),
+      'priority': priority,
+    };
+  }
+}
+
+class RtRwVerifyRequest {
+  final String? verificationToken;
+  final String? reportId;
+  final String verdict;
+  final String? reason;
+  RtRwVerifyRequest({this.verificationToken, this.reportId, required this.verdict, this.reason});
+
+  factory RtRwVerifyRequest.fromJson(Map<String, dynamic> json) {
+    return RtRwVerifyRequest(
+      verificationToken: json['verification_token'] as String?,
+      reportId: json['report_id'] as String?,
+      verdict: json['verdict'] as String,
+      reason: json['reason'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'verification_token': verificationToken,
+      'report_id': reportId,
+      'verdict': verdict,
+      'reason': reason,
+    };
+  }
+}
+
+class MarkReadRequest {
+  final String? id;
+  final bool? markAll;
+  MarkReadRequest({this.id, this.markAll});
+
+  factory MarkReadRequest.fromJson(Map<String, dynamic> json) {
+    return MarkReadRequest(
+      id: json['id'] as String?,
+      markAll: json['mark_all'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'mark_all': markAll,
+    };
+  }
+}
+
+class ProgressRequest {
+  final int progressPercent;
+  final String? notes;
+  final DateTime? estimatedCompletion;
+  ProgressRequest({required this.progressPercent, this.notes, this.estimatedCompletion});
+
+  factory ProgressRequest.fromJson(Map<String, dynamic> json) {
+    return ProgressRequest(
+      progressPercent: json['progress_percent'] as int,
+      notes: json['notes'] as String?,
+      estimatedCompletion: json['estimated_completion'] != null ? DateTime.parse(json['estimated_completion'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'progress_percent': progressPercent,
+      'notes': notes,
+      'estimated_completion': estimatedCompletion?.toIso8601String(),
+    };
+  }
+}
+
+class CompleteRequest {
+  final String? completionProof;
+  final String summary;
+  CompleteRequest({this.completionProof, required this.summary});
+
+  factory CompleteRequest.fromJson(Map<String, dynamic> json) {
+    return CompleteRequest(
+      completionProof: json['completion_proof'] as String?,
+      summary: json['summary'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'completion_proof': completionProof,
+      'summary': summary,
+    };
+  }
+}
+
+class EvidenceRequest {
+  final List<String> photoUrls;
+  final String? notes;
+  EvidenceRequest({required this.photoUrls, this.notes});
+
+  factory EvidenceRequest.fromJson(Map<String, dynamic> json) {
+    return EvidenceRequest(
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList() ?? [],
+      notes: json['notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'photo_urls': photoUrls,
+      'notes': notes,
+    };
+  }
+}
+
+class SurveyorTask {
+  final String? id;
+  final String? reportId;
+  final String? surveyorId;
+  final String? petugasId;
+  final String? unitId;
+  final String? instructions;
+  final DateTime? deadline;
+  final String? status;
+  final double? progressPercent;
+  final String? progressNotes;
+  final DateTime? estimatedCompletion;
+  final DateTime? acceptedAt;
+  final DateTime? startedAt;
+  final DateTime? completedAt;
+  final String? verificationStatus;
+  final String? verifiedBy;
+  final DateTime? verifiedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final String? code;
+  final double? slaHoursRemaining;
+  final String? priority;
+  final String? reportDescription;
+  final double? lng;
+  final double? lat;
+  final List<String>? photoUrls;
+  final int? severity;
+  final String? address;
+  final String? categoryId;
+  final String? categoryName;
+  final String? categorySlug;
+  final DateTime? downloadedAt;
+  SurveyorTask({this.id, this.reportId, this.surveyorId, this.petugasId, this.unitId, this.instructions, this.deadline, this.status, this.progressPercent, this.progressNotes, this.estimatedCompletion, this.acceptedAt, this.startedAt, this.completedAt, this.verificationStatus, this.verifiedBy, this.verifiedAt, this.createdAt, this.updatedAt, this.code, this.slaHoursRemaining, this.priority, this.reportDescription, this.lng, this.lat, this.photoUrls, this.severity, this.address, this.categoryId, this.categoryName, this.categorySlug, this.downloadedAt});
+
+  factory SurveyorTask.fromJson(Map<String, dynamic> json) {
+    return SurveyorTask(
+      id: json['id'] as String?,
+      reportId: json['report_id'] as String?,
+      surveyorId: json['surveyor_id'] as String?,
+      petugasId: json['petugas_id'] as String?,
+      unitId: json['unit_id'] as String?,
+      instructions: json['instructions'] as String?,
+      deadline: json['deadline'] != null ? DateTime.parse(json['deadline'] as String) : null,
+      status: json['status'] as String?,
+      progressPercent: (json['progress_percent'] as num?)?.toDouble(),
+      progressNotes: json['progress_notes'] as String?,
+      estimatedCompletion: json['estimated_completion'] != null ? DateTime.parse(json['estimated_completion'] as String) : null,
+      acceptedAt: json['accepted_at'] != null ? DateTime.parse(json['accepted_at'] as String) : null,
+      startedAt: json['started_at'] != null ? DateTime.parse(json['started_at'] as String) : null,
+      completedAt: json['completed_at'] != null ? DateTime.parse(json['completed_at'] as String) : null,
+      verificationStatus: json['verification_status'] as String?,
+      verifiedBy: json['verified_by'] as String?,
+      verifiedAt: json['verified_at'] != null ? DateTime.parse(json['verified_at'] as String) : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      code: json['code'] as String?,
+      slaHoursRemaining: (json['sla_hours_remaining'] as num?)?.toDouble(),
+      priority: json['priority'] as String?,
+      reportDescription: json['report_description'] as String?,
+      lng: (json['lng'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      severity: json['severity'] as int?,
+      address: json['address'] as String?,
+      categoryId: json['category_id'] as String?,
+      categoryName: json['category_name'] as String?,
+      categorySlug: json['category_slug'] as String?,
+      downloadedAt: json['downloaded_at'] != null ? DateTime.parse(json['downloaded_at'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'report_id': reportId,
+      'surveyor_id': surveyorId,
+      'petugas_id': petugasId,
+      'unit_id': unitId,
+      'instructions': instructions,
+      'deadline': deadline?.toIso8601String(),
+      'status': status,
+      'progress_percent': progressPercent,
+      'progress_notes': progressNotes,
+      'estimated_completion': estimatedCompletion?.toIso8601String(),
+      'accepted_at': acceptedAt?.toIso8601String(),
+      'started_at': startedAt?.toIso8601String(),
+      'completed_at': completedAt?.toIso8601String(),
+      'verification_status': verificationStatus,
+      'verified_by': verifiedBy,
+      'verified_at': verifiedAt?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'code': code,
+      'sla_hours_remaining': slaHoursRemaining,
+      'priority': priority,
+      'report_description': reportDescription,
+      'lng': lng,
+      'lat': lat,
+      'photo_urls': photoUrls,
+      'severity': severity,
+      'address': address,
+      'category_id': categoryId,
+      'category_name': categoryName,
+      'category_slug': categorySlug,
+      'downloaded_at': downloadedAt?.toIso8601String(),
+    };
+  }
+}
+
+class SurveyorTaskDetail {
+  final SurveyorTask? task;
+  final List<Map<String, dynamic>>? clarifications;
+  final List<Map<String, dynamic>>? evidence;
+  SurveyorTaskDetail({this.task, this.clarifications, this.evidence});
+
+  factory SurveyorTaskDetail.fromJson(Map<String, dynamic> json) {
+    return SurveyorTaskDetail(
+      task: json['task'] != null ? SurveyorTask.fromJson(json['task'] as Map<String, dynamic>) : null,
+      clarifications: (json['clarifications'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      evidence: (json['evidence'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'task': task?.toJson(),
+      'clarifications': clarifications,
+      'evidence': evidence,
+    };
+  }
+}
+
+class ChecklistTemplate {
+  final List<Map<String, dynamic>>? items;
+  ChecklistTemplate({this.items});
+
+  factory ChecklistTemplate.fromJson(Map<String, dynamic> json) {
+    return ChecklistTemplate(
+      items: (json['items'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'items': items,
+    };
+  }
+}
+
+class VisitResult {
+  final String visitId;
+  final DateTime createdAt;
+  VisitResult({required this.visitId, required this.createdAt});
+
+  factory VisitResult.fromJson(Map<String, dynamic> json) {
+    return VisitResult(
+      visitId: json['visit_id'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'visit_id': visitId,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+}
+
+class VerifikatorQueueItem {
+  final String? id;
+  final String? categoryId;
+  final String? description;
+  final double? lng;
+  final double? lat;
+  final String? status;
+  final int? severity;
+  final List<String>? photoUrls;
+  final DateTime? createdAt;
+  final double? priorityScore;
+  VerifikatorQueueItem({this.id, this.categoryId, this.description, this.lng, this.lat, this.status, this.severity, this.photoUrls, this.createdAt, this.priorityScore});
+
+  factory VerifikatorQueueItem.fromJson(Map<String, dynamic> json) {
+    return VerifikatorQueueItem(
+      id: json['id'] as String?,
+      categoryId: json['category_id'] as String?,
+      description: json['description'] as String?,
+      lng: (json['lng'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      status: json['status'] as String?,
+      severity: json['severity'] as int?,
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      priorityScore: (json['priority_score'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category_id': categoryId,
+      'description': description,
+      'lng': lng,
+      'lat': lat,
+      'status': status,
+      'severity': severity,
+      'photo_urls': photoUrls,
+      'created_at': createdAt?.toIso8601String(),
+      'priority_score': priorityScore,
+    };
+  }
+}
+
+class VerifikatorCase {
+  final Map<String, dynamic>? report;
+  final List<Map<String, dynamic>>? assessments;
+  final List<Map<String, dynamic>>? visits;
+  final List<Map<String, dynamic>>? audit;
+  VerifikatorCase({this.report, this.assessments, this.visits, this.audit});
+
+  factory VerifikatorCase.fromJson(Map<String, dynamic> json) {
+    return VerifikatorCase(
+      report: json['report'] as Map<String, dynamic>?,
+      assessments: (json['assessments'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      visits: (json['visits'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      audit: (json['audit'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'report': report,
+      'assessments': assessments,
+      'visits': visits,
+      'audit': audit,
+    };
+  }
+}
+
+class DecideResult {
+  final String status;
+  final String decision;
+  final String reason;
+  final String? primaryReportId;
+  final bool? surveyorTaskCreated;
+  DecideResult({required this.status, required this.decision, required this.reason, this.primaryReportId, this.surveyorTaskCreated});
+
+  factory DecideResult.fromJson(Map<String, dynamic> json) {
+    return DecideResult(
+      status: json['status'] as String,
+      decision: json['decision'] as String,
+      reason: json['reason'] as String,
+      primaryReportId: json['primary_report_id'] as String?,
+      surveyorTaskCreated: json['surveyor_task_created'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status,
+      'decision': decision,
+      'reason': reason,
+      'primary_report_id': primaryReportId,
+      'surveyor_task_created': surveyorTaskCreated,
+    };
+  }
+}
+
+class OperatorCase {
+  final String? id;
+  final String? categoryId;
+  final String? description;
+  final double? lng;
+  final double? lat;
+  final String? status;
+  final int? severity;
+  final List<String>? photoUrls;
+  final DateTime? createdAt;
+  final double? priorityScore;
+  final String? assignedTo;
+  final DateTime? deadline;
+  OperatorCase({this.id, this.categoryId, this.description, this.lng, this.lat, this.status, this.severity, this.photoUrls, this.createdAt, this.priorityScore, this.assignedTo, this.deadline});
+
+  factory OperatorCase.fromJson(Map<String, dynamic> json) {
+    return OperatorCase(
+      id: json['id'] as String?,
+      categoryId: json['category_id'] as String?,
+      description: json['description'] as String?,
+      lng: (json['lng'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      status: json['status'] as String?,
+      severity: json['severity'] as int?,
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      priorityScore: (json['priority_score'] as num?)?.toDouble(),
+      assignedTo: json['assigned_to'] as String?,
+      deadline: json['deadline'] != null ? DateTime.parse(json['deadline'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category_id': categoryId,
+      'description': description,
+      'lng': lng,
+      'lat': lat,
+      'status': status,
+      'severity': severity,
+      'photo_urls': photoUrls,
+      'created_at': createdAt?.toIso8601String(),
+      'priority_score': priorityScore,
+      'assigned_to': assignedTo,
+      'deadline': deadline?.toIso8601String(),
+    };
+  }
+}
+
+class PetugasTask {
+  final String? id;
+  final String? reportId;
+  final String? status;
+  final DateTime? deadline;
+  final double? progressPercent;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final String? instructions;
+  final String? code;
+  final double? slaHoursRemaining;
+  final String? reportDescription;
+  final double? lng;
+  final double? lat;
+  final List<String>? photoUrls;
+  final int? severity;
+  final String? reportAddress;
+  final String? categoryId;
+  final String? categoryName;
+  final String? categorySlug;
+  final String? unitName;
+  PetugasTask({this.id, this.reportId, this.status, this.deadline, this.progressPercent, this.createdAt, this.updatedAt, this.instructions, this.code, this.slaHoursRemaining, this.reportDescription, this.lng, this.lat, this.photoUrls, this.severity, this.reportAddress, this.categoryId, this.categoryName, this.categorySlug, this.unitName});
+
+  factory PetugasTask.fromJson(Map<String, dynamic> json) {
+    return PetugasTask(
+      id: json['id'] as String?,
+      reportId: json['report_id'] as String?,
+      status: json['status'] as String?,
+      deadline: json['deadline'] != null ? DateTime.parse(json['deadline'] as String) : null,
+      progressPercent: (json['progress_percent'] as num?)?.toDouble(),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+      instructions: json['instructions'] as String?,
+      code: json['code'] as String?,
+      slaHoursRemaining: (json['sla_hours_remaining'] as num?)?.toDouble(),
+      reportDescription: json['report_description'] as String?,
+      lng: (json['lng'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      photoUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      severity: json['severity'] as int?,
+      reportAddress: json['report_address'] as String?,
+      categoryId: json['category_id'] as String?,
+      categoryName: json['category_name'] as String?,
+      categorySlug: json['category_slug'] as String?,
+      unitName: json['unit_name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'report_id': reportId,
+      'status': status,
+      'deadline': deadline?.toIso8601String(),
+      'progress_percent': progressPercent,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'instructions': instructions,
+      'code': code,
+      'sla_hours_remaining': slaHoursRemaining,
+      'report_description': reportDescription,
+      'lng': lng,
+      'lat': lat,
+      'photo_urls': photoUrls,
+      'severity': severity,
+      'report_address': reportAddress,
+      'category_id': categoryId,
+      'category_name': categoryName,
+      'category_slug': categorySlug,
+      'unit_name': unitName,
+    };
+  }
+}
+
+class PetugasTaskDetail {
+  final PetugasTask? task;
+  final List<Map<String, dynamic>>? clarifications;
+  final List<Map<String, dynamic>>? evidence;
+  PetugasTaskDetail({this.task, this.clarifications, this.evidence});
+
+  factory PetugasTaskDetail.fromJson(Map<String, dynamic> json) {
+    return PetugasTaskDetail(
+      task: json['task'] != null ? PetugasTask.fromJson(json['task'] as Map<String, dynamic>) : null,
+      clarifications: (json['clarifications'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      evidence: (json['evidence'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'task': task?.toJson(),
+      'clarifications': clarifications,
+      'evidence': evidence,
+    };
+  }
+}
+
+class EvidenceResult {
+  final String evidenceId;
+  final String? status;
+  EvidenceResult({required this.evidenceId, this.status});
+
+  factory EvidenceResult.fromJson(Map<String, dynamic> json) {
+    return EvidenceResult(
+      evidenceId: json['evidence_id'] as String,
+      status: json['status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'evidence_id': evidenceId,
+      'status': status,
+    };
+  }
+}
+
+class TimelineEnvelope {
+  final List<Map<String, dynamic>> events;
+  TimelineEnvelope({required this.events});
+
+  factory TimelineEnvelope.fromJson(Map<String, dynamic> json) {
+    return TimelineEnvelope(
+      events: (json['events'] as List?)?.map((e) => e as Map<String, dynamic>).toList() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'events': events,
+    };
+  }
+}
+
+class WargaStats {
+  final Map<String, dynamic>? byStatus;
+  final int? total;
+  WargaStats({this.byStatus, this.total});
+
+  factory WargaStats.fromJson(Map<String, dynamic> json) {
+    return WargaStats(
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      total: json['total'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'by_status': byStatus,
+      'total': total,
+    };
+  }
+}
+
+class NearbyReport {
+  final String? id;
+  final String? categoryId;
+  final String? categoryName;
+  final String? status;
+  final double? distanceM;
+  final double? lat;
+  final double? lng;
+  final String? photoUrl;
+  NearbyReport({this.id, this.categoryId, this.categoryName, this.status, this.distanceM, this.lat, this.lng, this.photoUrl});
+
+  factory NearbyReport.fromJson(Map<String, dynamic> json) {
+    return NearbyReport(
+      id: json['id'] as String?,
+      categoryId: json['category_id'] as String?,
+      categoryName: json['category_name'] as String?,
+      status: json['status'] as String?,
+      distanceM: (json['distance_m'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      photoUrl: json['photo_url'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category_id': categoryId,
+      'category_name': categoryName,
+      'status': status,
+      'distance_m': distanceM,
+      'lat': lat,
+      'lng': lng,
+      'photo_url': photoUrl,
+    };
+  }
+}
+
+class DuplicateCandidate {
+  final String? reportId;
+  final double? distanceM;
+  final double? similarityScore;
+  final String? description;
+  final String? status;
+  final String? photoUrl;
+  DuplicateCandidate({this.reportId, this.distanceM, this.similarityScore, this.description, this.status, this.photoUrl});
+
+  factory DuplicateCandidate.fromJson(Map<String, dynamic> json) {
+    return DuplicateCandidate(
+      reportId: json['report_id'] as String?,
+      distanceM: (json['distance_m'] as num?)?.toDouble(),
+      similarityScore: (json['similarity_score'] as num?)?.toDouble(),
+      description: json['description'] as String?,
+      status: json['status'] as String?,
+      photoUrl: json['photo_url'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'report_id': reportId,
+      'distance_m': distanceM,
+      'similarity_score': similarityScore,
+      'description': description,
+      'status': status,
+      'photo_url': photoUrl,
+    };
+  }
+}
+
+class NotificationEntry {
+  final String? id;
+  final String? userId;
+  final String? kind;
+  final String? title;
+  final String? body;
+  final String? relatedReportId;
+  final DateTime? readAt;
+  final DateTime? createdAt;
+  NotificationEntry({this.id, this.userId, this.kind, this.title, this.body, this.relatedReportId, this.readAt, this.createdAt});
+
+  factory NotificationEntry.fromJson(Map<String, dynamic> json) {
+    return NotificationEntry(
+      id: json['id'] as String?,
+      userId: json['user_id'] as String?,
+      kind: json['kind'] as String?,
+      title: json['title'] as String?,
+      body: json['body'] as String?,
+      relatedReportId: json['related_report_id'] as String?,
+      readAt: json['read_at'] != null ? DateTime.parse(json['read_at'] as String) : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'kind': kind,
+      'title': title,
+      'body': body,
+      'related_report_id': relatedReportId,
+      'read_at': readAt?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+    };
+  }
+}
+
+class OutboxEntry {
+  final String? id;
+  final DateTime? createdAt;
+  final String? targetSystem;
+  final String? payload;
+  final String? status;
+  final int? retryCount;
+  final DateTime? lastAttemptAt;
+  final String? errorMessage;
+  final String? relatedReportId;
+  OutboxEntry({this.id, this.createdAt, this.targetSystem, this.payload, this.status, this.retryCount, this.lastAttemptAt, this.errorMessage, this.relatedReportId});
+
+  factory OutboxEntry.fromJson(Map<String, dynamic> json) {
+    return OutboxEntry(
+      id: json['id'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+      targetSystem: json['target_system'] as String?,
+      payload: json['payload'] as String?,
+      status: json['status'] as String?,
+      retryCount: json['retry_count'] as int?,
+      lastAttemptAt: json['last_attempt_at'] != null ? DateTime.parse(json['last_attempt_at'] as String) : null,
+      errorMessage: json['error_message'] as String?,
+      relatedReportId: json['related_report_id'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'created_at': createdAt?.toIso8601String(),
+      'target_system': targetSystem,
+      'payload': payload,
+      'status': status,
+      'retry_count': retryCount,
+      'last_attempt_at': lastAttemptAt?.toIso8601String(),
+      'error_message': errorMessage,
+      'related_report_id': relatedReportId,
+    };
+  }
+}
+
+class AuditSearchEntry {
+  final String? id;
+  final String? actor;
+  final String? actorRole;
+  final String? action;
+  final String? objectType;
+  final String? objectId;
+  final Map<String, dynamic>? before;
+  final Map<String, dynamic>? after;
+  final String? reason;
+  final DateTime? createdAt;
+  AuditSearchEntry({this.id, this.actor, this.actorRole, this.action, this.objectType, this.objectId, this.before, this.after, this.reason, this.createdAt});
+
+  factory AuditSearchEntry.fromJson(Map<String, dynamic> json) {
+    return AuditSearchEntry(
+      id: json['id'] as String?,
+      actor: json['actor'] as String?,
+      actorRole: json['actor_role'] as String?,
+      action: json['action'] as String?,
+      objectType: json['object_type'] as String?,
+      objectId: json['object_id'] as String?,
+      before: json['before'] as Map<String, dynamic>?,
+      after: json['after'] as Map<String, dynamic>?,
+      reason: json['reason'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'actor': actor,
+      'actor_role': actorRole,
+      'action': action,
+      'object_type': objectType,
+      'object_id': objectId,
+      'before': before,
+      'after': after,
+      'reason': reason,
+      'created_at': createdAt?.toIso8601String(),
+    };
+  }
+}
+
+class ExecutiveTrend {
+  final String? period;
+  final List<Map<String, dynamic>>? submissions;
+  final List<Map<String, dynamic>>? byCategory;
+  final List<Map<String, dynamic>>? byWilayah;
+  final List<Map<String, dynamic>>? avgResolutionDays;
+  final List<Map<String, dynamic>>? avgVerificationDays;
+  final List<Map<String, dynamic>>? slaBreaches;
+  ExecutiveTrend({this.period, this.submissions, this.byCategory, this.byWilayah, this.avgResolutionDays, this.avgVerificationDays, this.slaBreaches});
+
+  factory ExecutiveTrend.fromJson(Map<String, dynamic> json) {
+    return ExecutiveTrend(
+      period: json['period'] as String?,
+      submissions: (json['submissions'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      byWilayah: (json['by_wilayah'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      avgResolutionDays: (json['avg_resolution_days'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      avgVerificationDays: (json['avg_verification_days'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      slaBreaches: (json['sla_breaches'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'period': period,
+      'submissions': submissions,
+      'by_category': byCategory,
+      'by_wilayah': byWilayah,
+      'avg_resolution_days': avgResolutionDays,
+      'avg_verification_days': avgVerificationDays,
+      'sla_breaches': slaBreaches,
+    };
+  }
+}
+
+class AdminDaerahDashboard {
+  final int? total;
+  final Map<String, dynamic>? byStatus;
+  final List<Map<String, dynamic>>? byCategory;
+  final int? activeOperators;
+  final int? activePetugas;
+  final int? slaBreached;
+  final int? slaAtRisk;
+  final double? avgVerificationDays;
+  final int? recentSubmissions;
+  final int? resolvedThisMonth;
+  AdminDaerahDashboard({this.total, this.byStatus, this.byCategory, this.activeOperators, this.activePetugas, this.slaBreached, this.slaAtRisk, this.avgVerificationDays, this.recentSubmissions, this.resolvedThisMonth});
+
+  factory AdminDaerahDashboard.fromJson(Map<String, dynamic> json) {
+    return AdminDaerahDashboard(
+      total: json['total'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      activeOperators: json['active_operators'] as int?,
+      activePetugas: json['active_petugas'] as int?,
+      slaBreached: json['sla_breached'] as int?,
+      slaAtRisk: json['sla_at_risk'] as int?,
+      avgVerificationDays: (json['avg_verification_days'] as num?)?.toDouble(),
+      recentSubmissions: json['recent_submissions'] as int?,
+      resolvedThisMonth: json['resolved_this_month'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'by_status': byStatus,
+      'by_category': byCategory,
+      'active_operators': activeOperators,
+      'active_petugas': activePetugas,
+      'sla_breached': slaBreached,
+      'sla_at_risk': slaAtRisk,
+      'avg_verification_days': avgVerificationDays,
+      'recent_submissions': recentSubmissions,
+      'resolved_this_month': resolvedThisMonth,
+    };
+  }
+}
+
+class PublicStats {
+  final int? total;
+  final Map<String, dynamic>? byStatus;
+  final List<Map<String, dynamic>>? byCategory;
+  final int? recentReports_7d;
+  final double? resolutionRate_7d;
+  PublicStats({this.total, this.byStatus, this.byCategory, this.recentReports_7d, this.resolutionRate_7d});
+
+  factory PublicStats.fromJson(Map<String, dynamic> json) {
+    return PublicStats(
+      total: json['total'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      recentReports_7d: json['recent_reports_7d'] as int?,
+      resolutionRate_7d: (json['resolution_rate_7d'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total': total,
+      'by_status': byStatus,
+      'by_category': byCategory,
+      'recent_reports_7d': recentReports_7d,
+      'resolution_rate_7d': resolutionRate_7d,
+    };
+  }
+}
+
+class SyncKpi {
+  final int? synced;
+  final int? pending;
+  final int? failed;
+  SyncKpi({this.synced, this.pending, this.failed});
+
+  factory SyncKpi.fromJson(Map<String, dynamic> json) {
+    return SyncKpi(
+      synced: json['synced'] as int?,
+      pending: json['pending'] as int?,
+      failed: json['failed'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'synced': synced,
+      'pending': pending,
+      'failed': failed,
+    };
+  }
+}
+
+class SyncBatchResult {
+  final List<Map<String, dynamic>>? results;
+  final int? successCount;
+  final int? failureCount;
+  SyncBatchResult({this.results, this.successCount, this.failureCount});
+
+  factory SyncBatchResult.fromJson(Map<String, dynamic> json) {
+    return SyncBatchResult(
+      results: (json['results'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      successCount: json['success_count'] as int?,
+      failureCount: json['failure_count'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'results': results,
+      'success_count': successCount,
+      'failure_count': failureCount,
+    };
+  }
+}
+
+class ExportGeojson {
+  final String type;
+  final List<GeoJSONFeature> features;
+  ExportGeojson({required this.type, required this.features});
+
+  factory ExportGeojson.fromJson(Map<String, dynamic> json) {
+    return ExportGeojson(
+      type: json['type'] as String,
+      features: (json['features'] as List?)?.map((e) => GeoJSONFeature.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'features': features,
+    };
   }
 }
