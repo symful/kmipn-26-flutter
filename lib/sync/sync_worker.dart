@@ -202,8 +202,8 @@ class SyncWorker {
         deviceId: _deviceId,
       );
 
-      // Process results - handle partial failures
-      final results = (result['results'] as List?) ?? [];
+      // Process results - handle partial failures (typed payload from ApiClient DTO)
+      final results = result.results ?? [];
       final succeededKeys = <String>{};
 
       for (final r in results) {
@@ -246,6 +246,7 @@ class SyncWorker {
     if (retryCount >= maxRetry) {
       await _queueRepo.markAsDeadLetter(idempotencyKey, 'Max retries exceeded');
       await _reportRepo.markFailed(idempotencyKey);
+      await _notificationService.showDeadLetter(itemKey: idempotencyKey);
       return;
     }
     final backoff = Duration(seconds: (1 << retryCount).clamp(1, 300));
@@ -281,6 +282,7 @@ class SyncWorker {
       if (retryCount >= maxRetry) {
         await _queueRepo.markAsDeadLetter(idempotencyKey, e.toString());
         await _surveyorTaskRepo.markVisitFailed(idempotencyKey);
+        await _notificationService.showDeadLetter(itemKey: idempotencyKey);
         return;
       }
       final backoff = Duration(seconds: (1 << retryCount).clamp(1, 300));

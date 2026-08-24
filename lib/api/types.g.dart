@@ -1555,11 +1555,11 @@ class AuditEntry {
   final String? action;
   final String? objectType;
   final String? objectId;
-  final Map<String, dynamic>? beforeData;
-  final Map<String, dynamic>? afterData;
+  final Map<String, dynamic>? before;
+  final Map<String, dynamic>? after;
   final String? reason;
-  final String? createdAt;
-  AuditEntry({this.id, this.actor, this.action, this.objectType, this.objectId, this.beforeData, this.afterData, this.reason, this.createdAt});
+  final DateTime? createdAt;
+  AuditEntry({this.id, this.actor, this.action, this.objectType, this.objectId, this.before, this.after, this.reason, this.createdAt});
 
   factory AuditEntry.fromJson(Map<String, dynamic> json) {
     return AuditEntry(
@@ -1568,10 +1568,10 @@ class AuditEntry {
       action: json['action'] as String?,
       objectType: json['object_type'] as String?,
       objectId: json['object_id'] as String?,
-      beforeData: json['before_data'] as Map<String, dynamic>?,
-      afterData: json['after_data'] as Map<String, dynamic>?,
+      before: json['before'] as Map<String, dynamic>?,
+      after: json['after'] as Map<String, dynamic>?,
       reason: json['reason'] as String?,
-      createdAt: json['created_at'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
     );
   }
 
@@ -1582,10 +1582,10 @@ class AuditEntry {
       'action': action,
       'object_type': objectType,
       'object_id': objectId,
-      'before_data': beforeData,
-      'after_data': afterData,
+      'before': before,
+      'after': after,
       'reason': reason,
-      'created_at': createdAt,
+      'created_at': createdAt?.toIso8601String(),
     };
   }
 }
@@ -2101,50 +2101,6 @@ class OutboxEntry {
       'last_attempt_at': lastAttemptAt?.toIso8601String(),
       'error_message': errorMessage,
       'related_report_id': relatedReportId,
-    };
-  }
-}
-
-class AuditSearchEntry {
-  final String? id;
-  final String? actor;
-  final String? actorRole;
-  final String? action;
-  final String? objectType;
-  final String? objectId;
-  final Map<String, dynamic>? before;
-  final Map<String, dynamic>? after;
-  final String? reason;
-  final DateTime? createdAt;
-  AuditSearchEntry({this.id, this.actor, this.actorRole, this.action, this.objectType, this.objectId, this.before, this.after, this.reason, this.createdAt});
-
-  factory AuditSearchEntry.fromJson(Map<String, dynamic> json) {
-    return AuditSearchEntry(
-      id: json['id'] as String?,
-      actor: json['actor'] as String?,
-      actorRole: json['actor_role'] as String?,
-      action: json['action'] as String?,
-      objectType: json['object_type'] as String?,
-      objectId: json['object_id'] as String?,
-      before: json['before'] as Map<String, dynamic>?,
-      after: json['after'] as Map<String, dynamic>?,
-      reason: json['reason'] as String?,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'actor': actor,
-      'actor_role': actorRole,
-      'action': action,
-      'object_type': objectType,
-      'object_id': objectId,
-      'before': before,
-      'after': after,
-      'reason': reason,
-      'created_at': createdAt?.toIso8601String(),
     };
   }
 }

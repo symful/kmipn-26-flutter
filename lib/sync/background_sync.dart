@@ -15,7 +15,14 @@ const String backgroundSyncTaskName = 'com.sigap.background.sync';
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     if (task == backgroundSyncTaskName) {
-      await _runBackgroundSync(inputData: inputData);
+      try {
+        await _runBackgroundSync(inputData: inputData);
+        return true;
+      } catch (e) {
+        // Return false so WorkManager treats this as a failure
+        // enabling its internal backoff/retry mechanism
+        return false;
+      }
     }
     return true;
   });
