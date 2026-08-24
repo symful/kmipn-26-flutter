@@ -183,6 +183,29 @@ class TokenResponse {
   }
 }
 
+class RegisterWargaRequest {
+  final String email;
+  final String password;
+  final String name;
+  RegisterWargaRequest({required this.email, required this.password, required this.name});
+
+  factory RegisterWargaRequest.fromJson(Map<String, dynamic> json) {
+    return RegisterWargaRequest(
+      email: json['email'] as String,
+      password: json['password'] as String,
+      name: json['name'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+      'name': name,
+    };
+  }
+}
+
 class RegisterVerifikatorRequest {
   final String email;
   final String password;
@@ -669,6 +692,47 @@ class PublicReportCreateRequest {
       'population_affected': populationAffected,
       'vulnerability_index': vulnerabilityIndex,
       'consent': consent,
+    };
+  }
+}
+
+class AnonymousReportCreateRequest {
+  final String idempotencyKey;
+  final String deviceId;
+  final String categoryId;
+  final String description;
+  final double lat;
+  final double lng;
+  final String? title;
+  final List<String>? photos;
+  final String? captchaToken;
+  AnonymousReportCreateRequest({required this.idempotencyKey, required this.deviceId, required this.categoryId, required this.description, required this.lat, required this.lng, this.title, this.photos, this.captchaToken});
+
+  factory AnonymousReportCreateRequest.fromJson(Map<String, dynamic> json) {
+    return AnonymousReportCreateRequest(
+      idempotencyKey: json['idempotency_key'] as String,
+      deviceId: json['device_id'] as String,
+      categoryId: json['category_id'] as String,
+      description: json['description'] as String,
+      lat: (json['lat'] as num).toDouble(),
+      lng: (json['lng'] as num).toDouble(),
+      title: json['title'] as String?,
+      photos: (json['photos'] as List?)?.map((e) => e as String).toList(),
+      captchaToken: json['captcha_token'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idempotency_key': idempotencyKey,
+      'device_id': deviceId,
+      'category_id': categoryId,
+      'description': description,
+      'lat': lat,
+      'lng': lng,
+      'title': title,
+      'photos': photos,
+      'captcha_token': captchaToken,
     };
   }
 }
@@ -2189,6 +2253,32 @@ class PublicStats {
       'by_category': byCategory,
       'recent_reports_7d': recentReports_7d,
       'resolution_rate_7d': resolutionRate_7d,
+    };
+  }
+}
+
+class SyncKpiRequest {
+  final String deviceId;
+  final String platform;
+  final int reportsCount;
+  final DateTime? lastSyncAt;
+  SyncKpiRequest({required this.deviceId, required this.platform, required this.reportsCount, this.lastSyncAt});
+
+  factory SyncKpiRequest.fromJson(Map<String, dynamic> json) {
+    return SyncKpiRequest(
+      deviceId: json['device_id'] as String,
+      platform: json['platform'] as String,
+      reportsCount: json['reports_count'] as int,
+      lastSyncAt: json['last_sync_at'] != null ? DateTime.parse(json['last_sync_at'] as String) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'device_id': deviceId,
+      'platform': platform,
+      'reports_count': reportsCount,
+      'last_sync_at': lastSyncAt?.toIso8601String(),
     };
   }
 }
