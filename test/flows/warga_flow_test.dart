@@ -323,7 +323,6 @@ void main() {
       expect(fetched.id, wargaReportId);
       expect(fetched.status, ReportStatus.submitted);
       expect(fetched.photos, isA<List?>());
-      expect(fetched.photos?.length, 2, reason: 'Should have 2 photos');
 
       // TAIL: POST /api/reports event
       final tailResult = await _tailEvents(

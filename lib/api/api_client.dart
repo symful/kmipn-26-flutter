@@ -60,6 +60,91 @@ class WargaReportsPage {
   WargaReportsPage({required this.items});
 }
 
+class PublicReportCategory {
+  final String? id;
+  final String? shortCode;
+  final String? name;
+  final String? icon;
+  PublicReportCategory({this.id, this.shortCode, this.name, this.icon});
+  factory PublicReportCategory.fromJson(Map<String, dynamic> json) {
+    return PublicReportCategory(
+      id: json['id'] as String?,
+      shortCode: json['short_code'] as String?,
+      name: json['name'] as String?,
+      icon: json['icon'] as String?,
+    );
+  }
+}
+
+class PublicReportWilayah {
+  final String? kecamatan;
+  final String? desa;
+  PublicReportWilayah({this.kecamatan, this.desa});
+  factory PublicReportWilayah.fromJson(Map<String, dynamic> json) {
+    return PublicReportWilayah(
+      kecamatan: json['kecamatan'] as String?,
+      desa: json['desa'] as String?,
+    );
+  }
+}
+
+class PublicReportItem {
+  final String? id;
+  final PublicReportCategory? category;
+  final PublicReportWilayah? wilayah;
+  final String? status;
+  final String? lastUpdated;
+  final int publicProgress;
+  final String? moderatedPhotoUrl;
+  final String? shareToken;
+  final int supportingCount;
+  PublicReportItem({
+    this.id,
+    this.category,
+    this.wilayah,
+    this.status,
+    this.lastUpdated,
+    this.publicProgress = 0,
+    this.moderatedPhotoUrl,
+    this.shareToken,
+    this.supportingCount = 0,
+  });
+  factory PublicReportItem.fromJson(Map<String, dynamic> json) {
+    return PublicReportItem(
+      id: json['id'] as String?,
+      category: json['category'] != null
+          ? PublicReportCategory.fromJson(
+              json['category'] as Map<String, dynamic>,
+            )
+          : null,
+      wilayah: json['wilayah'] != null
+          ? PublicReportWilayah.fromJson(
+              json['wilayah'] as Map<String, dynamic>,
+            )
+          : null,
+      status: json['status'] as String?,
+      lastUpdated: json['last_updated'] as String?,
+      publicProgress: json['public_progress'] as int? ?? 0,
+      moderatedPhotoUrl: json['moderated_photo_url'] as String?,
+      shareToken: json['share_token'] as String?,
+      supportingCount: json['supporting_count'] as int? ?? 0,
+    );
+  }
+}
+
+class PublicReportsPage {
+  final List<PublicReportItem> items;
+  final int total;
+  final int page;
+  final int limit;
+  PublicReportsPage({
+    required this.items,
+    this.total = 0,
+    this.page = 1,
+    this.limit = 20,
+  });
+}
+
 class UsersPage {
   final List<UserResponse> entries;
   final int total;
@@ -953,9 +1038,8 @@ class ApiClient {
         options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/auth/login',
-      parse: (data) => LoginResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          LoginResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -975,9 +1059,8 @@ class ApiClient {
       dioCall: () =>
           _dio.get('/api/auth/validate-role', queryParameters: {'role': role}),
       endpoint: '/api/auth/validate-role',
-      parse: (data) => ValidationResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          ValidationResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1135,9 +1218,8 @@ class ApiClient {
         data: {'reason': reason},
       ),
       endpoint: '/api/reports/$reportId/sanggahan',
-      parse: (data) => SanggahanResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          SanggahanResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1150,9 +1232,8 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/reports/$reportId/reopen', data: {'reason': reason}),
       endpoint: '/api/reports/$reportId/reopen',
-      parse: (data) => ReopenResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          ReopenResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1388,9 +1469,8 @@ class ApiClient {
         options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/tasks/$taskId/progress',
-      parse: (data) => ProgressResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          ProgressResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1458,9 +1538,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/tasks/$taskId/visit',
-      parse: (data) => VisitResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          VisitResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1471,9 +1550,8 @@ class ApiClient {
     return await _execute<WargaStats>(
       dioCall: () => _dio.get('/api/warga/stats'),
       endpoint: '/api/warga/stats',
-      parse: (data) => WargaStats.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          WargaStats.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1484,9 +1562,8 @@ class ApiClient {
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/stats'),
       endpoint: '/api/stats',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1497,9 +1574,8 @@ class ApiClient {
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/executive/dashboard'),
       endpoint: '/api/executive/dashboard',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1508,9 +1584,8 @@ class ApiClient {
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/executive/regional-stats'),
       endpoint: '/api/executive/regional-stats',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1522,9 +1597,8 @@ class ApiClient {
         queryParameters: {'period': period},
       ),
       endpoint: '/api/executive/trend-analysis',
-      parse: (data) => ExecutiveTrend.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          ExecutiveTrend.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1610,9 +1684,8 @@ class ApiClient {
         data: {'id': notificationId},
       ),
       endpoint: '/api/notifications/mark-read',
-      parse: (data) => MarkReadResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          MarkReadResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1622,9 +1695,8 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/notifications/mark-read', data: {'mark_all': true}),
       endpoint: '/api/notifications/mark-read',
-      parse: (data) => MarkReadResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          MarkReadResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1699,9 +1771,8 @@ class ApiClient {
         queryParameters: {'lat': lat, 'lng': lng},
       ),
       endpoint: '/api/geocode/reverse',
-      parse: (data) => GeocodeResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          GeocodeResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1737,9 +1808,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/facilities/cluster',
-      parse: (data) => FacilitiesCluster.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          FacilitiesCluster.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1808,9 +1878,8 @@ class ApiClient {
     return await _execute<UserResponse>(
       dioCall: () => _dio.patch('/api/users/$id', data: {'status': status}),
       endpoint: '/api/users/$id',
-      parse: (data) => UserResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          UserResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1910,9 +1979,8 @@ class ApiClient {
         queryParameters: {'page': page, 'limit': limit},
       ),
       endpoint: '/api/priority-config',
-      parse: (data) => PriorityConfigPage.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          PriorityConfigPage.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1922,7 +1990,7 @@ class ApiClient {
       dioCall: () => _dio.post('/api/priority-config/$id/activate'),
       endpoint: '/api/priority-config/$id/activate',
       parse: (data) => PriorityActivateResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -2014,9 +2082,8 @@ class ApiClient {
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/auditor/stats'),
       endpoint: '/api/auditor/stats',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2052,9 +2119,8 @@ class ApiClient {
     return await _execute<UserResponse>(
       dioCall: () => _dio.get('/api/me/data'),
       endpoint: '/api/me/data',
-      parse: (data) => UserResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          UserResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2065,9 +2131,8 @@ class ApiClient {
     return await _execute<WargaProfile>(
       dioCall: () => _dio.get('/api/warga/profile'),
       endpoint: '/api/warga/profile',
-      parse: (data) => WargaProfile.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          WargaProfile.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2079,7 +2144,7 @@ class ApiClient {
       dioCall: () => _dio.get('/api/wilayah/$id/boundary'),
       endpoint: '/api/wilayah/$id/boundary',
       parse: (data) => GeoJSONFeatureCollection.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -2164,9 +2229,8 @@ class ApiClient {
     return await _execute<HealthResult>(
       dioCall: () => _dio.get('/api/health'),
       endpoint: '/api/health',
-      parse: (data) => HealthResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          HealthResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2188,9 +2252,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/client-errors',
-      parse: (data) => ClientErrorResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          ClientErrorResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2222,7 +2285,7 @@ class ApiClient {
   }
 
   /// Fetches public reports.
-  Future<WargaReportsPage> getPublicReports({
+  Future<PublicReportsPage> getPublicReports({
     String? status,
     String? categoryId,
     String? bbox,
@@ -2250,10 +2313,19 @@ class ApiClient {
       throw FormatException('Unexpected response shape: expected reports key');
     }
     final reportsData = response['reports'];
-    return WargaReportsPage(
+    final total = response['total'] as int? ?? 0;
+    final respPage = response['page'] as int? ?? page;
+    final respLimit = response['limit'] as int? ?? limit;
+    return PublicReportsPage(
       items: (reportsData as List)
-          .map((e) => Report.fromJson((e as Map).cast<String, dynamic>()))
+          .map(
+            (e) =>
+                PublicReportItem.fromJson((e as Map).cast<String, dynamic>()),
+          )
           .toList(),
+      total: total,
+      page: respPage,
+      limit: respLimit,
     );
   }
 
@@ -2428,9 +2500,7 @@ class ApiClient {
     return await _execute<Report>(
       dioCall: () => _dio.patch('/api/reports/$id', data: data),
       endpoint: '/api/reports/$id',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2528,9 +2598,8 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/cases/$caseId/reject', data: {'reason': reason}),
       endpoint: '/api/cases/$caseId/reject',
-      parse: (data) => CaseDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2549,9 +2618,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/cases/$caseId/combine',
-      parse: (data) => CaseDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2570,9 +2638,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/cases/$caseId/separate',
-      parse: (data) => CaseDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2593,9 +2660,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/cases/$caseId/verify-completion',
-      parse: (data) => CaseDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2611,9 +2677,8 @@ class ApiClient {
         data: {'decision': decision, 'reason': reason},
       ),
       endpoint: '/api/cases/$caseId/review-sanggahan',
-      parse: (data) => CaseDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2624,9 +2689,7 @@ class ApiClient {
     return await _execute<Report>(
       dioCall: () => _dio.post('/api/reports/$id/close'),
       endpoint: '/api/reports/$id/close',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2635,9 +2698,7 @@ class ApiClient {
     return await _execute<Report>(
       dioCall: () => _dio.post('/api/reports/$id/resolve'),
       endpoint: '/api/reports/$id/resolve',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2646,9 +2707,7 @@ class ApiClient {
     return await _execute<Report>(
       dioCall: () => _dio.post('/api/reports/$id/escalate'),
       endpoint: '/api/reports/$id/escalate',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2658,9 +2717,7 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/reports/$id/assign', data: {'unit_id': unitId}),
       endpoint: '/api/reports/$id/assign',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2681,9 +2738,7 @@ class ApiClient {
         },
       ),
       endpoint: '/api/reports/$id/priority',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2699,9 +2754,7 @@ class ApiClient {
         data: {'new_deadline': newDeadline, 'reason': reason},
       ),
       endpoint: '/api/reports/$id/sla',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2720,9 +2773,7 @@ class ApiClient {
         },
       ),
       endpoint: '/api/reports/$id/merge',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2741,9 +2792,7 @@ class ApiClient {
         },
       ),
       endpoint: '/api/reports/$id/separate',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2772,9 +2821,8 @@ class ApiClient {
     return await _execute<TaskActionResult>(
       dioCall: () => _dio.post('/api/tasks/$taskId/accept'),
       endpoint: '/api/tasks/$taskId/accept',
-      parse: (data) => TaskActionResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          TaskActionResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2783,9 +2831,8 @@ class ApiClient {
     return await _execute<TaskActionResult>(
       dioCall: () => _dio.post('/api/tasks/$taskId/start'),
       endpoint: '/api/tasks/$taskId/start',
-      parse: (data) => TaskActionResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          TaskActionResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2795,9 +2842,8 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/tasks/$taskId/reject', data: {'reason': reason}),
       endpoint: '/api/tasks/$taskId/reject',
-      parse: (data) => TaskActionResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          TaskActionResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2812,9 +2858,8 @@ class ApiClient {
         data: {'question': question},
       ),
       endpoint: '/api/tasks/$taskId/clarification',
-      parse: (data) => ClarificationResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          ClarificationResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2835,8 +2880,7 @@ class ApiClient {
     final result = await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.post('/api/tasks/$taskId/evidence', data: formData),
       endpoint: '/api/tasks/$taskId/evidence',
-      parse: (data) =>
-          _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
     return EvidenceResult.fromJson(result);
   }
@@ -2858,8 +2902,7 @@ class ApiClient {
     final result = await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.post('/api/tasks/$taskId/complete', data: formData),
       endpoint: '/api/tasks/$taskId/complete',
-      parse: (data) =>
-          _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
     return CompleteTaskResult.fromJson(result);
   }
@@ -2869,9 +2912,8 @@ class ApiClient {
     return await _execute<ChecklistTemplate>(
       dioCall: () => _dio.get('/api/tasks/$taskId/checklist-template'),
       endpoint: '/api/tasks/$taskId/checklist-template',
-      parse: (data) => ChecklistTemplate.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          ChecklistTemplate.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2880,9 +2922,8 @@ class ApiClient {
     return await _execute<TaskDetail>(
       dioCall: () => _dio.get('/api/tasks/$taskId'),
       endpoint: '/api/tasks/$taskId',
-      parse: (data) => TaskDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          TaskDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2908,9 +2949,8 @@ class ApiClient {
     return await _execute<SlaConfig>(
       dioCall: () => _dio.post('/api/sla', data: config.toJson()),
       endpoint: '/api/sla',
-      parse: (data) => SlaConfig.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          SlaConfig.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2919,9 +2959,8 @@ class ApiClient {
     return await _execute<SlaConfig>(
       dioCall: () => _dio.patch('/api/sla/$id', data: config.toJson()),
       endpoint: '/api/sla/$id',
-      parse: (data) => SlaConfig.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          SlaConfig.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -3012,9 +3051,8 @@ class ApiClient {
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/reports/stats'),
       endpoint: '/api/reports/stats',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -3039,9 +3077,7 @@ class ApiClient {
     return await _execute<Report>(
       dioCall: () => _dio.get('/api/public/cases/$id'),
       endpoint: '/api/public/cases/$id',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -3062,7 +3098,7 @@ class ApiClient {
       ),
       endpoint: '/api/public/reports/cluster',
       parse: (data) => GeoJSONFeatureCollection.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -3086,7 +3122,7 @@ class ApiClient {
       ),
       endpoint: '/api/public/map',
       parse: (data) => GeoJSONFeatureCollection.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -3111,9 +3147,8 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/auth/refresh', data: {'refresh_token': refreshToken}),
       endpoint: '/api/auth/refresh',
-      parse: (data) => LoginResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          LoginResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -3131,9 +3166,8 @@ class ApiClient {
         data: {'email': email, 'password': password, 'name': name},
       ),
       endpoint: '/api/auth/register',
-      parse: (data) => LoginResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          LoginResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -3157,9 +3191,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/auth/register-verifikator',
-      parse: (data) => LoginResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          LoginResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -3170,9 +3203,7 @@ class ApiClient {
     return await _execute<Wilayah>(
       dioCall: () => _dio.get('/api/wilayah/$id'),
       endpoint: '/api/wilayah/$id',
-      parse: (data) => Wilayah.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Wilayah.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -3193,7 +3224,7 @@ class ApiClient {
       ),
       endpoint: '/api/public/reports.geojson',
       parse: (data) => GeoJSONFeatureCollection.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -3211,9 +3242,8 @@ class ApiClient {
         data: {'report_id': reportId, 'filename': filename},
       ),
       endpoint: '/api/reports/photos/upload-url',
-      parse: (data) => UploadPhotoResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          UploadPhotoResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 }
