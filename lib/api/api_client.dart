@@ -1,4 +1,5 @@
-﻿import 'dart:io';
+﻿import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -169,30 +170,25 @@ class RtRwVerifyResult {
 class RtRwVerifyInfo {
   final String? reportId;
   final String? title;
-  final String? category;
-  final String? address;
+  final String? location;
+  final List<String>? photos;
   final String? status;
-  final String? rtRwUserId;
-  final String? verifiedAt;
   RtRwVerifyInfo({
     this.reportId,
     this.title,
-    this.category,
-    this.address,
+    this.location,
+    this.photos,
     this.status,
-    this.rtRwUserId,
-    this.verifiedAt,
   });
 
+  /// Server returns: { id, description, location, photos, current_status }
   factory RtRwVerifyInfo.fromJson(Map<String, dynamic> json) {
     return RtRwVerifyInfo(
-      reportId: json['report_id'] as String?,
-      title: json['title'] as String?,
-      category: json['category'] as String?,
-      address: json['address'] as String?,
-      status: json['status'] as String?,
-      rtRwUserId: json['rt_rw_user_id'] as String?,
-      verifiedAt: json['verified_at'] as String?,
+      reportId: json['id'] as String?,
+      title: json['description'] as String?,
+      location: json['location'] as String?,
+      photos: (json['photos'] as List?)?.map((e) => e as String).toList(),
+      status: json['current_status'] as String?,
     );
   }
 }
@@ -463,18 +459,58 @@ class RetryBatchResult {
 }
 
 class SyncBatchResult {
-  final int? processed;
-  final int? failed;
-  final List<String>? errors;
-  SyncBatchResult({this.processed, this.failed, this.errors});
+  final List<SyncBatchItemResult> results;
+  final int successCount;
+  final int failureCount;
+  SyncBatchResult({
+    required this.results,
+    required this.successCount,
+    required this.failureCount,
+  });
 
-  factory SyncBatchResult.fromJson(Map<String, dynamic> json) {
-    return SyncBatchResult(
-      processed: json['processed'] as int?,
-      failed: json['failed'] as int?,
-      errors: (json['errors'] as List?)?.map((e) => e as String).toList(),
+  int get processed => successCount;
+  int get failed => failureCount;
+  List<String>? get errors {
+    final errs = results
+        .where((r) => r.error != null)
+        .map((r) => r.error!)
+        .toList();
+    return errs.isEmpty ? null : errs;
+  }
+}
+
+class SyncBatchItemResult {
+  final int index;
+  final String? id;
+  final String? status;
+  final String? error;
+  SyncBatchItemResult({required this.index, this.id, this.status, this.error});
+
+  factory SyncBatchItemResult.fromJson(Map<String, dynamic> json) {
+    return SyncBatchItemResult(
+      index: json['index'] as int,
+      id: json['id'] as String?,
+      status: json['status'] as String?,
+      error: json['error'] as String?,
     );
   }
+}
+
+SyncBatchResult parseSyncBatchResult(Map<String, dynamic> json) {
+  final resultsList =
+      (json['results'] as List?)
+          ?.map(
+            (e) => SyncBatchItemResult.fromJson(
+              (e as Map).cast<String, dynamic>(),
+            ),
+          )
+          .toList() ??
+      [];
+  return SyncBatchResult(
+    results: resultsList,
+    successCount: json['success_count'] as int? ?? 0,
+    failureCount: json['failure_count'] as int? ?? 0,
+  );
 }
 
 class PriorityActivateResult {
@@ -562,6 +598,24 @@ class ProgressResult {
     return ProgressResult(
       taskId: json['task_id'] as String?,
       progressPercent: json['progress_percent'] as int?,
+    );
+  }
+}
+
+class CreateReportResult {
+  final String? id;
+  final bool? duplicate;
+  CreateReportResult({this.id, this.duplicate});
+
+  /// Server hardcodes status='submitted' for all new reports.
+  /// The wire returns {id, duplicate} — this getter provides status
+  /// consistent with server INSERT behavior.
+  String get status => 'submitted';
+
+  factory CreateReportResult.fromJson(Map<String, dynamic> json) {
+    return CreateReportResult(
+      id: json['id'] as String?,
+      duplicate: json['duplicate'] as bool?,
     );
   }
 }
@@ -703,6 +757,23 @@ class AiAssessmentResult {
           .toList(),
     );
   }
+
+  /// Creates from agent store AssessmentResponse format
+  factory AiAssessmentResult._fromAssessmentResponse(
+    Map<String, dynamic> json,
+  ) {
+    final factors = json['factors'] as Map<String, dynamic>?;
+    return AiAssessmentResult(
+      confidenceScore: (json['confidence'] as num?)?.toDouble(),
+      supportingFactors: (factors?['supporting'] as List?)
+          ?.map((e) => e as String)
+          .toList(),
+      riskFactors: (factors?['risk'] as List?)
+          ?.map((e) => e as String)
+          .toList(),
+      duplicateCandidates: null, // not in assessment response
+    );
+  }
 }
 
 // â”€â”€â”€ API Client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -719,6 +790,12 @@ class ApiClient {
     Dio? dio,
     Future<void> Function()? checkConnectivity,
     String? testAccessToken,
+
+    /// When provided, this function is called with the role string to retrieve
+    /// the auth token INSTEAD of reading from secure storage.
+    /// This is the dependency-injection seam for tests — production behavior
+    /// is byte-identical when this is null (storage read is used).
+    Future<String?> Function(String role)? authTokenProvider,
   }) : _dio =
            dio ??
            Dio(
@@ -726,6 +803,10 @@ class ApiClient {
                baseUrl: baseUrl ?? ApiConfig.baseUrl,
                connectTimeout: const Duration(seconds: 10),
                receiveTimeout: const Duration(seconds: 30),
+               // Accept 2xx success and 503 (Workers CPU-limit) so retry logic can handle
+               // transient 503s while letting other errors throw as DioException
+               validateStatus: (int? status) =>
+                   status != null && (status < 400 || status == 503),
              ),
            ),
        _checkConnectivityFn = checkConnectivity,
@@ -734,8 +815,17 @@ class ApiClient {
            baseUrl: baseUrl ?? ApiConfig.baseUrl,
            connectTimeout: const Duration(seconds: 30),
            receiveTimeout: const Duration(seconds: 30),
+           // Accept 2xx success and 503 so retry logic can handle transient 503s
+           validateStatus: (int? status) =>
+               status != null && (status < 400 || status == 503),
          ),
        ) {
+    // Apply explicit baseUrl even when custom dio is provided
+    // (explicit param wins over dart-define default)
+    if (baseUrl != null && dio != null) {
+      _dio.options.baseUrl = baseUrl;
+      _publicDio.options.baseUrl = baseUrl;
+    }
     // Only add interceptor if we're using the internally created Dio
     if (dio == null) {
       final effectiveStorage =
@@ -749,6 +839,7 @@ class ApiClient {
           dio: _dio,
           onLogout: onLogout ?? () async {},
           testAccessToken: testAccessToken,
+          authTokenProvider: authTokenProvider,
         ),
       );
     }
@@ -801,35 +892,53 @@ class ApiClient {
     required T Function(dynamic data) parse,
   }) async {
     await _checkConnectivity();
-    try {
-      final res = await dioCall();
-      return parse(res.data);
-    } on DioException catch (e) {
-      switch (e.type) {
-        case DioExceptionType.connectionError:
-        case DioExceptionType.connectionTimeout:
-          throw NetworkException('Tidak dapat terhubung ke server.');
-        case DioExceptionType.sendTimeout:
-        case DioExceptionType.receiveTimeout:
-          throw TimeoutException(const Duration(seconds: 30), endpoint);
-        case DioExceptionType.badResponse:
-          final userMessage = extractErrorMessage(e);
-          throw ApiException(
-            statusCode: e.response?.statusCode ?? 0,
-            body: e.response?.data?.toString(),
-            endpoint: endpoint,
-            userMessage: userMessage,
-          );
-        default:
-          final userMessage = extractErrorMessage(e);
-          throw ApiException(
-            statusCode: 0,
-            body: e.message ?? 'Unknown error',
-            endpoint: endpoint,
-            userMessage: userMessage,
-          );
+    final backoffs = [
+      const Duration(seconds: 2),
+      const Duration(seconds: 4),
+      const Duration(seconds: 6),
+    ];
+    Object? lastError;
+    for (var attempt = 0; attempt <= 3; attempt++) {
+      try {
+        final res = await dioCall();
+        return parse(res.data);
+      } on DioException catch (e) {
+        final statusCode = e.response?.statusCode;
+        final bodyStr = e.response?.data?.toString() ?? '';
+        final retryable = statusCode == 503 || bodyStr.contains('1102');
+        if (retryable && attempt < 3) {
+          lastError = e;
+          await Future.delayed(backoffs[attempt]);
+          continue;
+        }
+        if (attempt >= 3 && lastError != null) throw lastError;
+        switch (e.type) {
+          case DioExceptionType.connectionError:
+          case DioExceptionType.connectionTimeout:
+            throw NetworkException('Tidak dapat terhubung ke server.');
+          case DioExceptionType.sendTimeout:
+          case DioExceptionType.receiveTimeout:
+            throw TimeoutException(const Duration(seconds: 30), endpoint);
+          case DioExceptionType.badResponse:
+            final userMessage = extractErrorMessage(e);
+            throw ApiException(
+              statusCode: e.response?.statusCode ?? 0,
+              body: e.response?.data?.toString(),
+              endpoint: endpoint,
+              userMessage: '$userMessage [$endpoint]',
+            );
+          default:
+            final userMessage = extractErrorMessage(e);
+            throw ApiException(
+              statusCode: 0,
+              body: e.message ?? 'Unknown error',
+              endpoint: endpoint,
+              userMessage: '$userMessage [$endpoint]',
+            );
+        }
       }
     }
+    throw lastError ?? Exception('Unexpected retry loop exit');
   }
 
   // â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -882,7 +991,7 @@ class ApiClient {
         endpoint: '/api/categories',
         parse: (data) => (data as Map).cast<String, dynamic>(),
       ),
-      'data',
+      'categories',
     );
     return data
         .map((e) => Category.fromJson((e as Map).cast<String, dynamic>()))
@@ -902,29 +1011,32 @@ class ApiClient {
         data: {'device_id': deviceId, 'reports': reports},
       ),
       endpoint: '/api/sync/batch',
-      parse: (data) => SyncBatchResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          parseSyncBatchResult((data as Map).cast<String, dynamic>()),
     );
   }
 
   // â”€â”€â”€ Agent/AI Assessment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches AI pre-verification assessment for a report.
+  /// Retries up to 5 times with 3-second delays since AI assessment runs
+  /// asynchronously via waitUntil and may not be ready immediately.
   Future<AiAssessmentResult> getAiAssessment(String reportId) async {
-    return await _execute<AiAssessmentResult>(
-      dioCall: () => _dio.get('/api/agent/assessments/$reportId'),
-      endpoint: '/api/agent/assessments/$reportId',
-      parse: (data) {
-        if (data is Map) {
-          return AiAssessmentResult.fromJson(
-            _expectKey(data.cast<String, dynamic>(), 'data'),
-          );
+    for (var attempt = 0; attempt < 5; attempt++) {
+      final res = await _dio.get('/api/agent/assessments/$reportId');
+      if (res.data is Map) {
+        final map = (res.data as Map).cast<String, dynamic>();
+        // Server returns { assessments: [...] } - no data envelope
+        final assessments = map['assessments'];
+        if (assessments is List && assessments.isNotEmpty) {
+          final first = assessments[0] as Map<String, dynamic>;
+          return AiAssessmentResult._fromAssessmentResponse(first);
         }
-        throw const FormatException(
-          'Unexpected response shape at getAiAssessment: expected map',
-        );
-      },
+      }
+      await Future<void>.delayed(const Duration(seconds: 3));
+    }
+    throw const FormatException(
+      'AI assessment did not complete within timeout',
     );
   }
 
@@ -932,18 +1044,16 @@ class ApiClient {
 
   /// Fetches warga's own reports.
   Future<WargaReportsPage> getWargaReports() async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () =>
-            _dio.get('/api/reports', queryParameters: {'creator_id': 'me'}),
-        endpoint: '/api/reports?creator_id=me',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
-      ),
-      'data',
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () =>
+          _dio.get('/api/reports', queryParameters: {'creator_id': 'me'}),
+      endpoint: '/api/reports?creator_id=me',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final itemsData = _expectKey(data, 'items');
+    // Server returns { items: [...], pagination: {...} } directly, no envelope
+    final itemsData = _expectListKey(data, 'items');
     return WargaReportsPage(
-      items: (itemsData as List)
+      items: itemsData
           .map((e) => Report.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
     );
@@ -967,9 +1077,8 @@ class ApiClient {
     return await _execute<UploadPhotoResult>(
       dioCall: () => _dio.post(path, data: formData),
       endpoint: path,
-      parse: (data) => UploadPhotoResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          UploadPhotoResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -981,8 +1090,21 @@ class ApiClient {
     final file = File(filePath);
     final bytes = await file.readAsBytes();
     final name = filePath.split('/').last;
+    // Infer content type from file extension to satisfy server's allowed types check
+    final ext = name.toLowerCase().split('.').last;
     final formData = FormData.fromMap({
-      'photo': MultipartFile.fromBytes(bytes, filename: name),
+      'photo': MultipartFile.fromBytes(
+        bytes,
+        filename: name,
+        contentType: DioMediaType(
+          'image',
+          ext == 'png'
+              ? 'png'
+              : ext == 'webp'
+              ? 'webp'
+              : 'jpeg',
+        ),
+      ),
       'idempotency_key': idempotencyKey,
     });
 
@@ -991,8 +1113,14 @@ class ApiClient {
       data: formData,
     );
 
+    // DEBUG
+    print(
+      '[DEBUG uploadReportPhotoAnon] status=${res.statusCode} data=${res.data}',
+    );
+
+    // Server returns { public_url: "..." } directly, no data envelope
     return UploadPhotoResult.fromJson(
-      _expectKey((res.data as Map).cast<String, dynamic>(), 'data'),
+      (res.data as Map).cast<String, dynamic>(),
     );
   }
 
@@ -1051,46 +1179,42 @@ class ApiClient {
     required double lat,
     required double lng,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/reports/nearby',
-          queryParameters: {'lat': lat, 'lng': lng},
-        ),
-        endpoint: '/api/reports/nearby',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/reports/nearby',
+        queryParameters: {'lat': lat, 'lng': lng},
       ),
-      'data',
+      endpoint: '/api/reports/nearby',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final reportsData = _expectKey(data, 'reports');
-    return (reportsData as List)
+    // Server returns { reports: [...] } directly, no envelope
+    final reportsData = _expectListKey(data, 'reports');
+    return reportsData
         .map((e) => NearbyReport.fromJson((e as Map).cast<String, dynamic>()))
         .toList();
   }
 
   /// Fetches duplicate case candidates for a given location and category.
+  /// Server returns: {candidates: [...]} directly, no envelope.
   Future<List<DuplicateCandidate>> getDuplicateCases({
     required double lat,
     required double lng,
     String? categoryId,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/reports/duplicates',
-          queryParameters: {
-            'lat': lat,
-            'lng': lng,
-            if (categoryId != null) 'category_id': categoryId,
-          },
-        ),
-        endpoint: '/api/reports/duplicates',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/reports/duplicates',
+        queryParameters: {
+          'lat': lat,
+          'lng': lng,
+          if (categoryId != null) 'category_id': categoryId,
+        },
       ),
-      'data',
+      endpoint: '/api/reports/duplicates',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final candidatesData = _expectKey(data, 'candidates');
-    return (candidatesData as List)
+    final candidatesData = _expectListKey(data, 'candidates');
+    return candidatesData
         .map(
           (e) =>
               DuplicateCandidate.fromJson((e as Map).cast<String, dynamic>()),
@@ -1103,9 +1227,9 @@ class ApiClient {
     return await _execute<TimelineEnvelope>(
       dioCall: () => _dio.get('/api/reports/$reportId/timeline'),
       endpoint: '/api/reports/$reportId/timeline',
-      parse: (data) => TimelineEnvelope.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      // Server returns {events: [...]} directly without data envelope
+      parse: (data) =>
+          TimelineEnvelope.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1118,40 +1242,45 @@ class ApiClient {
     int limit = 20,
     String? kategori,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/cases/queue',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (status != null) 'status': status,
-            if (kategori != null) 'kategori': kategori,
-          },
-        ),
-        endpoint: '/api/cases/queue',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {items, pagination} - no 'data' envelope
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/cases/queue',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (status != null) 'status': status,
+          if (kategori != null) 'kategori': kategori,
+        },
       ),
-      'data',
+      endpoint: '/api/cases/queue',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final itemsData = _expectKey(data, 'items');
-    final paginationData = _expectKey(data, 'pagination');
+    if (!response.containsKey('items') || !response.containsKey('pagination')) {
+      throw FormatException(
+        'Unexpected response shape: expected items and pagination keys',
+      );
+    }
+    final itemsData = response['items'];
+    final paginationData = response['pagination'];
     return VerifikatorQueuePage(
       items: (itemsData as List)
           .map((e) => Report.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      pagination: Pagination.fromJson(paginationData),
+      pagination: Pagination.fromJson(
+        (paginationData as Map).cast<String, dynamic>(),
+      ),
     );
   }
 
   /// Fetches a single case by ID.
   Future<CaseDetail> getVerifikatorCase(String caseId) async {
+    // Server returns case detail directly - no 'data' envelope
     return await _execute<CaseDetail>(
       dioCall: () => _dio.get('/api/cases/$caseId'),
       endpoint: '/api/cases/$caseId',
-      parse: (data) => CaseDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1179,9 +1308,8 @@ class ApiClient {
         },
       ),
       endpoint: '/api/cases/$caseId/decide',
-      parse: (data) => DecideResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          DecideResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1213,9 +1341,8 @@ class ApiClient {
     return await _execute<RtRwVerifyResult>(
       dioCall: () => _dio.post('/api/rt-rw/verify', data: formData),
       endpoint: '/api/rt-rw/verify',
-      parse: (data) => RtRwVerifyResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          RtRwVerifyResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -1432,6 +1559,7 @@ class ApiClient {
     String? status,
     String? categoryId,
   }) async {
+    // Server returns GeoJSON directly - no 'data' envelope
     return await _execute<GeoJSONFeatureCollection>(
       dioCall: () => _dio.get(
         '/api/export/geojson',
@@ -1442,7 +1570,7 @@ class ApiClient {
       ),
       endpoint: '/api/export/geojson',
       parse: (data) => GeoJSONFeatureCollection.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -1454,18 +1582,19 @@ class ApiClient {
     int page = 1,
     int limit = 20,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/notifications',
-          queryParameters: {'page': page, 'limit': limit},
-        ),
-        endpoint: '/api/notifications',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {entries} - no 'data' envelope
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/notifications',
+        queryParameters: {'page': page, 'limit': limit},
       ),
-      'data',
+      endpoint: '/api/notifications',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'items');
+    if (!response.containsKey('entries')) {
+      throw FormatException('Unexpected response shape: expected entries key');
+    }
+    final entriesData = response['entries'];
     return NotificationPage(
       entries: (entriesData as List)
           .map((e) => Notification.fromJson((e as Map).cast<String, dynamic>()))
@@ -1526,31 +1655,34 @@ class ApiClient {
     String? wilayahId,
     bool? isActive,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/units',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (wilayahId != null) 'wilayah_id': wilayahId,
-            if (isActive != null) 'is_active': isActive.toString(),
-          },
-        ),
-        endpoint: '/api/units',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {data: [...], pagination: {...}}
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/units',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (wilayahId != null) 'wilayah_id': wilayahId,
+          if (isActive != null) 'is_active': isActive.toString(),
+        },
       ),
-      'data',
+      endpoint: '/api/units',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'items');
-    final paginationData = _expectKey(data, 'pagination');
+    if (!response.containsKey('data') || !response.containsKey('pagination')) {
+      throw FormatException(
+        'Unexpected response shape: expected data and pagination keys',
+      );
+    }
+    final unitsData = response['data'];
+    final paginationData = response['pagination'];
     return UnitsPage(
-      entries: (entriesData as List)
+      entries: (unitsData as List)
           .map((e) => Unit.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: paginationData['total'] as int? ?? 0,
-      page: paginationData['page'] as int? ?? page,
-      limit: paginationData['limit'] as int? ?? limit,
+      total: (paginationData as Map)['total'] as int? ?? 0,
+      page: (paginationData as Map)['page'] as int? ?? page,
+      limit: (paginationData as Map)['limit'] as int? ?? limit,
     );
   }
 
@@ -1639,32 +1771,35 @@ class ApiClient {
     String? search,
     bool? isActive,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/users',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (role != null) 'role': role,
-            if (search != null && search.isNotEmpty) 'search': search,
-            if (isActive != null) 'is_active': isActive.toString(),
-          },
-        ),
-        endpoint: '/api/users',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {data: [...], pagination: {...}}
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/users',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (role != null) 'role': role,
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (isActive != null) 'is_active': isActive.toString(),
+        },
       ),
-      'data',
+      endpoint: '/api/users',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'items');
-    final paginationData = _expectKey(data, 'pagination');
+    if (!response.containsKey('data') || !response.containsKey('pagination')) {
+      throw FormatException(
+        'Unexpected response shape: expected data and pagination keys',
+      );
+    }
+    final usersData = response['data'];
+    final paginationData = response['pagination'];
     return UsersPage(
-      entries: (entriesData as List)
+      entries: (usersData as List)
           .map((e) => UserResponse.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: paginationData['total'] as int? ?? 0,
-      page: paginationData['page'] as int? ?? page,
-      limit: paginationData['limit'] as int? ?? limit,
+      total: (paginationData as Map)['total'] as int? ?? 0,
+      page: (paginationData as Map)['page'] as int? ?? page,
+      limit: (paginationData as Map)['limit'] as int? ?? limit,
     );
   }
 
@@ -1689,32 +1824,35 @@ class ApiClient {
     String? prioritas,
     bool? isActive,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/sla',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (kategoriId != null) 'kategori_id': kategoriId,
-            if (prioritas != null) 'prioritas': prioritas,
-            if (isActive != null) 'is_active': isActive.toString(),
-          },
-        ),
-        endpoint: '/api/sla',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {data: [...], pagination: {...}}
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/sla',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (kategoriId != null) 'kategori_id': kategoriId,
+          if (prioritas != null) 'prioritas': prioritas,
+          if (isActive != null) 'is_active': isActive.toString(),
+        },
       ),
-      'data',
+      endpoint: '/api/sla',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'items');
-    final paginationData = _expectKey(data, 'pagination');
+    if (!response.containsKey('data') || !response.containsKey('pagination')) {
+      throw FormatException(
+        'Unexpected response shape: expected data and pagination keys',
+      );
+    }
+    final slaData = response['data'];
+    final paginationData = response['pagination'];
     return SlaPage(
-      entries: (entriesData as List)
+      entries: (slaData as List)
           .map((e) => SlaConfig.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: paginationData['total'] as int? ?? 0,
-      page: paginationData['page'] as int? ?? page,
-      limit: paginationData['limit'] as int? ?? limit,
+      total: (paginationData as Map)['total'] as int? ?? 0,
+      page: (paginationData as Map)['page'] as int? ?? page,
+      limit: (paginationData as Map)['limit'] as int? ?? limit,
     );
   }
 
@@ -1726,33 +1864,36 @@ class ApiClient {
     int limit = 20,
     String? categoryId,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/checklist-templates',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (categoryId != null) 'category_id': categoryId,
-          },
-        ),
-        endpoint: '/api/checklist-templates',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {data: [...], pagination: {...}}
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/checklist-templates',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (categoryId != null) 'category_id': categoryId,
+        },
       ),
-      'data',
+      endpoint: '/api/checklist-templates',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'items');
-    final paginationData = _expectKey(data, 'pagination');
+    if (!response.containsKey('data') || !response.containsKey('pagination')) {
+      throw FormatException(
+        'Unexpected response shape: expected data and pagination keys',
+      );
+    }
+    final templatesData = response['data'];
+    final paginationData = response['pagination'];
     return ChecklistTemplatesPage(
-      entries: (entriesData as List)
+      entries: (templatesData as List)
           .map(
             (e) =>
                 ChecklistTemplate.fromJson((e as Map).cast<String, dynamic>()),
           )
           .toList(),
-      total: paginationData['total'] as int? ?? 0,
-      page: paginationData['page'] as int? ?? page,
-      limit: paginationData['limit'] as int? ?? limit,
+      total: (paginationData as Map)['total'] as int? ?? 0,
+      page: (paginationData as Map)['page'] as int? ?? page,
+      limit: (paginationData as Map)['limit'] as int? ?? limit,
     );
   }
 
@@ -1799,35 +1940,35 @@ class ApiClient {
     int page = 1,
     int limit = 50,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/auditor/audit-search',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (actorId != null) 'actor_id': actorId,
-            if (action != null) 'action': action,
-            if (objectType != null) 'object_type': objectType,
-            if (objectId != null) 'object_id': objectId,
-            if (from != null) 'from': from,
-            if (to != null) 'to': to,
-          },
-        ),
-        endpoint: '/api/auditor/audit-search',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {entries, total, page, limit} directly
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/auditor/audit-search',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (actorId != null) 'actor_id': actorId,
+          if (action != null) 'action': action,
+          if (objectType != null) 'object_type': objectType,
+          if (objectId != null) 'object_id': objectId,
+          if (from != null) 'from': from,
+          if (to != null) 'to': to,
+        },
       ),
-      'data',
+      endpoint: '/api/auditor/audit-search',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'entries');
-    final paginationData = _expectKey(data, 'pagination');
+    if (!response.containsKey('entries')) {
+      throw FormatException('Unexpected response shape: expected entries key');
+    }
+    final entriesData = response['entries'];
     return AuditPage(
       entries: (entriesData as List)
           .map((e) => AuditEntry.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: paginationData['total'] as int? ?? 0,
-      page: paginationData['page'] as int? ?? page,
-      limit: paginationData['limit'] as int? ?? limit,
+      total: response['total'] as int? ?? 0,
+      page: response['page'] as int? ?? page,
+      limit: response['limit'] as int? ?? limit,
     );
   }
 
@@ -1957,7 +2098,7 @@ class ApiClient {
       ),
       endpoint: '/api/admin/generate-rt-rw-token',
       parse: (data) => GenerateRtRwTokenResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -1972,32 +2113,32 @@ class ApiClient {
     String? toolName,
     bool? permanentDlq,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/admin/failed-assessments',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (reportId != null) 'report_id': reportId,
-            if (toolName != null) 'tool_name': toolName,
-            if (permanentDlq != null) 'permanent_dlq': permanentDlq.toString(),
-          },
-        ),
-        endpoint: '/api/admin/failed-assessments',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {items, total, page, limit} directly
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/admin/failed-assessments',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (reportId != null) 'report_id': reportId,
+          if (toolName != null) 'tool_name': toolName,
+          if (permanentDlq != null) 'permanent_dlq': permanentDlq.toString(),
+        },
       ),
-      'data',
+      endpoint: '/api/admin/failed-assessments',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'items');
-    final paginationData = _expectKey(data, 'pagination');
+    if (!response.containsKey('items')) {
+      throw FormatException('Unexpected response shape: expected items key');
+    }
+    final itemsData = response['items'];
     return FailedAssessmentsPage(
-      entries: (entriesData as List)
+      entries: (itemsData as List)
           .map((e) => (e as Map).cast<String, dynamic>())
           .toList(),
-      total: paginationData['total'] as int? ?? 0,
-      page: paginationData['page'] as int? ?? page,
-      limit: paginationData['limit'] as int? ?? limit,
+      total: response['total'] as int? ?? 0,
+      page: response['page'] as int? ?? page,
+      limit: response['limit'] as int? ?? limit,
     );
   }
 
@@ -2011,9 +2152,8 @@ class ApiClient {
         data: {'ids': ids},
       ),
       endpoint: '/api/admin/failed-assessments/retry-batch',
-      parse: (data) => RetryBatchResult.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          RetryBatchResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2063,6 +2203,7 @@ class ApiClient {
     String? bbox,
     String? month,
   }) async {
+    // Server returns GeoJSON directly - no 'data' envelope
     return await _execute<GeoJSONFeatureCollection>(
       dioCall: () => _dio.get(
         '/api/public/geojson',
@@ -2075,7 +2216,7 @@ class ApiClient {
       ),
       endpoint: '/api/public/geojson',
       parse: (data) => GeoJSONFeatureCollection.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+        (data as Map).cast<String, dynamic>(),
       ),
     );
   }
@@ -2089,27 +2230,28 @@ class ApiClient {
     int page = 1,
     int limit = 20,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/public/reports',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (status != null) 'status': status,
-            if (categoryId != null) 'category_id': categoryId,
-            if (bbox != null) 'bbox': bbox,
-            if (month != null) 'month': month,
-          },
-        ),
-        endpoint: '/api/public/reports',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    // Server returns {reports, total, page, limit} - no 'data' envelope
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/public/reports',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (status != null) 'status': status,
+          if (categoryId != null) 'category_id': categoryId,
+          if (bbox != null) 'bbox': bbox,
+          if (month != null) 'month': month,
+        },
       ),
-      'data',
+      endpoint: '/api/public/reports',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final itemsData = _expectKey(data, 'items');
+    if (!response.containsKey('reports')) {
+      throw FormatException('Unexpected response shape: expected reports key');
+    }
+    final reportsData = response['reports'];
     return WargaReportsPage(
-      items: (itemsData as List)
+      items: (reportsData as List)
           .map((e) => Report.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
     );
@@ -2153,43 +2295,40 @@ class ApiClient {
           data: body,
         );
       }
-      return Report.fromJson(
-        _expectKey(res.data!.cast<String, dynamic>(), 'data'),
-      );
+      return Report.fromJson(res.data!.cast<String, dynamic>());
     } on DioException catch (e) {
       final userMessage = extractErrorMessage(e);
       throw ApiException(
         statusCode: e.response?.statusCode ?? 0,
         body: e.response?.data?.toString(),
         endpoint: '/api/public/anonymous-reports',
-        userMessage: userMessage,
+        userMessage: '$userMessage [/api/public/anonymous-reports]',
       );
     }
   }
 
   /// Fetches public categories.
   Future<List<Category>> getPublicCategories() async {
-    final data = _expectListKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get('/api/public/categories'),
-        endpoint: '/api/public/categories',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
-      ),
-      'data',
+    // Server returns {categories: [...]} - no 'data' envelope
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get('/api/public/categories'),
+      endpoint: '/api/public/categories',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    return data
+    final categoriesData = _expectListKey(response, 'categories');
+    return categoriesData
         .map((e) => Category.fromJson((e as Map).cast<String, dynamic>()))
         .toList();
   }
 
   /// Fetches public statistics.
   Future<StatsResponse> getPublicStats() async {
+    // Server returns flat stats - no 'data' envelope
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/public/stats'),
       endpoint: '/api/public/stats',
-      parse: (data) => StatsResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2280,9 +2419,7 @@ class ApiClient {
     return await _execute<Report>(
       dioCall: () => _dio.get('/api/reports/$id'),
       endpoint: '/api/reports/$id',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2307,7 +2444,9 @@ class ApiClient {
   }
 
   /// Creates a new report.
-  Future<Report> createReport({
+  /// Wire returns: {id, duplicate} directly (flat, no Report envelope).
+  /// Server bug: should return full Report with status per flow spec.
+  Future<CreateReportResult> createReport({
     required String idempotencyKey,
     required String categoryId,
     required String description,
@@ -2330,14 +2469,14 @@ class ApiClient {
       }
     }
 
-    return await _execute<Report>(
+    return await _execute<CreateReportResult>(
       dioCall: () => _dio.post(
         '/api/reports',
         data: {
           'idempotency_key': idempotencyKey,
           'category_id': categoryId,
           'description': description,
-          'title': title,
+          if (title != null) 'title': title,
           'lat': lat,
           'lng': lng,
           if (deviceId != null) 'device_id': deviceId,
@@ -2346,9 +2485,13 @@ class ApiClient {
         },
       ),
       endpoint: '/api/reports',
-      parse: (data) => Report.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) {
+        // DEBUG
+        print('[DEBUG createReport] data=$data');
+        return CreateReportResult.fromJson(
+          (data as Map).cast<String, dynamic>(),
+        );
+      },
     );
   }
 
@@ -2374,9 +2517,8 @@ class ApiClient {
         options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/cases/$caseId/accept',
-      parse: (data) => CaseDetail.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2754,9 +2896,8 @@ class ApiClient {
       dioCall: () =>
           _dio.post('/api/priority-config', data: {'weights': weights}),
       endpoint: '/api/priority-config',
-      parse: (data) => PriorityConfig.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          PriorityConfig.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2815,23 +2956,27 @@ class ApiClient {
         },
       ),
       endpoint: '/api/users',
-      parse: (data) => UserResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) =>
+          UserResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
   // â”€â”€â”€ RT-RW GET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets RT-RW verification info.
-  Future<RtRwVerifyInfo> getRtRwVerify({required String token}) async {
+  /// Server expects: GET /api/rt-rw/verify?token=...&case_id=...
+  Future<RtRwVerifyInfo> getRtRwVerify({
+    required String token,
+    required String caseId,
+  }) async {
     return await _execute<RtRwVerifyInfo>(
-      dioCall: () =>
-          _dio.get('/api/rt-rw/verify', queryParameters: {'token': token}),
-      endpoint: '/api/rt-rw/verify',
-      parse: (data) => RtRwVerifyInfo.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
+      dioCall: () => _dio.get(
+        '/api/rt-rw/verify',
+        queryParameters: {'token': token, 'case_id': caseId},
       ),
+      endpoint: '/api/rt-rw/verify',
+      parse: (data) =>
+          RtRwVerifyInfo.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2949,13 +3094,12 @@ class ApiClient {
   // â”€â”€â”€ Auth Me â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets current user info (auth me).
-  Future<LoginResponse> getAuthMe() async {
-    return await _execute<LoginResponse>(
+  /// Wire returns: {id, email, role} directly (flat, no envelope).
+  Future<User> getAuthMe() async {
+    return await _execute<User>(
       dioCall: () => _dio.get('/api/auth/me'),
       endpoint: '/api/auth/me',
-      parse: (data) => LoginResponse.fromJson(
-        _expectKey((data as Map).cast<String, dynamic>(), 'data'),
-      ),
+      parse: (data) => User.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 

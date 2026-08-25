@@ -11,15 +11,20 @@ class AuthInterceptor extends Interceptor {
   final Future<void> Function() _onLogout;
   final String? _testAccessToken;
 
+  /// When provided, this overrides storage reads for BOTH token and role.
+  final Future<String?> Function(String role)? _authTokenProvider;
+
   AuthInterceptor({
     required FlutterSecureStorage storage,
     required Dio dio,
     required Future<void> Function() onLogout,
     String? testAccessToken,
+    Future<String?> Function(String role)? authTokenProvider,
   }) : _storage = storage,
        _dio = dio,
        _onLogout = onLogout,
-       _testAccessToken = testAccessToken;
+       _testAccessToken = testAccessToken,
+       _authTokenProvider = authTokenProvider;
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
@@ -33,14 +38,21 @@ class AuthInterceptor extends Interceptor {
     final String? token;
     if (_testAccessToken != null) {
       token = _testAccessToken;
+    } else if (_authTokenProvider != null) {
+      token = await _authTokenProvider!('access_token');
     } else {
       token = await _storage.read(key: _accessTokenKey);
     }
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
-    // Wire X-Active-Role header from storage (always, even in test mode)
-    final activeRole = await _storage.read(key: _activeRoleKey);
+    // Wire X-Active-Role header — use provider if available, else storage
+    final String? activeRole;
+    if (_authTokenProvider != null) {
+      activeRole = await _authTokenProvider!('active_role');
+    } else {
+      activeRole = await _storage.read(key: _activeRoleKey);
+    }
     if (activeRole != null) {
       options.headers['X-Active-Role'] = activeRole;
     }

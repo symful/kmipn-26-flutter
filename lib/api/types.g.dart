@@ -15,10 +15,11 @@ enum ReportStatus {
   merged("merged"),
   separated("separated"),
   needsCompletion("needs_completion"),
-  outOfScope("out_of_scope");
+  outOfScope("out_of_scope"),
+  pending("pending");
   final String value;
   const ReportStatus(this.value);
-  static const allValues = <ReportStatus>[ReportStatus.draft, ReportStatus.submitted, ReportStatus.underReview, ReportStatus.verified, ReportStatus.assigned, ReportStatus.inProgress, ReportStatus.resolved, ReportStatus.closed, ReportStatus.rejected, ReportStatus.duplicateMerged, ReportStatus.needsSurvey, ReportStatus.merged, ReportStatus.separated, ReportStatus.needsCompletion, ReportStatus.outOfScope];
+  static const allValues = <ReportStatus>[ReportStatus.draft, ReportStatus.submitted, ReportStatus.underReview, ReportStatus.verified, ReportStatus.assigned, ReportStatus.inProgress, ReportStatus.resolved, ReportStatus.closed, ReportStatus.rejected, ReportStatus.duplicateMerged, ReportStatus.needsSurvey, ReportStatus.merged, ReportStatus.separated, ReportStatus.needsCompletion, ReportStatus.outOfScope, ReportStatus.pending];
   static ReportStatus fromJson(String value) => allValues.firstWhere((e) => e.value == value);
 }
 

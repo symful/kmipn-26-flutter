@@ -1,17 +1,19 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:image_picker/image_picker.dart';
 
-/// Returns the XFile for the given fixture [slug].
+/// Returns the File for the given fixture [slug].
 ///
 /// Looks up the file under `test/fixtures/images/<slug>.jpg`
 /// and throws if not found.
-Future<XFile> fixtureImage(String slug) async {
+File fixtureImage(String slug) {
   final file = File('test/fixtures/images/$slug.jpg');
-  if (!await file.exists()) {
-    throw Exception("Fixture image not found: $slug.jpg");
+  // Resolve to absolute path so the file can be found regardless of cwd
+  final absolutePath = file.absolute.path;
+  final absoluteFile = File(absolutePath);
+  if (!absoluteFile.existsSync()) {
+    throw Exception("Fixture image not found: $slug.jpg at $absolutePath");
   }
-  return XFile(file.path);
+  return absoluteFile;
 }
 
 /// Loads the fixture manifest from `test/fixtures/images/manifest.json`.
