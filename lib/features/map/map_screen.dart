@@ -389,6 +389,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         case ReportStatus.rejected:
         case ReportStatus.duplicateMerged:
         case ReportStatus.outOfScope:
+        case ReportStatus.pending:
           return SigapColors.textMuted;
         case ReportStatus.assigned:
         case ReportStatus.closed:
