@@ -6,6 +6,10 @@ import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/phone_frame.dart';
 import '../surveyor/presentation/widgets/s02_action_bar.dart';
+import '../surveyor/presentation/widgets/s02_instruksi_card.dart';
+import '../surveyor/presentation/widgets/s02_checklist.dart';
+import '../surveyor/presentation/widgets/s02_bukti_thumbnails.dart';
+import '../surveyor/presentation/widgets/s02_offline_banner.dart';
 
 /// Unified TasksFlow Detail Screen for both SURVEYOR and PETUGAS roles.
 ///
@@ -34,6 +38,9 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
   bool _loading = true;
   String? _error;
   TaskDetail? _detail;
+  List<Photo> _reportPhotos = [];
+  ChecklistTemplate? _checklistTemplate;
+  bool _isDownloaded = false;
 
   @override
   void initState() {
@@ -52,7 +59,43 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
     try {
       final client = ref.read(apiClientProvider);
       final detail = await client.getTaskDetail(widget.taskId);
+
+      // Reset secondary state
+      _reportPhotos = [];
+      _checklistTemplate = null;
+      _isDownloaded = false;
+
+      // Fetch report photos if we have a reportId
+      if (detail.reportId != null) {
+        try {
+          final report = await client.getReportById(detail.reportId!);
+          setState(() {
+            _reportPhotos = report.photos ?? [];
+          });
+        } catch (_) {
+          // Report fetch failed, continue without photos
+        }
+      }
+
+      // Fetch checklist template for surveyor role
+      if (_isSurveyor) {
+        try {
+          final template = await client.getTaskChecklistTemplate(widget.taskId);
+          setState(() {
+            _checklistTemplate = template;
+          });
+        } catch (_) {
+          // Template fetch failed, continue without it
+        }
+      }
+
+      // Check offline status
+      final repo = ref.read(surveyorTaskRepositoryProvider);
+      final downloadedTask = await repo.getDownloadedTask(widget.taskId);
+      final isDownloaded = downloadedTask != null;
+
       setState(() {
+        _isDownloaded = isDownloaded;
         _detail = detail;
         _loading = false;
       });
@@ -70,9 +113,20 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
       await _load(); // Refresh detail
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal: $e')));
+        // Check for 409 conflict error
+        final errorStr = e.toString().toLowerCase();
+        if (errorStr.contains('409') || errorStr.contains('conflict')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tugas sudah dimulai oleh surveyor lain'),
+              backgroundColor: SigapColors.warning,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Gagal: $e')));
+        }
       }
     }
   }
@@ -81,6 +135,13 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
     await _doAction(() async {
       final client = ref.read(apiClientProvider);
       await client.acceptTask(widget.taskId);
+    });
+  }
+
+  Future<void> _startTask() async {
+    await _doAction(() async {
+      final client = ref.read(apiClientProvider);
+      await client.startTask(widget.taskId);
     });
   }
 
@@ -149,7 +210,7 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
   }
 
   void _navigateToSurveyForm() {
-    context.push('/surveyor/survey-form/${widget.taskId}');
+    context.push('/surveyor/form-survei/${widget.taskId}');
   }
 
   Color get _statusColor {
@@ -311,25 +372,9 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
           ),
           const SizedBox(height: SigapSpacing.lg),
 
-          // Description
+          // Instruksi
           if (detail.description != null && detail.description!.isNotEmpty) ...[
-            const Text(
-              'Deskripsi',
-              style: TextStyle(
-                fontSize: SigapTypography.size13,
-                fontWeight: FontWeight.w600,
-                color: SigapColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: SigapSpacing.xs),
-            Text(
-              detail.description!,
-              style: const TextStyle(
-                fontSize: SigapTypography.size13,
-                color: SigapColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
+            S02InstruksiCard(title: 'Instruksi', body: detail.description!),
             const SizedBox(height: SigapSpacing.lg),
           ],
 
@@ -411,7 +456,54 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
               label: 'Diselesaikan',
               value: _formatDate(detail.completedAt),
             ),
+
+          // Offline status card (surveyor only)
+          if (_isSurveyor) ...[
+            const SizedBox(height: SigapSpacing.lg),
+            S02OfflineBanner(isOfflineReady: _isDownloaded),
+          ],
+
+          // Citizen evidence gallery (Bukti warga)
+          if (_reportPhotos.isNotEmpty) ...[
+            const SizedBox(height: SigapSpacing.lg),
+            S02BuktiThumbnails(
+              imageUrls: _reportPhotos
+                  .map((p) => p.url)
+                  .whereType<String>()
+                  .toList(),
+              onThumbnailTap: (index) => _showPhotoFullScreen(
+                _reportPhotos.map((p) => p.url).whereType<String>().toList(),
+                index,
+              ),
+            ),
+          ],
+
+          // Checklist section (surveyor only)
+          if (_isSurveyor &&
+              _checklistTemplate != null &&
+              (_checklistTemplate!.items ?? []).isNotEmpty) ...[
+            const SizedBox(height: SigapSpacing.lg),
+            S02Checklist(
+              items: (_checklistTemplate!.items ?? []).map((item) {
+                final label =
+                    item['label']?.toString() ??
+                    item['text']?.toString() ??
+                    'Item';
+                return label;
+              }).toList(),
+              checkedItems: const {},
+              onItemToggled: (_) {},
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  void _showPhotoFullScreen(List<String> photos, int index) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _PhotoFullScreen(photos: photos, initialIndex: index),
       ),
     );
   }
@@ -422,14 +514,19 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
     final status = (_detail?.status ?? '').toLowerCase();
     final isAssigned = status == 'assigned';
     final isPending = status == 'pending';
+    final isAccepted = status == 'accepted';
 
     if (_isSurveyor) {
+      // Two-step lifecycle: accept → start
+      // Before accept (assigned/pending): show Terima, MintaClarifikasi, Tolak
+      // After accept (accepted): show Kunjungi, MintaClarifikasi, Tolak
       return S02ActionBar(
         onTolak: isAssigned || isPending ? _rejectTask : null,
-        onMintaClarifikasi: isAssigned || isPending
+        onMintaClarifikasi: isAssigned || isPending || isAccepted
             ? _requestClarification
             : null,
         onTerima: isAssigned || isPending ? _acceptTask : null,
+        onKunjungi: isAccepted ? _startTask : null,
       );
     } else {
       // Petugas action bar
@@ -685,6 +782,67 @@ class _ErrorRetry extends StatelessWidget {
             OutlinedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Full screen photo viewer with page navigation.
+class _PhotoFullScreen extends StatefulWidget {
+  final List<String> photos;
+  final int initialIndex;
+
+  const _PhotoFullScreen({required this.photos, required this.initialIndex});
+
+  @override
+  State<_PhotoFullScreen> createState() => _PhotoFullScreenState();
+}
+
+class _PhotoFullScreenState extends State<_PhotoFullScreen> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: SigapColors.textPrimary,
+      appBar: AppBar(
+        backgroundColor: SigapColors.textPrimary,
+        foregroundColor: SigapColors.surface,
+        title: Text('${_currentIndex + 1} / ${widget.photos.length}'),
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.photos.length,
+        onPageChanged: (i) => setState(() => _currentIndex = i),
+        itemBuilder: (context, index) {
+          return InteractiveViewer(
+            child: Center(
+              child: Image.network(
+                widget.photos[index],
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.broken_image,
+                  color: SigapColors.surface,
+                  size: 64,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

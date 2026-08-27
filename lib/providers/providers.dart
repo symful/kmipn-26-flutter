@@ -210,11 +210,11 @@ final duplicateCasesProvider =
       return candidates
           .map(
             (c) => {
-              'id': c.id,
-              'title': c.title,
-              'category': c.category,
+              'report_id': c.reportId,
+              'description': c.description,
               'status': c.status,
-              'location': c.location,
+              'distance_m': c.distanceM,
+              'report_count': c.reportCount,
               'similarity_score': c.similarityScore,
             },
           )

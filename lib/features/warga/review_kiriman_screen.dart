@@ -113,8 +113,8 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
         ),
       );
 
-      // Navigate to the case detail page
-      context.go('/warga/laporan/${selectedCase.id}');
+      // Navigate to the complementary evidence screen for the selected case
+      context.push('/warga/evidence/${selectedCase.id}');
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
@@ -238,7 +238,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
-                vertical: SigapSpacing.x14,
+                vertical: SigapSpacing.xl,
                 horizontal: SigapSpacing.lg,
               ),
               child: Column(

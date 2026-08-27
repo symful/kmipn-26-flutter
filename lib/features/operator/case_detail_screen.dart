@@ -62,7 +62,7 @@ class _OperatorCaseDetailScreenState
             'supporting': r.supportingFactors ?? [],
             'risk': r.riskFactors ?? [],
             'correlation_ids': (r.duplicateCandidates ?? [])
-                .map((e) => e.id?.toString() ?? '')
+                .map((e) => e.reportId?.toString() ?? '')
                 .where((id) => id.isNotEmpty)
                 .toList(),
           },

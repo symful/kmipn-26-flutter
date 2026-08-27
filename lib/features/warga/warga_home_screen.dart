@@ -429,49 +429,67 @@ class _WargaPendingBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(SigapSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
         color: SigapColors.offlineBg,
         border: Border.all(color: SigapColors.offlineBorder),
-        borderRadius: BorderRadius.circular(SigapRadius.lg),
+        borderRadius: BorderRadius.circular(13),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 30,
             height: 30,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: SigapColors.offlineDot,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.center,
             child: Text(
               '$count',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.surface,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.md),
-          Expanded(
-            child: Text(
-              '$count laporan belum tersinkron',
               style: const TextStyle(
-                color: SigapColors.offlineText,
-                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
               ),
             ),
           ),
-          TextButton(
-            onPressed: () => context.push('/sync-center'),
-            child: const Text(
-              'Buka Pusat Sinkronisasi →',
-              style: TextStyle(
-                color: SigapColors.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$count laporan belum tersinkron',
+                  style: const TextStyle(
+                    color: Color(0xFF7A4D06),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13.5,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                const Text(
+                  'Aman tersimpan di perangkat. Akan terkirim otomatis saat ada koneksi.',
+                  style: TextStyle(
+                    color: SigapColors.offlineText,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => context.push('/sync-center'),
+                  child: const Text(
+                    'Buka Pusat Sinkronisasi →',
+                    style: TextStyle(
+                      color: SigapColors.primaryDark,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -479,6 +497,7 @@ class _WargaPendingBanner extends StatelessWidget {
     );
   }
 }
+
 
 // ─── Main screen ─────────────────────────────────────────────────────────────
 
@@ -497,6 +516,28 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Sync _selectedNavIndex with current route after frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final loc = GoRouterState.of(context).uri.toString();
+      int newIndex = 0;
+      if (loc.startsWith('/map')) {
+        newIndex = 1;
+      } else if (loc.startsWith('/laporan')) {
+        newIndex = 3;
+      } else if (loc == '/profile') {
+        newIndex = 4;
+      }
+      // Index 2 (FAB/create) is not synced - user must use FAB to navigate there
+      if (_selectedNavIndex != newIndex) {
+        setState(() => _selectedNavIndex = newIndex);
+      }
+    });
   }
 
   Future<void> _getCurrentLocation() async {
@@ -618,56 +659,24 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
             child: Scaffold(
               appBar: AppBar(
                 title: WilayahDropdown(
-                  label: 'Wilayah',
+                  label: 'Wilayah aktif',
                   value: '$selectedWilayah ▾',
                   onTap: null,
                 ),
                 automaticallyImplyLeading: false,
                 actions: [
-                  // Online/Offline pill
+                  // Offline pill (only shown when offline per M-05)
                   if (isOffline)
                     Container(
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
+                        horizontal: 9,
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
                         color: SigapColors.offlineBg,
-                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                        borderRadius: BorderRadius.circular(999),
                         border: Border.all(color: SigapColors.offlineBorder),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.wifi_off,
-                            size: 14,
-                            color: SigapColors.offlineText,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Offline',
-                            style: TextStyle(
-                              color: SigapColors.offlineText,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: SigapColors.primaryLight,
-                        borderRadius: BorderRadius.circular(SigapRadius.md),
-                        border: Border.all(color: SigapColors.successBorder),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -675,17 +684,17 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                           Container(
                             width: 7,
                             height: 7,
-                            decoration: BoxDecoration(
-                              color: SigapColors.primary,
+                            decoration: const BoxDecoration(
+                              color: SigapColors.offlineDot,
                               shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 5),
                           const Text(
-                            'Online',
+                            'Offline',
                             style: TextStyle(
-                              color: SigapColors.primaryDark,
-                              fontSize: 12,
+                              color: SigapColors.offlineText,
+                              fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -712,7 +721,27 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
               bottomNavigationBar: BottomNav5(
                 variant: BottomNavVariant.warga,
                 selectedIndex: _selectedNavIndex,
-                onTap: (index) => setState(() => _selectedNavIndex = index),
+                onTap: (index) {
+                  setState(() => _selectedNavIndex = index);
+                  // Tab mapping: 0=Beranda, 1=Peta, 2=FAB(create), 3=Laporan, 4=Akun
+                  switch (index) {
+                    case 0:
+                      context.go('/');
+                      break;
+                    case 1:
+                      context.push('/map');
+                      break;
+                    case 2:
+                      context.push('/create');
+                      break;
+                    case 3:
+                      context.push('/laporan');
+                      break;
+                    case 4:
+                      context.push('/profile');
+                      break;
+                  }
+                },
               ),
               body: SafeArea(
                 child: Padding(

@@ -403,15 +403,18 @@ class _DuplicateCasesSection extends ConsumerWidget {
       initials = '${words[0][0]}${words[1][0]}'.toUpperCase();
     }
 
+    final distanceM = (json['distance_m'] as num?)?.toDouble() ?? 0.0;
+    final reportCount = (json['report_count'] as num?)?.toInt() ?? 0;
+    final similarityPercent =
+        (((json['similarity_score'] as num?)?.toDouble() ?? 0.0) * 100).round();
+
     return SimilarCase(
-      id: json['id']?.toString() ?? '',
+      id: json['report_id']?.toString() ?? '',
       initials: json['initials']?.toString() ?? initials,
       title: title,
-      distance: json['distance']?.toString() ?? '0 m',
-      similarityPercent:
-          (((json['similarity_score'] as num?)?.toDouble() ?? 0.0) * 100)
-              .round(),
-      reportCount: 1,
+      distance: '${distanceM.round()} m',
+      similarityPercent: similarityPercent,
+      reportCount: reportCount,
     );
   }
 

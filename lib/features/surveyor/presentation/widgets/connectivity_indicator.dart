@@ -37,11 +37,11 @@ class ConnectivityIndicator extends StatelessWidget {
   Color get _backgroundColor {
     switch (status) {
       case ConnectivityStatus.online:
-        return const Color(0xFFE2F1EE); // #e2f1ee
+        return SigapColors.primaryLight; // #e2f1ee
       case ConnectivityStatus.syncing:
-        return const Color(0xFFF8ECD6); // #f8ecd6
+        return SigapColors.warningBg; // #f8ecd6
       case ConnectivityStatus.offline:
-        return const Color(0xFFEEF0EC); // #eef0ec
+        return SigapColors.bgSoft; // #eef0ec
     }
   }
 
@@ -49,11 +49,11 @@ class ConnectivityIndicator extends StatelessWidget {
   Color get _textColor {
     switch (status) {
       case ConnectivityStatus.online:
-        return const Color(0xFF0A5C50); // #0a5c50
+        return SigapColors.primaryDark; // #0a5c50
       case ConnectivityStatus.syncing:
-        return const Color(0xFF8A5808); // #8a5808
+        return SigapColors.warningText; // #8a5808
       case ConnectivityStatus.offline:
-        return const Color(0xFF616770); // #616770
+        return SigapColors.textTertiary; // #616770
     }
   }
 
@@ -61,11 +61,11 @@ class ConnectivityIndicator extends StatelessWidget {
   Color get _borderColor {
     switch (status) {
       case ConnectivityStatus.online:
-        return const Color(0xFFBFE0D9); // #bfe0d9
+        return SigapColors.successBorder; // #bfe0d9
       case ConnectivityStatus.syncing:
-        return const Color(0xFFECD7A6); // #ecd7a6
+        return SigapColors.warningBorder; // #ecd7a6
       case ConnectivityStatus.offline:
-        return const Color(0xFFD3D7D0); // #d3d7d0
+        return SigapColors.borderSoft; // #d3d7d0
     }
   }
 
@@ -73,11 +73,11 @@ class ConnectivityIndicator extends StatelessWidget {
   Color get _dotColor {
     switch (status) {
       case ConnectivityStatus.online:
-        return const Color(0xFF0F7A6B); // #0f7a6b - primary
+        return SigapColors.primary; // #0f7a6b - primary
       case ConnectivityStatus.syncing:
-        return const Color(0xFFB8730A); // #b8730a - offlineDot
+        return SigapColors.offlineDot; // #b8730a - offlineDot
       case ConnectivityStatus.offline:
-        return const Color(0xFF8A9099); // #8a9099
+        return SigapColors.textDisabled; // #8a9099
     }
   }
 

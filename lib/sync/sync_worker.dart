@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:image/image.dart' as img;
 import '../api/api_client.dart';
 import '../db/database.dart';
 import '../db/repositories/report_repository.dart';
@@ -68,6 +71,16 @@ class SyncWorker {
        _deviceId = deviceId ?? '',
        _notificationService = notificationService ?? NotificationService(),
        pendingCountNotifier = pendingCountNotifier ?? PendingCountNotifier();
+
+  /// Strips EXIF data from JPEG bytes by re-encoding the image.
+  /// Throws [Exception] if stripping fails.
+  Uint8List _stripExifFromJpeg(Uint8List bytes) {
+    final image = img.decodeImage(bytes);
+    if (image == null) {
+      throw Exception('Gagal mendekode gambar untuk menghapus EXIF');
+    }
+    return Uint8List.fromList(img.encodeJpg(image, quality: 85));
+  }
 
   void start() {
     _sub = _connectivityStream.listen((results) {
@@ -202,25 +215,22 @@ class SyncWorker {
         deviceId: _deviceId,
       );
 
-      // Process results based on SyncBatchResult (processed/failed counts and errors)
-      // Note: The new API doesn't return individual results, so we mark all
-      // items as succeeded when the batch succeeds (processed > 0, no errors)
-      final processedCount = result.processed ?? 0;
-      final failedCount = result.failed ?? 0;
-      final errors = result.errors;
-
-      if (processedCount > 0 && (errors == null || errors.isEmpty)) {
-        // Batch succeeded - mark all items as synced
-        // Note: The new API doesn't return individual server IDs, so we use
-        // a placeholder. The actual serverId should be retrieved from the API
-        // when viewing synced reports (the sync was still successful).
-        for (final key in reportIdempotencyKeys) {
-          await _reportRepo.markSynced(key, 'sync_ok');
-          await _queueRepo.remove(key);
+      // Process per-item results from the batch response
+      // Each result contains {index, id?, error?} - map index to idempotency key
+      for (final itemResult in result.results) {
+        final idx = itemResult.index;
+        if (idx < 0 || idx >= reportIdempotencyKeys.length) {
+          _logger.error('Invalid index $idx in batch results');
+          continue;
         }
-      } else if (failedCount > 0 || (errors != null && errors.isNotEmpty)) {
-        // Some or all failed - retry each item individually
-        for (final key in reportIdempotencyKeys) {
+        final key = reportIdempotencyKeys[idx];
+
+        if (itemResult.id != null) {
+          // Success: persist the real server ID
+          await _reportRepo.markSynced(key, itemResult.id!);
+          await _queueRepo.remove(key);
+        } else if (itemResult.error != null) {
+          // Failure: retry individual item
           final queueItem = await _queueRepo.getByIdempotencyKey(key);
           if (queueItem != null) {
             await _handleReportSyncFailure(key, queueItem.retryCount);
@@ -278,14 +288,17 @@ class SyncWorker {
       final gpsLat = (gps?['lat'] as num?)?.toDouble() ?? 0.0;
       final gpsLng = (gps?['lng'] as num?)?.toDouble() ?? 0.0;
 
+      // Fetch and upload visit photos
+      final photoUrls = await _uploadVisitPhotos(idempotencyKey);
+
       // Map visitData to submitVisitReport parameters
       // findings uses damage_description, recommendation uses notes
-      await _api.submitVisitReport(
+      final visitResult = await _api.submitVisitReport(
         taskId: taskId,
         findings: visitData['damage_description'] as String? ?? '',
         checklist:
             <Map<String, dynamic>>[], // offline data doesn't have checklist
-        photoUrls: <String>[], // offline data doesn't have photo URLs
+        photoUrls: photoUrls,
         gpsLat: gpsLat,
         gpsLng: gpsLng,
         accuracy: 0.0, // offline data doesn't have accuracy
@@ -294,7 +307,11 @@ class SyncWorker {
         catatan: visitData['notes'] as String?,
       );
 
-      await _surveyorTaskRepo.markVisitSynced(idempotencyKey, 'synced');
+      // Persist the server-assigned visit ID if returned, otherwise task_id
+      // Note: visit_id is a numeric DB row ID (not 32-hex like report IDs)
+      // If no visit_id returned, fall back to task_id for linkage tracking
+      final serverVisitId = visitResult.visitId ?? taskId;
+      await _surveyorTaskRepo.markVisitSynced(idempotencyKey, serverVisitId);
       await _queueRepo.remove(idempotencyKey);
     } catch (e, st) {
       _logger.error('Failed to sync surveyor visit: $idempotencyKey', e, st);
@@ -312,5 +329,80 @@ class SyncWorker {
       );
       await _surveyorTaskRepo.markVisitFailed(idempotencyKey);
     }
+  }
+
+  /// Uploads pending photos for a surveyor visit and returns their R2 URLs.
+  /// Partial-failure safe: only failed photos are marked; successful ones
+  /// are not re-uploaded on next cycle.
+  Future<List<String>> _uploadVisitPhotos(String visitIdempotencyKey) async {
+    final photos = await _reportRepo.getPhotosByReportIdempotencyKey(
+      visitIdempotencyKey,
+    );
+
+    // Filter to retryable photos: pending (0) or failed (2), but not already-synced (1)
+    final retryablePhotos = photos.where((p) => p.syncStatus != 1).toList();
+    if (retryablePhotos.isEmpty) {
+      // Return already-synced URLs if any
+      return photos
+          .where((p) => p.filePath.startsWith('http'))
+          .map((p) => p.filePath)
+          .toList();
+    }
+
+    final uploadedUrls = <String>[];
+    int photoIndex = 0;
+
+    for (final photo in retryablePhotos) {
+      try {
+        final file = File(photo.filePath);
+        if (!await file.exists()) {
+          _logger.error('Photo file not found: ${photo.filePath}');
+          await _reportRepo.markPhotoFailed(photo.id);
+          continue;
+        }
+
+        // Read and strip EXIF
+        final bytes = await file.readAsBytes();
+        final strippedBytes = _stripExifFromJpeg(bytes);
+
+        // Write stripped image to temp file for upload
+        final tempDir = Directory.systemTemp;
+        final tempFile = File(
+          '${tempDir.path}/photo_${visitIdempotencyKey}_$photoIndex.jpg',
+        );
+        await tempFile.writeAsBytes(strippedBytes);
+
+        // Upload with idempotency key pattern matching warga batch approach
+        final photoIdemKey = '${visitIdempotencyKey}_photo_$photoIndex';
+        final result = await _api.uploadReportPhotoAnon(
+          filePath: tempFile.path,
+          idempotencyKey: photoIdemKey,
+        );
+
+        // Clean up temp file
+        await tempFile.delete();
+
+        if (result.publicUrl != null && result.publicUrl!.isNotEmpty) {
+          await _reportRepo.markPhotoSynced(photo.id);
+          uploadedUrls.add(result.publicUrl!);
+        } else {
+          _logger.error('Upload returned empty URL for photo ${photo.id}');
+          await _reportRepo.markPhotoFailed(photo.id);
+        }
+      } catch (e, st) {
+        _logger.error('Failed to upload photo ${photo.id}', e, st);
+        await _reportRepo.markPhotoFailed(photo.id);
+        // Continue with other photos - partial failure is acceptable
+      }
+      photoIndex++;
+    }
+
+    // Return all successful URLs (already-synced + newly uploaded)
+    final allSyncedUrls = photos
+        .where((p) => p.syncStatus == 1 && p.filePath.startsWith('http'))
+        .map((p) => p.filePath)
+        .toList();
+    allSyncedUrls.addAll(uploadedUrls);
+    return allSyncedUrls;
   }
 }

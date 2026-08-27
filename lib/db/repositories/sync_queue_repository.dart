@@ -66,4 +66,27 @@ class SyncQueueRepository {
       ),
     );
   }
+
+  /// Returns all queue items marked as dead-letter (syncStatus == 3).
+  Future<List<SyncQueueData>> getDeadLetterItems() async {
+    final query = _db.select(_db.syncQueue)
+      ..where((t) => t.syncStatus.equals(3));
+    return query.get();
+  }
+
+  /// Retries a dead-letter item: flips syncStatus 3→0 and resets retry counter
+  /// so the next sync cycle will pick it up again.
+  Future<void> retryDeadLetter(String idempotencyKey) async {
+    final updateQuery = _db.update(_db.syncQueue)
+      ..where((t) => t.idempotencyKey.equals(idempotencyKey));
+    await updateQuery.write(
+      SyncQueueCompanion(
+        syncStatus: const Value(0),
+        retryCount: const Value(0),
+        lastError: const Value(null),
+        nextRetryAt: Value(DateTime.now()),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
 }

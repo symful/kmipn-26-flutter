@@ -34,7 +34,44 @@ class ReportDetailScreen extends ConsumerWidget {
     final reportAsync = ref.watch(apiReportProvider(id));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Laporan')),
+      appBar: AppBar(
+        titleSpacing: 0,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Detail Laporan',
+                style: TextStyle(
+                  fontSize: SigapTypography.size19,
+                  fontWeight: FontWeight.w700,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              reportAsync.when(
+                data: (report) => Text(
+                  'Lokal ${report.id ?? '-'} · Server ${report.id ?? '-'}',
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size12,
+                    color: SigapColors.textSecondary,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: SigapColors.textSecondary),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: reportAsync.when(
         data: (report) {
           final photoUrls =
@@ -47,8 +84,12 @@ class ReportDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Status banner
-                _buildStatusBanner(report),
+                _buildStatusBanner(context, report),
                 const SizedBox(height: SigapSpacing.lg),
+
+                // Parent-case card (when merged_into is present)
+                if (report.mergedInto != null && report.mergedInto!.isNotEmpty)
+                  _buildParentCaseCard(context, report),
 
                 // Photo gallery
                 if (photoUrls.isNotEmpty) ...[
@@ -61,7 +102,10 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   report.description ?? '-',
-                  style: const TextStyle(fontSize: 15),
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size14,
+                    color: SigapColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
 
@@ -70,7 +114,11 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   '${report.location?['lat']?.toStringAsFixed(6) ?? '-'}, ${report.location?['lng']?.toStringAsFixed(6) ?? '-'}',
-                  style: const TextStyle(fontSize: 14, fontFamily: 'monospace'),
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size14,
+                    fontFamily: SigapTypography.fontFamilyMono,
+                    color: SigapColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
 
@@ -79,7 +127,10 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   report.category ?? '-',
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size14,
+                    color: SigapColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
 
@@ -88,7 +139,10 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   report.priority?.value ?? '-',
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size14,
+                    color: SigapColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
 
@@ -97,7 +151,10 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   createdAtStr != null ? _formatApiDate(createdAtStr) : '-',
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size14,
+                    color: SigapColors.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: SigapSpacing.xl),
 
@@ -130,9 +187,15 @@ class ReportDetailScreen extends ConsumerWidget {
                 color: SigapColors.perluTindakan,
               ),
               const SizedBox(height: SigapSpacing.md),
-              Text('Error: $e'),
+              Text(
+                'Error: $e',
+                style: const TextStyle(
+                  fontSize: SigapTypography.size14,
+                  color: SigapColors.textSecondary,
+                ),
+              ),
               const SizedBox(height: SigapSpacing.md),
-              ElevatedButton(
+              OutlinedButton(
                 onPressed: () => ref.invalidate(apiReportProvider(id)),
                 child: const Text('Coba Lagi'),
               ),
@@ -143,56 +206,220 @@ class ReportDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusBanner(Report report) {
+  Widget _buildStatusBanner(BuildContext context, Report report) {
     final status = report.status?.value ?? '';
-    // Note: status_message and deadline not available on Report type
-    final statusMessage = report.status?.value == 'needs_completion'
-        ? 'Laporan memerlukan tindakan'
-        : null;
 
-    // Only show banner if there's an action required or message
-    if (status == 'needs_completion' && statusMessage != null) {
+    // Only show banner if needs_completion
+    if (status == 'needs_completion') {
+      // Format deadline if present
+      String deadlineText = '';
+      if (report.deadline != null && report.deadline!.isNotEmpty) {
+        try {
+          final dt = DateTime.parse(report.deadline!);
+          deadlineText = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+        } catch (_) {
+          deadlineText = report.deadline!;
+        }
+      }
+
       return Container(
-        padding: const EdgeInsets.all(SigapSpacing.md),
         decoration: BoxDecoration(
-          color: SigapColors.warningBg,
-          border: Border.all(color: SigapColors.warningBorder),
+          color: SigapColors.offlineBg,
           borderRadius: BorderRadius.circular(SigapRadius.md),
+          border: Border(
+            left: BorderSide(color: SigapColors.offlineDot, width: 4),
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: SigapSpacing.sm,
-                vertical: SigapSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: SigapColors.offlineDot,
-                borderRadius: BorderRadius.circular(SigapRadius.sm),
-              ),
-              child: const Text(
-                'Perlu tindakan Anda',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+        child: Container(
+          padding: const EdgeInsets.all(SigapSpacing.md),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(SigapRadius.md),
+              bottomRight: Radius.circular(SigapRadius.md),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SigapSpacing.sm,
+                  vertical: SigapSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: SigapColors.offlineDot,
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                ),
+                child: const Text(
+                  'Perlu tindakan Anda',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-            Text(
-              statusMessage,
-              style: const TextStyle(
-                fontSize: 12.5,
-                color: SigapColors.warningTextStrong,
+              const SizedBox(height: SigapSpacing.sm),
+              if (deadlineText.isNotEmpty)
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: SigapTypography.size14,
+                      color: SigapColors.warningTextStrong,
+                      height: SigapTypography.lineHeight140,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text:
+                            'Verifikator meminta 1 foto tambahan dari sisi yang '
+                            'berbeda agar lubang terlihat jelas. ',
+                      ),
+                      TextSpan(
+                        text: 'Tenggat $deadlineText.',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                const Text(
+                  'Verifikator meminta 1 foto tambahan dari sisi yang berbeda '
+                  'agar lubang terlihat jelas.',
+                  style: TextStyle(
+                    fontSize: SigapTypography.size14,
+                    color: SigapColors.warningTextStrong,
+                    height: SigapTypography.lineHeight140,
+                  ),
+                ),
+              const SizedBox(height: SigapSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => context.push('/warga/evidence/${report.id}'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: SigapColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: SigapSpacing.md,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Lengkapi laporan',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
     return const SizedBox.shrink();
+  }
+
+  String _monthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+    return months[month - 1];
+  }
+
+  Widget _buildParentCaseCard(BuildContext context, Report report) {
+    final categoryTag = report.category != null && report.category!.length >= 2
+        ? report.category!.substring(0, 2).toUpperCase()
+        : 'CS';
+    final caseTitle = report.title ?? report.mergedInto ?? 'Kasus';
+
+    return GestureDetector(
+      onTap: () => context.push('/warga/report-detail/${report.mergedInto}'),
+      child: Container(
+        padding: const EdgeInsets.all(SigapSpacing.md),
+        decoration: BoxDecoration(
+          color: SigapColors.surface,
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+          border: Border.all(color: SigapColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: SigapColors.bgSoft,
+                borderRadius: BorderRadius.circular(SigapRadius.sm),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                categoryTag,
+                style: const TextStyle(
+                  fontSize: SigapTypography.size13,
+                  fontWeight: FontWeight.w700,
+                  color: SigapColors.textSecondary,
+                ),
+              ),
+            ),
+            const SizedBox(width: SigapSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Bagian dari kasus',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size11,
+                      color: SigapColors.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    caseTitle,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.size14,
+                      color: SigapColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const Text(
+              'Lihat ',
+              style: TextStyle(
+                fontSize: SigapTypography.size13,
+                color: SigapColors.primary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward,
+              color: SigapColors.primary,
+              size: 14,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPhotoGallery(BuildContext context, List<String> photoUrls) {
@@ -262,7 +489,15 @@ class ReportDetailScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionLabel(label: 'Perjalanan laporan'),
+        const Text(
+          'PERJALANAN LAPORAN',
+          style: TextStyle(
+            fontSize: SigapTypography.size11,
+            fontWeight: FontWeight.w600,
+            color: SigapColors.textMuted,
+            letterSpacing: 1.2,
+          ),
+        ),
         const SizedBox(height: SigapSpacing.md),
         timelineAsync.when(
           data: (timelineData) {
@@ -277,7 +512,10 @@ class ReportDetailScreen extends ConsumerWidget {
                 ),
                 child: const Text(
                   'Belum ada riwayat',
-                  style: TextStyle(color: SigapColors.textMuted, fontSize: 13),
+                  style: TextStyle(
+                    color: SigapColors.textMuted,
+                    fontSize: SigapTypography.size13,
+                  ),
                 ),
               );
             }
@@ -294,7 +532,10 @@ class ReportDetailScreen extends ConsumerWidget {
             ),
             child: const Text(
               'Gagal memuat timeline',
-              style: TextStyle(color: SigapColors.textMuted, fontSize: 13),
+              style: TextStyle(
+                color: SigapColors.textMuted,
+                fontSize: SigapTypography.size13,
+              ),
             ),
           ),
         ),
@@ -323,7 +564,7 @@ class ReportDetailScreen extends ConsumerWidget {
             child: const Text(
               'i',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: SigapTypography.size11,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textTertiary,
               ),
@@ -335,9 +576,9 @@ class ReportDetailScreen extends ConsumerWidget {
               'Identitas & lokasi presisi Anda hanya terlihat oleh petugas terkait. '
               'Publik melihat lokasi yang digeneralisasi.',
               style: TextStyle(
-                fontSize: 11.5,
+                fontSize: SigapTypography.size11_5,
                 color: SigapColors.textSecondary,
-                height: 1.4,
+                height: SigapTypography.lineHeight140,
               ),
             ),
           ),
@@ -421,7 +662,7 @@ class _SectionLabel extends StatelessWidget {
       label,
       style: const TextStyle(
         color: SigapColors.textSecondary,
-        fontSize: 12,
+        fontSize: SigapTypography.size12,
         fontWeight: FontWeight.w600,
       ),
     );
@@ -437,13 +678,12 @@ class _TimelineWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        for (int i = 0; i < events.length; i++) ...[
+        for (int i = 0; i < events.length; i++)
           _TimelineEventItem(
             event: events[i],
             isFirst: i == 0,
             isLast: i == events.length - 1,
           ),
-        ],
       ],
     );
   }
@@ -465,19 +705,26 @@ class _TimelineEventItem extends StatelessWidget {
     switch (eventType) {
       case 'submitted':
       case 'created':
+      case 'offline':
         return SigapColors.primary;
       case 'needs_completion':
-      case 'rejected':
         return SigapColors.offlineDot;
       case 'verified':
       case 'accepted':
+      case 'in_review':
         return SigapColors.diproses;
       case 'resolved':
       case 'completed':
         return SigapColors.selesai;
       default:
-        return SigapColors.textMuted;
+        return SigapColors.primary;
     }
+  }
+
+  bool _isActiveEvent(String? eventType) {
+    return eventType == 'needs_completion' ||
+        eventType == 'rejected' ||
+        eventType == 'offline';
   }
 
   @override
@@ -486,55 +733,73 @@ class _TimelineEventItem extends StatelessWidget {
     final title = event.message ?? eventType ?? 'Event';
     final timestamp = event.timestamp;
     final actor = event.userId;
+    final eventColor = _getEventColor(eventType);
+    final isActive = _isActiveEvent(eventType);
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Timeline indicator
-          Column(
-            children: [
-              Container(
-                width: 13,
-                height: 13,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _getEventColor(eventType),
-                  border: Border.all(color: Colors.white, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _getEventColor(eventType).withValues(alpha: 0.4),
-                      blurRadius: 4,
-                    ),
-                  ],
+          // Timeline indicator column with vertical connecting line
+          SizedBox(
+            width: 16,
+            child: Column(
+              children: [
+                Container(
+                  width: isActive ? 13 : 11,
+                  height: isActive ? 13 : 11,
+                  margin: EdgeInsets.only(top: isActive ? 0 : 2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isActive ? SigapColors.offlineDot : eventColor,
+                    border: isActive
+                        ? Border.all(color: Colors.white, width: 2)
+                        : null,
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: SigapColors.offlineDot.withValues(alpha: 0.8),
+                              spreadRadius: 2,
+                            ),
+                          ]
+                        : null,
+                  ),
                 ),
-              ),
-              if (!isLast)
-                Expanded(child: Container(width: 2, color: SigapColors.border)),
-            ],
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: SigapColors.borderCard,
+                      constraints: const BoxConstraints(minHeight: 22),
+                    ),
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(width: SigapSpacing.md),
+          const SizedBox(width: SigapSpacing.x11),
           // Event content
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: SigapSpacing.md),
+              padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: SigapTypography.size13,
                       fontWeight: FontWeight.w600,
+                      color: SigapColors.textPrimary,
                     ),
                   ),
                   if (actor != null || timestamp != null) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1),
                     Text(
                       '${timestamp != null ? _formatDate(timestamp) : ''}${actor != null ? ' · $actor' : ''}',
                       style: const TextStyle(
-                        fontSize: 11,
-                        color: SigapColors.textMuted,
+                        fontFamily: 'IBM Plex Mono',
+                        fontSize: SigapTypography.size11,
+                        color: SigapColors.textTertiary,
                       ),
                     ),
                   ],
@@ -545,6 +810,7 @@ class _TimelineEventItem extends StatelessWidget {
         ],
       ),
     );
+
   }
 
   String _formatDate(String iso) {

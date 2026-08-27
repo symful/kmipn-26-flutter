@@ -20,7 +20,6 @@ import 'features/surveyor/sync_center_screen.dart';
 import 'features/surveyor/riwayat_screen.dart';
 
 import 'features/surveyor/form_survei.dart';
-import 'features/surveyor/survey_form_screen.dart';
 import 'features/exec/dashboard_screen.dart';
 import 'features/admin_daerah/wilayah_screen.dart';
 import 'features/admin_daerah/categories_screen.dart';
@@ -1328,6 +1327,10 @@ final appRouter = GoRouter(
           builder: (c, s) => const SyncCenterScreen(),
         ),
         GoRoute(
+          path: '/sync-center',
+          builder: (c, s) => const SyncCenterScreen(isWargaSection: true),
+        ),
+        GoRoute(
           path: '/surveyor/riwayat',
           builder: (c, s) => const RiwayatScreen(),
         ),
@@ -1353,7 +1356,7 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/surveyor/form-survei/:taskId',
           builder: (c, s) =>
-              SurveyFormScreen(taskId: s.pathParameters['taskId']!),
+              FormSurveiScreen(taskId: s.pathParameters['taskId']!),
         ),
 
         // Verifikator routes

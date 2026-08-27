@@ -38,10 +38,19 @@ Future<String> _uploadFixture(ApiClient client, String slug) async {
   return result.publicUrl ?? '';
 }
 
+/// Returns a local fixture image path for APIs that read file bytes client-side.
+Future<String> _fixtureLocalPath(String slug) async {
+  final xfile = await fixtureImage(slug);
+  return xfile.path;
+}
+
 /// Expects an [ApiException] with the given [statusCode].
-void expectApiException(void Function() fn, int statusCode) {
+Future<void> expectApiException(
+  Future<void> Function() fn,
+  int statusCode,
+) async {
   try {
-    fn();
+    await fn();
     fail('Expected ApiException with status $statusCode');
   } on ApiException catch (e) {
     expect(e.statusCode, statusCode);
@@ -62,7 +71,6 @@ void main() {
     late ApiClient petugasClient;
     late ApiClient verifikatorClient;
     late ApiClient wargaClient;
-    late ApiClient adminClient;
 
     // IDs captured during the chain
     late String surveyorTaskId;
@@ -73,6 +81,7 @@ void main() {
     late String surveyorToken;
     late String petugasToken;
     late String verifikatorToken;
+    late String unitId; // Seeded unit UUID from manifest
 
     setUpAll(() async {
       // Refresh tokens to avoid stale JWT expiry (900s TTL)
@@ -86,12 +95,15 @@ void main() {
       petugasToken = tokenFor(TestRole.petugas);
       verifikatorToken = tokenFor(TestRole.verifikator);
 
+      // Get seeded unit IDs from manifest (getUnits returns slug IDs from /api/units)
+      final unitIds = (manifest.ids['unitIds'] as List<dynamic>).cast<String>();
+      unitId = unitIds.first;
+
       // Create clients
       surveyorClient = _client(surveyorToken);
       petugasClient = _client(petugasToken);
       verifikatorClient = _client(verifikatorToken);
       wargaClient = _client(tokenFor(TestRole.warga));
-      adminClient = _client(tokenFor(TestRole.admin));
 
       // ----------------------------------------------------------------
       // CHAIN SETUP: Create the prerequisite chain
@@ -139,47 +151,70 @@ void main() {
       reportIdForE = reportE.id!;
       // Status is always 'submitted' for new reports
 
-      // 3. Verifikator processes report D → decide valid + assign unit + deadline
-      // First accept the case
+      // 3. Verifikator processes report D:
+      //    accept (submitted→verified) → decide valid → operator-style assign
+      //    (assign creates the surveyor_task bound to the unit member's USER id)
       await verifikatorClient.acceptCase(reportIdForD);
-
-      // Get units to assign
-      final unitsPage = await adminClient.getUnits();
-      expect(unitsPage.entries, isNotEmpty);
-      final unitId = unitsPage.entries.first.id!;
-
-      // Decide valid with assigned unit (creates surveyor_task)
       final decideD = await verifikatorClient.decideVerifikatorCase(
         caseId: reportIdForD,
         decision: 'valid',
         reason: 'Report valid, perlu survey lapangan untuk data kerusakan',
-        assignedUnitId: unitId,
-        deadline: DateTime.now().add(const Duration(days: 7)).toIso8601String(),
       );
       expect(decideD.decision, 'valid');
-      expect(decideD.status, 'needs_survey');
+      expect(decideD.status, 'verified');
 
-      // 4. Verifikator processes report E → decide valid + assign unit
+      // Assign to the SURVEYOR user id so the surveyor task list shows it.
+      await verifikatorClient.assignReport(
+        reportIdForD,
+        unitId: 'test-surveyor-stable',
+        deadline: DateTime.now()
+            .toUtc()
+            .add(const Duration(days: 7))
+            .toIso8601String(),
+      );
+
+      // 4. Verifikator processes report E the same way, assigned to PETUGAS.
       await verifikatorClient.acceptCase(reportIdForE);
       final decideE = await verifikatorClient.decideVerifikatorCase(
         caseId: reportIdForE,
         decision: 'valid',
         reason: 'Laporan valid, perlu penanganan petugas lapangan',
-        assignedUnitId: unitId,
-        deadline: DateTime.now().add(const Duration(days: 5)).toIso8601String(),
       );
       expect(decideE.decision, 'valid');
-      expect(decideE.status, 'in_progress');
+      expect(decideE.status, 'verified');
+
+      await verifikatorClient.assignReport(
+        reportIdForE,
+        unitId: 'test-petugas-stable',
+        deadline: DateTime.now()
+            .toUtc()
+            .add(const Duration(days: 5))
+            .toIso8601String(),
+      );
 
       // Verify surveyor can see their task
       final surveyorTasks = await surveyorClient.surveyorGetTasks();
-      expect(surveyorTasks.tasks, isNotEmpty);
-      surveyorTaskId = surveyorTasks.tasks.first.taskId!;
+      final surveyorMatch = surveyorTasks.tasks.where(
+        (t) => t.reportId == reportIdForD,
+      );
+      expect(
+        surveyorMatch,
+        isNotEmpty,
+        reason: 'Surveyor task for report D should exist after assign',
+      );
+      surveyorTaskId = surveyorMatch.first.taskId!;
 
       // Verify petugas can see their task
       final petugasTasks = await petugasClient.petugasGetTasks();
-      expect(petugasTasks.tasks, isNotEmpty);
-      petugasTaskId = petugasTasks.tasks.first.taskId!;
+      final petugasMatch = petugasTasks.tasks.where(
+        (t) => t.reportId == reportIdForE,
+      );
+      expect(
+        petugasMatch,
+        isNotEmpty,
+        reason: 'Petugas task for report E should exist after assign',
+      );
+      petugasTaskId = petugasMatch.first.taskId!;
 
       print(
         'Setup complete: surveyorTaskId=$surveyorTaskId petugasTaskId=$petugasTaskId',
@@ -369,19 +404,22 @@ void main() {
           lng: 106.8470,
         );
 
-        // Accept and decide
+        // Full chain: accept → decide valid → assign to surveyor
         await verifikatorClient.acceptCase(newReport.id!);
-        final unitsPage = await adminClient.getUnits();
         final decideResult = await verifikatorClient.decideVerifikatorCase(
           caseId: newReport.id!,
           decision: 'valid',
           reason: 'Kerusakan ringan',
-          assignedUnitId: unitsPage.entries.first.id!,
+        );
+        expect(decideResult.decision, 'valid');
+        await verifikatorClient.assignReport(
+          newReport.id!,
+          unitId: 'test-surveyor-stable',
           deadline: DateTime.now()
+              .toUtc()
               .add(const Duration(days: 7))
               .toIso8601String(),
         );
-        expect(decideResult.decision, 'valid');
 
         // Surveyor sees task
         final tasks = await surveyorClient.surveyorGetTasks();
@@ -437,13 +475,16 @@ void main() {
         );
 
         await verifikatorClient.acceptCase(kritikReport.id!);
-        final unitsPage = await adminClient.getUnits();
         await verifikatorClient.decideVerifikatorCase(
           caseId: kritikReport.id!,
           decision: 'valid',
           reason: 'Darurat tinggi',
-          assignedUnitId: unitsPage.entries.first.id!,
+        );
+        await verifikatorClient.assignReport(
+          kritikReport.id!,
+          unitId: 'test-surveyor-stable',
           deadline: DateTime.now()
+              .toUtc()
               .add(const Duration(days: 1))
               .toIso8601String(),
         );
@@ -498,7 +539,7 @@ void main() {
           lng: 106.8490,
         );
 
-        await verifikatorClient.acceptCase(rejectReport.id!);
+        // Decide directly (acceptCase transitions to verified which breaks decide)
         final decideResult = await verifikatorClient.decideVerifikatorCase(
           caseId: rejectReport.id!,
           decision: 'rejected',
@@ -520,7 +561,7 @@ void main() {
           lng: 106.8500,
         );
 
-        await verifikatorClient.acceptCase(clarifyReport.id!);
+        // Decide directly (acceptCase transitions to verified which breaks decide)
         final decideResult = await verifikatorClient.decideVerifikatorCase(
           caseId: clarifyReport.id!,
           decision: 'needs_clarification',
@@ -590,10 +631,7 @@ void main() {
 
       test('E3: uploadEvidence ×2 fixtures', () async {
         // Upload first evidence
-        final photo1 = await _uploadFixture(
-          petugasClient,
-          'water-pump-cracked',
-        );
+        final photo1 = await _fixtureLocalPath('water-pump-cracked');
         final result1 = await petugasClient.submitTaskEvidence(petugasTaskId, [
           photo1,
         ], notes: 'Bukti kerusakan pompa air');
@@ -601,7 +639,7 @@ void main() {
         expect(result1.photoUrls!.length, greaterThan(0));
 
         // Upload second evidence
-        final photo2 = await _uploadFixture(petugasClient, 'flood-street');
+        final photo2 = await _fixtureLocalPath('flood-street');
         final result2 = await petugasClient.submitTaskEvidence(petugasTaskId, [
           photo2,
         ], notes: 'Bukti banjir di lokasi');
@@ -612,10 +650,7 @@ void main() {
       test(
         'E4: completeTask(summary≥5 words, IMG:streetlight) → completed',
         () async {
-          final streetlightPhoto = await _uploadFixture(
-            petugasClient,
-            'broken-streetlight',
-          );
+          final streetlightPhoto = await _fixtureLocalPath('broken-streetlight');
 
           final result = await petugasClient.completeTask(
             petugasTaskId,
@@ -680,15 +715,18 @@ void main() {
           lng: 106.8510,
         );
 
-        // Assign to petugas
+        // Full chain: accept → decide valid → assign to petugas
         await verifikatorClient.acceptCase(rejectReport.id!);
-        final unitsPage = await adminClient.getUnits();
         await verifikatorClient.decideVerifikatorCase(
           caseId: rejectReport.id!,
           decision: 'valid',
           reason: 'Perlu penanganan petugas',
-          assignedUnitId: unitsPage.entries.first.id!,
+        );
+        await verifikatorClient.assignReport(
+          rejectReport.id!,
+          unitId: 'test-petugas-stable',
           deadline: DateTime.now()
+              .toUtc()
               .add(const Duration(days: 3))
               .toIso8601String(),
         );
@@ -705,10 +743,7 @@ void main() {
           progressPercent: 100,
         );
 
-        final streetlightPhoto = await _uploadFixture(
-          petugasClient,
-          'broken-streetlight',
-        );
+        final streetlightPhoto = await _fixtureLocalPath('broken-streetlight');
         await petugasClient.completeTask(
           rejectTask.taskId!,
           summary: 'Perbaikan lampu selesai.',
@@ -730,7 +765,7 @@ void main() {
         print('E6: Completion rejected, task back to in_progress');
       });
 
-      test('E7: clarification loop petugas↔warga', () async {
+      test('E7: clarification loop petugas-warga', () async {
         // Create report that needs clarification
         final categories = await wargaClient.getCategories();
         final clarifyReport = await wargaClient.createReport(
@@ -741,8 +776,7 @@ void main() {
           lng: 106.8520,
         );
 
-        // Verifikator marks for clarification
-        await verifikatorClient.acceptCase(clarifyReport.id!);
+        // Verifikator marks for clarification (decide directly - acceptCase breaks decide)
         await verifikatorClient.decideVerifikatorCase(
           caseId: clarifyReport.id!,
           decision: 'needs_clarification',
@@ -750,10 +784,7 @@ void main() {
         );
 
         // warga provides clarification via evidence
-        final wargaClarifyPhoto = await _uploadFixture(
-          wargaClient,
-          'cracked-building',
-        );
+        final wargaClarifyPhoto = await _fixtureLocalPath('cracked-building');
         await wargaClient.wargaSubmitEvidence(
           reportId: clarifyReport.id!,
           description: 'Ini foto tambahan untuk klarifikasi',

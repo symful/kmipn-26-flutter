@@ -13,7 +13,7 @@ class SigapColors {
 
   // Primary
   static const Color primary = Color(0xFF0F7A6B);
-  static const Color primaryHover = Color(0xFF0A5C50);
+  static const Color primaryHover = Color(0xFF0D6A5D);
   static const Color primaryLight = Color(0xFFE2F1EE);
   static const Color primaryDark = Color(0xFF0A5C50);
 
@@ -21,6 +21,8 @@ class SigapColors {
   static const Color perluTindakan = Color(0xFFC0392B);
   static const Color diproses = Color(0xFF2563EB);
   static const Color selesai = Color(0xFF22C55E);
+  static const Color success = Color(0xFF1F9254);
+  static const Color warning = Color(0xFFB8730A);
 
   // Offline Banner
   static const Color offlineBg = Color(0xFFF8ECD6);
@@ -29,19 +31,20 @@ class SigapColors {
   static const Color offlineDot = Color(0xFFB8730A);
 
   // Base
-  static const Color background = Color(0xFFE6E8E3);
-  static const Color surface = Color(0xFFF4F5F3);
-  static const Color border = Color(0xFFE4E7E2);
+  static const Color background = Color(0xFFF4F6F8);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color border = Color(0xFFE2E8EC);
 
   // Text
   static const Color textPrimary = Color(0xFF17191C);
   static const Color textSecondary = Color(0xFF4A5058);
   static const Color textTertiary = Color(0xFF616770);
-  static const Color textMuted = Color(0xFF8A9099);
+  static const Color textMuted = Color(0xFF6B7780);
+  static const Color text = Color(0xFF1F2A30);
 
   // Sidebar (T-W1.14)
   static const Color sidebarBg = Color(0xFF16302B);
-  static const Color sidebarText = Color(0xFFCFE4DF);
+  static const Color sidebarText = Color(0xFFE8EEF0);
   static const Color sidebarTextHover = Color(0xFFFFFFFF);
   static const Color sidebarTextMuted = Color(0xFF9DC0B9);
   static const Color sidebarDivider = Color(0xFF234A43);
@@ -57,7 +60,6 @@ class SigapColors {
   static const Color warningBorder = Color(0xFFECD7A6);
   static const Color warningBg = Color(0xFFF8ECD6);
   static const Color warningTextStrong = Color(0xFF7A4D06);
-  static const Color warning = Color(0xFF8A5808); // Alias for warningText
   static const Color info = Color(0xFF2563EB);
   static const Color infoBg = Color(0xFFE5EDFD);
   static const Color successBorder = Color(0xFFBFE0D9);

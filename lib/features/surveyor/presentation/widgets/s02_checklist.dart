@@ -23,6 +23,9 @@ import '../../../../theme/tokens.dart';
 ///   onItemToggled: (index) { /* Handle toggle */ },
 /// )
 /// ```
+/// S-02 Checklist widget for surveyor task detail screen.
+///
+/// Displays a mandatory checklist card with 20x20px checkboxes and 1px dividers.
 class S02Checklist extends StatelessWidget {
   /// List of checklist item texts.
   final List<String> items;
@@ -33,9 +36,6 @@ class S02Checklist extends StatelessWidget {
   /// Callback when an item is toggled.
   final void Function(int index) onItemToggled;
 
-  /// Creates a checklist widget.
-  ///
-  /// All parameters are required.
   const S02Checklist({
     super.key,
     required this.items,
@@ -48,31 +48,51 @@ class S02Checklist extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (int i = 0; i < items.length; i++) ...[
-          _ChecklistItem(
-            index: i,
-            text: items[i],
-            isChecked: checkedItems.contains(i),
-            onTap: () => onItemToggled(i),
+        const Text(
+          'CHECKLIST WAJIB',
+          style: TextStyle(
+            fontSize: SigapTypography.size11,
+            fontWeight: FontWeight.w700,
+            color: SigapColors.textTertiary,
+            letterSpacing: 0.04 * 11,
           ),
-          if (i < items.length - 1) const SizedBox(height: SigapSpacing.sm),
-        ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: SigapColors.borderCard),
+            borderRadius: BorderRadius.circular(SigapRadius.x12),
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < items.length; i++) ...[
+                _ChecklistItem(
+                  text: items[i],
+                  isChecked: checkedItems.contains(i),
+                  onTap: () => onItemToggled(i),
+                  showDivider: i < items.length - 1,
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
 }
 
 class _ChecklistItem extends StatelessWidget {
-  final int index;
   final String text;
   final bool isChecked;
   final VoidCallback onTap;
+  final bool showDivider;
 
   const _ChecklistItem({
-    required this.index,
     required this.text,
     required this.isChecked,
     required this.onTap,
+    required this.showDivider,
   });
 
   @override
@@ -80,99 +100,52 @@ class _ChecklistItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Number badge
-          _NumberBadge(number: index + 1),
-          const SizedBox(width: SigapSpacing.sm),
-
-          // Checkbox
-          _Checkbox(isChecked: isChecked),
-          const SizedBox(width: SigapSpacing.x9),
-
-          // Asterisk indicator
-          Text(
-            '*',
-            style: TextStyle(
-              fontSize: SigapTypography.size13,
-              fontWeight: FontWeight.w700,
-              color: isChecked ? SigapColors.textDisabled : SigapColors.danger,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        decoration: BoxDecoration(
+          border: showDivider
+              ? const Border(bottom: BorderSide(color: Color(0xFFEEF0EC)))
+              : null,
+        ),
+        child: Row(
+          children: [
+            // 20x20 Checkbox with radius 6 and border #cfd3cc
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: isChecked ? SigapColors.primary : Colors.white,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: isChecked ? SigapColors.primary : const Color(0xFFCFD3CC),
+                  width: 2,
+                ),
+              ),
+              child: isChecked
+                  ? const Center(
+                      child: Icon(Icons.check, size: 13, color: Colors.white),
+                    )
+                  : null,
             ),
-          ),
-          const SizedBox(width: SigapSpacing.xxs),
+            const SizedBox(width: 10),
 
-          // Item text
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: SigapTypography.size13,
-                height: SigapTypography.lineHeight140,
-                color: isChecked
-                    ? SigapColors.textDisabled
-                    : SigapColors.textPrimary,
-                decoration: isChecked ? TextDecoration.lineThrough : null,
+            // Item text
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: SigapTypography.size13,
+                  color: isChecked
+                      ? SigapColors.textDisabled
+                      : SigapColors.textPrimary,
+                  decoration: isChecked ? TextDecoration.lineThrough : null,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NumberBadge extends StatelessWidget {
-  final int number;
-
-  const _NumberBadge({required this.number});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        color: SigapColors.primaryLight,
-        borderRadius: BorderRadius.circular(SigapRadius.pill),
-      ),
-      child: Center(
-        child: Text(
-          '$number',
-          style: const TextStyle(
-            fontSize: SigapTypography.size11,
-            fontWeight: FontWeight.w600,
-            color: SigapColors.primaryDark,
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _Checkbox extends StatelessWidget {
-  final bool isChecked;
-
-  const _Checkbox({required this.isChecked});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      width: 18,
-      height: 18,
-      decoration: BoxDecoration(
-        color: isChecked ? SigapColors.primary : SigapColors.bgSoft,
-        borderRadius: BorderRadius.circular(5),
-        border: isChecked
-            ? null
-            : Border.all(color: SigapColors.borderSoft, width: 1.5),
-      ),
-      child: isChecked
-          ? const Center(
-              child: Icon(Icons.check, size: 12, color: Colors.white),
-            )
-          : null,
-    );
-  }
-}

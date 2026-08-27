@@ -62,7 +62,7 @@ class ReviewAppBar extends StatelessWidget {
                   const Text(
                     'Review laporan',
                     style: TextStyle(
-                      fontSize: SigapTypography.size16,
+                      fontSize: SigapTypography.size22,
                       fontWeight: FontWeight.w700,
                       color: SigapColors.textPrimary,
                     ),
@@ -71,7 +71,7 @@ class ReviewAppBar extends StatelessWidget {
                   Text(
                     'Langkah $currentStep dari 5',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size11_5,
+                      fontSize: SigapTypography.size12,
                       color: SigapColors.textTertiary,
                     ),
                   ),

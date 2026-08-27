@@ -1,5 +1,7 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../api/api_client.dart';
 import '../../api/types.g.dart';
@@ -42,6 +44,10 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
   int _selectedNavIndex = 0;
 
   List<_TaskItem> _tasks = [];
+  Set<String> _downloadedTaskIds = {};
+  double? _deviceLat;
+  double? _deviceLng;
+  bool _isDownloading = false;
 
   @override
   void initState() {
@@ -69,8 +75,32 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
           .map((t) => _TaskItem.fromTask(t, widget.role))
           .toList();
 
+      // Load downloaded task IDs for filter chip
+      final surveyorRepo = ref.read(surveyorTaskRepositoryProvider);
+      final downloadedTasks = await surveyorRepo.getDownloadedTasks();
+      final downloadedIds = downloadedTasks.map((t) => t.taskId).toSet();
+
+      // Get device location for distance calculation
+      double? deviceLat;
+      double? deviceLng;
+      try {
+        final position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 5),
+          ),
+        );
+        deviceLat = position.latitude;
+        deviceLng = position.longitude;
+      } catch (_) {
+        // Location not available
+      }
+
       setState(() {
         _tasks = taskItems;
+        _downloadedTaskIds = downloadedIds;
+        _deviceLat = deviceLat;
+        _deviceLng = deviceLng;
         _loading = false;
       });
     } catch (e) {
@@ -79,6 +109,79 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
         _loading = false;
       });
     }
+  }
+
+  /// Calculate distance in km between device and task location using haversine
+  String? _calculateDistance(double? taskLat, double? taskLng) {
+    if (taskLat == null ||
+        taskLng == null ||
+        _deviceLat == null ||
+        _deviceLng == null) {
+      return null;
+    }
+    const double earthRadius = 6371; // km
+    final dLat = _toRadians(taskLat - _deviceLat!);
+    final dLng = _toRadians(taskLng - _deviceLng!);
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRadians(_deviceLat!)) *
+            cos(_toRadians(taskLat)) *
+            sin(dLng / 2) *
+            sin(dLng / 2);
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    final distance = earthRadius * c;
+    if (distance < 1) {
+      return '${(distance * 1000).round()} m';
+    }
+    return '${distance.toStringAsFixed(1)} km';
+  }
+
+  double _toRadians(double degree) => degree * pi / 180;
+
+  /// Bulk download selected tasks for offline use
+  Future<void> _bulkDownload(List<_TaskItem> tasks) async {
+    if (_isDownloading) return;
+    setState(() => _isDownloading = true);
+
+    final surveyorRepo = ref.read(surveyorTaskRepositoryProvider);
+    int downloaded = 0;
+
+    for (final task in tasks) {
+      if (!_downloadedTaskIds.contains(task.id)) {
+        await surveyorRepo.saveDownloadedTask(
+          taskId: task.id,
+          title: task.title,
+          description: task.description,
+          instructions: null, // TODO: fetch instructions from API
+          status: task.status,
+          checklistTemplate: [],
+        );
+        downloaded++;
+      }
+    }
+
+    // Refresh downloaded IDs
+    final downloadedTasks = await surveyorRepo.getDownloadedTasks();
+    final downloadedIds = downloadedTasks.map((t) => t.taskId).toSet();
+
+    setState(() {
+      _downloadedTaskIds = downloadedIds;
+      _isDownloading = false;
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Berhasil mengunduh $downloaded tugas'),
+          backgroundColor: SigapColors.selesai,
+        ),
+      );
+    }
+  }
+
+  /// Get count of tasks not yet downloaded
+  int _getNotDownloadedCount() {
+    return _tasks.where((t) => !_downloadedTaskIds.contains(t.id)).length;
   }
 
   List<_TaskItem> _applyFilter(List<_TaskItem> tasks, int? filterIndex) {
@@ -99,6 +202,8 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
           if (t.deadline == null) return false;
           return t.deadline!.isBefore(now);
         }).toList();
+      case 2: // Belum diunduh
+        return tasks.where((t) => !_downloadedTaskIds.contains(t.id)).toList();
       default:
         return tasks;
     }
@@ -196,6 +301,28 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                         ],
                       ),
                       const Spacer(),
+                      if (isSurveyor && !_isDownloading) ...[
+                        IconButton(
+                          icon: const Icon(Icons.download_rounded),
+                          color: SigapColors.primary,
+                          tooltip: 'Unduh semua untuk offline',
+                          onPressed: _tasks.isEmpty
+                              ? null
+                              : () => _bulkDownload(_tasks),
+                        ),
+                      ],
+                      if (_isDownloading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: SigapColors.primary,
+                            ),
+                          ),
+                        ),
                       const ConnectivityIndicator(
                         status: ConnectivityStatus.online,
                       ),
@@ -234,7 +361,7 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                           },
                           todayCount: todayCount,
                           overdueCount: overdueCount,
-                          notDownloadedCount: 0,
+                          notDownloadedCount: _getNotDownloadedCount(),
                         ),
                         // Sort row
                         Padding(
@@ -292,6 +419,11 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                               itemCount: filteredTasks.length,
                               itemBuilder: (context, index) {
                                 final task = filteredTasks[index];
+                                final isDownloaded = _downloadedTaskIds
+                                    .contains(task.id);
+                                final distance = isSurveyor
+                                    ? _calculateDistance(task.lat, task.lng)
+                                    : null;
                                 return Padding(
                                   padding: const EdgeInsets.only(
                                     bottom: SigapSpacing.md,
@@ -299,6 +431,11 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                                   child: _TasksFlowCard(
                                     task: task,
                                     role: widget.role,
+                                    isDownloaded: isDownloaded,
+                                    distance: distance,
+                                    onDownload: isSurveyor && !isDownloaded
+                                        ? () => _bulkDownload([task])
+                                        : null,
                                     onTap: () {
                                       context.push(
                                         '/${widget.role}/tasks/${task.id}',
@@ -349,6 +486,9 @@ class _TaskItem {
   final String? address;
   final int? progressPercent;
   final int? severity;
+  final double? lat;
+  final double? lng;
+  final String? checklistTemplateJson;
 
   _TaskItem({
     required this.id,
@@ -361,6 +501,9 @@ class _TaskItem {
     this.address,
     this.progressPercent,
     this.severity,
+    this.lat,
+    this.lng,
+    this.checklistTemplateJson,
   });
 
   factory _TaskItem.fromTask(dynamic t, String role) {
@@ -378,11 +521,14 @@ class _TaskItem {
         description: null,
         status: task.status ?? 'pending',
         createdAt: parseDate(task.assignedAt),
-        deadline: null, // SurveyorTask has no deadline field
-        categoryName: null,
-        address: null,
+        deadline: parseDate(task.deadline),
+        categoryName: task.categoryName,
+        address: task.address,
         progressPercent: null,
         severity: null,
+        lat: task.reportLat,
+        lng: task.reportLng,
+        checklistTemplateJson: null,
       );
     } else {
       final task = t as PetugasTask;
@@ -397,6 +543,9 @@ class _TaskItem {
         address: null,
         progressPercent: null,
         severity: null,
+        lat: null,
+        lng: null,
+        checklistTemplateJson: null,
       );
     }
   }
@@ -406,11 +555,17 @@ class _TasksFlowCard extends StatelessWidget {
   final _TaskItem task;
   final String role;
   final VoidCallback onTap;
+  final bool isDownloaded;
+  final VoidCallback? onDownload;
+  final String? distance;
 
   const _TasksFlowCard({
     required this.task,
     required this.role,
     required this.onTap,
+    this.isDownloaded = false,
+    this.onDownload,
+    this.distance,
   });
 
   Color get _statusColor {
@@ -459,6 +614,10 @@ class _TasksFlowCard extends StatelessWidget {
     return SigapColors.primary;
   }
 
+  /// SLA label per design S-01:
+  /// - Terlambat Xh (red) when overdue
+  /// - SLA Xj (amber) when within same day
+  /// - SLA besok (gray) when deadline is tomorrow
   String get _slaLabel {
     if (task.deadline == null) return '';
     final now = DateTime.now();
@@ -468,9 +627,42 @@ class _TasksFlowCard extends StatelessWidget {
       return 'Terlambat ${overdueHours}h';
     } else if (hours < 24) {
       return 'SLA ${hours}j';
+    } else if (hours < 48) {
+      return 'SLA besok';
     } else {
       final days = (hours / 24).ceil();
       return 'SLA ${days}d';
+    }
+  }
+
+  /// Background color for SLA badge per design spec
+  Color get _slaBadgeColor {
+    if (task.deadline == null) return SigapColors.textTertiary;
+    final now = DateTime.now();
+    final hours = task.deadline!.difference(now).inHours;
+    if (hours < 0) {
+      return const Color(0xFFF8E2DE); // red bg - Terlambat
+    } else if (hours < 24) {
+      return const Color(0xFFF8ECD6); // amber bg - SLA today
+    } else if (hours < 48) {
+      return const Color(0xFFEEEEEE); // gray bg - SLA besok
+    } else {
+      return const Color(0xFFF8ECD6); // amber for future
+    }
+  }
+
+  Color get _slaTextColor {
+    if (task.deadline == null) return SigapColors.textTertiary;
+    final now = DateTime.now();
+    final hours = task.deadline!.difference(now).inHours;
+    if (hours < 0) {
+      return const Color(0xFFA5271A); // red text - Terlambat
+    } else if (hours < 24) {
+      return const Color(0xFF8A5808); // amber text - SLA today
+    } else if (hours < 48) {
+      return SigapColors.textSecondary; // gray text - SLA besok
+    } else {
+      return const Color(0xFF8A5808); // amber for future
     }
   }
 
@@ -559,7 +751,7 @@ class _TasksFlowCard extends StatelessWidget {
                 ),
               ),
 
-            // Bottom row: SLA badge + progress (petugas) or category (surveyor)
+            // Bottom row: SLA badge + progress (petugas) or category (surveyor) + distance/download
             Row(
               children: [
                 if (task.deadline != null && _slaLabel.isNotEmpty) ...[
@@ -569,9 +761,7 @@ class _TasksFlowCard extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: _slaLabel.startsWith('Terlambat')
-                          ? const Color(0xFFF8E2DE)
-                          : const Color(0xFFF8ECD6),
+                      color: _slaBadgeColor,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -579,9 +769,7 @@ class _TasksFlowCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: SigapTypography.size10,
                         fontWeight: FontWeight.w700,
-                        color: _slaLabel.startsWith('Terlambat')
-                            ? const Color(0xFFA5271A)
-                            : const Color(0xFF8A5808),
+                        color: _slaTextColor,
                       ),
                     ),
                   ),
@@ -634,6 +822,70 @@ class _TasksFlowCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                ],
+                // Distance indicator
+                if (distance != null && isSurveyor) ...[
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 14,
+                    color: SigapColors.textTertiary,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    distance!,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.size10,
+                      color: SigapColors.textTertiary,
+                    ),
+                  ),
+                ],
+                // Download status/button for surveyor
+                if (isSurveyor) ...[
+                  const Spacer(),
+                  if (isDownloaded)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.download_done,
+                          size: 14,
+                          color: SigapColors.selesai,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          'Siap offline',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size10,
+                            color: SigapColors.selesai,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    )
+                  else if (onDownload != null)
+                    GestureDetector(
+                      onTap: onDownload,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.download_outlined,
+                            size: 14,
+                            color: SigapColors.primary,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            'Unduh',
+                            style: TextStyle(
+                              fontSize: SigapTypography.size10,
+                              color: SigapColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ],
             ),

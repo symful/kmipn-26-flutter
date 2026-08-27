@@ -34,6 +34,41 @@ enum Priority {
   static Priority fromJson(String value) => allValues.firstWhere((e) => e.value == value);
 }
 
+class DuplicateCandidate {
+  final String? reportId;
+  final String? description;
+  final String? status;
+  final String? photoUrl;
+  final double? distanceM;
+  final double? reportCount;
+  final double? similarityScore;
+  DuplicateCandidate({this.reportId, this.description, this.status, this.photoUrl, this.distanceM, this.reportCount, this.similarityScore});
+
+  factory DuplicateCandidate.fromJson(Map<String, dynamic> json) {
+    return DuplicateCandidate(
+      reportId: json['report_id']?.toString(),
+      description: json['description']?.toString(),
+      status: json['status']?.toString(),
+      photoUrl: json['photo_url']?.toString(),
+      distanceM: (json['distance_m'] as num?)?.toDouble(),
+      reportCount: (json['report_count'] as num?)?.toDouble(),
+      similarityScore: (json['similarity_score'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'report_id': reportId,
+      'description': description,
+      'status': status,
+      'photo_url': photoUrl,
+      'distance_m': distanceM,
+      'report_count': reportCount,
+      'similarity_score': similarityScore,
+    };
+  }
+}
+
 class ErrorResponse {
   final String? error;
   final List<Map<String, dynamic>>? details;
@@ -41,7 +76,7 @@ class ErrorResponse {
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) {
     return ErrorResponse(
-      error: json['error'] as String?,
+      error: json['error']?.toString(),
       details: (json['details'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
     );
   }
@@ -89,10 +124,10 @@ class Photo {
 
   factory Photo.fromJson(Map<String, dynamic> json) {
     return Photo(
-      id: json['id'] as String?,
-      url: json['url'] as String?,
-      thumbnailUrl: json['thumbnailUrl'] as String?,
-      uploadedAt: json['uploadedAt'] as String?,
+      id: json['id']?.toString(),
+      url: json['url']?.toString(),
+      thumbnailUrl: json['thumbnail_url']?.toString(),
+      uploadedAt: json['uploaded_at']?.toString(),
     );
   }
 
@@ -100,8 +135,8 @@ class Photo {
     return {
       'id': id,
       'url': url,
-      'thumbnailUrl': thumbnailUrl,
-      'uploadedAt': uploadedAt,
+      'thumbnail_url': thumbnailUrl,
+      'uploaded_at': uploadedAt,
     };
   }
 }
@@ -116,11 +151,11 @@ class TimelineEvent {
 
   factory TimelineEvent.fromJson(Map<String, dynamic> json) {
     return TimelineEvent(
-      id: json['id'] as String?,
-      type: json['type'] as String?,
-      message: json['message'] as String?,
-      timestamp: json['timestamp'] as String?,
-      userId: json['userId'] as String?,
+      id: json['id']?.toString(),
+      type: json['type']?.toString(),
+      message: json['message']?.toString(),
+      timestamp: json['timestamp']?.toString(),
+      userId: json['user_id']?.toString(),
     );
   }
 
@@ -130,7 +165,7 @@ class TimelineEvent {
       'type': type,
       'message': message,
       'timestamp': timestamp,
-      'userId': userId,
+      'user_id': userId,
     };
   }
 }
@@ -145,11 +180,11 @@ class Notification {
 
   factory Notification.fromJson(Map<String, dynamic> json) {
     return Notification(
-      id: json['id'] as String?,
-      title: json['title'] as String?,
-      body: json['body'] as String?,
+      id: json['id']?.toString(),
+      title: json['title']?.toString(),
+      body: json['body']?.toString(),
       read: json['read'] as bool?,
-      createdAt: json['createdAt'] as String?,
+      createdAt: json['created_at']?.toString(),
     );
   }
 
@@ -159,42 +194,7 @@ class Notification {
       'title': title,
       'body': body,
       'read': read,
-      'createdAt': createdAt,
-    };
-  }
-}
-
-class OutboxEntry {
-  final String? id;
-  final String? event;
-  final Map<String, dynamic>? payload;
-  final String? status;
-  final int? attempts;
-  final String? lastAttempt;
-  final String? createdAt;
-  OutboxEntry({this.id, this.event, this.payload, this.status, this.attempts, this.lastAttempt, this.createdAt});
-
-  factory OutboxEntry.fromJson(Map<String, dynamic> json) {
-    return OutboxEntry(
-      id: json['id'] as String?,
-      event: json['event'] as String?,
-      payload: json['payload'] as Map<String, dynamic>?,
-      status: json['status'] as String?,
-      attempts: json['attempts'] as int?,
-      lastAttempt: json['lastAttempt'] as String?,
-      createdAt: json['createdAt'] as String?,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'event': event,
-      'payload': payload,
-      'status': status,
-      'attempts': attempts,
-      'lastAttempt': lastAttempt,
-      'createdAt': createdAt,
+      'created_at': createdAt,
     };
   }
 }
@@ -211,25 +211,25 @@ class AuditEntry {
 
   factory AuditEntry.fromJson(Map<String, dynamic> json) {
     return AuditEntry(
-      id: json['id'] as String?,
-      userId: json['userId'] as String?,
-      action: json['action'] as String?,
-      resource: json['resource'] as String?,
-      resourceId: json['resourceId'] as String?,
+      id: json['id']?.toString(),
+      userId: json['actor']?.toString(),
+      action: json['action']?.toString(),
+      resource: json['object_type']?.toString(),
+      resourceId: json['object_id']?.toString(),
       metadata: json['metadata'] as Map<String, dynamic>?,
-      timestamp: json['timestamp'] as String?,
+      timestamp: json['created_at']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'userId': userId,
+      'actor': userId,
       'action': action,
-      'resource': resource,
-      'resourceId': resourceId,
+      'object_type': resource,
+      'object_id': resourceId,
       'metadata': metadata,
-      'timestamp': timestamp,
+      'created_at': timestamp,
     };
   }
 }
@@ -243,10 +243,10 @@ class Category {
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
-      id: json['id'] as String?,
-      name: json['name'] as String?,
-      icon: json['icon'] as String?,
-      reportCount: json['reportCount'] as int?,
+      id: json['id']?.toString(),
+      name: json['name']?.toString(),
+      icon: json['icon']?.toString(),
+      reportCount: json['report_count'] as int?,
     );
   }
 
@@ -255,7 +255,7 @@ class Category {
       'id': id,
       'name': name,
       'icon': icon,
-      'reportCount': reportCount,
+      'report_count': reportCount,
     };
   }
 }
@@ -269,10 +269,10 @@ class Unit {
 
   factory Unit.fromJson(Map<String, dynamic> json) {
     return Unit(
-      id: json['id'] as String?,
-      name: json['name'] as String?,
-      type: json['type'] as String?,
-      region: json['region'] as String?,
+      id: json['id']?.toString(),
+      name: json['name']?.toString(),
+      type: json['type']?.toString(),
+      region: json['region']?.toString(),
     );
   }
 
@@ -290,30 +290,33 @@ class SlaConfig {
   final String? id;
   final String? name;
   final int? slaDays;
-  final Priority? priority;
+  final String? priority;
   final bool? isActive;
   final String? createdAt;
-  SlaConfig({this.id, this.name, this.slaDays, this.priority, this.isActive, this.createdAt});
+  final String? prioritas;
+  SlaConfig({this.id, this.name, this.slaDays, this.priority, this.isActive, this.createdAt, this.prioritas});
 
   factory SlaConfig.fromJson(Map<String, dynamic> json) {
     return SlaConfig(
-      id: json['id'] as String?,
-      name: json['name'] as String?,
-      slaDays: json['slaDays'] as int?,
-      priority: json['priority'] != null ? Priority.fromJson(json['priority'] as String) : null,
-      isActive: json['isActive'] as bool?,
-      createdAt: json['createdAt'] as String?,
+      id: json['id']?.toString(),
+      name: json['kategori_id']?.toString(),
+      slaDays: json['jam'] as int?,
+      priority: json['prioritas']?.toString(),
+      isActive: json['is_active'] as bool?,
+      createdAt: json['created_at']?.toString(),
+      prioritas: json['prioritas']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
-      'slaDays': slaDays,
-      'priority': priority?.value,
-      'isActive': isActive,
-      'createdAt': createdAt,
+      'kategori_id': name,
+      'jam': slaDays,
+      'prioritas': priority,
+      'is_active': isActive,
+      'created_at': createdAt,
+      'prioritas': prioritas,
     };
   }
 }
@@ -327,10 +330,10 @@ class ChecklistTemplate {
 
   factory ChecklistTemplate.fromJson(Map<String, dynamic> json) {
     return ChecklistTemplate(
-      id: json['id'] as String?,
-      name: json['name'] as String?,
+      id: json['id']?.toString(),
+      name: json['name']?.toString(),
       items: (json['items'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
-      createdAt: json['createdAt'] as String?,
+      createdAt: json['created_at']?.toString(),
     );
   }
 
@@ -339,7 +342,7 @@ class ChecklistTemplate {
       'id': id,
       'name': name,
       'items': items,
-      'createdAt': createdAt,
+      'created_at': createdAt,
     };
   }
 }
@@ -354,11 +357,11 @@ class PriorityConfig {
 
   factory PriorityConfig.fromJson(Map<String, dynamic> json) {
     return PriorityConfig(
-      id: json['id'] as String?,
-      name: json['name'] as String?,
+      id: json['id']?.toString(),
+      name: json['name']?.toString(),
       rules: (json['rules'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
-      isActive: json['isActive'] as bool?,
-      createdAt: json['createdAt'] as String?,
+      isActive: json['is_active'] as bool?,
+      createdAt: json['created_at']?.toString(),
     );
   }
 
@@ -367,8 +370,8 @@ class PriorityConfig {
       'id': id,
       'name': name,
       'rules': rules,
-      'isActive': isActive,
-      'createdAt': createdAt,
+      'is_active': isActive,
+      'created_at': createdAt,
     };
   }
 }
@@ -380,8 +383,8 @@ class LoginRequest {
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) {
     return LoginRequest(
-      email: json['email'] as String,
-      password: json['password'] as String,
+      email: json['email'].toString(),
+      password: json['password'].toString(),
     );
   }
 
@@ -401,8 +404,8 @@ class LoginResponse {
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
-      token: json['token'] as String?,
-      refreshToken: json['refreshToken'] as String?,
+      token: json['token']?.toString(),
+      refreshToken: json['refresh_token']?.toString(),
       user: json['user'] != null ? User.fromJson(json['user'] as Map<String, dynamic>) : null,
     );
   }
@@ -410,7 +413,7 @@ class LoginResponse {
   Map<String, dynamic> toJson() {
     return {
       'token': token,
-      'refreshToken': refreshToken,
+      'refresh_token': refreshToken,
       'user': user?.toJson(),
     };
   }
@@ -427,12 +430,12 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] as String?,
-      email: json['email'] as String?,
-      name: json['name'] as String?,
-      role: json['role'] as String?,
-      unitId: json['unitId'] as String?,
-      createdAt: json['createdAt'] as String?,
+      id: json['id']?.toString(),
+      email: json['email']?.toString(),
+      name: json['name']?.toString(),
+      role: json['role']?.toString(),
+      unitId: json['unit_id']?.toString(),
+      createdAt: json['created_at']?.toString(),
     );
   }
 
@@ -442,8 +445,8 @@ class User {
       'email': email,
       'name': name,
       'role': role,
-      'unitId': unitId,
-      'createdAt': createdAt,
+      'unit_id': unitId,
+      'created_at': createdAt,
     };
   }
 }
@@ -459,12 +462,12 @@ class UserResponse {
 
   factory UserResponse.fromJson(Map<String, dynamic> json) {
     return UserResponse(
-      id: json['id'] as String?,
-      email: json['email'] as String?,
-      name: json['name'] as String?,
-      role: json['role'] as String?,
-      unitId: json['unitId'] as String?,
-      createdAt: json['createdAt'] as String?,
+      id: json['id']?.toString(),
+      email: json['email']?.toString(),
+      name: json['name']?.toString(),
+      role: json['role']?.toString(),
+      unitId: json['unit_id']?.toString(),
+      createdAt: json['created_at']?.toString(),
     );
   }
 
@@ -474,8 +477,8 @@ class UserResponse {
       'email': email,
       'name': name,
       'role': role,
-      'unitId': unitId,
-      'createdAt': createdAt,
+      'unit_id': unitId,
+      'created_at': createdAt,
     };
   }
 }
@@ -493,22 +496,30 @@ class Report {
   final String? slaDeadline;
   final String? createdAt;
   final String? updatedAt;
-  Report({this.id, this.title, this.description, this.category, this.status, this.priority, this.location, this.reporterId, this.photos, this.slaDeadline, this.createdAt, this.updatedAt});
+  final String? mergedInto;
+  final String? deadline;
+  final int? severity;
+  final int? priorityScore;
+  Report({this.id, this.title, this.description, this.category, this.status, this.priority, this.location, this.reporterId, this.photos, this.slaDeadline, this.createdAt, this.updatedAt, this.mergedInto, this.deadline, this.severity, this.priorityScore});
 
   factory Report.fromJson(Map<String, dynamic> json) {
     return Report(
-      id: json['id'] as String?,
-      title: json['title'] as String?,
-      description: json['description'] as String?,
-      category: json['category'] as String?,
+      id: json['id']?.toString(),
+      title: json['title']?.toString(),
+      description: json['description']?.toString(),
+      category: json['category']?.toString(),
       status: json['status'] != null ? ReportStatus.fromJson(json['status'] as String) : null,
       priority: json['priority'] != null ? Priority.fromJson(json['priority'] as String) : null,
       location: json['location'] as Map<String, dynamic>?,
-      reporterId: json['reporterId'] as String?,
+      reporterId: json['reporter_id']?.toString(),
       photos: (json['photos'] as List?)?.map((e) => Photo.fromJson(e as Map<String, dynamic>)).toList(),
-      slaDeadline: json['slaDeadline'] as String?,
-      createdAt: json['createdAt'] as String?,
-      updatedAt: json['updatedAt'] as String?,
+      slaDeadline: json['sla_deadline']?.toString(),
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
+      mergedInto: json['merged_into']?.toString(),
+      deadline: json['deadline']?.toString(),
+      severity: json['severity'] as int?,
+      priorityScore: json['priority_score'] as int?,
     );
   }
 
@@ -521,11 +532,15 @@ class Report {
       'status': status?.value,
       'priority': priority?.value,
       'location': location,
-      'reporterId': reporterId,
+      'reporter_id': reporterId,
       'photos': photos,
-      'slaDeadline': slaDeadline,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'sla_deadline': slaDeadline,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      'merged_into': mergedInto,
+      'deadline': deadline,
+      'severity': severity,
+      'priority_score': priorityScore,
     };
   }
 }
@@ -549,20 +564,20 @@ class ReportDetail {
 
   factory ReportDetail.fromJson(Map<String, dynamic> json) {
     return ReportDetail(
-      id: json['id'] as String?,
-      title: json['title'] as String?,
-      description: json['description'] as String?,
-      category: json['category'] as String?,
+      id: json['id']?.toString(),
+      title: json['title']?.toString(),
+      description: json['description']?.toString(),
+      category: json['category']?.toString(),
       status: json['status'] != null ? ReportStatus.fromJson(json['status'] as String) : null,
       priority: json['priority'] != null ? Priority.fromJson(json['priority'] as String) : null,
       location: json['location'] as Map<String, dynamic>?,
-      reporterId: json['reporterId'] as String?,
+      reporterId: json['reporter_id']?.toString(),
       photos: (json['photos'] as List?)?.map((e) => Photo.fromJson(e as Map<String, dynamic>)).toList(),
       assessments: (json['assessments'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       visits: (json['visits'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
-      slaDeadline: json['slaDeadline'] as String?,
-      createdAt: json['createdAt'] as String?,
-      updatedAt: json['updatedAt'] as String?,
+      slaDeadline: json['sla_deadline']?.toString(),
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
     );
   }
 
@@ -575,13 +590,13 @@ class ReportDetail {
       'status': status?.value,
       'priority': priority?.value,
       'location': location,
-      'reporterId': reporterId,
+      'reporter_id': reporterId,
       'photos': photos,
       'assessments': assessments,
       'visits': visits,
-      'slaDeadline': slaDeadline,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'sla_deadline': slaDeadline,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
     };
   }
 }
@@ -598,10 +613,10 @@ class CreateReportRequest {
 
   factory CreateReportRequest.fromJson(Map<String, dynamic> json) {
     return CreateReportRequest(
-      title: json['title'] as String,
-      description: json['description'] as String,
-      category: json['category'] as String,
-      address: json['address'] as String?,
+      title: json['title'].toString(),
+      description: json['description'].toString(),
+      category: json['category'].toString(),
+      address: json['address']?.toString(),
       lat: (json['lat'] as num).toDouble(),
       lng: (json['lng'] as num).toDouble(),
       photos: (json['photos'] as List?)?.map((e) => e as String).toList(),
@@ -628,16 +643,18 @@ class CaseDetail {
   final List<Map<String, dynamic>>? assessments;
   final List<Map<String, dynamic>>? visits;
   final List<AuditEntry>? audit;
-  CaseDetail({this.id, this.report, this.verifikatorCase, this.assessments, this.visits, this.audit});
+  final String? status;
+  CaseDetail({this.id, this.report, this.verifikatorCase, this.assessments, this.visits, this.audit, this.status});
 
   factory CaseDetail.fromJson(Map<String, dynamic> json) {
     return CaseDetail(
-      id: json['id'] as String?,
+      id: json['id']?.toString(),
       report: json['report'] != null ? Report.fromJson(json['report'] as Map<String, dynamic>) : null,
-      verifikatorCase: json['verifikatorCase'] != null ? VerifikatorCase.fromJson(json['verifikatorCase'] as Map<String, dynamic>) : null,
+      verifikatorCase: json['verifikator_case'] != null ? VerifikatorCase.fromJson(json['verifikator_case'] as Map<String, dynamic>) : null,
       assessments: (json['assessments'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       visits: (json['visits'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       audit: (json['audit'] as List?)?.map((e) => AuditEntry.fromJson(e as Map<String, dynamic>)).toList(),
+      status: json['status']?.toString(),
     );
   }
 
@@ -645,10 +662,11 @@ class CaseDetail {
     return {
       'id': id,
       'report': report?.toJson(),
-      'verifikatorCase': verifikatorCase?.toJson(),
+      'verifikator_case': verifikatorCase?.toJson(),
       'assessments': assessments,
       'visits': visits,
       'audit': audit,
+      'status': status,
     };
   }
 }
@@ -666,27 +684,27 @@ class VerifikatorCase {
 
   factory VerifikatorCase.fromJson(Map<String, dynamic> json) {
     return VerifikatorCase(
-      id: json['id'] as String?,
-      reportId: json['reportId'] as String?,
-      status: json['status'] as String?,
-      verifikatorId: json['verifikatorId'] as String?,
-      decision: json['decision'] as String?,
-      notes: json['notes'] as String?,
-      createdAt: json['createdAt'] as String?,
-      updatedAt: json['updatedAt'] as String?,
+      id: json['id']?.toString(),
+      reportId: json['report_id']?.toString(),
+      status: json['status']?.toString(),
+      verifikatorId: json['verifikator_id']?.toString(),
+      decision: json['decision']?.toString(),
+      notes: json['notes']?.toString(),
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'reportId': reportId,
+      'report_id': reportId,
       'status': status,
-      'verifikatorId': verifikatorId,
+      'verifikator_id': verifikatorId,
       'decision': decision,
       'notes': notes,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
     };
   }
 }
@@ -698,27 +716,51 @@ class SurveyorTask {
   final String? status;
   final String? assignedAt;
   final String? completedAt;
-  SurveyorTask({this.taskId, this.reportId, this.reportTitle, this.status, this.assignedAt, this.completedAt});
+  final String? deadline;
+  final String? code;
+  final double? slaHoursRemaining;
+  final String? priority;
+  final double? reportLat;
+  final double? reportLng;
+  final String? address;
+  final String? categoryName;
+  SurveyorTask({this.taskId, this.reportId, this.reportTitle, this.status, this.assignedAt, this.completedAt, this.deadline, this.code, this.slaHoursRemaining, this.priority, this.reportLat, this.reportLng, this.address, this.categoryName});
 
   factory SurveyorTask.fromJson(Map<String, dynamic> json) {
     return SurveyorTask(
-      taskId: json['taskId'] as String?,
-      reportId: json['reportId'] as String?,
-      reportTitle: json['reportTitle'] as String?,
-      status: json['status'] as String?,
-      assignedAt: json['assignedAt'] as String?,
-      completedAt: json['completedAt'] as String?,
+      taskId: json['id']?.toString(),
+      reportId: json['report_id']?.toString(),
+      reportTitle: json['report_description']?.toString(),
+      status: json['status']?.toString(),
+      assignedAt: json['accepted_at']?.toString(),
+      completedAt: json['completed_at']?.toString(),
+      deadline: json['deadline']?.toString(),
+      code: json['code']?.toString(),
+      slaHoursRemaining: (json['sla_hours_remaining'] as num?)?.toDouble(),
+      priority: json['priority']?.toString(),
+      reportLat: (json['lat'] as num?)?.toDouble(),
+      reportLng: (json['lng'] as num?)?.toDouble(),
+      address: json['address']?.toString(),
+      categoryName: json['category_name']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'taskId': taskId,
-      'reportId': reportId,
-      'reportTitle': reportTitle,
+      'id': taskId,
+      'report_id': reportId,
+      'report_description': reportTitle,
       'status': status,
-      'assignedAt': assignedAt,
-      'completedAt': completedAt,
+      'accepted_at': assignedAt,
+      'completed_at': completedAt,
+      'deadline': deadline,
+      'code': code,
+      'sla_hours_remaining': slaHoursRemaining,
+      'priority': priority,
+      'lat': reportLat,
+      'lng': reportLng,
+      'address': address,
+      'category_name': categoryName,
     };
   }
 }
@@ -735,25 +777,25 @@ class PetugasTask {
 
   factory PetugasTask.fromJson(Map<String, dynamic> json) {
     return PetugasTask(
-      taskId: json['taskId'] as String?,
-      reportId: json['reportId'] as String?,
-      reportTitle: json['reportTitle'] as String?,
-      status: json['status'] as String?,
-      evidenceUrls: (json['evidenceUrls'] as List?)?.map((e) => e as String).toList(),
-      assignedAt: json['assignedAt'] as String?,
-      completedAt: json['completedAt'] as String?,
+      taskId: json['id']?.toString(),
+      reportId: json['report_id']?.toString(),
+      reportTitle: json['report_description']?.toString(),
+      status: json['status']?.toString(),
+      evidenceUrls: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
+      assignedAt: json['accepted_at']?.toString(),
+      completedAt: json['completed_at']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'taskId': taskId,
-      'reportId': reportId,
-      'reportTitle': reportTitle,
+      'id': taskId,
+      'report_id': reportId,
+      'report_description': reportTitle,
       'status': status,
-      'evidenceUrls': evidenceUrls,
-      'assignedAt': assignedAt,
-      'completedAt': completedAt,
+      'photo_urls': evidenceUrls,
+      'accepted_at': assignedAt,
+      'completed_at': completedAt,
     };
   }
 }
@@ -765,39 +807,31 @@ class TaskDetail {
   final String? description;
   final String? status;
   final int? progress;
-  final List<String>? evidenceUrls;
-  final Map<String, dynamic>? clarification;
+  final List<Map<String, dynamic>>? evidenceUrls;
+  final List<Map<String, dynamic>>? clarification;
   final String? assignedAt;
   final String? completedAt;
   TaskDetail({this.taskId, this.reportId, this.reportTitle, this.description, this.status, this.progress, this.evidenceUrls, this.clarification, this.assignedAt, this.completedAt});
 
   factory TaskDetail.fromJson(Map<String, dynamic> json) {
     return TaskDetail(
-      taskId: json['taskId'] as String?,
-      reportId: json['reportId'] as String?,
-      reportTitle: json['reportTitle'] as String?,
-      description: json['description'] as String?,
-      status: json['status'] as String?,
-      progress: json['progress'] as int?,
-      evidenceUrls: (json['evidenceUrls'] as List?)?.map((e) => e as String).toList(),
-      clarification: json['clarification'] as Map<String, dynamic>?,
-      assignedAt: json['assignedAt'] as String?,
-      completedAt: json['completedAt'] as String?,
+      taskId: (json['task'] as Map<String, dynamic>?)?['id']?.toString(),
+      reportId: (json['task'] as Map<String, dynamic>?)?['report_id']?.toString(),
+      reportTitle: (json['task'] as Map<String, dynamic>?)?['report_description']?.toString(),
+      description: (json['task'] as Map<String, dynamic>?)?['report_description']?.toString(),
+      status: (json['task'] as Map<String, dynamic>?)?['status']?.toString(),
+      progress: (json['task'] as Map<String, dynamic>?)?['progress_percent'] as int?,
+      evidenceUrls: (json['evidence'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      clarification: (json['clarifications'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      assignedAt: (json['task'] as Map<String, dynamic>?)?['accepted_at']?.toString(),
+      completedAt: (json['task'] as Map<String, dynamic>?)?['completed_at']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'taskId': taskId,
-      'reportId': reportId,
-      'reportTitle': reportTitle,
-      'description': description,
-      'status': status,
-      'progress': progress,
-      'evidenceUrls': evidenceUrls,
-      'clarification': clarification,
-      'assignedAt': assignedAt,
-      'completedAt': completedAt,
+      'evidence': evidenceUrls,
+      'clarifications': clarification,
     };
   }
 }
@@ -805,7 +839,7 @@ class TaskDetail {
 class StatsResponse {
   final int? total;
   final Map<String, dynamic>? byStatus;
-  final Map<String, dynamic>? byCategory;
+  final List<Map<String, dynamic>>? byCategory;
   final int? activeTasks;
   final int? pendingTasks;
   final int? resolvedToday;
@@ -816,41 +850,41 @@ class StatsResponse {
   final int? escalated;
   final String? operatorName;
   final String? region;
-  StatsResponse({this.total, this.byStatus, this.byCategory, this.activeTasks, this.pendingTasks, this.resolvedToday, this.slaAtRisk, this.slaBreached, this.merged, this.separated, this.escalated, this.operatorName, this.region});
+  final Map<String, dynamic>? dashboard;
+  StatsResponse({this.total, this.byStatus, this.byCategory, this.activeTasks, this.pendingTasks, this.resolvedToday, this.slaAtRisk, this.slaBreached, this.merged, this.separated, this.escalated, this.operatorName, this.region, this.dashboard});
 
   factory StatsResponse.fromJson(Map<String, dynamic> json) {
     return StatsResponse(
       total: json['total'] as int?,
-      byStatus: json['byStatus'] as Map<String, dynamic>?,
-      byCategory: json['byCategory'] as Map<String, dynamic>?,
-      activeTasks: json['activeTasks'] as int?,
-      pendingTasks: json['pendingTasks'] as int?,
-      resolvedToday: json['resolvedToday'] as int?,
-      slaAtRisk: json['slaAtRisk'] as int?,
-      slaBreached: json['slaBreached'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byCategory: (json['by_category'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
+      activeTasks: (json['queue_counts'] as Map<String, dynamic>?)?['needs_completion'] as int?,
+      pendingTasks: (json['queue_counts'] as Map<String, dynamic>?)?['needs_verification'] as int?,
+      resolvedToday: (json['by_status'] as Map<String, dynamic>?)?['resolved'] as int?,
+      slaAtRisk: json['sla_at_risk'] as int?,
+      slaBreached: json['sla_breached'] as int?,
       merged: json['merged'] as int?,
       separated: json['separated'] as int?,
       escalated: json['escalated'] as int?,
-      operatorName: json['operatorName'] as String?,
-      region: json['region'] as String?,
+      operatorName: json['operator_name']?.toString(),
+      region: json['region']?.toString(),
+      dashboard: json['dashboard'] as Map<String, dynamic>?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'total': total,
-      'byStatus': byStatus,
-      'byCategory': byCategory,
-      'activeTasks': activeTasks,
-      'pendingTasks': pendingTasks,
-      'resolvedToday': resolvedToday,
-      'slaAtRisk': slaAtRisk,
-      'slaBreached': slaBreached,
+      'by_status': byStatus,
+      'by_category': byCategory,
+      'sla_at_risk': slaAtRisk,
+      'sla_breached': slaBreached,
       'merged': merged,
       'separated': separated,
       'escalated': escalated,
-      'operatorName': operatorName,
+      'operator_name': operatorName,
       'region': region,
+      'dashboard': dashboard,
     };
   }
 }

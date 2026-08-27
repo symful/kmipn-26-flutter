@@ -12,6 +12,10 @@ import '../../theme/tokens.dart';
 import '../../components/app_icons.dart';
 import '../../widgets/design_system/phone_frame.dart';
 import '../../widgets/design_system/status_bar.dart';
+import 'presentation/widgets/gps_capture_card.dart';
+import 'presentation/widgets/catatan_lapangan.dart';
+import 'presentation/widgets/rekomendasi_selector.dart';
+import 'presentation/widgets/survey_submit_button.dart';
 
 class FormSurveiScreen extends ConsumerStatefulWidget {
   final String? taskId;
@@ -34,6 +38,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   final ImagePicker _picker = ImagePicker();
 
   (double, double)? _capturedGps;
+  double? _gpsAccuracy;
   bool _gpsLoading = false;
   bool _submitting = false;
   String? _submitError;
@@ -41,7 +46,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   // Kondisi: 0=Ringan, 1=Berat, 2=Kritis
   int _selectedKondisi = 0;
-  // Rekomendasi: 0=Perbaikan, 1=Penggantian, 2=Monitoring
+  // Rekomendasi: 0=Valid/ditemukan, 1=Tidak ditemukan
   int _selectedRekomendasi = 0;
 
   bool get _canSubmit {
@@ -86,6 +91,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
       setState(() {
         _capturedGps = (position.latitude, position.longitude);
+        _gpsAccuracy = position.accuracy;
         _gpsLoading = false;
       });
 
@@ -303,85 +309,128 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               backgroundColor: SigapColors.bgScreen,
               body: Column(
                 children: [
-                  // Custom Header with Back Arrow, Title, Task ID, Timestamp, Progress
-                  _buildCustomHeader(),
+                  // S-04 Header: Form survei / TGS-3402 · offline + Tersimpan 10:02 + 66% progress
+                  _FormSurveiHeader(),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(SigapSpacing.lg),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // GPS Section
-                          _buildSectionHeader('Lokasi GPS', AppIcons.location),
-                          const SizedBox(height: SigapSpacing.sm),
-                          _buildGpsCard(),
-                          const SizedBox(height: SigapSpacing.xl),
-
-                          // Photo Grid Section - "Foto per sudut"
-                          _buildSectionHeader(
-                            'Foto per sudut',
-                            AppIcons.camera,
+                          // 1. Foto per sudut Section — custom 3-slot row matching S-04
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: const [
+                                  Text(
+                                    'Foto per sudut',
+                                    style: TextStyle(
+                                      fontSize: SigapTypography.size13,
+                                      fontWeight: FontWeight.w700,
+                                      color: SigapColors.textPrimary,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2),
+                                  Text(
+                                    '*',
+                                    style: TextStyle(
+                                      fontSize: SigapTypography.size13,
+                                      fontWeight: FontWeight.w700,
+                                      color: SigapColors.danger,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              _buildPhotoCounter(),
+                            ],
                           ),
-                          const SizedBox(height: SigapSpacing.xs),
-                          _buildPhotoCounter(),
-                          const SizedBox(height: SigapSpacing.sm),
-                          _buildPhotoGrid(),
-                          const SizedBox(height: SigapSpacing.xl),
+                          const SizedBox(height: 8),
+                          _FotoSudutRow(
+                            photos: _photos,
+                            onAddPhoto: _showPhotoSourceDialog,
+                            onRemovePhoto: _removePhoto,
+                          ),
+                          const SizedBox(height: 14),
 
-                          // Kondisi Segmented Control
-                          _buildSectionHeader('Kondisi', null),
-                          const SizedBox(height: SigapSpacing.sm),
+                          // 2. Kondisi Segmented Control — custom matching S-04 (Ringan/Berat/Kritis)
+                          Row(
+                            children: const [
+                              Text(
+                                'Kondisi aktual',
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size13,
+                                  fontWeight: FontWeight.w700,
+                                  color: SigapColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(width: 2),
+                              Text(
+                                '*',
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size13,
+                                  fontWeight: FontWeight.w700,
+                                  color: SigapColors.danger,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
                           _buildKondisiSegmentedControl(),
-                          const SizedBox(height: SigapSpacing.xl),
+                          const SizedBox(height: 14),
 
-                          // Catatan Lapangan
-                          _buildSectionHeader('Catatan lapangan', null),
-                          const SizedBox(height: SigapSpacing.sm),
-                          TextField(
+                          // 3. GPS Section — GpsCaptureCard
+                          _buildGpsCard(),
+                          const SizedBox(height: 14),
+
+                          // 4. Catatan Lapangan
+                          CatatanLapangan(
                             controller: _notesController,
-                            maxLines: 3,
-                            maxLength: 300,
-                            decoration: InputDecoration(
-                              hintText: 'Tambahkan catatan lapangan...',
-                              hintStyle: TextStyle(
-                                color: SigapColors.textTertiary,
-                              ),
-                              filled: true,
-                              fillColor: SigapColors.bgCard,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  SigapRadius.md,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: SigapColors.borderCard,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  SigapRadius.md,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: SigapColors.borderCard,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(
-                                  SigapRadius.md,
-                                ),
-                                borderSide: const BorderSide(
-                                  color: SigapColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
+                            hintText: 'Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.',
+                            maxCharacters: 300,
                           ),
-                          const SizedBox(height: SigapSpacing.xl),
+                          const SizedBox(height: 14),
 
-                          // Rekomendasi Radio Buttons
-                          _buildSectionHeader('Rekomendasi', null),
-                          const SizedBox(height: SigapSpacing.sm),
-                          _buildRekomendasiRadioGroup(),
-                          const SizedBox(height: SigapSpacing.xl),
+                          // 5. Rekomendasi Section
+                          Row(
+                            children: const [
+                              Text(
+                                'Rekomendasi hasil',
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size13,
+                                  fontWeight: FontWeight.w700,
+                                  color: SigapColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(width: 2),
+                              Text(
+                                '*',
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size13,
+                                  fontWeight: FontWeight.w700,
+                                  color: SigapColors.danger,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          RekomendasiSelector(
+                            selectedValue: _selectedRekomendasi == 0
+                                ? 'Valid — perlu tindak lanjut'
+                                : 'Tidak ditemukan di lokasi',
+                            options: const [
+                              'Valid — perlu tindak lanjut',
+                              'Tidak ditemukan di lokasi',
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedRekomendasi = value.startsWith('Valid') ? 0 : 1;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 14),
+
 
                           // Error message
                           if (_submitError != null) ...[
@@ -416,62 +465,17 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                             ),
                           ],
 
-                          const SizedBox(
-                            height: 100,
-                          ), // Space for bottom button
+                          const SizedBox(height: 100),
                         ],
                       ),
                     ),
                   ),
 
-                  // Bottom Fixed Submit Button
-                  Container(
-                    padding: EdgeInsets.only(
-                      left: SigapSpacing.lg,
-                      right: SigapSpacing.lg,
-                      top: SigapSpacing.md,
-                      bottom:
-                          MediaQuery.of(context).padding.bottom + SigapSpacing.md,
-                    ),
-                    decoration: BoxDecoration(
-                      color: SigapColors.bgCard,
-                      boxShadow: [
-                        BoxShadow(
-                          color: SigapColors.textPrimary.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, -2),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _canSubmit && !_submitting ? _submit : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: SigapColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: SigapSpacing.md,
-                        ),
-                        disabledBackgroundColor: SigapColors.borderCard,
-                      ),
-                      child: _submitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : const Text(
-                              'Lanjut ke review hasil',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
+                  // Bottom Fixed Submit Button — S-02 SurveySubmitButton
+                  SurveySubmitButton(
+                    isLoading: _submitting,
+                    isEnabled: _canSubmit,
+                    onPressed: _submit,
                   ),
                 ],
               ),
@@ -482,23 +486,8 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, Icon? icon) {
-    return Row(
-      children: [
-        if (icon != null) ...[icon, const SizedBox(width: SigapSpacing.sm)],
-        Text(
-          title,
-          style: TextStyle(
-            color: SigapColors.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCustomHeader() {
+  /// S-04 Header matching: "Form survei / TGS-3402 · offline" + "Tersimpan 10:02" + 66% progress
+  Widget _FormSurveiHeader() {
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + SigapSpacing.md,
@@ -513,7 +502,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: Back arrow + Title + Task ID
+          // Top row: Back arrow + Title + Task ID + Offline dot + Save time
           Row(
             children: [
               IconButton(
@@ -640,28 +629,98 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
     );
   }
 
-  String _getPhotoLabel(int index) {
-    const labels = ['Depan', 'Kanan', 'Kiri'];
-    if (index < _photos.length) {
-      return '${labels[index]} ✓';
+  /// S-04 GPS card using S-02 GpsCaptureCard widget.
+  Widget _buildGpsCard() {
+    if (_capturedGps != null) {
+      return GpsCaptureCard(
+        latitude: _capturedGps!.$1,
+        longitude: _capturedGps!.$2,
+        accuracyMeters: _gpsAccuracy ?? 6.0,
+        timestamp: DateTime.now(),
+        onRefresh: _captureGps,
+      );
     }
-    return labels[index];
+    // Empty state: show placeholder matching S-04 appearance
+    return GestureDetector(
+      onTap: _gpsLoading ? null : _captureGps,
+      child: Container(
+        padding: const EdgeInsets.all(SigapSpacing.md),
+        decoration: BoxDecoration(
+          color: SigapColors.bgCard,
+          borderRadius: BorderRadius.circular(SigapRadius.lg),
+          border: Border.all(color: SigapColors.borderCard),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(SigapSpacing.sm),
+              decoration: BoxDecoration(
+                color: SigapColors.bgSurface,
+                borderRadius: BorderRadius.circular(SigapRadius.sm),
+              ),
+              child: Icon(
+                Icons.location_on,
+                color: SigapColors.textTertiary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: SigapSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'GPS Belum Tertangkap',
+                    style: TextStyle(
+                      color: SigapColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Ketuk untuk menangkap koordinat GPS',
+                    style: TextStyle(
+                      color: SigapColors.textTertiary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _gpsLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.sm,
+                    ),
+                    decoration: BoxDecoration(
+                      color: SigapColors.primary,
+                      borderRadius: BorderRadius.circular(SigapRadius.pill),
+                    ),
+                    child: const Text(
+                      'Ambil GPS',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: SigapTypography.size12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Color _getPhotoLabelColor(int index) {
-    if (index < _photos.length) {
-      return SigapColors.textSecondary;
-    }
-    return SigapColors.danger;
-  }
-
+  /// S-04 Kondisi segmented control: Ringan / Berat / Kritis
   Widget _buildKondisiSegmentedControl() {
-    const kondisiOptions = [
-      'Baik',
-      'Rusak Ringan',
-      'Rusak Sedang',
-      'Rusak Berat',
-    ];
+    const kondisiOptions = ['Ringan', 'Berat', 'Kritis'];
     return Container(
       decoration: BoxDecoration(
         color: SigapColors.bgCard,
@@ -669,7 +728,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         border: Border.all(color: SigapColors.borderCard),
       ),
       child: Row(
-        children: List.generate(4, (index) {
+        children: List.generate(3, (index) {
           final isSelected = _selectedKondisi == index;
           return Expanded(
             child: GestureDetector(
@@ -682,7 +741,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                     left: index == 0
                         ? const Radius.circular(SigapRadius.lg - 1)
                         : Radius.zero,
-                    right: index == 3
+                    right: index == 2
                         ? const Radius.circular(SigapRadius.lg - 1)
                         : Radius.zero,
                   ),
@@ -692,7 +751,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   style: TextStyle(
                     fontSize: SigapTypography.size13,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : SigapColors.textSecondary,
+                    color: isSelected
+                        ? Colors.white
+                        : SigapColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -703,205 +764,28 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
       ),
     );
   }
+}
 
-  Widget _buildRekomendasiRadioGroup() {
-    const rekomendasiOptions = [
-      ('Verifikasi', ''),
-      ('Tidak Dapat Diverifikasi', ''),
-    ];
+/// S-04 Foto per sudut row: 3 horizontal slots (Depan, Samping, Atas).
+/// Mimics FotoSudutCapture visual style but in a 3-column horizontal layout.
+class _FotoSudutRow extends StatelessWidget {
+  final List<_PhotoEntry> photos;
+  final VoidCallback onAddPhoto;
+  final void Function(int index) onRemovePhoto;
 
-    return Column(
-      children: List.generate(2, (index) {
-        final isSelected = _selectedRekomendasi == index;
-        final (label, desc) = rekomendasiOptions[index];
-        return GestureDetector(
-          onTap: () => setState(() => _selectedRekomendasi = index),
-          child: Container(
-            margin: EdgeInsets.only(bottom: index < 1 ? SigapSpacing.sm : 0),
-            padding: const EdgeInsets.all(SigapSpacing.md),
-            decoration: BoxDecoration(
-              color: isSelected ? SigapColors.primaryLight : SigapColors.bgCard,
-              borderRadius: BorderRadius.circular(SigapRadius.md),
-              border: Border.all(
-                color: isSelected ? SigapColors.primary : SigapColors.borderCard,
-                width: isSelected ? 1.5 : 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? SigapColors.primary : Colors.white,
-                    border: Border.all(
-                      color: isSelected
-                          ? SigapColors.primary
-                          : SigapColors.borderSoft,
-                      width: 2,
-                    ),
-                  ),
-                  child: isSelected
-                      ? Center(
-                          child: Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      : null,
-                ),
-                const SizedBox(width: SigapSpacing.sm),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: SigapTypography.size13,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? SigapColors.primaryDark
-                          : SigapColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
-    );
-  }
+  const _FotoSudutRow({
+    required this.photos,
+    required this.onAddPhoto,
+    required this.onRemovePhoto,
+  });
 
-  Widget _buildGpsCard() {
-    return Container(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      decoration: BoxDecoration(
-        color: SigapColors.bgCard,
-        borderRadius: BorderRadius.circular(SigapRadius.lg),
-        border: Border.all(color: SigapColors.borderCard),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(SigapSpacing.sm),
-            decoration: BoxDecoration(
-              color: _capturedGps != null
-                  ? SigapColors.primaryLight
-                  : SigapColors.bgSurface,
-              borderRadius: BorderRadius.circular(SigapRadius.sm),
-            ),
-            child: Icon(
-              Icons.location_on,
-              color: _capturedGps != null
-                  ? SigapColors.primary
-                  : SigapColors.textTertiary,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _capturedGps != null
-                      ? '${_capturedGps!.$1.toStringAsFixed(6)}, ${_capturedGps!.$2.toStringAsFixed(6)}'
-                      : 'GPS Belum Tertangkap',
-                  style: TextStyle(
-                    color: SigapColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                if (_capturedGps != null)
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: SigapSpacing.xs,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: SigapColors.primaryLight,
-                          borderRadius: BorderRadius.circular(SigapRadius.x1),
-                        ),
-                        child: Text(
-                          'Akurasi baik',
-                          style: TextStyle(
-                            color: SigapColors.primary,
-                            fontSize: SigapTypography.size10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                else
-                  Text(
-                    'Ketuk untuk menangkap koordinat GPS',
-                    style: TextStyle(
-                      color: SigapColors.textTertiary,
-                      fontSize: 12,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          if (_capturedGps != null)
-            GestureDetector(
-              onTap: _captureGps,
-              child: Text(
-                'Ambil ulang',
-                style: TextStyle(
-                  color: SigapColors.primary,
-                  fontSize: SigapTypography.size13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
-          else
-            _gpsLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : GestureDetector(
-                    onTap: _captureGps,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: SigapSpacing.md,
-                        vertical: SigapSpacing.sm,
-                      ),
-                      decoration: BoxDecoration(
-                        color: SigapColors.primary,
-                        borderRadius: BorderRadius.circular(SigapRadius.pill),
-                      ),
-                      child: const Text(
-                        'Ambil GPS',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: SigapTypography.size12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-        ],
-      ),
-    );
-  }
+  static const _labels = ['Depan', 'Samping', 'Atas'];
 
-  Widget _buildPhotoGrid() {
-    // Always show 3 photo slots
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: List.generate(3, (index) {
-        final hasPhoto = index < _photos.length;
+        final hasPhoto = index < photos.length;
         return Expanded(
           child: Padding(
             padding: EdgeInsets.only(right: index < 2 ? SigapSpacing.sm : 0),
@@ -913,9 +797,11 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                       ? Stack(
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(SigapRadius.md),
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.md,
+                              ),
                               child: Image.file(
-                                File(_photos[index].path),
+                                File(photos[index].path),
                                 width: double.infinity,
                                 height: double.infinity,
                                 fit: BoxFit.cover,
@@ -929,7 +815,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                               top: 4,
                               right: 4,
                               child: GestureDetector(
-                                onTap: () => _removePhoto(index),
+                                onTap: () => onRemovePhoto(index),
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
@@ -949,11 +835,13 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                           ],
                         )
                       : GestureDetector(
-                          onTap: _showPhotoSourceDialog,
+                          onTap: onAddPhoto,
                           child: Container(
                             decoration: BoxDecoration(
                               color: SigapColors.bgSurface,
-                              borderRadius: BorderRadius.circular(SigapRadius.md),
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.md,
+                              ),
                               border: Border.all(
                                 color: SigapColors.borderCard,
                                 style: BorderStyle.solid,
@@ -974,9 +862,11 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _getPhotoLabel(index),
+                  hasPhoto ? '${_labels[index]} ✓' : _labels[index],
                   style: TextStyle(
-                    color: _getPhotoLabelColor(index),
+                    color: hasPhoto
+                        ? SigapColors.textSecondary
+                        : SigapColors.danger,
                     fontSize: SigapTypography.size10,
                     fontWeight: FontWeight.w500,
                   ),

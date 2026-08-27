@@ -41,7 +41,9 @@ class _VerifikasiCaseDetailScreenState
   String? _selectedDecision;
   final _reasonController = TextEditingController();
   final _duplicateIdController = TextEditingController();
-  final _surveyorIdController = TextEditingController();
+  String? _selectedSurveyorId;
+  List<UserResponse> _surveyors = [];
+  bool _loadingSurveyors = false;
   bool _submitting = false;
   String? _submitError;
   bool _success = false;
@@ -70,7 +72,7 @@ class _VerifikasiCaseDetailScreenState
             'supporting': r.supportingFactors ?? [],
             'risk': r.riskFactors ?? [],
             'correlation_ids': (r.duplicateCandidates ?? [])
-                .map((e) => e.id?.toString() ?? '')
+                .map((e) => e.reportId?.toString() ?? '')
                 .where((id) => id.isNotEmpty)
                 .toList(),
           },
@@ -106,13 +108,16 @@ class _VerifikasiCaseDetailScreenState
 
   bool get _canSubmit {
     if (_selectedDecision == null) return false;
-    if (_selectedDecision == 'duplicate' &&
-        _duplicateIdController.text.trim().isEmpty) {
+    // Reason is required for ALL decisions
+    if (_reasonController.text.trim().isEmpty) return false;
+    // needs_survey requires surveyor selection
+    if (_selectedDecision == 'needs_survey' &&
+        (_selectedSurveyorId == null || _selectedSurveyorId!.isEmpty)) {
       return false;
     }
-    if ((_selectedDecision == 'out_of_scope' ||
-            _selectedDecision == 'rejected') &&
-        _reasonController.text.trim().isEmpty) {
+    // duplicate requires duplicate_of_report_id
+    if (_selectedDecision == 'duplicate' &&
+        _duplicateIdController.text.trim().isEmpty) {
       return false;
     }
     return true;
@@ -136,24 +141,52 @@ class _VerifikasiCaseDetailScreenState
                   : null)
             : null,
         surveyorId: _selectedDecision == 'needs_survey'
-            ? (_surveyorIdController.text.trim().isNotEmpty
-                  ? _surveyorIdController.text.trim()
-                  : null)
+            ? _selectedSurveyorId
             : null,
       );
       setState(() => _success = true);
     } catch (e) {
-      setState(() => _submitError = e.toString());
+      // Handle 409 INVALID_TRANSITION with friendly Indonesian message
+      final errorStr = e.toString();
+      if (errorStr.contains('409') ||
+          errorStr.toLowerCase().contains('invalid_transition')) {
+        setState(
+          () => _submitError =
+              'Transisi status tidak valid. Laporan mungkin sudah diproses.',
+        );
+      } else {
+        setState(() => _submitError = 'Gagal mengirim keputusan: $errorStr');
+      }
     } finally {
       setState(() => _submitting = false);
+    }
+  }
+
+  Future<void> _loadSurveyors() async {
+    setState(() => _loadingSurveyors = true);
+    try {
+      final client = ref.read(apiClientProvider);
+      final surveyors = await client.getSurveyors();
+      setState(() {
+        _surveyors = surveyors;
+        _loadingSurveyors = false;
+      });
+    } catch (e) {
+      _logger.warning('Failed to load surveyors', e);
+      setState(() => _loadingSurveyors = false);
     }
   }
 
   void _showDecisionSheet(String decision, String label, Color color) {
     _reasonController.clear();
     _duplicateIdController.clear();
-    _surveyorIdController.clear();
+    _selectedSurveyorId = null;
     setState(() => _selectedDecision = decision);
+
+    // Pre-fetch surveyors for needs_survey decision
+    if (decision == 'needs_survey') {
+      _loadSurveyors();
+    }
 
     showModalBottomSheet(
       context: context,
@@ -214,25 +247,42 @@ class _VerifikasiCaseDetailScreenState
                 const SizedBox(height: 12),
               ],
               if (decision == 'needs_survey') ...[
-                TextField(
-                  controller: _surveyorIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'ID Surveyor (opsional)',
-                    hintText: 'Masukkan ID surveyor',
-                    border: OutlineInputBorder(),
+                if (_loadingSurveyors) ...[
+                  const Center(child: CircularProgressIndicator()),
+                  const SizedBox(height: 12),
+                ] else ...[
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedSurveyorId,
+                    decoration: const InputDecoration(
+                      labelText: 'Pilih Surveyor (WAJIB)',
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Pilih surveyor'),
+                    items: _surveyors.map((s) {
+                      return DropdownMenuItem<String>(
+                        value: s.id,
+                        child: Text(s.name ?? s.email ?? s.id ?? '-'),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() => _selectedSurveyorId = val);
+                    },
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Surveyor wajib dipilih';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
+                ],
               ],
               TextField(
                 controller: _reasonController,
-                decoration: InputDecoration(
-                  labelText:
-                      (decision == 'out_of_scope' || decision == 'rejected')
-                      ? 'Alasan (WAJIB)'
-                      : 'Alasan (opsional)',
+                decoration: const InputDecoration(
+                  labelText: 'Alasan (WAJIB)',
                   hintText: 'Berikan alasan keputusan ini',
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -262,7 +312,6 @@ class _VerifikasiCaseDetailScreenState
   void dispose() {
     _reasonController.dispose();
     _duplicateIdController.dispose();
-    _surveyorIdController.dispose();
     super.dispose();
   }
 

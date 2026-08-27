@@ -398,34 +398,6 @@ class NearbyReport {
   }
 }
 
-class DuplicateCandidate {
-  final String? id;
-  final String? title;
-  final String? category;
-  final String? status;
-  final Map<String, dynamic>? location;
-  final double? similarityScore;
-  DuplicateCandidate({
-    this.id,
-    this.title,
-    this.category,
-    this.status,
-    this.location,
-    this.similarityScore,
-  });
-
-  factory DuplicateCandidate.fromJson(Map<String, dynamic> json) {
-    return DuplicateCandidate(
-      id: json['id'] as String?,
-      title: json['title'] as String?,
-      category: json['category'] as String?,
-      status: json['status'] as String?,
-      location: json['location'] as Map<String, dynamic>?,
-      similarityScore: (json['similarity_score'] as num?)?.toDouble(),
-    );
-  }
-}
-
 class TimelineEnvelope {
   final List<TimelineEvent>? events;
   TimelineEnvelope({this.events});
@@ -486,12 +458,15 @@ class WargaStats {
   });
 
   factory WargaStats.fromJson(Map<String, dynamic> json) {
+    // Server returns {by_status: {submitted, verified, ...}, total} — flatten
+    final byStatus = json['by_status'] as Map<String, dynamic>?;
     return WargaStats(
       total: json['total'] as int?,
-      submitted: json['submitted'] as int?,
-      verified: json['verified'] as int?,
-      inProgress: json['in_progress'] as int?,
-      resolved: json['resolved'] as int?,
+      submitted: byStatus?['submitted'] as int? ?? json['submitted'] as int?,
+      verified: byStatus?['verified'] as int? ?? json['verified'] as int?,
+      inProgress:
+          byStatus?['in_progress'] as int? ?? json['in_progress'] as int?,
+      resolved: byStatus?['resolved'] as int? ?? json['resolved'] as int?,
     );
   }
 }
@@ -634,9 +609,9 @@ class VisitResult {
 
   factory VisitResult.fromJson(Map<String, dynamic> json) {
     return VisitResult(
-      visitId: json['visit_id'] as String?,
-      taskId: json['task_id'] as String?,
-      status: json['status'] as String?,
+      visitId: json['visit_id']?.toString(),
+      taskId: json['task_id']?.toString(),
+      status: json['status']?.toString(),
     );
   }
 }
@@ -648,9 +623,9 @@ class EvidenceResult {
 
   factory EvidenceResult.fromJson(Map<String, dynamic> json) {
     return EvidenceResult(
-      evidenceId: json['evidence_id'] as String?,
+      evidenceId: json['evidence_id']?.toString(),
       photoUrls: (json['photo_urls'] as List?)
-          ?.map((e) => e as String)
+          ?.map((e) => e.toString())
           .toList(),
     );
   }
@@ -986,6 +961,29 @@ class ApiClient {
     for (var attempt = 0; attempt <= 3; attempt++) {
       try {
         final res = await dioCall();
+        final sc = res.statusCode ?? 0;
+
+        // validateStatus may be set to accept-all (test/prod clients), so
+        // non-2xx responses arrive here instead of as DioException.badResponse.
+        // Map them through the same error pipeline to keep ApiException
+        // semantics consistent for every caller.
+        if (sc >= 400) {
+          final apiErr = ApiException(
+            statusCode: sc,
+            body: res.data?.toString(),
+            endpoint: endpoint,
+            userMessage: '${extractErrorMessageFromData(res.data)} [$endpoint]',
+          );
+          final retryable =
+              sc == 503 || (res.data?.toString().contains('1102') ?? false);
+          if (retryable && attempt < 3) {
+            lastError = apiErr;
+            await Future.delayed(backoffs[attempt]);
+            continue;
+          }
+          throw apiErr;
+        }
+
         return parse(res.data);
       } on DioException catch (e) {
         final statusCode = e.response?.statusCode;
@@ -1102,10 +1100,11 @@ class ApiClient {
   // â”€â”€â”€ Agent/AI Assessment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches AI pre-verification assessment for a report.
-  /// Retries up to 5 times with 3-second delays since AI assessment runs
+  /// Retries up to 24 times with 5-second delays since AI assessment runs
   /// asynchronously via waitUntil and may not be ready immediately.
+  /// MiniMax M3 vision calls can take 30-90s to complete.
   Future<AiAssessmentResult> getAiAssessment(String reportId) async {
-    for (var attempt = 0; attempt < 5; attempt++) {
+    for (var attempt = 0; attempt < 24; attempt++) {
       final res = await _dio.get('/api/agent/assessments/$reportId');
       if (res.data is Map) {
         final map = (res.data as Map).cast<String, dynamic>();
@@ -1116,7 +1115,7 @@ class ApiClient {
           return AiAssessmentResult._fromAssessmentResponse(first);
         }
       }
-      await Future<void>.delayed(const Duration(seconds: 3));
+      await Future<void>.delayed(const Duration(seconds: 5));
     }
     throw const FormatException(
       'AI assessment did not complete within timeout',
@@ -1337,13 +1336,18 @@ class ApiClient {
       endpoint: '/api/cases/queue',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    if (!response.containsKey('items') || !response.containsKey('pagination')) {
+    final bool hasDataEnvelope =
+        response.containsKey('data') && response['data'] is Map;
+    final Map<String, dynamic> inner = hasDataEnvelope
+        ? (response['data'] as Map).cast<String, dynamic>()
+        : response;
+    if (!inner.containsKey('items') || !inner.containsKey('pagination')) {
       throw FormatException(
         'Unexpected response shape: expected items and pagination keys',
       );
     }
-    final itemsData = response['items'];
-    final paginationData = response['pagination'];
+    final itemsData = inner['items'];
+    final paginationData = inner['pagination'];
     return VerifikatorQueuePage(
       items: (itemsData as List)
           .map((e) => Report.fromJson((e as Map).cast<String, dynamic>()))
@@ -1431,22 +1435,32 @@ class ApiClient {
 
   /// Fetches petugas task list.
   Future<TaskListPage> petugasGetTasks() async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () =>
-            _dio.get('/api/tasks', queryParameters: {'role': 'petugas'}),
-        endpoint: '/api/tasks?role=petugas',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
-      ),
-      'data',
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () =>
+          _dio.get('/api/tasks', queryParameters: {'role': 'petugas'}),
+      endpoint: '/api/tasks?role=petugas',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final tasksData = _expectKey(data, 'tasks');
-    final paginationData = _expectKey(data, 'pagination');
+    // Server returns {tasks: [...], pagination: {...}} directly
+    List<dynamic> tasksList = [];
+    try {
+      final rawTasks = data['tasks'];
+      if (rawTasks is List) {
+        tasksList = rawTasks;
+      }
+    } catch (_) {}
+    // pagination may be absent
+    Map<String, dynamic>? paginationData;
+    try {
+      paginationData = data['pagination'] as Map<String, dynamic>?;
+    } catch (_) {}
     return TaskListPage<PetugasTask>(
-      tasks: (tasksData as List)
+      tasks: tasksList
           .map((e) => PetugasTask.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      pagination: Pagination.fromJson(paginationData),
+      pagination: paginationData != null
+          ? Pagination.fromJson(paginationData)
+          : Pagination(page: 1, limit: 20, total: 0),
     );
   }
 
@@ -1478,22 +1492,34 @@ class ApiClient {
 
   /// Fetches surveyor task list.
   Future<TaskListPage> surveyorGetTasks() async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () =>
-            _dio.get('/api/tasks', queryParameters: {'role': 'surveyor'}),
-        endpoint: '/api/tasks?role=surveyor',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
-      ),
-      'data',
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () =>
+          _dio.get('/api/tasks', queryParameters: {'role': 'surveyor'}),
+      endpoint: '/api/tasks?role=surveyor',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final tasksData = _expectKey(data, 'tasks');
-    final paginationData = _expectKey(data, 'pagination');
+    // Server returns {tasks: [...], pagination: {...}} directly
+    // _expectKey(data, 'tasks') returns data itself if key exists,
+    // so we access data['tasks'] directly
+    List<dynamic> tasksList = [];
+    try {
+      final rawTasks = data['tasks'];
+      if (rawTasks is List) {
+        tasksList = rawTasks;
+      }
+    } catch (_) {}
+    // pagination may be absent
+    Map<String, dynamic>? paginationData;
+    try {
+      paginationData = data['pagination'] as Map<String, dynamic>?;
+    } catch (_) {}
     return TaskListPage<SurveyorTask>(
-      tasks: (tasksData as List)
+      tasks: tasksList
           .map((e) => SurveyorTask.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      pagination: Pagination.fromJson(paginationData),
+      pagination: paginationData != null
+          ? Pagination.fromJson(paginationData)
+          : Pagination(page: 1, limit: 20, total: 0),
     );
   }
 
@@ -2416,27 +2442,28 @@ class ApiClient {
     int page = 1,
     int limit = 50,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/audit/search',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (actorId != null) 'actor_id': actorId,
-            if (action != null) 'action': action,
-            if (reportId != null) 'report_id': reportId,
-            if (from != null) 'from': from,
-            if (to != null) 'to': to,
-          },
-        ),
-        endpoint: '/api/audit/search',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    final raw = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/audit/search',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (actorId != null) 'actor_id': actorId,
+          if (action != null) 'action': action,
+          if (reportId != null) 'report_id': reportId,
+          if (from != null) 'from': from,
+          if (to != null) 'to': to,
+        },
       ),
-      'data',
+      endpoint: '/api/audit/search',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'entries');
-    final paginationData = _expectKey(data, 'pagination');
+    final bool hasDataEnvelope = raw.containsKey('data') && raw['data'] is Map;
+    final Map<String, dynamic> inner = hasDataEnvelope
+        ? (raw['data'] as Map).cast<String, dynamic>()
+        : raw;
+    final entriesData = inner['entries'];
+    final paginationData = inner['pagination'] ?? <String, dynamic>{};
     return AuditPage(
       entries: (entriesData as List)
           .map((e) => AuditEntry.fromJson((e as Map).cast<String, dynamic>()))
@@ -2712,10 +2739,19 @@ class ApiClient {
   }
 
   /// Assigns a report to a unit.
-  Future<Report> assignReport(String id, {required String unitId}) async {
+  Future<Report> assignReport(
+    String id, {
+    required String unitId,
+    String? deadline,
+  }) async {
     return await _execute<Report>(
-      dioCall: () =>
-          _dio.post('/api/reports/$id/assign', data: {'unit_id': unitId}),
+      dioCall: () => _dio.post(
+        '/api/reports/$id/assign',
+        data: {
+          'assigned_unit_id': unitId,
+          if (deadline != null) 'deadline': deadline,
+        },
+      ),
       endpoint: '/api/reports/$id/assign',
       parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
     );
@@ -2956,8 +2992,9 @@ class ApiClient {
 
   /// Updates SLA config.
   Future<SlaConfig> updateSla(String id, SlaConfig config) async {
+    final body = config.toJson()..removeWhere((_, v) => v == null);
     return await _execute<SlaConfig>(
-      dioCall: () => _dio.patch('/api/sla/$id', data: config.toJson()),
+      dioCall: () => _dio.patch('/api/sla/$id', data: body),
       endpoint: '/api/sla/$id',
       parse: (data) =>
           SlaConfig.fromJson((data as Map).cast<String, dynamic>()),
@@ -3084,6 +3121,8 @@ class ApiClient {
   // â”€â”€â”€ Public Reports Cluster â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets public reports cluster for map.
+  /// Server returns {clusters: [{lng, lat, count, dominant_status, ...}]}
+  /// We convert to GeoJSON FeatureCollection for compatibility.
   Future<GeoJSONFeatureCollection> getPublicReportsCluster({
     String? status,
     String? categoryId,
@@ -3097,9 +3136,30 @@ class ApiClient {
         },
       ),
       endpoint: '/api/public/reports/cluster',
-      parse: (data) => GeoJSONFeatureCollection.fromJson(
-        (data as Map).cast<String, dynamic>(),
-      ),
+      parse: (data) {
+        final map = (data as Map).cast<String, dynamic>();
+        final clusters = (map['clusters'] as List?) ?? [];
+        return GeoJSONFeatureCollection(
+          type: 'FeatureCollection',
+          features: clusters.map((c) {
+            final item = (c as Map).cast<String, dynamic>();
+            // Convert flat cluster item to GeoJSON Point Feature
+            return GeoJSONFeature(
+              type: 'Feature',
+              geometry: {
+                'type': 'Point',
+                'coordinates': [item['lng'] ?? 0, item['lat'] ?? 0],
+              },
+              properties: {
+                'count': item['count'] ?? 0,
+                'dominant_status': item['dominant_status'] ?? '',
+                'dominant_category': item['dominant_category'] ?? '',
+                'color': item['color'] ?? '#8a9099',
+              },
+            );
+          }).toList(),
+        );
+      },
     );
   }
 

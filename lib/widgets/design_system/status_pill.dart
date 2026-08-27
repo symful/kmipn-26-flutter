@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/theme/tokens.dart';
 
 enum StatusPillVariant { success, warning, danger, info, neutral, pill }
 
@@ -11,34 +12,34 @@ class StatusPill extends StatelessWidget {
   Color get _dotColor {
     switch (variant) {
       case StatusPillVariant.success:
-        return const Color(0xFF0F7A6B);
+        return SigapColors.primary;
       case StatusPillVariant.warning:
-        return const Color(0xFFB8730A);
+        return SigapColors.warning;
       case StatusPillVariant.danger:
-        return const Color(0xFFC0392B);
+        return SigapColors.danger;
       case StatusPillVariant.info:
-        return const Color(0xFF2563EB);
+        return SigapColors.info;
       case StatusPillVariant.neutral:
-        return const Color(0xFF8A9099);
+        return SigapColors.textDisabled;
       case StatusPillVariant.pill:
-        return const Color(0xFF0F7A6B);
+        return SigapColors.primary;
     }
   }
 
   Color get _textColor {
     switch (variant) {
       case StatusPillVariant.success:
-        return const Color(0xFF0F7A6B);
+        return SigapColors.primary;
       case StatusPillVariant.warning:
-        return const Color(0xFF8A5808);
+        return SigapColors.warningText;
       case StatusPillVariant.danger:
-        return const Color(0xFFC0392B);
+        return SigapColors.danger;
       case StatusPillVariant.info:
-        return const Color(0xFF2563EB);
+        return SigapColors.info;
       case StatusPillVariant.neutral:
-        return const Color(0xFF8A9099);
+        return SigapColors.textDisabled;
       case StatusPillVariant.pill:
-        return const Color(0xFF616770);
+        return SigapColors.textTertiary;
     }
   }
 
@@ -62,7 +63,7 @@ class StatusPill extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: SigapTypography.size11,
               fontWeight: FontWeight.w600,
               color: _textColor,
             ),

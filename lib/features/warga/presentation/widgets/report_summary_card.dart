@@ -86,7 +86,7 @@ class ReportSummaryCard extends StatelessWidget {
       children: [
         // Section label
         const Text(
-          'Ringkasan laporan',
+          'RINGKASAN LAPORAN',
           style: TextStyle(
             fontSize: SigapTypography.size12,
             fontWeight: FontWeight.w700,

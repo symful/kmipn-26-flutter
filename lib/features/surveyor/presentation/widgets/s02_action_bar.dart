@@ -4,13 +4,14 @@ import 'package:sigap/theme/tokens.dart';
 
 /// Action bar widget for S-02 surveyor task detail screen.
 ///
-/// A bottom action bar containing three buttons: Tolak, Minta Clarifikasi, and Terima Tugas.
+/// A bottom action bar containing four buttons: Tolak, Minta Clarifikasi, Terima Tugas, and Kunjungi.
 /// Buttons are displayed in a full-width row with equal spacing.
 ///
 /// Design tokens used:
 /// - "Tolak" button: outline/danger style (OutlinedButton with danger colors)
 /// - "Minta Clarifikasi" button: secondary style (OutlinedButton with borderCard)
 /// - "Terima Tugas" button: primary filled style (ElevatedButton with primary)
+/// - "Kunjungi" button: primary filled style (ElevatedButton with primary), enabled after accept
 ///
 /// Example:
 /// ```dart
@@ -18,6 +19,7 @@ import 'package:sigap/theme/tokens.dart';
 ///   onTolak: () { /* Handle tolak */ },
 ///   onMintaClarifikasi: () { /* Handle clarifikasi */ },
 ///   onTerima: () { /* Handle terima */ },
+///   onKunjungi: () { /* Handle mulai survei */ },
 /// )
 /// ```
 class S02ActionBar extends StatelessWidget {
@@ -30,18 +32,26 @@ class S02ActionBar extends StatelessWidget {
   /// Callback when "Terima Tugas" button is pressed.
   final VoidCallback? onTerima;
 
+  /// Callback when "Kunjungi" (Mulai Survei) button is pressed.
+  final VoidCallback? onKunjungi;
+
   /// Creates an S02ActionBar widget.
   ///
-  /// All three callbacks are optional but should be provided for interactive buttons.
+  /// All callbacks are optional but should be provided for interactive buttons.
   const S02ActionBar({
     super.key,
     this.onTolak,
     this.onMintaClarifikasi,
     this.onTerima,
+    this.onKunjungi,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Show different primary action based on whether Kunjungi is available
+    // If onKunjungi is provided and enabled, show Kunjungi; otherwise show Terima
+    final hasKunjungi = onKunjungi != null;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: SigapSpacing.md,
@@ -65,8 +75,12 @@ class S02ActionBar extends StatelessWidget {
             ),
             const SizedBox(width: SigapSpacing.x7),
 
-            // Terima Tugas button - primary filled style
-            Expanded(child: _TerimaTugasButton(onPressed: onTerima)),
+            // Primary action: Kunjungi (if enabled) or Terima
+            Expanded(
+              child: hasKunjungi
+                  ? _KunjungiButton(onPressed: onKunjungi)
+                  : _TerimaTugasButton(onPressed: onTerima),
+            ),
           ],
         ),
       ),
@@ -154,6 +168,36 @@ class _TerimaTugasButton extends StatelessWidget {
       ),
       child: Text(
         'Terima Tugas',
+        style: const TextStyle(
+          fontSize: SigapTypography.size13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+/// "Kunjungi" (Mulai Survei) button with primary filled styling.
+class _KunjungiButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+
+  const _KunjungiButton({this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: SigapColors.primary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+        ),
+        elevation: 0,
+      ),
+      child: Text(
+        'Kunjungi',
         style: const TextStyle(
           fontSize: SigapTypography.size13,
           fontWeight: FontWeight.w600,

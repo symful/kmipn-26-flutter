@@ -117,4 +117,12 @@ class SurveyorTaskRepository {
     final rows = await query.get();
     return rows.first.read(_db.localSurveyorVisits.idempotencyKey.count()) ?? 0;
   }
+
+  /// Returns all synced visits (syncStatus == 1), ordered newest first.
+  Future<List<LocalSurveyorVisit>> getSyncedVisits() {
+    final query = _db.select(_db.localSurveyorVisits)
+      ..where((t) => t.syncStatus.equals(1))
+      ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]);
+    return query.get();
+  }
 }

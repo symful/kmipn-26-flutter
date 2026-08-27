@@ -220,6 +220,8 @@ class _QueueEntryCard extends StatelessWidget {
     final description = entry.description ?? '';
     final status = entry.status?.value ?? 'pending';
     final id = entry.id ?? '';
+    final severity = entry.severity;
+    final priorityScore = entry.priorityScore;
 
     return Card(
       margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
@@ -270,6 +272,50 @@ class _QueueEntryCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (severity != null) ...[
+                    const SizedBox(width: SigapSpacing.xs),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.sm,
+                        vertical: SigapSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getSeverityColor(
+                          severity,
+                        ).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      ),
+                      child: Text(
+                        'Severity: $severity',
+                        style: TextStyle(
+                          fontSize: SigapTypography.size10,
+                          color: _getSeverityColor(severity),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (priorityScore != null) ...[
+                    const SizedBox(width: SigapSpacing.xs),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.sm,
+                        vertical: SigapSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SigapColors.warning.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      ),
+                      child: Text(
+                        'Score: $priorityScore',
+                        style: TextStyle(
+                          fontSize: SigapTypography.size10,
+                          color: SigapColors.warning,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                   const Spacer(),
                   Text(
                     '#${id.length > 8 ? id.substring(0, 8) : id}',
@@ -338,6 +384,12 @@ class _QueueEntryCard extends StatelessWidget {
       default:
         return SigapColors.textTertiary;
     }
+  }
+
+  Color _getSeverityColor(int severity) {
+    if (severity >= 70) return SigapColors.danger;
+    if (severity >= 40) return SigapColors.warning;
+    return SigapColors.selesai;
   }
 
   String _getStatusLabel(String status) {

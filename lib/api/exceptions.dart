@@ -1,6 +1,26 @@
 import 'package:dio/dio.dart';
 
 /// Returns a user-friendly Indonesian error message from a DioException.
+String extractErrorMessageFromData(dynamic data) {
+  if (data is Map) {
+    final errorObj = data['error'];
+    if (errorObj is Map) {
+      final msg = errorObj['message'];
+      if (msg is String && msg.isNotEmpty) {
+        final details = data['details'] ?? errorObj['details'];
+        if (details is Map) {
+          final fieldErrors = details['fieldErrors'];
+          if (fieldErrors is Map && fieldErrors.isNotEmpty) {
+            return _translateFieldErrors(fieldErrors);
+          }
+        }
+        return _translateError(msg);
+      }
+    }
+  }
+  return 'Terjadi kesalahan. Coba lagi.';
+}
+
 String extractErrorMessage(dynamic error) {
   if (error is! DioException) {
     return error.toString();

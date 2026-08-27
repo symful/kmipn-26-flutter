@@ -24,8 +24,11 @@ enum TaskPriority {
 
 /// Data model for a surveyor task card.
 class SurveyorTaskData {
-  /// Unique identifier for the task.
+  /// Unique identifier for the task (e.g., "TGS-3391").
   final String id;
+
+  /// Category initials code (e.g., "JB", "JL", "AR").
+  final String initials;
 
   /// Case title/description.
   final String title;
@@ -39,27 +42,25 @@ class SurveyorTaskData {
   /// Priority level of the task.
   final TaskPriority priority;
 
+  /// SLA status label (e.g., "Terlambat 1h", "SLA 4j", "SLA besok").
+  final String? slaLabel;
+
+  /// Whether the task is downloaded for offline use.
+  final bool isDownloaded;
+
   const SurveyorTaskData({
     required this.id,
+    this.initials = 'JB',
     required this.title,
     required this.location,
     required this.timeAgo,
     required this.priority,
+    this.slaLabel,
+    this.isDownloaded = false,
   });
 }
 
 /// Task card widget with colored left border stripe indicating priority.
-///
-/// Displays case title, location, time ago, and priority indicator.
-/// Used in the surveyor home screen task list.
-///
-/// Design tokens used:
-/// - Urgent: SigapColors.danger (#C0392B)
-/// - High: SigapColors.warning (#B8730A)
-/// - Normal: SigapColors.primary (#0F7A6B)
-/// - Low: SigapColors.textDisabled (#8A9099)
-/// - Card background: SigapColors.bgCard (#FFFFFF)
-/// - Border radius: SigapRadius.x12 (12px)
 class SurveyorTaskCard extends StatelessWidget {
   /// Task data to display.
   final SurveyorTaskData task;
@@ -69,37 +70,82 @@ class SurveyorTaskCard extends StatelessWidget {
 
   const SurveyorTaskCard({super.key, required this.task, this.onTap});
 
-  /// Returns the border color based on priority.
   Color get _borderColor {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return SigapColors.danger;
+        return const Color(0xFFC0392B);
       case TaskPriority.high:
-        return SigapColors.warning;
+        return const Color(0xFFB8730A);
       case TaskPriority.normal:
-        return SigapColors.primary;
+        return const Color(0xFF0F7A6B);
       case TaskPriority.low:
-        return SigapColors.textDisabled;
+        return const Color(0xFFD3D7D0);
     }
   }
 
-  /// Returns the priority label text.
   String get _priorityLabel {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return 'Urgent';
+        return 'Prioritas tinggi';
       case TaskPriority.high:
-        return 'High';
+        return 'Prioritas sedang';
       case TaskPriority.normal:
-        return 'Normal';
+        return 'Prioritas normal';
       case TaskPriority.low:
-        return 'Low';
+        return 'Prioritas rendah';
     }
   }
 
-  /// Returns the priority dot color.
+  Color get _priorityTextColor {
+    switch (task.priority) {
+      case TaskPriority.urgent:
+        return const Color(0xFFA5271A);
+      case TaskPriority.high:
+        return const Color(0xFF8A5808);
+      case TaskPriority.normal:
+        return const Color(0xFF0A5C50);
+      case TaskPriority.low:
+        return const Color(0xFF616770);
+    }
+  }
+
   Color get _priorityDotColor {
-    return _borderColor;
+    switch (task.priority) {
+      case TaskPriority.urgent:
+        return const Color(0xFFC0392B);
+      case TaskPriority.high:
+        return const Color(0xFFB8730A);
+      case TaskPriority.normal:
+        return const Color(0xFF0F7A6B);
+      case TaskPriority.low:
+        return const Color(0xFF8A9099);
+    }
+  }
+
+  Color get _slaBgColor {
+    switch (task.priority) {
+      case TaskPriority.urgent:
+        return const Color(0xFFF8E2DE);
+      case TaskPriority.high:
+        return const Color(0xFFF8ECD6);
+      case TaskPriority.normal:
+        return const Color(0xFFE2F1EE);
+      case TaskPriority.low:
+        return const Color(0xFFEEF0EC);
+    }
+  }
+
+  Color get _slaTextColor {
+    switch (task.priority) {
+      case TaskPriority.urgent:
+        return const Color(0xFFA5271A);
+      case TaskPriority.high:
+        return const Color(0xFF8A5808);
+      case TaskPriority.normal:
+        return const Color(0xFF0A5C50);
+      case TaskPriority.low:
+        return const Color(0xFF616770);
+    }
   }
 
   @override
@@ -110,105 +156,172 @@ class SurveyorTaskCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: SigapColors.bgCard,
           borderRadius: BorderRadius.circular(SigapRadius.x12),
+          border: Border.all(color: SigapColors.borderCard),
+        ),
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
           border: Border(left: BorderSide(color: _borderColor, width: 4)),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(SigapSpacing.md),
-          child: Row(
-            children: [
-              // Content area
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(
-                      task.title,
-                      style: const TextStyle(
-                        fontSize: SigapTypography.size13_5,
-                        fontWeight: FontWeight.w600,
-                        color: SigapColors.textPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+        padding: const EdgeInsets.all(13),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Row: Avatar + Title & ID + SLA Badge
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: SigapColors.primaryLight,
+                    borderRadius: BorderRadius.circular(SigapRadius.x8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    task.initials,
+                    style: const TextStyle(
+                      fontFamily: 'IBM Plex Mono',
+                      fontSize: SigapTypography.size12,
+                      fontWeight: FontWeight.w600,
+                      color: SigapColors.primaryDark,
                     ),
-                    const SizedBox(height: 4),
-
-                    // Location
-                    Text(
-                      task.location,
-                      style: const TextStyle(
-                        fontSize: SigapTypography.size12,
-                        color: SigapColors.textTertiary,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task.title,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.size13_5,
+                          fontWeight: FontWeight.w600,
+                          color: SigapColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      const SizedBox(height: 1),
+                      Text(
+                        task.id,
+                        style: const TextStyle(
+                          fontFamily: 'IBM Plex Mono',
+                          fontSize: SigapTypography.size11,
+                          color: SigapColors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (task.slaLabel != null && task.slaLabel!.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: _slaBgColor,
+                      borderRadius: BorderRadius.circular(SigapRadius.x6),
                     ),
-                    const SizedBox(height: 4),
-
-                    // Time ago
-                    Text(
-                      task.timeAgo,
-                      style: const TextStyle(
+                    child: Text(
+                      task.slaLabel!,
+                      style: TextStyle(
                         fontSize: SigapTypography.size11,
-                        color: SigapColors.textTertiary,
+                        fontWeight: FontWeight.w700,
+                        color: _slaTextColor,
                       ),
                     ),
-                  ],
+                  ),
+              ],
+            ),
+
+            // Location
+            Padding(
+              padding: const EdgeInsets.only(top: 11),
+              child: Text(
+                '📍 ${task.location}',
+                style: const TextStyle(
+                  fontSize: SigapTypography.size11_5,
+                  color: SigapColors.textTertiary,
                 ),
               ),
+            ),
 
-              // Priority indicator
-              const SizedBox(width: SigapSpacing.sm),
-              _PriorityIndicator(
-                label: _priorityLabel,
-                dotColor: _priorityDotColor,
+            // Footer Row: Priority + Offline status
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: _priorityDotColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        _priorityLabel,
+                        style: TextStyle(
+                          fontSize: SigapTypography.size11,
+                          fontWeight: FontWeight.w600,
+                          color: _priorityTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (task.isDownloaded)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 14,
+                          height: 14,
+                          decoration: const BoxDecoration(
+                            color: SigapColors.primaryLight,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            '↓',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              color: SigapColors.primaryDark,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        const Text(
+                          'Siap offline',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size11,
+                            fontWeight: FontWeight.w600,
+                            color: SigapColors.primaryDark,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    const Text(
+                      'Unduh untuk offline',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size11,
+                        fontWeight: FontWeight.w700,
+                        color: SigapColors.primary,
+                      ),
+                    ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-/// Priority indicator widget with dot and label.
-class _PriorityIndicator extends StatelessWidget {
-  final String label;
-  final Color dotColor;
-
-  const _PriorityIndicator({required this.label, required this.dotColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: SigapSpacing.x9,
-        vertical: SigapSpacing.x4,
-      ),
-      decoration: BoxDecoration(
-        color: dotColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(SigapRadius.x6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: SigapTypography.size11,
-              fontWeight: FontWeight.w600,
-              color: dotColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

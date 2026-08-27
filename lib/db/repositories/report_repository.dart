@@ -56,6 +56,14 @@ class ReportRepository {
     return _db.getPhotosByReportIdempotencyKey(key);
   }
 
+  Future<void> markPhotoSynced(int photoId) async {
+    await _db.markPhotoSynced(photoId);
+  }
+
+  Future<void> markPhotoFailed(int photoId) async {
+    await _db.markPhotoFailed(photoId);
+  }
+
   Future<void> retry(String idempotencyKey) async {
     // Reset syncStatus to 0 (pending)
     final reportQuery = _db.update(_db.localReports)
