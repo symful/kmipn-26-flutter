@@ -36,10 +36,11 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     final String? token;
+    final tokenProvider = _authTokenProvider;
     if (_testAccessToken != null) {
       token = _testAccessToken;
-    } else if (_authTokenProvider != null) {
-      token = await _authTokenProvider!('access_token');
+    } else if (tokenProvider != null) {
+      token = await tokenProvider('access_token');
     } else {
       token = await _storage.read(key: _accessTokenKey);
     }
@@ -48,8 +49,8 @@ class AuthInterceptor extends Interceptor {
     }
     // Wire X-Active-Role header — use provider if available, else storage
     final String? activeRole;
-    if (_authTokenProvider != null) {
-      activeRole = await _authTokenProvider!('active_role');
+    if (tokenProvider != null) {
+      activeRole = await tokenProvider('active_role');
     } else {
       activeRole = await _storage.read(key: _activeRoleKey);
     }

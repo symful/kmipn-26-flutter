@@ -1,295 +1,191 @@
-# SIGAP
+# SIGAP — Mobile Application (Flutter)
 
-**SIGAP (Sistem Informasi Gestion Area Penyakit)** adalah aplikasi mobile Flutter untuk pemetaan dan monitoring laporan warga terkait pembangunan desa dan masalah kesehatan masyarakat.
+Mobile client application for **SIGAP (Sistem Informasi Geospasial & Penanganan Laporan Desa)** — a village infrastructure reporting, geospatial monitoring, and field operations platform built with **Flutter 3.x**, **Riverpod**, **Drift (Offline SQLite)**, and **flutter_map**.
 
-## Project Overview
+---
 
-SIGAP adalah platform yang memungkinkan warga untuk melaporkan berbagai masalah di lingkungan mereka, yang kemudian diproses melalui workflow verifikasi dan penanganan oleh berbagai role seperti surveyor, verifikator, petugas, dan operator.
+## 📱 Mobile Overview & Workflow Architecture
 
-### Stack Teknologi
+The SIGAP mobile application is engineered for reliable field operations even in low-connectivity rural environments. It provides complete role-tailored interfaces for citizens, field surveyors, technical officers, verifiers, operators, local RT/RW heads, regional admins, auditors, and executive leaders.
 
-| Kategori | Teknologi |
-|----------|-----------|
-| Framework | Flutter 3.x |
-| State Management | Riverpod (flutter_riverpod, riverpod_annotation) |
-| Local Database | Drift (SQLite) |
-| Networking | Dio |
-| Navigation | GoRouter |
-| Maps | flutter_map dengan OpenStreetMap |
-| Location | geolocator, permission_handler |
-| Image Handling | image_picker, image, exif |
-| Background Sync | workmanager |
-| Notifications | flutter_local_notifications |
+```
+┌────────────────────────────────────────────────────────┐
+│                   SIGAP Mobile App                     │
+├─────────────┬─────────────┬─────────────┬──────────────┤
+│    WARGA    │  SURVEYOR   │   PETUGAS   │  VERIFIKATOR │
+│ Create &    │ Checklists, │ Field work, │ Queue triage │
+│ Track cases │ GPS survey  │ Proof photo │ & validation │
+├─────────────┼─────────────┼─────────────┼──────────────┤
+│  OPERATOR   │    RT/RW    │ ADMIN DAERAH│  EKSEKUTIF   │
+│ Dispatch &  │ Local RT    │ Unit & SLA  │ KPI trends   │
+│ Case stats  │ validation  │ configs     │ & summaries  │
+└─────────────┴─────────────┴─────────────┴──────────────┘
+                               │
+             ┌─────────────────┴─────────────────┐
+             ▼                                   ▼
+    [ Drift Local DB ]                 [ Dio API Client ]
+   (Offline-First Cache)            (Cloudflare Workers API)
+             ▲                                   ▲
+             └─────────[ WorkManager ]───────────┘
+                    (Background Sync)
+```
 
-## Prerequisites
+---
 
-- **Flutter SDK**: versi 3.x atau lebih tinggi
-- **Dart SDK**: versi yang kompatibel dengan Flutter SDK
-- **Android SDK**: untuk build Android APK
-- **iOS toolchain**: Xcode dan CocoaPods untuk build iOS (jika targeting iOS)
+## ⚡ Key Capabilities
 
-## Setup
+- **Offline-First Architecture**: Powered by Drift SQLite, allowing reports, surveys, and task updates to be saved locally when offline and automatically synced via WorkManager when network connection is restored.
+- **Geospatial Map Intelligence**: Centered on the Indonesian archipelago (`LatLng(-2.548926, 118.0148634)`), constrained within national boundaries, auto-fitting report markers with clustering and interactive pins, plus a one-tap "Pusat Indonesia" camera reset floating action button.
+- **Multi-Camera & Exif Extraction**: Integrated camera capture and photo picker with automatic GPS metadata (Latitude, Longitude) and timestamp extraction for verifiable report evidence.
+- **Dynamic Field Surveys**: Surveyor checklists with location geocoding, multi-photo attachments, condition scoring, and instant sync.
+- **Role Switcher & Quick QA**: Built-in role switcher dialog allowing evaluators and testers to switch between any of the 10 role personas seamlessly.
+- **State Management & Architecture**: Feature-driven architecture using Riverpod (`riverpod_annotation`), GoRouter declarative routing, and Dio HTTP client with JWT interceptors.
 
-### 1. Install Dependencies
+---
 
+## 🛠️ Technology Stack
+
+| Category | Technology | Purpose |
+|---|---|---|
+| **Framework** | Flutter 3.x & Dart 3.x | Cross-platform native mobile engine |
+| **State Management** | Riverpod 2.6 (`flutter_riverpod`, `riverpod_annotation`) | Reactive, testable state management |
+| **Local Database** | Drift (`drift`, `drift_flutter`, `sqlite3`) | Offline-first relational SQLite database |
+| **Navigation** | GoRouter 14.x | Declarative URL-driven navigation & guards |
+| **Networking** | Dio 5.x | REST API client with JWT refresh interceptors |
+| **Geospatial Maps** | flutter_map 7.x + OpenStreetMap | Interactive offline/online tile maps |
+| **Location & GPS** | geolocator, permission_handler | High-accuracy GPS location and permissions |
+| **Image & Exif** | image_picker, image, exif | Camera capture, compression, GPS metadata extraction |
+| **Background Sync** | workmanager | Periodic and opportunistic background task sync |
+| **Push / Local Notifs**| flutter_local_notifications | Local task alerts and status update notifications |
+| **Design Tokens** | `SigapColors`, `SigapTypography`, `SigapRadius` | Design system tokens matching the web portal |
+
+---
+
+## 📁 Project Structure
+
+```
+kmipn-26-flutter/
+├── lib/
+│   ├── main.dart                  # Application entry point & provider scope
+│   ├── router.dart                # GoRouter route definitions & guards
+│   ├── api/                       # Dio client, API endpoints, types & interceptors
+│   │   ├── api_client.dart        # Full REST API service methods
+│   │   ├── auth_interceptor.dart  # JWT Bearer token injection & rotation
+│   │   └── types.g.dart           # Generated API DTO models
+│   ├── config/                    # Environment & runtime configurations
+│   ├── db/                        # Drift database schema, DAOs & migrations
+│   │   ├── database.dart          # Local SQLite tables (reports, tasks, queue)
+│   │   └── database.g.dart        # Generated Drift code
+│   ├── features/                  # Role-based feature modules
+│   │   ├── warga/                 # Citizen complaint submission & timeline
+│   │   ├── surveyor/              # Field survey task queue & checklist forms
+│   │   ├── petugas/               # Technical officer task handling & proof upload
+│   │   ├── operator/              # Case dispatch, duplicate merge, SLA tracking
+│   │   ├── verifikator/           # Triage queue, report validation & decision
+│   │   ├── rt_rw/                 # Neighborhood verification & training
+│   │   ├── admin_daerah/          # Technical units, SLA rules & regional stats
+│   │   ├── auditor/               # Immutable audit log search & filters
+│   │   ├── exec/                  # Executive dashboard with KPI trend charts
+│   │   ├── map/                   # Fullscreen interactive geospatial map
+│   │   ├── create/                # New report camera & location form
+│   │   ├── detail/                # Case detail, timeline & sanggahan modal
+│   │   ├── role_switcher/         # Quick QA role-switching dialog
+│   │   ├── notifications/         # Notification inbox & preferences
+│   │   ├── profile/               # User profile & credentials
+│   │   └── settings/              # App preferences, cache & connectivity
+│   ├── providers/                 # Riverpod state providers
+│   ├── sync/                      # Background sync workers & queue manager
+│   ├── theme/                     # SigapColors, typography & UI tokens
+│   └── widgets/                   # Reusable cards, badges, buttons, headers
+└── android/                       # Native Android configuration & Manifests
+```
+
+---
+
+## 🚀 Getting Started & Prerequisites
+
+### Prerequisites
+- **Flutter SDK**: 3.22.x or higher
+- **Dart SDK**: 3.4.x or higher
+- **Android SDK**: API Level 34 / Android 14 target
+- **Java**: OpenJDK 17
+
+### Installation
 ```bash
 cd kmipn-26-flutter
+
+# Install Flutter dependencies
 flutter pub get
-```
 
-### 2. Generate Riverpod Code (jika diperlukan)
-
-Beberapa file menggunakan annotations yang memerlukan code generation:
-
-```bash
+# (Optional) Regenerate Riverpod & Drift code
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-### 3. Konfigurasi API Base URL
+---
 
-API base URL dikonfigurasi pada **compile time** menggunakan `--dart-define`. Lihat section API Configuration di bawah untuk detail lengkap.
+## ⚙️ Compilation & API Configuration
 
-## Development
+The API base URL is resolved at compile-time via `--dart-define=API_BASE_URL=...`.
 
-### Run Development Server
+### 1. Run Development (Connected to Cloudflare Remote)
+```bash
+flutter run --dart-define=API_BASE_URL=https://kmipn-26-deno.careday17.workers.dev
+```
 
-**Android Emulator (koneksi ke host machine):**
+### 2. Run Development (Local Emulator -> Host Machine)
 ```bash
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8787
 ```
 
-**Physical Device atau Emulator lain:**
-```bash
-flutter run --dart-define=API_BASE_URL=http://YOUR_HOST_IP:8787
-```
+---
 
-### Run dengan Release Build (Debug)
+## 📦 Building Production APKs
 
-```bash
-flutter run --release --dart-define=API_BASE_URL=http://10.0.2.2:8787
-```
-
-## Build
-
-### Android APK (Release)
+To build optimized release APKs split by CPU architecture (reducing APK size to ~15MB):
 
 ```bash
-flutter build apk --release
+flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=https://kmipn-26-deno.careday17.workers.dev
 ```
 
-Default production URL adalah `https://sigap.live`.
+### Output APK Binaries:
+After building, the release APK files are located at:
+- `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` (Most modern Android phones)
+- `build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk` (Older 32-bit Android phones)
+- `build/app/outputs/flutter-apk/app-x86_64-release.apk` (Emulators & ChromeOS devices)
 
-### Android APK dengan Custom URL
+To build a single universal fat APK:
+```bash
+flutter build apk --release --dart-define=API_BASE_URL=https://kmipn-26-deno.careday17.workers.dev
+```
+
+---
+
+## 👥 Manual QA Test Accounts
+
+The mobile app includes a built-in **Role Switcher** accessible from the drawer or profile menu. You can also log in directly using the following pre-seeded test accounts:
+
+| Role | Email | Password | Access / Primary Features |
+|---|---|---|---|
+| **WARGA** | `warga@sigap.id` | `warga123` | Submit complaints, upload photos, view case progress, sanggahan |
+| **SURVEYOR** | `surveyor@sigap.id` | `surveyor123` | View assigned survey tasks, fill survey checklist, verify GPS |
+| **PETUGAS** | `petugas@sigap.id` | `petugas123` | Field tasks, work progress logs, upload completion evidence |
+| **OPERATOR** | `operator@sigap.id` | `operator123` | Task dispatching, merge duplicate reports, SLA monitoring |
+| **VERIFIKATOR** | `verifikator@sigap.id` | `verifikator123` | Verification queue, approve/reject reports, review sanggahan |
+| **ADMIN_DAERAH** | `admin.daerah@sigap.id` | `admin123` | Regional admin dashboard, technical units, SLA configurations |
+| **AUDITOR** | `auditor@sigap.id` | `auditor123` | Immutable audit log trail and user activity inspection |
+| **PENGAMBIL_KEPUTUSAN** | `eksekutif@sigap.id` | `exec123` | Executive KPI analytics, budget statistics, resolution trends |
+| **ADMIN** | `admin@sigap.id` | `admin123` | Full administrative control, category management, priority weights |
+| **RT_RW** | `rtrw@sigap.id` | `rtrw123` | Local RT/RW report validation and community confirmation |
+
+---
+
+## 🧪 Testing & Verification
 
 ```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://custom-api.example.com
-```
-
-### Android APK (Debug)
-
-```bash
-flutter build apk --debug
-```
-
-### iOS (Release)
-
-```bash
-flutter build ios --release
-```
-
-## Deployment
-
-### Building for Production
-
-The Flutter app is configured to connect to the production API at `https://sigap.live` by default when built with `--release`.
-
-**Android Release APK:**
-```bash
-flutter build apk --release
-```
-
-**iOS Release:**
-```bash
-flutter build ios --release
-```
-
-### Connecting to a Deployed Backend
-
-The app connects to the backend API defined by `API_BASE_URL` at compile time. The default production URL is `https://sigap.live`.
-
-**To connect to a different backend:**
-```bash
-# Local development (Android emulator connects to host machine)
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8787
-
-# Custom deployed backend
-flutter build apk --release --dart-define=API_BASE_URL=https://your-backend.example.com
-```
-
-> **Note:** The app does not read `.env` at runtime. The API URL must be set at compile time via `--dart-define`.
-
-### Publishing
-
-**Android (Play Store):** Follow Google Play Store publishing guidelines. Build the release APK with `flutter build apk --release`, sign it, and upload to the Play Console.
-
-**iOS (App Store):** Build with `flutter build ios --release`, then use Xcode or Transporter to upload to the App Store.
-
-## API Configuration
-
-API base URL diatur pada **compile time** menggunakan `String.fromEnvironment`. Dart tidak membaca `.env` file pada runtime, sehingga konfigurasi harus dilakukan via `--dart-define`.
-
-### Default (Production)
-
-```bash
-flutter build apk --release
-```
-
-Defaults ke `https://sigap.live`.
-
-### Override pada Build Time
-
-**Build production dengan custom URL:**
-```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://sigap.live
-```
-
-**Local dev (Android emulator connects to host machine):**
-```bash
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8787
-```
-
-> **Note:** Dart tidak membaca `.env` files pada runtime. Override harus dilakukan via `--dart-define` pada saat build atau run.
-
-## Project Structure
-
-```
-lib/
-├── main.dart              # Entry point aplikasi
-├── router.dart            # Konfigurasi GoRouter navigation
-├── api/                   # API client dan service classes
-├── config/                # Configuration files
-├── db/                    # Drift database (SQLite)
-├── features/              # Feature modules (role-based screens)
-│   ├── admin_daerah/      # Admin Daerah dashboard & screens
-│   ├── auditor/           # Auditor screens
-│   ├── create/            # Create report screen
-│   ├── detail/            # Report detail screen
-│   ├── exec/              # Exec dashboard
-│   ├── map/               # Map screen
-│   ├── notifications/     # Notification screens
-│   ├── operator/          # Operator dashboard & case management
-│   ├── petugas/           # Petugas task screens
-│   ├── profile/           # User profile screen
-│   ├── role_switcher/     # Role switching UI
-│   ├── rt_rw/             # RT/RW verification screens
-│   ├── settings/          # Settings screen
-│   ├── surveyor/          # Surveyor task screens
-│   ├── verifikator/       # Verifikator queue & case screens
-│   └── warga/             # Warga home & complaint screens
-├── providers/             # Riverpod providers
-├── screens/               # Shared screens (verifikator queue, petugas dashboard)
-├── services/              # Services (notifications)
-├── sync/                  # Background sync workers
-├── theme/                 # App theme (colors, typography)
-└── widgets/               # Reusable widgets
-```
-
-### Key Directories
-
-- **lib/features/**: Setiap folder merepresentasikan sebuah role atau fitur spesifik. Setiap fitur memiliki screen-screen yang relevan.
-- **lib/api/**: Berisi API client yang menggunakan Dio untuk HTTP requests.
-- **lib/providers/**: Riverpod providers untuk state management. Menggunakan `riverpod_annotation` untuk generate kode.
-- **lib/db/**: Drift database schema dan DAOs. Database SQLite untuk offline-first capability.
-- **lib/sync/**: Background sync worker menggunakan WorkManager untuk sinkronisasi data.
-- **lib/theme/**: App-wide theming dengan light/dark mode support.
-
-## Role-Based Access
-
-Aplikasi SIGAP mendukung multiple roles dengan akses yang berbeda:
-
-| Role | Deskripsi |
-|------|-----------|
-| **Warga** | Membuat laporan, melihat status, upload bukti tambahan |
-| **Surveyor** | Melihat dan menyelesaikan tugas survei |
-| **Verifikator** | Memverifikasi laporan di antrean |
-| **Petugas** | Menangani tugas di lapangan |
-| **Operator** | Dashboard dan manajemen kasus |
-| **Admin Daerah** | Konfigurasi wilayah, kategori, SLA, unit |
-| **Auditor** | Melihat log audit |
-| **Exec** | Executive dashboard |
-
-## Testing
-
-### Run Unit Tests
-
-```bash
+# Run unit & widget tests
 flutter test
+
+# Run analyzer checks (0 warnings expected)
+flutter analyze lib
 ```
 
-### Run Integration Tests
-
-```bash
-flutter test integration_test/
-```
-
-## Troubleshooting
-
-### Common Build Issues
-
-**1. Drift Code Generation Fails**
-
-Jika terjadi error pada file database, regenerate code dengan:
-```bash
-flutter pub run build_runner build --delete-conflicting-outputs
-```
-
-**2. Riverpod Provider Build Fails**
-
-Regenerate Riverpod providers:
-```bash
-flutter pub run build_runner build --delete-conflicting-outputs
-```
-
-**3. API Connection Issues**
-
-Pastikan API_BASE_URL sudah benar:
-- Android Emulator: gunakan `http://10.0.2.2:8787` (10.0.2.2 adalah host machine dari emulator)
-- Physical Device: gunakan IP address host machine, bukan `localhost`
-
-**4. Location Permission Denied**
-
-Pastikan permission handler dikonfigurasi dengan benar di `AndroidManifest.xml` dan `Info.plist`.
-
-**5. Image Picker Tidak Berfungsi**
-
-Untuk camera access, pastikan semua required permissions sudah di-set.
-
-### Debugging Tips
-
-1. **cek API Base URL**: Pastikan URL yang digunakan sesuai dengan environment (development vs production)
-2. **Clear Flutter build cache**: `flutter clean` followed by `flutter pub get`
-3. **Check drift database version**: Jika ada issue dengan schema, increment schema version di database.dart
-
-## Background Sync
-
-SIGAP menggunakan WorkManager untuk background sync. Sinkronisasi berjalan secara otomatis ketika:
-- App dibuka
-- Koneksi internet tersedia
-- Berdasarkan schedule yang dikonfigurasi
-
-Sync worker ada di `lib/sync/background_sync.dart`.
-
-## Offline Capability
-
-Dengan Drift (SQLite), aplikasi SIGAP mendukung offline-first approach:
-- Data disimpan lokal sebelum di-sync ke server
-- Perubahan offline di-queue untuk sync later
-- Conflict resolution ditangani oleh sync worker
-
-## Further Documentation
-
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Riverpod Documentation](https://riverpod.dev/)
-- [Drift Documentation](https://drift.tech/)
-- [GoRouter Documentation](https://gorouter.dev/)
-- [flutter_map Documentation](https://docs.fleaflet.dev/)

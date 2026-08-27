@@ -313,10 +313,9 @@ class SlaConfig {
       'id': id,
       'kategori_id': name,
       'jam': slaDays,
-      'prioritas': priority,
       'is_active': isActive,
       'created_at': createdAt,
-      'prioritas': prioritas,
+      'prioritas': prioritas ?? priority,
     };
   }
 }

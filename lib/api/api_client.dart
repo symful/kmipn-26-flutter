@@ -1,4 +1,3 @@
-﻿import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -1195,11 +1194,6 @@ class ApiClient {
       data: formData,
     );
 
-    // DEBUG
-    print(
-      '[DEBUG uploadReportPhotoAnon] status=${res.statusCode} data=${res.data}',
-    );
-
     // Server returns { public_url: "..." } directly, no data envelope
     return UploadPhotoResult.fromJson(
       (res.data as Map).cast<String, dynamic>(),
@@ -1773,14 +1767,14 @@ class ApiClient {
       );
     }
     final unitsData = response['data'];
-    final paginationData = response['pagination'];
+    final paginationData = response['pagination'] as Map? ?? {};
     return UnitsPage(
       entries: (unitsData as List)
           .map((e) => Unit.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: (paginationData as Map)['total'] as int? ?? 0,
-      page: (paginationData as Map)['page'] as int? ?? page,
-      limit: (paginationData as Map)['limit'] as int? ?? limit,
+      total: paginationData['total'] as int? ?? 0,
+      page: paginationData['page'] as int? ?? page,
+      limit: paginationData['limit'] as int? ?? limit,
     );
   }
 
@@ -1888,14 +1882,14 @@ class ApiClient {
       );
     }
     final usersData = response['data'];
-    final paginationData = response['pagination'];
+    final paginationData = response['pagination'] as Map? ?? {};
     return UsersPage(
       entries: (usersData as List)
           .map((e) => UserResponse.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: (paginationData as Map)['total'] as int? ?? 0,
-      page: (paginationData as Map)['page'] as int? ?? page,
-      limit: (paginationData as Map)['limit'] as int? ?? limit,
+      total: paginationData['total'] as int? ?? 0,
+      page: paginationData['page'] as int? ?? page,
+      limit: paginationData['limit'] as int? ?? limit,
     );
   }
 
@@ -1909,7 +1903,7 @@ class ApiClient {
     );
   }
 
-  // â”€â”€â”€ SLA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── SLA ──────────────────────────────────────────────────────────────────
 
   /// Fetches SLA configs.
   Future<SlaPage> getSlaConfigs({
@@ -1940,18 +1934,18 @@ class ApiClient {
       );
     }
     final slaData = response['data'];
-    final paginationData = response['pagination'];
+    final paginationData = response['pagination'] as Map? ?? {};
     return SlaPage(
       entries: (slaData as List)
           .map((e) => SlaConfig.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: (paginationData as Map)['total'] as int? ?? 0,
-      page: (paginationData as Map)['page'] as int? ?? page,
-      limit: (paginationData as Map)['limit'] as int? ?? limit,
+      total: paginationData['total'] as int? ?? 0,
+      page: paginationData['page'] as int? ?? page,
+      limit: paginationData['limit'] as int? ?? limit,
     );
   }
 
-  // â”€â”€â”€ Checklist Templates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Checklist Templates ──────────────────────────────────────────────────
 
   /// Fetches checklist templates.
   Future<ChecklistTemplatesPage> getChecklistTemplates({
@@ -1978,7 +1972,7 @@ class ApiClient {
       );
     }
     final templatesData = response['data'];
-    final paginationData = response['pagination'];
+    final paginationData = response['pagination'] as Map? ?? {};
     return ChecklistTemplatesPage(
       entries: (templatesData as List)
           .map(
@@ -1986,9 +1980,9 @@ class ApiClient {
                 ChecklistTemplate.fromJson((e as Map).cast<String, dynamic>()),
           )
           .toList(),
-      total: (paginationData as Map)['total'] as int? ?? 0,
-      page: (paginationData as Map)['page'] as int? ?? page,
-      limit: (paginationData as Map)['limit'] as int? ?? limit,
+      total: paginationData['total'] as int? ?? 0,
+      page: paginationData['page'] as int? ?? page,
+      limit: paginationData['limit'] as int? ?? limit,
     );
   }
 
@@ -2582,13 +2576,9 @@ class ApiClient {
         },
       ),
       endpoint: '/api/reports',
-      parse: (data) {
-        // DEBUG
-        print('[DEBUG createReport] data=$data');
-        return CreateReportResult.fromJson(
-          (data as Map).cast<String, dynamic>(),
-        );
-      },
+      parse: (data) => CreateReportResult.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
     );
   }
 
