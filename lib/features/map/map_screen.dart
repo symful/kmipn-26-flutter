@@ -93,6 +93,18 @@ final deviceLocationProvider = FutureProvider<LatLng?>((ref) async {
   }
 });
 
+// ─── Indonesia Map Constants ───────────────────────────────────────────────
+
+const _indonesiaCenter = LatLng(-2.548926, 118.0148634);
+final _indonesiaBounds = LatLngBounds(
+  const LatLng(-11.0, 95.0),
+  const LatLng(6.0, 141.0),
+);
+final _indonesiaMaxBounds = LatLngBounds(
+  const LatLng(-14.0, 92.0),
+  const LatLng(9.0, 144.0),
+);
+
 // ─── Map Screen ───────────────────────────────────────────────────────────────
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -106,17 +118,34 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   final bool _tileErrorOccurred = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeLocation();
-  }
-
-  Future<void> _initializeLocation() async {
-    final deviceLocation = await ref.read(deviceLocationProvider.future);
-    if (mounted && deviceLocation != null) {
-      _mapController.move(deviceLocation, 14);
-    }
+  void _fitIndonesiaOrReports(List<LocalReport> reports) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final validReports = reports.where((r) => r.lat != 0 || r.lng != 0).toList();
+      if (validReports.isEmpty) {
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: _indonesiaBounds,
+            padding: const EdgeInsets.all(24),
+            maxZoom: 6,
+          ),
+        );
+      } else if (validReports.length == 1) {
+        _mapController.move(
+          LatLng(validReports.first.lat, validReports.first.lng),
+          14,
+        );
+      } else {
+        final points = validReports.map((r) => LatLng(r.lat, r.lng)).toList();
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: LatLngBounds.fromPoints(points),
+            padding: const EdgeInsets.all(40),
+            maxZoom: 14,
+          ),
+        );
+      }
+    });
   }
 
   void _onMapTap(TapPosition tapPosition, LatLng point) {
@@ -144,13 +173,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final heatmapEnabled = ref.watch(heatmapEnabledProvider);
     final pickMode = ref.watch(pickLocationModeProvider);
     final deviceLocationAsync = ref.watch(deviceLocationProvider);
-
-    // Determine initial map center from device location
-    final initialCenter = deviceLocationAsync.when(
-      data: (loc) => loc ?? const LatLng(-6.2, 106.8),
-      loading: () => const LatLng(-6.2, 106.8),
-      error: (_, __) => const LatLng(-6.2, 106.8),
-    );
 
     // Show location prompt when device location is unavailable
     final showLocationPrompt =
@@ -208,9 +230,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               return FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
-                  initialCenter: initialCenter,
-                  initialZoom: 10,
+                  initialCenter: _indonesiaCenter,
+                  initialZoom: 5.0,
+                  minZoom: 3.5,
+                  maxZoom: 18.0,
+                  cameraConstraint: CameraConstraint.contain(
+                    bounds: _indonesiaMaxBounds,
+                  ),
                   onTap: pickMode ? _onMapTap : null,
+                  onMapReady: () {
+                    _fitIndonesiaOrReports(filteredReports);
+                  },
                 ),
                 children: [
                   TileLayer(
@@ -265,6 +295,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('Error: $e')),
           ),
+
           if (pickMode)
             Positioned(
               bottom: 16,
@@ -315,15 +346,39 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final deviceLocation = await ref.read(deviceLocationProvider.future);
-          if (deviceLocation != null) {
-            _mapController.move(deviceLocation, 14);
-          }
-        },
-        child: const Icon(Icons.my_location),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.small(
+            heroTag: 'recenter_indonesia',
+            tooltip: 'Pusat Indonesia',
+            backgroundColor: Colors.white,
+            foregroundColor: SigapColors.primary,
+            onPressed: () {
+              final reports = reportsAsync.valueOrNull ?? [];
+              final filteredReports = _filterReports(reports, filters);
+              _fitIndonesiaOrReports(filteredReports);
+            },
+            child: const Icon(Icons.public),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            heroTag: 'my_location',
+            tooltip: 'Lokasi Saya',
+            backgroundColor: SigapColors.primary,
+            foregroundColor: Colors.white,
+            onPressed: () async {
+              final deviceLocation =
+                  await ref.read(deviceLocationProvider.future);
+              if (deviceLocation != null) {
+                _mapController.move(deviceLocation, 14);
+              }
+            },
+            child: const Icon(Icons.my_location),
+          ),
+        ],
       ),
+
     );
   }
 
