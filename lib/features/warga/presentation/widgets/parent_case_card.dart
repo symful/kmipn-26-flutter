@@ -113,8 +113,8 @@ class _Avatar extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         initials,
-        style: const TextStyle(
-          fontFamily: 'IBM Plex Mono',
+        style: TextStyle(
+          fontFamily: SigapTypography.fontFamilyMono,
           fontSize: SigapTypography.size12,
           fontWeight: FontWeight.w600,
           color: SigapColors.primaryDark,

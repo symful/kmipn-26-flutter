@@ -73,13 +73,13 @@ class SurveyorTaskCard extends StatelessWidget {
   Color get _borderColor {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return const Color(0xFFC0392B);
+        return SigapColors.danger;
       case TaskPriority.high:
-        return const Color(0xFFB8730A);
+        return SigapColors.warning;
       case TaskPriority.normal:
-        return const Color(0xFF0F7A6B);
+        return SigapColors.primary;
       case TaskPriority.low:
-        return const Color(0xFFD3D7D0);
+        return SigapColors.borderSoft;
     }
   }
 
@@ -99,52 +99,52 @@ class SurveyorTaskCard extends StatelessWidget {
   Color get _priorityTextColor {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return const Color(0xFFA5271A);
+        return SigapColors.dangerTextStrong;
       case TaskPriority.high:
-        return const Color(0xFF8A5808);
+        return SigapColors.warningText;
       case TaskPriority.normal:
-        return const Color(0xFF0A5C50);
+        return SigapColors.primaryDark;
       case TaskPriority.low:
-        return const Color(0xFF616770);
+        return SigapColors.textTertiary;
     }
   }
 
   Color get _priorityDotColor {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return const Color(0xFFC0392B);
+        return SigapColors.danger;
       case TaskPriority.high:
-        return const Color(0xFFB8730A);
+        return SigapColors.warning;
       case TaskPriority.normal:
-        return const Color(0xFF0F7A6B);
+        return SigapColors.primary;
       case TaskPriority.low:
-        return const Color(0xFF8A9099);
+        return SigapColors.textDisabled;
     }
   }
 
   Color get _slaBgColor {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return const Color(0xFFF8E2DE);
+        return SigapColors.dangerBg;
       case TaskPriority.high:
-        return const Color(0xFFF8ECD6);
+        return SigapColors.warningBg;
       case TaskPriority.normal:
-        return const Color(0xFFE2F1EE);
+        return SigapColors.primaryLight;
       case TaskPriority.low:
-        return const Color(0xFFEEF0EC);
+        return SigapColors.bgSoft;
     }
   }
 
   Color get _slaTextColor {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return const Color(0xFFA5271A);
+        return SigapColors.dangerTextStrong;
       case TaskPriority.high:
-        return const Color(0xFF8A5808);
+        return SigapColors.warningText;
       case TaskPriority.normal:
-        return const Color(0xFF0A5C50);
+        return SigapColors.primaryDark;
       case TaskPriority.low:
-        return const Color(0xFF616770);
+        return SigapColors.textTertiary;
     }
   }
 
@@ -181,7 +181,7 @@ class SurveyorTaskCard extends StatelessWidget {
                   child: Text(
                     task.initials,
                     style: const TextStyle(
-                      fontFamily: 'IBM Plex Mono',
+                      fontFamily: SigapTypography.fontFamilyMono,
                       fontSize: SigapTypography.size12,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.primaryDark,
@@ -207,7 +207,7 @@ class SurveyorTaskCard extends StatelessWidget {
                       Text(
                         task.id,
                         style: const TextStyle(
-                          fontFamily: 'IBM Plex Mono',
+                          fontFamily: SigapTypography.fontFamilyMono,
                           fontSize: SigapTypography.size11,
                           color: SigapColors.textTertiary,
                         ),
@@ -217,7 +217,10 @@ class SurveyorTaskCard extends StatelessWidget {
                 ),
                 if (task.slaLabel != null && task.slaLabel!.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: _slaBgColor,
                       borderRadius: BorderRadius.circular(SigapRadius.x6),
@@ -324,4 +327,3 @@ class SurveyorTaskCard extends StatelessWidget {
     );
   }
 }
-

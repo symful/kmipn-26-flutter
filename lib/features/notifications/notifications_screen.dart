@@ -38,7 +38,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           SnackBar(
             content: Text('Gagal menandai semua: $e'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: SigapColors.danger,
+            backgroundColor: SigapColors.perluTindakan,
           ),
         );
       }
@@ -58,7 +58,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           SnackBar(
             content: Text('Gagal menandai: $e'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: SigapColors.danger,
+            backgroundColor: SigapColors.perluTindakan,
           ),
         );
       }
@@ -70,6 +70,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final notificationsAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
+      backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
         title: const Text('Notifikasi'),
         leading: IconButton(
@@ -83,7 +84,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 ? const SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: SigapColors.primary,
+                    ),
                   )
                 : const Text('Baca semua'),
           ),
@@ -96,30 +100,38 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           }
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(notificationsProvider),
+            color: SigapColors.primary,
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: SigapSpacing.sm),
+              padding: const EdgeInsets.all(SigapSpacing.lg),
               itemCount: notifications.length,
               itemBuilder: (context, index) {
                 final notification = notifications[index];
-                return _NotificationTile(
-                  notification: notification,
-                  onTap: () {
-                    final notificationId = notification['id']?.toString();
-                    final relatedReportId = notification['related_report_id']
-                        ?.toString();
-                    if (notificationId != null) {
-                      _markAsRead(notificationId);
-                    }
-                    if (relatedReportId != null && relatedReportId.isNotEmpty) {
-                      context.push('/detail/$relatedReportId');
-                    }
-                  },
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
+                  child: _NotificationTile(
+                    notification: notification,
+                    onTap: () {
+                      final notificationId = notification['id']?.toString();
+                      final relatedReportId = notification['related_report_id']
+                          ?.toString();
+                      if (notificationId != null) {
+                        _markAsRead(notificationId);
+                      }
+                      if (relatedReportId != null && relatedReportId.isNotEmpty) {
+                        context.push('/detail/$relatedReportId');
+                      }
+                    },
+                  ),
                 );
               },
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: CircularProgressIndicator(
+            color: SigapColors.primary,
+          ),
+        ),
         error: (error, _) => _buildErrorState(error),
       ),
     );
@@ -134,7 +146,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(SigapSpacing.xl),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: SigapColors.primaryLight,
                 shape: BoxShape.circle,
               ),
@@ -146,18 +158,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             ),
             const SizedBox(height: SigapSpacing.lg),
             const Text(
-              'Tidak ada notifikasi',
+              'Tidak Ada Notifikasi',
               style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontSize: SigapTypography.size16,
+                fontWeight: FontWeight.bold,
                 color: SigapColors.textPrimary,
               ),
             ),
             const SizedBox(height: SigapSpacing.xs),
             const Text(
-              'Pemberitahuan akan muncul\ndi sini',
+              'Pemberitahuan terkait laporan atau penugasan akan muncul di sini.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: SigapColors.textSecondary),
+              style: TextStyle(
+                fontSize: SigapTypography.size13,
+                color: SigapColors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -169,35 +184,51 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: SigapColors.danger),
-            const SizedBox(height: SigapSpacing.lg),
-            const Text(
-              'Gagal memuat notifikasi',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: SigapColors.textPrimary,
+        child: Container(
+          padding: const EdgeInsets.all(SigapSpacing.lg),
+          decoration: BoxDecoration(
+            color: SigapColors.surface,
+            borderRadius: BorderRadius.circular(SigapRadius.md),
+            border: Border.all(color: SigapColors.dangerBorder),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 48,
+                color: SigapColors.perluTindakan,
               ),
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-            Text(
-              error.toString(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 13,
-                color: SigapColors.textSecondary,
+              const SizedBox(height: SigapSpacing.md),
+              const Text(
+                'Gagal Memuat Notifikasi',
+                style: TextStyle(
+                  fontSize: SigapTypography.size16,
+                  fontWeight: FontWeight.bold,
+                  color: SigapColors.textPrimary,
+                ),
               ),
-            ),
-            const SizedBox(height: SigapSpacing.lg),
-            OutlinedButton.icon(
-              onPressed: () => ref.invalidate(notificationsProvider),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Coba lagi'),
-            ),
-          ],
+              const SizedBox(height: SigapSpacing.xs),
+              Text(
+                error.toString(),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: SigapTypography.size12,
+                  color: SigapColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: SigapSpacing.lg),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(notificationsProvider),
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -218,91 +249,91 @@ class _NotificationTile extends StatelessWidget {
     final body = notification['body']?.toString() ?? '';
     final createdAt = _formatDate(notification['created_at']);
     final kind = notification['kind']?.toString() ?? '';
+    final color = _kindColor(kind);
 
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: SigapSpacing.lg,
-          vertical: SigapSpacing.md,
+    return Container(
+      decoration: BoxDecoration(
+        color: isRead ? SigapColors.surface : SigapColors.primaryLight.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        border: Border.all(
+          color: isRead ? SigapColors.border : SigapColors.primary.withValues(alpha: 0.3),
         ),
-        decoration: BoxDecoration(
-          color: isRead ? null : SigapColors.primaryLight.withValues(alpha: 0.1),
-          border: Border(
-            bottom: BorderSide(
-              color: SigapColors.border.withValues(alpha: 0.5),
-              width: 1,
-            ),
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon based on kind
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: _kindColor(kind).withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        child: Padding(
+          padding: const EdgeInsets.all(SigapSpacing.md),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Icon based on kind
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                ),
+                child: Icon(_kindIcon(kind), size: 20, color: color),
               ),
-              child: Icon(_kindIcon(kind), size: 20, color: _kindColor(kind)),
-            ),
-            const SizedBox(width: SigapSpacing.md),
-            // Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isRead
-                                ? FontWeight.w500
-                                : FontWeight.w600,
-                            color: SigapColors.textPrimary,
+              const SizedBox(width: SigapSpacing.md),
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: SigapTypography.size14,
+                              fontWeight: isRead
+                                  ? FontWeight.w500
+                                  : FontWeight.bold,
+                              color: SigapColors.textPrimary,
+                            ),
                           ),
                         ),
+                        if (!isRead)
+                          Container(
+                            width: 8,
+                            height: 8,
+                            margin: const EdgeInsets.only(left: SigapSpacing.xs),
+                            decoration: const BoxDecoration(
+                              color: SigapColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (body.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        body,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.size12,
+                          color: SigapColors.textSecondary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      if (!isRead)
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: SigapColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
                     ],
-                  ),
-                  if (body.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      body,
+                      createdAt,
                       style: const TextStyle(
-                        fontSize: 13,
-                        color: SigapColors.textSecondary,
+                        fontSize: SigapTypography.size11,
+                        color: SigapColors.textTertiary,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  const SizedBox(height: 4),
-                  Text(
-                    createdAt,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: SigapColors.textTertiary,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -322,7 +353,6 @@ class _NotificationTile extends StatelessWidget {
 
       return '${date.day}/${date.month}/${date.year}';
     } catch (e) {
-      // Log the parse error for debugging, show visible fallback label
       debugPrint('Error parsing date "$value": $e');
       return 'Tanggal tidak valid';
     }
@@ -360,7 +390,7 @@ class _NotificationTile extends StatelessWidget {
         return SigapColors.primary;
       case 'new_comment':
       case 'comment':
-        return SigapColors.info;
+        return SigapColors.diproses;
       case 'assignment':
       case 'assigned':
         return SigapColors.warning;
@@ -372,7 +402,7 @@ class _NotificationTile extends StatelessWidget {
         return SigapColors.selesai;
       case 'alert':
       case 'warning':
-        return SigapColors.danger;
+        return SigapColors.perluTindakan;
       default:
         return SigapColors.textSecondary;
     }

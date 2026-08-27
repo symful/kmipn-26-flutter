@@ -47,17 +47,17 @@ class RoleBanner extends ConsumerWidget {
   }
 
   static const _roleColors = {
-    'OPERATOR': Color(0xFF2E7D32),
-    'VERIFIKATOR': Color(0xFF1565C0),
-    'ADMIN': Color(0xFF6A1B9A),
-    'ADMIN_DAERAH': Color(0xFF6A1B9A),
-    'PETUGAS': Color(0xFFE65100),
-    'SURVEYOR': Color(0xFF00695C),
-    'AUDITOR': Color(0xFF4527A0),
-    'WARGA': Color(0xFF558B2F),
-    'RT_RW': Color(0xFF6D4C41),
-    'PENGAMBIL_KEPUTUSAN': Color(0xFFC62828),
-    'EXEC': Color(0xFFC62828),
+    'OPERATOR': SigapColors.roleOperator,
+    'VERIFIKATOR': SigapColors.roleVerifikator,
+    'ADMIN': SigapColors.roleAdmin,
+    'ADMIN_DAERAH': SigapColors.roleAdmin,
+    'PETUGAS': SigapColors.rolePetugas,
+    'SURVEYOR': SigapColors.roleSurveyor,
+    'AUDITOR': SigapColors.roleAuditor,
+    'WARGA': SigapColors.roleWarga,
+    'RT_RW': SigapColors.roleRtRw,
+    'PENGAMBIL_KEPUTUSAN': SigapColors.rolePengambilKeputusan,
+    'EXEC': SigapColors.roleExec,
   };
 
   Color _getRoleBannerColor(String role) {

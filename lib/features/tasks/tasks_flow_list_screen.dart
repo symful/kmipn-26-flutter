@@ -293,7 +293,7 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                           Text(
                             '$taskCount tugas',
                             style: const TextStyle(
-                              fontFamily: 'IBM Plex Mono',
+                              fontFamily: SigapTypography.fontFamilyMono,
                               fontSize: SigapTypography.size12,
                               color: SigapColors.textTertiary,
                             ),
@@ -339,16 +339,7 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                   : _error != null && _tasks.isEmpty
                   ? _ErrorRetry(error: _error!, onRetry: _load)
                   : _tasks.isEmpty
-                  ? Center(
-                      child: Text(
-                        isSurveyor
-                            ? 'Tidak ada tugas survei'
-                            : 'Belum ada tugas',
-                        style: const TextStyle(
-                          color: SigapColors.textSecondary,
-                        ),
-                      ),
-                    )
+                  ? _buildEmptyState(isSurveyor)
                   : Column(
                       children: [
                         // Filter chips
@@ -468,6 +459,59 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(bool isSurveyor) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(SigapSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: SigapColors.bgSurface,
+                shape: BoxShape.circle,
+                border: Border.all(color: SigapColors.borderCard, width: 2),
+              ),
+              child: const Icon(
+                Icons.assignment_outlined,
+                size: 36,
+                color: SigapColors.textTertiary,
+              ),
+            ),
+            const SizedBox(height: SigapSpacing.md),
+            Text(
+              isSurveyor ? 'Tidak Ada Tugas Survei' : 'Belum Ada Tugas',
+              style: const TextStyle(
+                fontSize: SigapTypography.size16,
+                fontWeight: FontWeight.w700,
+                color: SigapColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: SigapSpacing.xs),
+            Text(
+              isSurveyor
+                  ? 'Semua tugas survei lapangan yang ditugaskan akan tampil di sini.'
+                  : 'Tugas penanganan dari operator akan muncul di sini saat ditugaskan.',
+              style: const TextStyle(
+                fontSize: SigapTypography.size13,
+                color: SigapColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: SigapSpacing.lg),
+            OutlinedButton.icon(
+              onPressed: _load,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Segarkan Data'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -641,13 +685,13 @@ class _TasksFlowCard extends StatelessWidget {
     final now = DateTime.now();
     final hours = task.deadline!.difference(now).inHours;
     if (hours < 0) {
-      return const Color(0xFFF8E2DE); // red bg - Terlambat
+      return SigapColors.dangerBg; // red bg - Terlambat
     } else if (hours < 24) {
-      return const Color(0xFFF8ECD6); // amber bg - SLA today
+      return SigapColors.warningBg; // amber bg - SLA today
     } else if (hours < 48) {
-      return const Color(0xFFEEEEEE); // gray bg - SLA besok
+      return SigapColors.bgSoft; // gray bg - SLA besok
     } else {
-      return const Color(0xFFF8ECD6); // amber for future
+      return SigapColors.warningBg; // amber for future
     }
   }
 
@@ -656,13 +700,13 @@ class _TasksFlowCard extends StatelessWidget {
     final now = DateTime.now();
     final hours = task.deadline!.difference(now).inHours;
     if (hours < 0) {
-      return const Color(0xFFA5271A); // red text - Terlambat
+      return SigapColors.dangerTextStrong; // red text - Terlambat
     } else if (hours < 24) {
-      return const Color(0xFF8A5808); // amber text - SLA today
+      return SigapColors.warningText; // amber text - SLA today
     } else if (hours < 48) {
       return SigapColors.textSecondary; // gray text - SLA besok
     } else {
-      return const Color(0xFF8A5808); // amber for future
+      return SigapColors.warningText; // amber for future
     }
   }
 
@@ -703,7 +747,7 @@ class _TasksFlowCard extends StatelessWidget {
                       Text(
                         'TGS-${task.id.length >= 4 ? task.id.substring(0, 4) : task.id}',
                         style: const TextStyle(
-                          fontFamily: 'IBM Plex Mono',
+                          fontFamily: SigapTypography.fontFamilyMono,
                           fontSize: SigapTypography.size11,
                           color: SigapColors.textTertiary,
                         ),
@@ -904,18 +948,56 @@ class _ErrorRetry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: SigapColors.perluTindakan,
+      child: Padding(
+        padding: const EdgeInsets.all(SigapSpacing.xl),
+        child: Container(
+          padding: const EdgeInsets.all(SigapSpacing.xl),
+          decoration: BoxDecoration(
+            color: SigapColors.bgCard,
+            borderRadius: BorderRadius.circular(SigapRadius.lg),
+            border: Border.all(color: SigapColors.borderCard),
           ),
-          const SizedBox(height: 16),
-          Text('Gagal memuat: $error'),
-          ElevatedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 52,
+                color: SigapColors.perluTindakan,
+              ),
+              const SizedBox(height: SigapSpacing.md),
+              const Text(
+                'Gagal Memuat Tugas',
+                style: TextStyle(
+                  fontSize: SigapTypography.size16,
+                  fontWeight: FontWeight.w700,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: SigapSpacing.xs),
+              Text(
+                error,
+                style: const TextStyle(
+                  fontSize: SigapTypography.size13,
+                  color: SigapColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: SigapSpacing.lg),
+              ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -189,3 +189,21 @@ flutter test
 flutter analyze lib
 ```
 
+---
+
+## 📄 License & Attribution Notice
+
+This project is licensed under the **Server Side Public License Version 1.0 (SSPL-1.0)**. See the full license in [`LICENSE`](./LICENSE).
+
+### ⚖️ Historical Versions & Open Source Licensing Notice
+Previous releases and earlier repository snapshots that did not contain an explicit `LICENSE` file are legally classified as **unlicensed** under default copyright law (governed by the Berne Convention and GitHub Terms of Service § D.4 — *"All Rights Reserved"*).
+
+**Important clarification on unlicensed open-source code:**
+In software licensing, "unlicensed" or lacking an explicit license file **does not mean** the code is in the public domain, nor does it mean there are "no rules" or that anyone may freely copy, modify, distribute, or sub-license the software. Under international intellectual property law:
+- The authors retain exclusive copyright ownership of all code and creative assets.
+- Without an explicit open-source license grant, third parties only possess the default, non-transferable right to view the repository hosted on GitHub.
+- No implied rights of commercial distribution, modification, or derivation existed for those earlier unlicensed commits.
+
+With the formal inclusion of the [`LICENSE`](./LICENSE) file in this release, all rights, permissions, modification allowances, and mandatory public attribution requirements are governed explicitly under **SSPL-1.0**.
+
+

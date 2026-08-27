@@ -16,7 +16,7 @@ class Stepper5 extends StatelessWidget {
             height: 4,
             margin: EdgeInsets.only(right: i < 4 ? 5 : 0),
             decoration: BoxDecoration(
-              color: filled ? SigapColors.primary : const Color(0xFFE4E7E2),
+              color: filled ? SigapColors.primary : SigapColors.borderCard,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

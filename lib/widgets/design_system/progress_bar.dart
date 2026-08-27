@@ -26,14 +26,14 @@ class ProgressBar extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF616770),
+                color: SigapColors.textTertiary,
               ),
             ),
           ),
         Container(
           height: height,
           decoration: BoxDecoration(
-            color: const Color(0xFFEEF0EC),
+            color: SigapColors.bgSoft,
             borderRadius: BorderRadius.circular(height / 2),
           ),
           child: FractionallySizedBox(

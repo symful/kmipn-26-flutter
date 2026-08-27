@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:kmipn_26/theme/tokens.dart';
+
 enum TimelineVariant { amber, teal, gray }
 
 class TimelineEvent extends StatelessWidget {
@@ -21,11 +23,11 @@ class TimelineEvent extends StatelessWidget {
   Color get _dotColor {
     switch (variant) {
       case TimelineVariant.amber:
-        return const Color(0xFFB8730A);
+        return SigapColors.warning;
       case TimelineVariant.teal:
-        return const Color(0xFF0F7A6B);
+        return SigapColors.primary;
       case TimelineVariant.gray:
-        return const Color(0xFF8A9099);
+        return SigapColors.textDisabled;
     }
   }
 
@@ -49,7 +51,7 @@ class TimelineEvent extends StatelessWidget {
                 ),
                 if (!isLast)
                   Expanded(
-                    child: Container(width: 2, color: const Color(0xFFE4E7E2)),
+                    child: Container(width: 2, color: SigapColors.borderCard),
                   ),
               ],
             ),
@@ -64,7 +66,7 @@ class TimelineEvent extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF3A3F45),
+                    color: SigapColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -72,7 +74,7 @@ class TimelineEvent extends StatelessWidget {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF616770),
+                    color: SigapColors.textTertiary,
                   ),
                 ),
                 if (actor != null) ...[
@@ -81,7 +83,7 @@ class TimelineEvent extends StatelessWidget {
                     actor!,
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF8A9099),
+                      color: SigapColors.textDisabled,
                     ),
                   ),
                 ],

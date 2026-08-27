@@ -231,7 +231,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
                           child: Text(
                             '$count menunggu',
                             style: TextStyle(
-                              fontFamily: 'IBM Plex Mono',
+                              fontFamily: SigapTypography.fontFamilyMono,
                               fontSize: SigapTypography.size11,
                               fontWeight: FontWeight.w600,
                               color: count > 0
@@ -602,7 +602,7 @@ class _WargaPendingCard extends StatelessWidget {
                 Text(
                   '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
                   style: const TextStyle(
-                    fontFamily: 'IBM Plex Mono',
+                    fontFamily: SigapTypography.fontFamilyMono,
                     fontSize: SigapTypography.size11,
                     color: SigapColors.textTertiary,
                   ),
@@ -726,7 +726,7 @@ class _WargaDeadLetterCard extends StatelessWidget {
               Text(
                 '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
                 style: const TextStyle(
-                  fontFamily: 'IBM Plex Mono',
+                  fontFamily: SigapTypography.fontFamilyMono,
                   fontSize: SigapTypography.size10,
                   color: SigapColors.textTertiary,
                 ),
@@ -791,7 +791,7 @@ class _PendingCard extends StatelessWidget {
                     Text(
                       item._taskIdDisplay,
                       style: const TextStyle(
-                        fontFamily: 'IBM Plex Mono',
+                        fontFamily: SigapTypography.fontFamilyMono,
                         fontSize: SigapTypography.size11,
                         color: SigapColors.textTertiary,
                       ),

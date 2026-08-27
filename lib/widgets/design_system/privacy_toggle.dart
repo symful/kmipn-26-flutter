@@ -16,7 +16,7 @@ class PrivacyToggle extends StatelessWidget {
         width: 42,
         height: 24,
         decoration: BoxDecoration(
-          color: value ? SigapColors.primary : const Color(0xFFD3D7D0),
+          color: value ? SigapColors.primary : SigapColors.borderSoft,
           borderRadius: BorderRadius.circular(999),
         ),
         child: AnimatedAlign(

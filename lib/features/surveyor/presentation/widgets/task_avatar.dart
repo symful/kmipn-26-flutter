@@ -85,7 +85,7 @@ class TaskAvatar extends StatelessWidget {
               child: Text(
                 _initials,
                 style: TextStyle(
-                  fontFamily: 'IBM Plex Mono',
+                  fontFamily: SigapTypography.fontFamilyMono,
                   fontSize: size * 0.35,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.primaryDark,

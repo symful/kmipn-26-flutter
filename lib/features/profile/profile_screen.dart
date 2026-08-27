@@ -13,11 +13,13 @@ class ProfileScreen extends ConsumerWidget {
     final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
+      backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
         title: const Text(Strings.profil),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Pengaturan',
             onPressed: () => context.push('/settings'),
           ),
         ],
@@ -27,39 +29,50 @@ class ProfileScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(SigapSpacing.lg),
           children: [
             _UserInfoCard(
-              name: authState.userName ?? 'Unknown',
+              name: authState.userName ?? 'Pengguna SIGAP',
               email: authState.userEmail ?? '',
-              role: authState.activeRole ?? authState.userRole ?? 'Unknown',
+              role: authState.activeRole ?? authState.userRole ?? 'Warga',
             ),
             const SizedBox(height: SigapSpacing.lg),
-            _SectionHeader(title: 'Peran Saya'),
+            const _SectionHeader(title: 'Peran & Akses'),
             const SizedBox(height: SigapSpacing.sm),
             _RoleCard(
-              role: authState.activeRole ?? authState.userRole ?? 'Unknown',
+              role: authState.activeRole ?? authState.userRole ?? 'Warga',
               isActive: true,
               onTap: () => context.push('/switch-role'),
             ),
             const SizedBox(height: SigapSpacing.sm),
             OutlinedButton.icon(
-              icon: const Icon(Icons.swap_horiz),
-              label: const Text('Ganti Peran'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: SigapSpacing.sm),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SigapRadius.md),
+                ),
+              ),
+              icon: const Icon(Icons.swap_horiz, size: 20),
+              label: const Text('Ganti Peran Aktif'),
               onPressed: () => context.push('/switch-role'),
             ),
             const SizedBox(height: SigapSpacing.xl),
-            _SectionHeader(title: 'Akun'),
+            const _SectionHeader(title: 'Pengaturan & Preferensi'),
             const SizedBox(height: SigapSpacing.sm),
             _ActionCard(
-              icon: Icons.settings,
-              title: 'Pengaturan',
-              subtitle: 'Tema, bahasa, notifikasi',
+              icon: Icons.tune,
+              title: 'Pengaturan Aplikasi',
+              subtitle: 'Tema tampilan, pilihan bahasa, dan preferensi',
               onTap: () => context.push('/settings'),
             ),
             const SizedBox(height: SigapSpacing.lg),
             ElevatedButton.icon(
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.logout, size: 20),
               label: const Text(Strings.keluar),
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.perluTindakan,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SigapRadius.md),
+                ),
               ),
               onPressed: () => _handleLogout(context, ref),
             ),
@@ -73,12 +86,37 @@ class ProfileScreen extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(Strings.keluar),
-        content: const Text('Apakah Anda yakin ingin keluar?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SigapRadius.lg),
+        ),
+        backgroundColor: SigapColors.surface,
+        title: const Row(
+          children: [
+            Icon(Icons.logout, color: SigapColors.perluTindakan),
+            SizedBox(width: SigapSpacing.sm),
+            Text(
+              Strings.keluar,
+              style: TextStyle(
+                fontSize: SigapTypography.size16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Apakah Anda yakin ingin keluar dari sesi akun ini?',
+          style: TextStyle(
+            fontSize: SigapTypography.size13,
+            color: SigapColors.textSecondary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(Strings.batal),
+            child: const Text(
+              Strings.batal,
+              style: TextStyle(color: SigapColors.textSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -88,6 +126,10 @@ class ProfileScreen extends ConsumerWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: SigapColors.perluTindakan,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(SigapRadius.sm),
+              ),
             ),
             child: const Text(Strings.keluar),
           ),
@@ -108,8 +150,8 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
+          fontSize: SigapTypography.size13,
+          fontWeight: FontWeight.bold,
           color: SigapColors.textSecondary,
         ),
       ),
@@ -139,14 +181,14 @@ class _UserInfoCard extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            radius: 30,
+            radius: 28,
             backgroundColor: SigapColors.primary,
+            foregroundColor: Colors.white,
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : '?',
-              style: TextStyle(
-                fontSize: 24,
+              style: const TextStyle(
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ),
@@ -158,35 +200,41 @@ class _UserInfoCard extends StatelessWidget {
                 Text(
                   name,
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontSize: SigapTypography.size16,
+                    fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: SigapSpacing.xs),
-                Text(
-                  email,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: SigapColors.textSecondary,
+                if (email.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    email,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.size12,
+                      color: SigapColors.textSecondary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: SigapSpacing.xs),
+                ],
+                const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: SigapSpacing.sm,
-                    vertical: SigapSpacing.xs,
+                    vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: SigapColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(SigapRadius.sm),
+                    borderRadius: BorderRadius.circular(SigapRadius.pill),
+                    border: Border.all(
+                      color: SigapColors.primary.withValues(alpha: 0.25),
+                    ),
                   ),
                   child: Text(
-                    role,
+                    role.toUpperCase(),
                     style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontSize: SigapTypography.size10,
+                      fontWeight: FontWeight.bold,
                       color: SigapColors.primary,
+                      letterSpacing: SigapTypography.letterSpacingLabel,
                     ),
                   ),
                 ),
@@ -213,9 +261,7 @@ class _RoleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: isActive
-            ? SigapColors.primary.withValues(alpha: 0.05)
-            : SigapColors.surface,
+        color: SigapColors.surface,
         borderRadius: BorderRadius.circular(SigapRadius.md),
         border: Border.all(
           color: isActive ? SigapColors.primary : SigapColors.border,
@@ -226,13 +272,22 @@ class _RoleCard extends StatelessWidget {
           isActive ? Icons.check_circle : Icons.circle_outlined,
           color: isActive ? SigapColors.primary : SigapColors.textMuted,
         ),
-        title: Text(role),
+        title: Text(
+          role.replaceAll('_', ' ').toUpperCase(),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: SigapTypography.size14,
+            color: SigapColors.textPrimary,
+          ),
+        ),
         subtitle: Text(
           isActive ? 'Peran aktif saat ini' : 'Tap untuk mengaktifkan',
+          style: const TextStyle(
+            fontSize: SigapTypography.size12,
+            color: SigapColors.textSecondary,
+          ),
         ),
-        trailing: isActive
-            ? null
-            : const Icon(Icons.chevron_right, color: SigapColors.textMuted),
+        trailing: const Icon(Icons.chevron_right, color: SigapColors.textMuted),
         onTap: onTap,
       ),
     );
@@ -260,9 +315,30 @@ class _ActionCard extends StatelessWidget {
         border: Border.all(color: SigapColors.border),
       ),
       child: ListTile(
-        leading: Icon(icon, color: SigapColors.textSecondary),
-        title: Text(title),
-        subtitle: Text(subtitle),
+        leading: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: SigapColors.primaryLight,
+            borderRadius: BorderRadius.circular(SigapRadius.sm),
+          ),
+          child: Icon(icon, size: 20, color: SigapColors.primary),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: SigapTypography.size14,
+            color: SigapColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(
+            fontSize: SigapTypography.size12,
+            color: SigapColors.textSecondary,
+          ),
+        ),
         trailing: const Icon(Icons.chevron_right, color: SigapColors.textMuted),
         onTap: onTap,
       ),

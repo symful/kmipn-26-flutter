@@ -176,13 +176,14 @@ class _OperatorCaseListScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: SigapColors.primary))
           : _error != null
           ? _ErrorRetry(error: _error!, onRetry: _loadCases)
           : _filteredAndSorted.isEmpty
-          ? const Center(child: Text('Tidak ada kasus'))
+          ? _buildEmptyState()
           : RefreshIndicator(
               onRefresh: _loadCases,
+              color: SigapColors.primary,
               child: ListView.builder(
                 padding: const EdgeInsets.all(SigapSpacing.lg),
                 itemCount: _filteredAndSorted.length,
@@ -192,6 +193,61 @@ class _OperatorCaseListScreenState
                 },
               ),
             ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(SigapSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: SigapColors.bgSurface,
+                shape: BoxShape.circle,
+                border: Border.all(color: SigapColors.borderCard, width: 2),
+              ),
+              child: const Icon(
+                Icons.inbox_outlined,
+                size: 36,
+                color: SigapColors.textTertiary,
+              ),
+            ),
+            const SizedBox(height: SigapSpacing.md),
+            const Text(
+              'Tidak Ada Kasus',
+              style: TextStyle(
+                fontSize: SigapTypography.size16,
+                fontWeight: FontWeight.w700,
+                color: SigapColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: SigapSpacing.xs),
+            Text(
+              _statusFilter != 'all'
+                  ? 'Tidak ada kasus dengan filter status "$_statusFilter".'
+                  : 'Belum ada kasus yang masuk.',
+              style: const TextStyle(
+                fontSize: SigapTypography.size13,
+                color: SigapColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (_statusFilter != 'all') ...[
+              const SizedBox(height: SigapSpacing.md),
+              OutlinedButton.icon(
+                onPressed: () => setState(() => _statusFilter = 'all'),
+                icon: const Icon(Icons.clear, size: 16),
+                label: const Text('Reset Filter'),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -238,17 +294,39 @@ class _CaseCard extends StatelessWidget {
     }
   }
 
+  String get _statusLabel {
+    final status = caseData.status?.value ?? '';
+    switch (status.toLowerCase()) {
+      case 'submitted':
+        return 'Submitted';
+      case 'under_review':
+        return 'Under Review';
+      case 'in_progress':
+        return 'Diproses';
+      case 'resolved':
+        return 'Selesai';
+      case 'rejected':
+        return 'Ditolak';
+      case 'duplicate_merged':
+        return 'Duplikat';
+      default:
+        return status.isNotEmpty ? status : '-';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final id = caseData.id ?? '-';
-    final desc = caseData.description ?? '-';
-    final truncated = desc.length > 80 ? '${desc.substring(0, 80)}...' : desc;
+    final desc = caseData.description ?? caseData.title ?? '-';
+    final truncated = desc.length > 90 ? '${desc.substring(0, 90)}...' : desc;
+    final category = caseData.category;
 
     return Card(
       margin: const EdgeInsets.only(bottom: SigapSpacing.md),
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(SigapRadius.md),
-        side: const BorderSide(color: SigapColors.border),
+        side: const BorderSide(color: SigapColors.borderCard),
       ),
       child: InkWell(
         onTap: () => context.push('/operator/cases/$id'),
@@ -264,9 +342,10 @@ class _CaseCard extends StatelessWidget {
                     child: Text(
                       'ID: ${id.toString().length > 8 ? id.toString().substring(0, 8) : id}',
                       style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 13,
+                        fontFamily: SigapTypography.fontFamilyMono,
+                        fontSize: SigapTypography.size12,
                         fontWeight: FontWeight.w600,
+                        color: SigapColors.textTertiary,
                       ),
                     ),
                   ),
@@ -277,13 +356,13 @@ class _CaseCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: _statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      borderRadius: BorderRadius.circular(SigapRadius.pill),
                     ),
                     child: Text(
-                      caseData.status?.value ?? '-',
+                      _statusLabel,
                       style: TextStyle(
                         color: _statusColor,
-                        fontSize: 11,
+                        fontSize: SigapTypography.size11,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -293,14 +372,36 @@ class _CaseCard extends StatelessWidget {
               const SizedBox(height: SigapSpacing.sm),
               Text(
                 truncated,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: SigapColors.textSecondary,
+                style: const TextStyle(
+                  fontSize: SigapTypography.size13_5,
+                  fontWeight: FontWeight.w500,
+                  color: SigapColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: SigapSpacing.sm),
+              const SizedBox(height: SigapSpacing.md),
               Row(
                 children: [
+                  if (category != null && category.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.sm,
+                        vertical: SigapSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SigapColors.bgSoft,
+                        borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      ),
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          color: SigapColors.textSecondary,
+                          fontSize: SigapTypography.size11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: SigapSpacing.sm),
+                  ],
                   if (caseData.priority != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -308,20 +409,20 @@ class _CaseCard extends StatelessWidget {
                         vertical: SigapSpacing.xs,
                       ),
                       decoration: BoxDecoration(
-                        color: SigapColors.primary.withValues(alpha: 0.1),
+                        color: SigapColors.primaryLight,
                         borderRadius: BorderRadius.circular(SigapRadius.sm),
                       ),
                       child: Text(
                         'Prioritas: ${caseData.priority?.value}',
                         style: const TextStyle(
-                          color: SigapColors.primary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                          color: SigapColors.primaryDark,
+                          fontSize: SigapTypography.size11,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right, size: 20),
+                  const Icon(Icons.chevron_right, size: 20, color: SigapColors.textTertiary),
                 ],
               ),
             ],
@@ -340,15 +441,56 @@ class _ErrorRetry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.error_outline, size: 64, color: SigapColors.perluTindakan),
-          const SizedBox(height: 16),
-          Text('Gagal memuat: $error'),
-          const SizedBox(height: 16),
-          ElevatedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(SigapSpacing.xl),
+        child: Container(
+          padding: const EdgeInsets.all(SigapSpacing.xl),
+          decoration: BoxDecoration(
+            color: SigapColors.bgCard,
+            borderRadius: BorderRadius.circular(SigapRadius.lg),
+            border: Border.all(color: SigapColors.borderCard),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 52,
+                color: SigapColors.perluTindakan,
+              ),
+              const SizedBox(height: SigapSpacing.md),
+              const Text(
+                'Gagal Memuat Data',
+                style: TextStyle(
+                  fontSize: SigapTypography.size16,
+                  fontWeight: FontWeight.w700,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: SigapSpacing.xs),
+              Text(
+                error,
+                style: const TextStyle(
+                  fontSize: SigapTypography.size13,
+                  color: SigapColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: SigapSpacing.lg),
+              ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

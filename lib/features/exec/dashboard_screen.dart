@@ -114,6 +114,7 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
         title: const Text('Dashboard Pengambil Keputusan'),
         automaticallyImplyLeading: false,
@@ -124,7 +125,10 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
               child: SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: SigapColors.primary,
+                ),
               ),
             )
           else
@@ -172,7 +176,11 @@ class _ExecDashboardScreenState extends ConsumerState<ExecDashboardScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: SigapColors.primary,
+              ),
+            )
           : RefreshIndicator(
               onRefresh: _loadAll,
               child: SingleChildScrollView(
@@ -501,12 +509,12 @@ class _PeriodChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: SigapSpacing.sm,
+          horizontal: SigapSpacing.md,
           vertical: 6,
         ),
         decoration: BoxDecoration(
           color: selected ? SigapColors.primary : SigapColors.bgCard,
-          borderRadius: BorderRadius.circular(SigapRadius.sm),
+          borderRadius: BorderRadius.circular(SigapRadius.pill),
           border: Border.all(
             color: selected ? SigapColors.primary : SigapColors.borderCard,
           ),

@@ -42,7 +42,7 @@ class NotificationBell extends StatelessWidget {
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: const Color(0xFFC0392B), // #c0392b per M-05
+                color: SigapColors.perluTindakan, // #c0392b per M-05
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 1.6),
               ),
@@ -69,7 +69,7 @@ class _CheckboxPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF3A3F45)
+      ..color = SigapColors.textSecondary
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.6
       ..strokeCap = StrokeCap.round;

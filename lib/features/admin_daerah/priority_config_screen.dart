@@ -17,6 +17,7 @@ class _AdminDaerahPriorityConfigScreenState
     extends ConsumerState<AdminDaerahPriorityConfigScreen> {
   PriorityConfig? _config;
   bool _loading = true;
+  bool _saving = false;
   String? _error;
 
   @override
@@ -34,7 +35,6 @@ class _AdminDaerahPriorityConfigScreenState
       final client = ref.read(apiClientProvider);
       final data = await client.getPriorityConfigs();
       setState(() {
-        // Extract the first (most recent) priority config entry from the paginated response
         _config = data.entries.isNotEmpty ? data.entries.first : null;
         _loading = false;
       });
@@ -47,46 +47,103 @@ class _AdminDaerahPriorityConfigScreenState
   }
 
   Future<void> _saveWeights(Map<String, dynamic> weights) async {
-    setState(() => _loading = true);
+    setState(() => _saving = true);
     try {
       final client = ref.read(apiClientProvider);
       await client.savePriorityConfig(weights: weights);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Konfigurasi disimpan')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Konfigurasi bobot prioritas berhasil disimpan'),
+            backgroundColor: SigapColors.primary,
+          ),
+        );
       }
       _load();
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menyimpan: $e'),
+            backgroundColor: SigapColors.perluTindakan,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Konfigurasi Prioritas')),
+      backgroundColor: SigapColors.bgScreen,
+      appBar: AppBar(
+        title: const Text('Konfigurasi Prioritas'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Segarkan',
+            onPressed: _load,
+          ),
+        ],
+      ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: SigapColors.primary,
+              ),
+            )
           : _error != null
           ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: SigapColors.perluTindakan,
+              child: Padding(
+                padding: const EdgeInsets.all(SigapSpacing.xl),
+                child: Container(
+                  padding: const EdgeInsets.all(SigapSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: SigapColors.surface,
+                    borderRadius: BorderRadius.circular(SigapRadius.md),
+                    border: Border.all(color: SigapColors.dangerBorder),
                   ),
-                  Text('Gagal: $_error'),
-                  ElevatedButton(
-                    onPressed: _load,
-                    child: const Text('Coba Lagi'),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: SigapColors.perluTindakan,
+                      ),
+                      const SizedBox(height: SigapSpacing.md),
+                      const Text(
+                        'Gagal Memuat Konfigurasi',
+                        style: TextStyle(
+                          fontSize: SigapTypography.size16,
+                          fontWeight: FontWeight.bold,
+                          color: SigapColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: SigapSpacing.xs),
+                      Text(
+                        _error!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.size12,
+                          color: SigapColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: SigapSpacing.lg),
+                      ElevatedButton.icon(
+                        onPressed: _load,
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Coba Lagi'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: SigapColors.primary,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             )
           : SingleChildScrollView(
@@ -97,27 +154,42 @@ class _AdminDaerahPriorityConfigScreenState
                   Container(
                     padding: const EdgeInsets.all(SigapSpacing.md),
                     decoration: BoxDecoration(
-                      color: SigapColors.diproses.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      color: SigapColors.diproses.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
                       border: Border.all(
-                        color: SigapColors.diproses.withValues(alpha: 0.3),
+                        color: SigapColors.diproses.withValues(alpha: 0.25),
                       ),
                     ),
                     child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
-                          Icons.info_outline,
+                          Icons.tune,
                           color: SigapColors.diproses,
-                          size: 20,
+                          size: 22,
                         ),
-                        SizedBox(width: 8),
+                        SizedBox(width: SigapSpacing.md),
                         Expanded(
-                          child: Text(
-                            'Atur bobot faktor yang mempengaruhi skor prioritas laporan.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: SigapColors.diproses,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Algoritma Penilaian Prioritas',
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size13,
+                                  fontWeight: FontWeight.bold,
+                                  color: SigapColors.diproses,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Atur persentase bobot setiap faktor untuk menghitung skor prioritas otomatis pada setiap laporan yang masuk.',
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size12,
+                                  color: SigapColors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -125,7 +197,17 @@ class _AdminDaerahPriorityConfigScreenState
                   ),
                   const SizedBox(height: SigapSpacing.lg),
                   if (_config != null)
-                    _PriorityForm(config: _config!, onSave: _saveWeights),
+                    _PriorityForm(
+                      config: _config!,
+                      saving: _saving,
+                      onSave: _saveWeights,
+                    )
+                  else
+                    _PriorityForm(
+                      config: PriorityConfig(),
+                      saving: _saving,
+                      onSave: _saveWeights,
+                    ),
                 ],
               ),
             ),
@@ -135,8 +217,13 @@ class _AdminDaerahPriorityConfigScreenState
 
 class _PriorityForm extends StatefulWidget {
   final PriorityConfig config;
+  final bool saving;
   final void Function(Map<String, dynamic>) onSave;
-  const _PriorityForm({required this.config, required this.onSave});
+  const _PriorityForm({
+    required this.config,
+    required this.saving,
+    required this.onSave,
+  });
 
   @override
   State<_PriorityForm> createState() => _PriorityFormState();
@@ -145,11 +232,26 @@ class _PriorityForm extends StatefulWidget {
 class _PriorityFormState extends State<_PriorityForm> {
   late Map<String, double> _weights;
 
+  final Map<String, String> _factorLabels = const {
+    'severity': 'Tingkat Keparahan (Severity)',
+    'recency': 'Kebaruan Laporan (Recency)',
+    'category': 'Urgensi Kategori (Category)',
+    'location': 'Kepadatan Wilayah (Location)',
+    'history': 'Riwayat Wilayah/Laporan (History)',
+  };
+
+  final Map<String, IconData> _factorIcons = const {
+    'severity': Icons.warning_amber_rounded,
+    'recency': Icons.schedule,
+    'category': Icons.category_outlined,
+    'location': Icons.location_on_outlined,
+    'history': Icons.history,
+  };
+
   @override
   void initState() {
     super.initState();
     _weights = {};
-    // Convert rules list to weights map: each rule has 'factor'/'weight' keys
     final saved = <String, double>{};
     final rules = widget.config.rules;
     if (rules != null) {
@@ -173,21 +275,113 @@ class _PriorityFormState extends State<_PriorityForm> {
     }
   }
 
+  double get _totalPercentage {
+    return _weights.values.fold(0.0, (sum, val) => sum + val);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final total = (_totalPercentage * 100).round();
+    final isExact100 = total == 100;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ..._weights.entries.map(
-          (e) => _WeightSlider(
-            label: e.key,
-            value: e.value,
-            onChanged: (v) => setState(() => _weights[e.key] = v),
+        // Total percentage status card
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: SigapSpacing.md,
+            vertical: SigapSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: isExact100
+                ? SigapColors.selesai.withValues(alpha: 0.1)
+                : SigapColors.warning.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(SigapRadius.md),
+            border: Border.all(
+              color: isExact100
+                  ? SigapColors.selesai.withValues(alpha: 0.3)
+                  : SigapColors.warning.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isExact100 ? Icons.check_circle : Icons.info,
+                color: isExact100 ? SigapColors.selesai : SigapColors.warning,
+                size: 20,
+              ),
+              const SizedBox(width: SigapSpacing.sm),
+              Expanded(
+                child: Text(
+                  isExact100
+                      ? 'Total bobot: 100% (Sesuai)'
+                      : 'Total bobot: $total% (Disarankan total 100%)',
+                  style: TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w600,
+                    color: isExact100
+                        ? SigapColors.selesai
+                        : SigapColors.warningTextStrong,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: SigapSpacing.md),
+
+        // Sliders card
+        Container(
+          padding: const EdgeInsets.all(SigapSpacing.lg),
+          decoration: BoxDecoration(
+            color: SigapColors.surface,
+            borderRadius: BorderRadius.circular(SigapRadius.md),
+            border: Border.all(color: SigapColors.border),
+          ),
+          child: Column(
+            children: _weights.entries.map((e) {
+              final label = _factorLabels[e.key] ?? e.key.toUpperCase();
+              final icon = _factorIcons[e.key] ?? Icons.tune;
+              return _WeightSlider(
+                label: label,
+                icon: icon,
+                value: e.value,
+                onChanged: (v) => setState(() => _weights[e.key] = v),
+              );
+            }).toList(),
           ),
         ),
         const SizedBox(height: SigapSpacing.xl),
+
         ElevatedButton(
-          onPressed: () => widget.onSave({'weights': _weights}),
-          child: const Text(Strings.simpanKonfigurasi),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: SigapColors.primary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SigapRadius.md),
+            ),
+          ),
+          onPressed: widget.saving
+              ? null
+              : () => widget.onSave({'weights': _weights}),
+          child: widget.saving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text(
+                  Strings.simpanKonfigurasi,
+                  style: TextStyle(
+                    fontSize: SigapTypography.size14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
         ),
       ],
     );
@@ -196,48 +390,80 @@ class _PriorityFormState extends State<_PriorityForm> {
 
 class _WeightSlider extends StatelessWidget {
   final String label;
+  final IconData icon;
   final double value;
   final ValueChanged<double> onChanged;
+
   const _WeightSlider({
     required this.label,
+    required this.icon,
     required this.value,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final pct = (value * 100).round();
+    final color = pct >= 25
+        ? SigapColors.primary
+        : pct >= 15
+        ? SigapColors.diproses
+        : SigapColors.textSecondary;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.lg),
+      padding: const EdgeInsets.only(bottom: SigapSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                label.replaceFirst(label[0], label[0].toUpperCase()),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+              Icon(icon, size: 18, color: SigapColors.primary),
+              const SizedBox(width: SigapSpacing.sm),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size13,
+                    fontWeight: FontWeight.w600,
+                    color: SigapColors.textPrimary,
+                  ),
+                ),
               ),
-              Text(
-                '${(value * 100).round()}%',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: value >= 0.25
-                      ? Colors.green
-                      : value >= 0.1
-                      ? Colors.orange
-                      : SigapColors.perluTindakan,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SigapSpacing.sm,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(SigapRadius.pill),
+                ),
+                child: Text(
+                  '$pct%',
+                  style: TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
                 ),
               ),
             ],
           ),
-          Slider(
-            value: value,
-            min: 0,
-            max: 1,
-            divisions: 20,
-            label: '${(value * 100).round()}%',
-            onChanged: onChanged,
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: SigapColors.primary,
+              inactiveTrackColor: SigapColors.border,
+              thumbColor: SigapColors.primary,
+              overlayColor: SigapColors.primary.withValues(alpha: 0.12),
+              trackHeight: 4,
+            ),
+            child: Slider(
+              value: value,
+              min: 0,
+              max: 1,
+              divisions: 20,
+              onChanged: onChanged,
+            ),
           ),
         ],
       ),

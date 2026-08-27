@@ -208,10 +208,10 @@ class _PhotoPlaceholder extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFE4E7E2),
-            Color(0xFFE4E7E2),
-            Color(0xFFEEF0EC),
-            Color(0xFFEEF0EC),
+            SigapColors.borderCard,
+            SigapColors.borderCard,
+            SigapColors.bgSoft,
+            SigapColors.bgSoft,
           ],
           stops: [0.0, 0.5, 0.5, 1.0],
         ),
@@ -221,7 +221,7 @@ class _PhotoPlaceholder extends StatelessWidget {
       child: Text(
         'foto $photoIndex',
         style: const TextStyle(
-          fontFamily: 'IBM Plex Mono',
+          fontFamily: SigapTypography.fontFamilyMono,
           fontSize: SigapTypography.size8,
           color: SigapColors.textDisabled,
         ),
@@ -247,7 +247,7 @@ class _CategoryBadge extends StatelessWidget {
       child: Text(
         initials,
         style: const TextStyle(
-          fontFamily: 'IBM Plex Mono',
+          fontFamily: SigapTypography.fontFamilyMono,
           fontSize: SigapTypography.size10,
           fontWeight: FontWeight.w600,
           color: SigapColors.primaryDark,

@@ -101,7 +101,7 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
                       Text(
                         '${_visits.length} visit',
                         style: const TextStyle(
-                          fontFamily: 'IBM Plex Mono',
+                          fontFamily: SigapTypography.fontFamilyMono,
                           fontSize: SigapTypography.size12,
                           color: SigapColors.textTertiary,
                         ),
@@ -307,7 +307,7 @@ class _VisitCard extends StatelessWidget {
                     Text(
                       _taskIdDisplay,
                       style: const TextStyle(
-                        fontFamily: 'IBM Plex Mono',
+                        fontFamily: SigapTypography.fontFamilyMono,
                         fontSize: SigapTypography.size11,
                         color: SigapColors.textTertiary,
                       ),

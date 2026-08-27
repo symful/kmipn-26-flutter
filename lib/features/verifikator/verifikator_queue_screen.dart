@@ -153,32 +153,61 @@ class _VerifikatorQueueScreenState
 
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inbox_outlined, size: 64, color: SigapColors.textTertiary),
-          const SizedBox(height: SigapSpacing.md),
-          Text(
-            'Tidak ada laporan',
-            style: TextStyle(
-              fontSize: SigapTypography.size16,
-              color: SigapColors.textSecondary,
+      child: Padding(
+        padding: const EdgeInsets.all(SigapSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: SigapColors.bgSurface,
+                shape: BoxShape.circle,
+                border: Border.all(color: SigapColors.borderCard, width: 2),
+              ),
+              child: const Icon(
+                Icons.inbox_outlined,
+                size: 36,
+                color: SigapColors.textTertiary,
+              ),
             ),
-          ),
-          if (_statusFilter != null || _kategoriFilter != null) ...[
-            const SizedBox(height: SigapSpacing.sm),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _statusFilter = null;
-                  _kategoriFilter = null;
-                });
-                _loadQueue();
-              },
-              child: const Text('Hapus filter'),
+            const SizedBox(height: SigapSpacing.md),
+            const Text(
+              'Tidak Ada Laporan di Antrean',
+              style: TextStyle(
+                fontSize: SigapTypography.size16,
+                fontWeight: FontWeight.w700,
+                color: SigapColors.textPrimary,
+              ),
             ),
+            const SizedBox(height: SigapSpacing.xs),
+            Text(
+              _statusFilter != null || _kategoriFilter != null
+                  ? 'Tidak ada laporan yang sesuai dengan filter yang aktif.'
+                  : 'Semua laporan masuk telah selesai diverifikasi.',
+              style: const TextStyle(
+                fontSize: SigapTypography.size13,
+                color: SigapColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (_statusFilter != null || _kategoriFilter != null) ...[
+              const SizedBox(height: SigapSpacing.md),
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _statusFilter = null;
+                    _kategoriFilter = null;
+                  });
+                  _loadQueue();
+                },
+                icon: const Icon(Icons.clear, size: 16),
+                label: const Text('Hapus Filter'),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -225,6 +254,11 @@ class _QueueEntryCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        side: const BorderSide(color: SigapColors.borderCard),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -242,7 +276,7 @@ class _QueueEntryCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: _getStatusColor(status).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      borderRadius: BorderRadius.circular(SigapRadius.pill),
                     ),
                     child: Text(
                       _getStatusLabel(status),
@@ -260,14 +294,14 @@ class _QueueEntryCard extends StatelessWidget {
                       vertical: SigapSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: SigapColors.primary.withValues(alpha: 0.1),
+                      color: SigapColors.bgSoft,
                       borderRadius: BorderRadius.circular(SigapRadius.sm),
                     ),
                     child: Text(
                       categoryName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: SigapTypography.size11,
-                        color: SigapColors.primary,
+                        color: SigapColors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -308,7 +342,7 @@ class _QueueEntryCard extends StatelessWidget {
                       ),
                       child: Text(
                         'Score: $priorityScore',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: SigapTypography.size10,
                           color: SigapColors.warning,
                           fontWeight: FontWeight.w600,
@@ -319,10 +353,10 @@ class _QueueEntryCard extends StatelessWidget {
                   const Spacer(),
                   Text(
                     '#${id.length > 8 ? id.substring(0, 8) : id}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: SigapTypography.size10,
                       color: SigapColors.textTertiary,
-                      fontFamily: 'monospace',
+                      fontFamily: SigapTypography.fontFamilyMono,
                     ),
                   ),
                 ],
@@ -330,31 +364,33 @@ class _QueueEntryCard extends StatelessWidget {
               const SizedBox(height: SigapSpacing.sm),
               Text(
                 description.isNotEmpty ? description : '-',
-                style: TextStyle(
-                  fontSize: SigapTypography.size14,
+                style: const TextStyle(
+                  fontSize: SigapTypography.size13_5,
+                  fontWeight: FontWeight.w500,
                   color: SigapColors.textPrimary,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: SigapSpacing.md),
+              const SizedBox(height: SigapSpacing.sm),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.check_circle),
-                    color: Colors.green,
+                    icon: const Icon(Icons.check_circle_outline),
+                    color: SigapColors.selesai,
                     onPressed: onAccept,
                     tooltip: 'Terima',
                   ),
                   IconButton(
-                    icon: const Icon(Icons.cancel),
-                    color: Colors.red,
+                    icon: const Icon(Icons.highlight_off),
+                    color: SigapColors.perluTindakan,
                     onPressed: onReject,
                     tooltip: 'Tolak',
                   ),
                   IconButton(
                     icon: const Icon(Icons.chevron_right),
+                    color: SigapColors.textTertiary,
                     onPressed: onTap,
                     tooltip: 'Detail',
                   ),

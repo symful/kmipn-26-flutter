@@ -174,7 +174,7 @@ class GpsCaptureCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: SigapTypography.size14,
                   fontWeight: FontWeight.w600,
-                  fontFamily: 'IBM Plex Mono',
+                  fontFamily: SigapTypography.fontFamilyMono,
                   color: SigapColors.textPrimary,
                 ),
               ),
@@ -199,7 +199,7 @@ class GpsCaptureCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: SigapTypography.size14,
                   fontWeight: FontWeight.w600,
-                  fontFamily: 'IBM Plex Mono',
+                  fontFamily: SigapTypography.fontFamilyMono,
                   color: SigapColors.textPrimary,
                 ),
               ),
@@ -225,7 +225,7 @@ class GpsCaptureCard extends StatelessWidget {
           style: TextStyle(
             fontSize: SigapTypography.size13,
             fontWeight: FontWeight.w600,
-            fontFamily: 'IBM Plex Mono',
+            fontFamily: SigapTypography.fontFamilyMono,
             color: SigapColors.textPrimary,
           ),
         ),

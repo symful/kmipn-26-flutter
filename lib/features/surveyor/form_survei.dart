@@ -313,7 +313,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   _FormSurveiHeader(),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 14,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -346,13 +349,13 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                               _buildPhotoCounter(),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: SigapSpacing.sm),
                           _FotoSudutRow(
                             photos: _photos,
                             onAddPhoto: _showPhotoSourceDialog,
                             onRemovePhoto: _removePhoto,
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: SigapSpacing.x14),
 
                           // 2. Kondisi Segmented Control — custom matching S-04 (Ringan/Berat/Kritis)
                           Row(
@@ -376,21 +379,22 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: SigapSpacing.sm),
                           _buildKondisiSegmentedControl(),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: SigapSpacing.x14),
 
                           // 3. GPS Section — GpsCaptureCard
                           _buildGpsCard(),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: SigapSpacing.x14),
 
                           // 4. Catatan Lapangan
                           CatatanLapangan(
                             controller: _notesController,
-                            hintText: 'Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.',
+                            hintText:
+                                'Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.',
                             maxCharacters: 300,
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: SigapSpacing.x14),
 
                           // 5. Rekomendasi Section
                           Row(
@@ -414,7 +418,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: SigapSpacing.sm),
                           RekomendasiSelector(
                             selectedValue: _selectedRekomendasi == 0
                                 ? 'Valid — perlu tindak lanjut'
@@ -425,12 +429,13 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                             ],
                             onChanged: (value) {
                               setState(() {
-                                _selectedRekomendasi = value.startsWith('Valid') ? 0 : 1;
+                                _selectedRekomendasi = value.startsWith('Valid')
+                                    ? 0
+                                    : 1;
                               });
                             },
                           ),
-                          const SizedBox(height: 14),
-
+                          const SizedBox(height: SigapSpacing.x14),
 
                           // Error message
                           if (_submitError != null) ...[
@@ -526,7 +531,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 style: TextStyle(
                   fontSize: SigapTypography.size11,
                   fontWeight: FontWeight.w600,
-                  fontFamily: 'IBM Plex Mono',
+                  fontFamily: SigapTypography.fontFamilyMono,
                   color: SigapColors.textSecondary,
                 ),
               ),
@@ -568,10 +573,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 6,
+                height: SigapSpacing.x6,
                 decoration: BoxDecoration(
                   color: SigapColors.borderCard,
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(SigapRadius.x3),
                 ),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
@@ -579,7 +584,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: SigapColors.primary,
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: BorderRadius.circular(SigapRadius.x3),
                     ),
                   ),
                 ),
@@ -658,8 +663,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 color: SigapColors.bgSurface,
                 borderRadius: BorderRadius.circular(SigapRadius.sm),
               ),
-              child: Icon(
-                Icons.location_on,
+              child: AppIcons.locationIcon(
                 color: SigapColors.textTertiary,
                 size: 24,
               ),

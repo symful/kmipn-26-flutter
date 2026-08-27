@@ -166,7 +166,7 @@ class _CaseCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: const Color(0xFFD5E0FB)),
+        border: Border.all(color: SigapColors.infoChartBar),
         borderRadius: BorderRadius.circular(SigapRadius.md),
       ),
       padding: const EdgeInsets.all(SigapSpacing.x11),
@@ -188,8 +188,8 @@ class _CaseCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   caseItem.initials,
-                  style: const TextStyle(
-                    fontFamily: 'IBM Plex Mono',
+                  style: TextStyle(
+                    fontFamily: SigapTypography.fontFamilyMono,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.primaryDark,

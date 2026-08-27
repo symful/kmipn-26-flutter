@@ -60,9 +60,9 @@ class DetailAppBar extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'Lokal #$localId · Server #$serverId',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: SigapTypography.size11,
-                    fontFamily: 'IBM Plex Mono',
+                    fontFamily: SigapTypography.fontFamilyMono,
                     color: SigapColors.textTertiary,
                   ),
                 ),

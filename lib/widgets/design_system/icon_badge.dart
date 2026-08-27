@@ -20,7 +20,7 @@ class IconBadge extends StatelessWidget {
       child: Text(
         code.length > 2 ? code.substring(0, 2) : code,
         style: const TextStyle(
-          fontFamily: 'IBM Plex Mono',
+          fontFamily: SigapTypography.fontFamilyMono,
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: SigapColors.primaryDark,

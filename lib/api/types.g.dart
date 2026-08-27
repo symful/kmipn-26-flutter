@@ -293,8 +293,7 @@ class SlaConfig {
   final String? priority;
   final bool? isActive;
   final String? createdAt;
-  final String? prioritas;
-  SlaConfig({this.id, this.name, this.slaDays, this.priority, this.isActive, this.createdAt, this.prioritas});
+  SlaConfig({this.id, this.name, this.slaDays, this.priority, this.isActive, this.createdAt});
 
   factory SlaConfig.fromJson(Map<String, dynamic> json) {
     return SlaConfig(
@@ -304,7 +303,6 @@ class SlaConfig {
       priority: json['prioritas']?.toString(),
       isActive: json['is_active'] as bool?,
       createdAt: json['created_at']?.toString(),
-      prioritas: json['prioritas']?.toString(),
     );
   }
 
@@ -313,9 +311,9 @@ class SlaConfig {
       'id': id,
       'kategori_id': name,
       'jam': slaDays,
+      'prioritas': priority,
       'is_active': isActive,
       'created_at': createdAt,
-      'prioritas': prioritas ?? priority,
     };
   }
 }

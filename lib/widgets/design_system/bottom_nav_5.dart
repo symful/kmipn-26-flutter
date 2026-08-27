@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sigap/l10n/strings.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/components/app_icons.dart';
 
 enum BottomNavVariant { warga, surveyor }
 
@@ -26,12 +27,19 @@ class BottomNav5 extends StatelessWidget {
 
   Widget _buildWargaNav() {
     return Container(
-      height: 80,
+      height: SigapSpacing.x90,
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE4E7E2), width: 1)),
+        border: Border(
+          top: BorderSide(color: SigapColors.borderCard, width: 1),
+        ),
       ),
-      padding: const EdgeInsets.fromLTRB(12, 9, 12, 20),
+      padding: EdgeInsets.fromLTRB(
+        SigapSpacing.x12,
+        SigapSpacing.x9,
+        SigapSpacing.x12,
+        SigapSpacing.xl,
+      ),
       child: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.none,
@@ -43,7 +51,7 @@ class BottomNav5 extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _WargaNavItem(label: Strings.beranda, index: 0),
-                SizedBox(width: 24),
+                SizedBox(width: SigapSpacing.xl),
                 _WargaNavItem(label: Strings.peta, index: 1),
               ],
             ),
@@ -55,7 +63,7 @@ class BottomNav5 extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _WargaNavItem(label: Strings.laporan, index: 3),
-                SizedBox(width: 24),
+                SizedBox(width: SigapSpacing.xl),
                 _WargaNavItem(label: Strings.akun, index: 4),
               ],
             ),
@@ -78,16 +86,16 @@ class BottomNav5 extends StatelessWidget {
             height: 50,
             decoration: BoxDecoration(
               color: SigapColors.primary,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(SigapRadius.x16),
               boxShadow: SigapShadows.fab,
             ),
             child: const _PlusIcon(),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: SigapSpacing.x4),
           Text(
             Strings.buat,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: SigapTypography.size10,
               fontWeight: FontWeight.w600,
               color: SigapColors.primary,
             ),
@@ -100,19 +108,34 @@ class BottomNav5 extends StatelessWidget {
   Widget _buildSurveyorNav() {
     final items = [
       ('Tugas', Icons.assignment_outlined, Icons.assignment),
-      ('Peta', Icons.map_outlined, Icons.map),
-      ('Sinkron', Icons.sync_outlined, Icons.sync),
+      (
+        'Peta',
+        AppIcons.map.icon ?? Icons.map_outlined,
+        AppIcons.mapFilled.icon ?? Icons.map,
+      ),
+      ('Sinkron', Icons.refresh_outlined, AppIcons.sync.icon ?? Icons.sync),
       ('Riwayat', Icons.history_outlined, Icons.history),
-      ('Akun', Icons.person_outline, Icons.person),
+      (
+        'Akun',
+        AppIcons.person.icon ?? Icons.person_outlined,
+        AppIcons.personFilled.icon ?? Icons.person,
+      ),
     ];
 
     return Container(
-      height: 80,
+      height: SigapSpacing.x90,
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE4E7E2), width: 1)),
+        border: Border(
+          top: BorderSide(color: SigapColors.borderCard, width: 1),
+        ),
       ),
-      padding: const EdgeInsets.fromLTRB(8, 9, 8, 20),
+      padding: EdgeInsets.fromLTRB(
+        SigapSpacing.sm,
+        SigapSpacing.x9,
+        SigapSpacing.sm,
+        SigapSpacing.xl,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(5, (i) {
@@ -153,15 +176,17 @@ class _WargaNavItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(width: 18, height: 18, child: _buildIcon(isSelected)),
-          const SizedBox(height: 4),
+          SizedBox(height: SigapSpacing.x4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: SigapTypography.size10,
               fontWeight: isSelected
                   ? FontWeight.w600
                   : FontWeight.w400, // w400 per M-05 inactive spec
-              color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
+              color: isSelected
+                  ? SigapColors.primary
+                  : SigapColors.textTertiary,
             ),
           ),
         ],
@@ -230,13 +255,15 @@ class _SurveyorNavItem extends StatelessWidget {
             size: 24,
             color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: SigapSpacing.x4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: SigapTypography.size10,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
+              color: isSelected
+                  ? SigapColors.primary
+                  : SigapColors.textTertiary,
             ),
           ),
         ],

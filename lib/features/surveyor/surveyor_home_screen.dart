@@ -335,8 +335,8 @@ class _SurveyorHomeScreenState extends ConsumerState<SurveyorHomeScreen> {
         children: [
           // Empty state illustration - using a simple icon
           Container(
-            width: 80,
-            height: 80,
+            width: SigapSpacing.x90,
+            height: SigapSpacing.x90,
             decoration: BoxDecoration(
               color: SigapColors.bgSurface,
               shape: BoxShape.circle,

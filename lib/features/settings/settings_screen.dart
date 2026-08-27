@@ -10,16 +10,20 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(title: const Text('Pengaturan')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(SigapSpacing.lg),
           children: const [
-            _SectionHeader(title: 'Tampilan'),
+            _SectionHeader(title: 'Tampilan & Tema'),
             _ThemeToggle(),
             SizedBox(height: SigapSpacing.lg),
-            _SectionHeader(title: 'Bahasa'),
+            _SectionHeader(title: 'Bahasa & Lokalisasi'),
             _LanguageSelector(),
+            SizedBox(height: SigapSpacing.xl),
+            _SectionHeader(title: 'Informasi Aplikasi'),
+            _AppInfoCard(),
           ],
         ),
       ),
@@ -38,8 +42,8 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
+          fontSize: SigapTypography.size13,
+          fontWeight: FontWeight.bold,
           color: SigapColors.textSecondary,
         ),
       ),
@@ -62,9 +66,36 @@ class _ThemeToggle extends ConsumerWidget {
         border: Border.all(color: SigapColors.border),
       ),
       child: SwitchListTile(
-        title: const Text('Mode Gelap'),
-        subtitle: const Text('Aktifkan tema gelap untuk aplikasi'),
+        secondary: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: SigapColors.primaryLight,
+            borderRadius: BorderRadius.circular(SigapRadius.sm),
+          ),
+          child: Icon(
+            isDark ? Icons.dark_mode : Icons.light_mode,
+            size: 20,
+            color: SigapColors.primary,
+          ),
+        ),
+        title: const Text(
+          'Mode Gelap',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: SigapTypography.size14,
+            color: SigapColors.textPrimary,
+          ),
+        ),
+        subtitle: const Text(
+          'Aktifkan tema gelap untuk kenyamanan mata di malam hari',
+          style: TextStyle(
+            fontSize: SigapTypography.size12,
+            color: SigapColors.textSecondary,
+          ),
+        ),
         value: isDark,
+        activeColor: SigapColors.primary,
         onChanged: (value) {
           ref.read(settingsProvider.notifier).setDarkMode(value);
         },
@@ -81,8 +112,8 @@ class _LanguageSelector extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final currentLocale = settings.locale;
     final displayName = currentLocale.languageCode == 'id'
-        ? 'Indonesia'
-        : 'English';
+        ? 'Bahasa Indonesia'
+        : 'English (US)';
 
     return Container(
       decoration: BoxDecoration(
@@ -91,9 +122,31 @@ class _LanguageSelector extends ConsumerWidget {
         border: Border.all(color: SigapColors.border),
       ),
       child: ListTile(
-        title: const Text('Bahasa'),
-        subtitle: Text(displayName),
-        trailing: const Icon(Icons.chevron_right),
+        leading: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: SigapColors.primaryLight,
+            borderRadius: BorderRadius.circular(SigapRadius.sm),
+          ),
+          child: const Icon(Icons.language, size: 20, color: SigapColors.primary),
+        ),
+        title: const Text(
+          'Bahasa Aplikasi',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: SigapTypography.size14,
+            color: SigapColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          displayName,
+          style: const TextStyle(
+            fontSize: SigapTypography.size12,
+            color: SigapColors.textSecondary,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right, color: SigapColors.textMuted),
         onTap: () {
           _showLanguageDialog(context, ref);
         },
@@ -110,7 +163,23 @@ class _LanguageSelector extends ConsumerWidget {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('Pilih Bahasa'),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SigapRadius.lg),
+            ),
+            backgroundColor: SigapColors.surface,
+            title: const Row(
+              children: [
+                Icon(Icons.language, color: SigapColors.primary),
+                SizedBox(width: SigapSpacing.sm),
+                Text(
+                  'Pilih Bahasa',
+                  style: TextStyle(
+                    fontSize: SigapTypography.size16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -124,15 +193,39 @@ class _LanguageSelector extends ConsumerWidget {
                   child: Column(
                     children: [
                       ListTile(
-                        title: const Text('Indonesia'),
-                        leading: Radio<String>(value: 'id'),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                        ),
+                        title: const Text(
+                          'Bahasa Indonesia',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        leading: Radio<String>(
+                          value: 'id',
+                          activeColor: SigapColors.primary,
+                        ),
                         onTap: () {
                           setDialogState(() => selectedValue = 'id');
                         },
                       ),
                       ListTile(
-                        title: const Text('English'),
-                        leading: Radio<String>(value: 'en'),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                        ),
+                        title: const Text(
+                          'English',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        leading: Radio<String>(
+                          value: 'en',
+                          activeColor: SigapColors.primary,
+                        ),
                         onTap: () {
                           setDialogState(() => selectedValue = 'en');
                         },
@@ -145,9 +238,19 @@ class _LanguageSelector extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text(Strings.batal),
+                child: const Text(
+                  Strings.batal,
+                  style: TextStyle(color: SigapColors.textSecondary),
+                ),
               ),
-              TextButton(
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SigapRadius.sm),
+                  ),
+                ),
                 onPressed: () {
                   final locale = selectedValue == 'id'
                       ? const Locale('id')
@@ -155,11 +258,119 @@ class _LanguageSelector extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setLocale(locale);
                   Navigator.pop(dialogContext);
                 },
-                child: const Text('Pilih'),
+                child: const Text('Simpan'),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _AppInfoCard extends StatelessWidget {
+  const _AppInfoCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(SigapSpacing.md),
+      decoration: BoxDecoration(
+        color: SigapColors.surface,
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        border: Border.all(color: SigapColors.border),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: SigapColors.primaryLight,
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                ),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  color: SigapColors.primary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: SigapSpacing.md),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SIGAP Mobile',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size14,
+                        fontWeight: FontWeight.bold,
+                        color: SigapColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      'Sistem Informasi & Gerak Aduan Publik',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size11,
+                        color: SigapColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SigapSpacing.sm,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: SigapColors.bgSurface,
+                  borderRadius: BorderRadius.circular(SigapRadius.pill),
+                  border: Border.all(color: SigapColors.border),
+                ),
+                child: const Text(
+                  'v1.0.0',
+                  style: TextStyle(
+                    fontSize: SigapTypography.size11,
+                    fontWeight: FontWeight.bold,
+                    color: SigapColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: SigapSpacing.sm),
+          const Divider(height: 1, color: SigapColors.border),
+          const SizedBox(height: SigapSpacing.sm),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Status Server',
+                style: TextStyle(
+                  fontSize: SigapTypography.size12,
+                  color: SigapColors.textSecondary,
+                ),
+              ),
+              Row(
+                children: [
+                  Icon(Icons.circle, size: 8, color: SigapColors.selesai),
+                  SizedBox(width: 4),
+                  Text(
+                    'Online (Tersambung)',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size12,
+                      fontWeight: FontWeight.w500,
+                      color: SigapColors.selesai,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

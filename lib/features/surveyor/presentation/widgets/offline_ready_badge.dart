@@ -30,7 +30,7 @@ class OfflineReadyBadge extends StatelessWidget {
             width: 14,
             height: 14,
             decoration: const BoxDecoration(
-              color: Color(0xFFE2F1EE), // #e2f1ee
+              color: SigapColors.primaryLight, // #e2f1ee
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -45,7 +45,7 @@ class OfflineReadyBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: SigapTypography.size11,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF0A5C50), // #0a5c50
+              color: SigapColors.primaryDark, // #0a5c50
             ),
           ),
         ],

@@ -365,7 +365,7 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
           Text(
             'TGS-${(detail.taskId ?? '').length >= 4 ? detail.taskId!.substring(0, 4) : detail.taskId ?? '-'}',
             style: const TextStyle(
-              fontFamily: 'IBM Plex Mono',
+              fontFamily: SigapTypography.fontFamilyMono,
               fontSize: SigapTypography.size11,
               color: SigapColors.textTertiary,
             ),
@@ -761,26 +761,53 @@ class _ErrorRetry extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              size: 48,
-              color: SigapColors.danger,
-            ),
-            const SizedBox(height: SigapSpacing.md),
-            Text(
-              error,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: SigapColors.textSecondary,
-                fontSize: SigapTypography.size13,
+        child: Container(
+          padding: const EdgeInsets.all(SigapSpacing.xl),
+          decoration: BoxDecoration(
+            color: SigapColors.bgCard,
+            borderRadius: BorderRadius.circular(SigapRadius.lg),
+            border: Border.all(color: SigapColors.borderCard),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 52,
+                color: SigapColors.perluTindakan,
               ),
-            ),
-            const SizedBox(height: SigapSpacing.lg),
-            OutlinedButton(onPressed: onRetry, child: const Text('Coba Lagi')),
-          ],
+              const SizedBox(height: SigapSpacing.md),
+              const Text(
+                'Gagal Memuat Detail Tugas',
+                style: TextStyle(
+                  fontSize: SigapTypography.size16,
+                  fontWeight: FontWeight.w700,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: SigapSpacing.xs),
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: SigapColors.textSecondary,
+                  fontSize: SigapTypography.size13,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: SigapSpacing.lg),
+              ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

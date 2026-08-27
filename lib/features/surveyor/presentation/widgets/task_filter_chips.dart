@@ -104,10 +104,10 @@ class _TaskFilterChip extends StatelessWidget {
   /// S-01 design tokens for each chip variant
   Color get _backgroundColor {
     if (label == 'Hari ini') {
-      // Dark pill for "Hari ini" - no token available
+      // Dark pill for "Hari ini"
       return isSelected
-          ? const Color(0xFF1F2226)
-          : const Color(0xFF1F2226).withValues(alpha: 0.7);
+          ? SigapColors.phoneBezel
+          : SigapColors.phoneBezel.withValues(alpha: 0.7);
     } else if (label == 'Terlambat') {
       // Red background for overdue - dangerBg
       return SigapColors.dangerBg; // #f8e2de

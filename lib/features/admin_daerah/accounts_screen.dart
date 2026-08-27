@@ -20,6 +20,15 @@ class _AdminDaerahAccountsScreenState
   String? _error;
   String _roleFilter = 'all';
 
+  final List<String> _roleOptions = const [
+    'all',
+    'petugas',
+    'surveyor',
+    'verifikator',
+    'operator',
+    'admin_daerah',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -57,55 +66,94 @@ class _AdminDaerahAccountsScreenState
     final emailController = TextEditingController();
     final nameController = TextEditingController();
     String? selectedRole = 'PETUGAS';
+
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => AlertDialog(
-          title: const Text('Tambah Pengguna'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SigapRadius.lg),
+          ),
+          backgroundColor: SigapColors.surface,
+          title: const Row(
+            children: [
+              Icon(Icons.person_add, color: SigapColors.primary),
+              SizedBox(width: SigapSpacing.sm),
+              Text(
+                'Tambah Pengguna',
+                style: TextStyle(
+                  fontSize: SigapTypography.size16,
+                  fontWeight: FontWeight.bold,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const Text(
+                  'Masukkan informasi akun pengguna baru untuk sistem SIGAP.',
+                  style: TextStyle(
+                    fontSize: SigapTypography.size12,
+                    color: SigapColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: SigapSpacing.md),
                 TextField(
                   controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email (WAJIB)',
-                    border: OutlineInputBorder(),
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: 'Email (Wajib)',
+                    hintText: 'contoh@daerah.go.id',
+                    prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.sm,
+                    ),
                   ),
                 ),
-                const SizedBox(height: SigapSpacing.sm),
+                const SizedBox(height: SigapSpacing.md),
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: Strings.namaWAJIB,
-                    border: OutlineInputBorder(),
+                    hintText: 'Nama lengkap pengguna',
+                    prefixIcon: const Icon(Icons.badge_outlined, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.sm,
+                    ),
                   ),
                 ),
-                const SizedBox(height: SigapSpacing.sm),
+                const SizedBox(height: SigapSpacing.md),
                 DropdownButtonFormField<String>(
                   initialValue: selectedRole,
-                  decoration: const InputDecoration(
-                    labelText: 'Role',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: 'Peran / Role',
+                    prefixIcon: const Icon(Icons.admin_panel_settings_outlined, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.sm,
+                    ),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'PETUGAS', child: Text('PETUGAS')),
-                    DropdownMenuItem(
-                      value: 'SURVEYOR',
-                      child: Text('SURVEYOR'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'VERIFIKATOR',
-                      child: Text('VERIFIKATOR'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'OPERATOR',
-                      child: Text('OPERATOR'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'ADMIN_DAERAH',
-                      child: Text('ADMIN_DAERAH'),
-                    ),
+                    DropdownMenuItem(value: 'PETUGAS', child: Text('PETUGAS (Lapangan)')),
+                    DropdownMenuItem(value: 'SURVEYOR', child: Text('SURVEYOR (Verifikasi Fisik)')),
+                    DropdownMenuItem(value: 'VERIFIKATOR', child: Text('VERIFIKATOR (Validasi)')),
+                    DropdownMenuItem(value: 'OPERATOR', child: Text('OPERATOR (Disposisi)')),
+                    DropdownMenuItem(value: 'ADMIN_DAERAH', child: Text('ADMIN DAERAH')),
                   ],
                   onChanged: (v) => setSheetState(() => selectedRole = v),
                 ),
@@ -115,12 +163,28 @@ class _AdminDaerahAccountsScreenState
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text(Strings.batal),
+              child: const Text(
+                Strings.batal,
+                style: TextStyle(color: SigapColors.textSecondary),
+              ),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: SigapColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                ),
+              ),
               onPressed: () async {
                 if (emailController.text.trim().isEmpty ||
                     nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    const SnackBar(
+                      content: Text('Email dan nama wajib diisi'),
+                      backgroundColor: SigapColors.warning,
+                    ),
+                  );
                   return;
                 }
                 try {
@@ -137,6 +201,7 @@ class _AdminDaerahAccountsScreenState
                     ScaffoldMessenger.of(ctx).showSnackBar(
                       SnackBar(
                         content: Text('Error: ${extractErrorMessage(e)}'),
+                        backgroundColor: SigapColors.perluTindakan,
                       ),
                     );
                   }
@@ -154,102 +219,261 @@ class _AdminDaerahAccountsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
         title: const Text('Kelola Akun'),
         actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_list),
-            onSelected: (v) => setState(() => _roleFilter = v),
-            itemBuilder: (_) => [
-              const PopupMenuItem(value: 'all', child: Text('Semua Role')),
-              const PopupMenuItem(value: 'petugas', child: Text('PETUGAS')),
-              const PopupMenuItem(value: 'surveyor', child: Text('SURVEYOR')),
-              const PopupMenuItem(
-                value: 'verifikator',
-                child: Text('VERIFIKATOR'),
-              ),
-              const PopupMenuItem(value: 'operator', child: Text('OPERATOR')),
-            ],
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Segarkan',
+            onPressed: _load,
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _createUser,
-        child: const Icon(Icons.add),
+        backgroundColor: SigapColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Akun'),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: SigapColors.perluTindakan,
-                  ),
-                  Text('Gagal: $_error'),
-                  ElevatedButton(
-                    onPressed: _load,
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
+      body: Column(
+        children: [
+          // Filter Chips Row
+          Container(
+            color: SigapColors.surface,
+            padding: const EdgeInsets.symmetric(
+              horizontal: SigapSpacing.lg,
+              vertical: SigapSpacing.sm,
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _roleOptions.map((role) {
+                  final isSelected = _roleFilter == role;
+                  final label = role == 'all'
+                      ? 'Semua Role (${_items.length})'
+                      : '${role.replaceAll('_', ' ').toUpperCase()} (${_items.where((u) => (u['role'] as String?)?.toLowerCase() == role).length})';
+                  return Padding(
+                    padding: const EdgeInsets.only(right: SigapSpacing.sm),
+                    child: FilterChip(
+                      selected: isSelected,
+                      label: Text(label),
+                      labelStyle: TextStyle(
+                        fontSize: SigapTypography.size12,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected ? Colors.white : SigapColors.textPrimary,
+                      ),
+                      selectedColor: SigapColors.primary,
+                      backgroundColor: SigapColors.bgSurface,
+                      checkmarkColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.pill),
+                        side: BorderSide(
+                          color: isSelected ? SigapColors.primary : SigapColors.border,
+                        ),
+                      ),
+                      onSelected: (_) => setState(() => _roleFilter = role),
+                    ),
+                  );
+                }).toList(),
               ),
-            )
-          : _filtered.isEmpty
-          ? const Center(child: Text('Tidak ada akun'))
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(SigapSpacing.lg),
-                itemCount: _filtered.length,
-                itemBuilder: (context, index) {
-                  final user = _filtered[index];
-                  final role = user['role'] as String? ?? '-';
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: SigapColors.primary.withValues(
-                          alpha: 0.1,
-                        ),
-                        child: Text(
-                          (user['name'] as String? ?? '?')[0].toUpperCase(),
-                          style: const TextStyle(color: SigapColors.primary),
-                        ),
-                      ),
-                      title: Text(
-                        user['name'] as String? ?? '-',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: Text(
-                        user['email'] as String? ?? '-',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: SigapSpacing.sm,
-                          vertical: SigapSpacing.xs,
-                        ),
+            ),
+          ),
+          const Divider(height: 1, color: SigapColors.border),
+          // Content
+          Expanded(
+            child: _loading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: SigapColors.primary,
+                    ),
+                  )
+                : _error != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(SigapSpacing.xl),
+                      child: Container(
+                        padding: const EdgeInsets.all(SigapSpacing.lg),
                         decoration: BoxDecoration(
-                          color: _roleColor(role).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(SigapRadius.sm),
+                          color: SigapColors.surface,
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                          border: Border.all(color: SigapColors.dangerBorder),
                         ),
-                        child: Text(
-                          role,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: _roleColor(role),
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 48,
+                              color: SigapColors.perluTindakan,
+                            ),
+                            const SizedBox(height: SigapSpacing.md),
+                            Text(
+                              'Gagal Memuat Akun',
+                              style: const TextStyle(
+                                fontSize: SigapTypography.size16,
+                                fontWeight: FontWeight.bold,
+                                color: SigapColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: SigapSpacing.xs),
+                            Text(
+                              _error!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: SigapTypography.size12,
+                                color: SigapColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: SigapSpacing.lg),
+                            ElevatedButton.icon(
+                              onPressed: _load,
+                              icon: const Icon(Icons.refresh, size: 18),
+                              label: const Text('Coba Lagi'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: SigapColors.primary,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
+                  )
+                : _filtered.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(SigapSpacing.xl),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(SigapSpacing.lg),
+                            decoration: const BoxDecoration(
+                              color: SigapColors.primaryLight,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.people_outline,
+                              size: 48,
+                              color: SigapColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: SigapSpacing.md),
+                          const Text(
+                            'Tidak Ada Akun',
+                            style: TextStyle(
+                              fontSize: SigapTypography.size16,
+                              fontWeight: FontWeight.bold,
+                              color: SigapColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: SigapSpacing.xs),
+                          Text(
+                            _roleFilter == 'all'
+                                ? 'Belum ada akun pengguna yang terdaftar.'
+                                : 'Tidak ada pengguna dengan peran "${_roleFilter.toUpperCase()}".',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: SigapTypography.size13,
+                              color: SigapColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: SigapSpacing.lg),
+                          OutlinedButton.icon(
+                            onPressed: _createUser,
+                            icon: const Icon(Icons.add),
+                            label: const Text('Tambah Akun Baru'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _load,
+                    color: SigapColors.primary,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(SigapSpacing.lg),
+                      itemCount: _filtered.length,
+                      itemBuilder: (context, index) {
+                        final user = _filtered[index];
+                        final role = (user['role'] as String?) ?? '-';
+                        final name = (user['name'] as String?) ?? '-';
+                        final email = (user['email'] as String?) ?? '-';
+                        final roleCol = _roleColor(role);
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
+                          decoration: BoxDecoration(
+                            color: SigapColors.surface,
+                            borderRadius: BorderRadius.circular(SigapRadius.md),
+                            border: Border.all(color: SigapColors.border),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: SigapSpacing.md,
+                              vertical: SigapSpacing.xs,
+                            ),
+                            leading: CircleAvatar(
+                              backgroundColor: roleCol.withValues(alpha: 0.12),
+                              foregroundColor: roleCol,
+                              child: Text(
+                                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: roleCol,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: SigapTypography.size14,
+                                color: SigapColors.textPrimary,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                email,
+                                style: const TextStyle(
+                                  fontSize: SigapTypography.size12,
+                                  color: SigapColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: SigapSpacing.sm,
+                                vertical: SigapSpacing.xs,
+                              ),
+                              decoration: BoxDecoration(
+                                color: roleCol.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(SigapRadius.pill),
+                                border: Border.all(
+                                  color: roleCol.withValues(alpha: 0.25),
+                                ),
+                              ),
+                              child: Text(
+                                role.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: SigapTypography.size10,
+                                  color: roleCol,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: SigapTypography.letterSpacingLabel,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 

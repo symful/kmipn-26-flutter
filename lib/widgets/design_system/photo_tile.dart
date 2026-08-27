@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kmipn/theme/tokens.dart';
 
 enum PhotoTileVariant { filled, empty, withLabel }
 
@@ -35,14 +36,14 @@ class PhotoTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: const Color(0xFFCFd3CC),
+          color: SigapColors.borderSoft,
           width: 1,
           style: BorderStyle.solid,
         ),
         borderRadius: BorderRadius.circular(9),
       ),
       child: const Center(
-        child: Icon(Icons.add, color: Color(0xFF8A9099), size: 24),
+        child: Icon(Icons.add, color: SigapColors.textDisabled, size: 24),
       ),
     );
   }
@@ -54,7 +55,7 @@ class PhotoTile extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFE2F1EE), Color(0xFFE4E7E2)],
+          colors: [SigapColors.primaryLight, SigapColors.borderCard],
         ),
         borderRadius: BorderRadius.circular(9),
       ),
@@ -70,7 +71,10 @@ class PhotoTile extends StatelessWidget {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               label!,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF616770)),
+              style: const TextStyle(
+                fontSize: 11,
+                color: SigapColors.textTertiary,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

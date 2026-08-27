@@ -103,7 +103,7 @@ class _SurveyorRiwayatScreenState extends ConsumerState<SurveyorRiwayatScreen> {
                       Text(
                         '${_visits.length} visit',
                         style: const TextStyle(
-                          fontFamily: 'IBM Plex Mono',
+                          fontFamily: SigapTypography.fontFamilyMono,
                           fontSize: SigapTypography.size12,
                           color: SigapColors.textTertiary,
                         ),
@@ -309,7 +309,7 @@ class _VisitCard extends StatelessWidget {
                     Text(
                       _taskIdDisplay,
                       style: const TextStyle(
-                        fontFamily: 'IBM Plex Mono',
+                        fontFamily: SigapTypography.fontFamilyMono,
                         fontSize: SigapTypography.size11,
                         color: SigapColors.textTertiary,
                       ),
@@ -355,7 +355,11 @@ class _ErrorRetry extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: SigapColors.danger),
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: SigapColors.danger,
+            ),
             const SizedBox(height: SigapSpacing.lg),
             const Text(
               'Gagal memuat riwayat',

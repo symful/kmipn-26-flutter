@@ -495,7 +495,7 @@ class ReportDetailScreen extends ConsumerWidget {
             fontSize: SigapTypography.size11,
             fontWeight: FontWeight.w600,
             color: SigapColors.textMuted,
-            letterSpacing: 1.2,
+            letterSpacing: SigapTypography.letterSpacingLabel,
           ),
         ),
         const SizedBox(height: SigapSpacing.md),
@@ -758,7 +758,9 @@ class _TimelineEventItem extends StatelessWidget {
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: SigapColors.offlineDot.withValues(alpha: 0.8),
+                              color: SigapColors.offlineDot.withValues(
+                                alpha: 0.8,
+                              ),
                               spreadRadius: 2,
                             ),
                           ]
@@ -797,7 +799,7 @@ class _TimelineEventItem extends StatelessWidget {
                     Text(
                       '${timestamp != null ? _formatDate(timestamp) : ''}${actor != null ? ' · $actor' : ''}',
                       style: const TextStyle(
-                        fontFamily: 'IBM Plex Mono',
+                        fontFamily: SigapTypography.fontFamilyMono,
                         fontSize: SigapTypography.size11,
                         color: SigapColors.textTertiary,
                       ),
@@ -810,7 +812,6 @@ class _TimelineEventItem extends StatelessWidget {
         ],
       ),
     );
-
   }
 
   String _formatDate(String iso) {

@@ -193,6 +193,11 @@ class _WargaReportListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SigapRadius.md),
+        side: const BorderSide(color: SigapColors.borderCard),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -229,14 +234,14 @@ class _WargaReportListItem extends StatelessWidget {
                                 report.status,
                               ).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(
-                                SigapRadius.sm,
+                                SigapRadius.pill,
                               ),
                             ),
                             child: Text(
                               _serverStatusLabel(report.status),
                               style: TextStyle(
                                 color: _serverStatusColor(report.status),
-                                fontSize: 11,
+                                fontSize: SigapTypography.size11,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -248,7 +253,11 @@ class _WargaReportListItem extends StatelessWidget {
                             report.description,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 13),
+                            style: const TextStyle(
+                              fontSize: SigapTypography.size13_5,
+                              fontWeight: FontWeight.w500,
+                              color: SigapColors.textPrimary,
+                            ),
                           ),
                         ),
                       ],
@@ -258,8 +267,9 @@ class _WargaReportListItem extends StatelessWidget {
                     Text(
                       '${report.lat.toStringAsFixed(4)}, ${report.lng.toStringAsFixed(4)}',
                       style: const TextStyle(
-                        color: SigapColors.textMuted,
-                        fontSize: 11,
+                        color: SigapColors.textTertiary,
+                        fontFamily: SigapTypography.fontFamilyMono,
+                        fontSize: SigapTypography.size11,
                       ),
                     ),
                   ],
@@ -268,7 +278,7 @@ class _WargaReportListItem extends StatelessWidget {
               // Chevron
               const Icon(
                 Icons.chevron_right,
-                color: SigapColors.textMuted,
+                color: SigapColors.textTertiary,
                 size: 20,
               ),
             ],
@@ -307,12 +317,18 @@ Widget _buildStatsError(Object error, VoidCallback onRetry) {
         Expanded(
           child: Text(
             'Gagal memuat statistik',
-            style: TextStyle(color: SigapColors.textSecondary, fontSize: 13),
+            style: TextStyle(
+              color: SigapColors.textSecondary,
+              fontSize: SigapTypography.size13,
+            ),
           ),
         ),
         TextButton(
           onPressed: onRetry,
-          child: const Text('Coba lagi', style: TextStyle(fontSize: 13)),
+          child: const Text(
+            'Coba lagi',
+            style: TextStyle(fontSize: SigapTypography.size13),
+          ),
         ),
       ],
     ),
@@ -398,12 +414,18 @@ Widget _buildListError(Object error, VoidCallback onRetry) {
           const SizedBox(height: SigapSpacing.md),
           Text(
             'Gagal memuat laporan',
-            style: TextStyle(color: SigapColors.textSecondary, fontSize: 16),
+            style: TextStyle(
+              color: SigapColors.textSecondary,
+              fontSize: SigapTypography.size16,
+            ),
           ),
           const SizedBox(height: SigapSpacing.sm),
           Text(
             error.toString(),
-            style: TextStyle(color: SigapColors.textMuted, fontSize: 12),
+            style: TextStyle(
+              color: SigapColors.textMuted,
+              fontSize: SigapTypography.size12,
+            ),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -429,11 +451,14 @@ class _WargaPendingBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      padding: EdgeInsets.symmetric(
+        horizontal: SigapSpacing.x14,
+        vertical: SigapSpacing.md,
+      ),
       decoration: BoxDecoration(
         color: SigapColors.offlineBg,
         border: Border.all(color: SigapColors.offlineBorder),
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(SigapRadius.lg),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,11 +476,11 @@ class _WargaPendingBanner extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
-                fontSize: 14,
+                fontSize: SigapTypography.size14,
               ),
             ),
           ),
-          const SizedBox(width: 11),
+          SizedBox(width: SigapSpacing.x11),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,21 +488,21 @@ class _WargaPendingBanner extends StatelessWidget {
                 Text(
                   '$count laporan belum tersinkron',
                   style: const TextStyle(
-                    color: Color(0xFF7A4D06),
+                    color: SigapColors.warningTextStrong,
                     fontWeight: FontWeight.w600,
-                    fontSize: 13.5,
+                    fontSize: SigapTypography.size13_5,
                   ),
                 ),
-                const SizedBox(height: 1),
+                SizedBox(height: SigapRadius.x1),
                 const Text(
                   'Aman tersimpan di perangkat. Akan terkirim otomatis saat ada koneksi.',
                   style: TextStyle(
                     color: SigapColors.offlineText,
-                    fontSize: 12,
+                    fontSize: SigapTypography.size12,
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: SigapSpacing.sm),
                 GestureDetector(
                   onTap: () => context.push('/sync-center'),
                   child: const Text(
@@ -485,7 +510,7 @@ class _WargaPendingBanner extends StatelessWidget {
                     style: TextStyle(
                       color: SigapColors.primaryDark,
                       fontWeight: FontWeight.w600,
-                      fontSize: 12.5,
+                      fontSize: SigapTypography.size12_5,
                     ),
                   ),
                 ),
@@ -497,7 +522,6 @@ class _WargaPendingBanner extends StatelessWidget {
     );
   }
 }
-
 
 // ─── Main screen ─────────────────────────────────────────────────────────────
 
@@ -668,10 +692,10 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                   // Offline pill (only shown when offline per M-05)
                   if (isOffline)
                     Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 4,
+                      margin: EdgeInsets.only(right: SigapSpacing.x4),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.x9,
+                        vertical: SigapSpacing.x4,
                       ),
                       decoration: BoxDecoration(
                         color: SigapColors.offlineBg,
@@ -689,12 +713,12 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(width: 5),
+                          SizedBox(width: SigapSpacing.xs),
                           const Text(
                             'Offline',
                             style: TextStyle(
                               color: SigapColors.offlineText,
-                              fontSize: 11,
+                              fontSize: SigapTypography.size11,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -861,17 +885,49 @@ class _WargaHomeScreenState extends ConsumerState<WargaHomeScreen> {
     List<WargaReportItem> reports,
   ) {
     if (reports.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox_outlined, size: 48, color: SigapColors.textMuted),
-            SizedBox(height: SigapSpacing.md),
-            Text(
-              Strings.belumAdaAktivitas,
-              style: TextStyle(color: SigapColors.textMuted, fontSize: 16),
-            ),
-          ],
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: SigapSpacing.lg,
+            vertical: SigapSpacing.xl,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: SigapColors.bgSurface,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: SigapColors.borderCard, width: 2),
+                ),
+                child: const Icon(
+                  Icons.inbox_outlined,
+                  size: 32,
+                  color: SigapColors.textTertiary,
+                ),
+              ),
+              const SizedBox(height: SigapSpacing.md),
+              const Text(
+                Strings.belumAdaAktivitas,
+                style: TextStyle(
+                  color: SigapColors.textPrimary,
+                  fontSize: SigapTypography.size16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: SigapSpacing.xs),
+              const Text(
+                'Laporan yang Anda kirimkan akan dicatat di sini.',
+                style: TextStyle(
+                  color: SigapColors.textSecondary,
+                  fontSize: SigapTypography.size13,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }

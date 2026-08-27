@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/tokens.dart';
+
 enum ClusterStatus { red, amber, teal, blue }
 
 class ClusterPin extends StatelessWidget {
@@ -20,13 +22,13 @@ class ClusterPin extends StatelessWidget {
   Color get _color {
     switch (status) {
       case ClusterStatus.red:
-        return const Color(0xFFC0392B);
+        return SigapColors.perluTindakan;
       case ClusterStatus.amber:
-        return const Color(0xFFB8730A);
+        return SigapColors.warning;
       case ClusterStatus.teal:
-        return const Color(0xFF0F7A6B);
+        return SigapColors.primary;
       case ClusterStatus.blue:
-        return const Color(0xFF2563EB);
+        return SigapColors.diproses;
     }
   }
 

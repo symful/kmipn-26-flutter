@@ -684,9 +684,9 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
             // KPI row
             Row(
               children: [
-                _buildKpiCard('Menunggu', menunggu, const Color(0xFFB8730A)),
+                _buildKpiCard('Menunggu', menunggu, SigapColors.warning),
                 const SizedBox(width: SigapSpacing.sm),
-                _buildKpiCard('Diproses', diproses, const Color(0xFF2563EB)),
+                _buildKpiCard('Diproses', diproses, SigapColors.diproses),
                 const SizedBox(width: SigapSpacing.sm),
                 _buildKpiCard(
                   'Diverifikasi',
@@ -694,7 +694,7 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
                   SigapColors.primary,
                 ),
                 const SizedBox(width: SigapSpacing.sm),
-                _buildKpiCard('Ditolak', ditolak, const Color(0xFFC0392B)),
+                _buildKpiCard('Ditolak', ditolak, SigapColors.perluTindakan),
               ],
             ),
             const SizedBox(height: SigapSpacing.xl),
@@ -826,15 +826,15 @@ class _VerifikatorHomeScreenState extends ConsumerState<VerifikatorHomeScreen> {
       case 'pending':
       case 'submitted':
       case 'under_review':
-        return const Color(0xFFB8730A);
+        return SigapColors.warning;
       case 'in_progress':
       case 'processing':
-        return const Color(0xFF2563EB);
+        return SigapColors.diproses;
       case 'verified':
       case 'completed':
         return SigapColors.primary;
       case 'rejected':
-        return const Color(0xFFC0392B);
+        return SigapColors.perluTindakan;
       default:
         return SigapColors.textTertiary;
     }
@@ -1058,7 +1058,7 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
                     title: 'Unit',
                     value: '$unitsCount',
                     icon: Icons.business,
-                    color: const Color(0xFF2563EB),
+                    color: SigapColors.diproses,
                     onTap: () => context.push('/admin-daerah/units'),
                   ),
                 ),
@@ -1072,7 +1072,7 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
                     title: 'Kategori',
                     value: '$kategoriCount',
                     icon: Icons.category,
-                    color: const Color(0xFFB8730A),
+                    color: SigapColors.warning,
                     onTap: () => context.push('/admin-daerah/categories'),
                   ),
                 ),
@@ -1082,7 +1082,7 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
                     title: 'SLA',
                     value: 'Konfig',
                     icon: Icons.timer,
-                    color: const Color(0xFFC0392B),
+                    color: SigapColors.perluTindakan,
                     onTap: () => context.push('/admin-daerah/sla'),
                   ),
                 ),
@@ -1111,7 +1111,7 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
                     title: 'Menunggu',
                     value: '$pending',
                     icon: Icons.pending_actions,
-                    color: const Color(0xFFB8730A),
+                    color: SigapColors.warning,
                   ),
                 ),
               ],
@@ -1124,7 +1124,7 @@ class _AdminDaerahHomeScreenState extends ConsumerState<AdminDaerahHomeScreen> {
                     title: 'Diproses',
                     value: '$inProgress',
                     icon: Icons.engineering,
-                    color: const Color(0xFF2563EB),
+                    color: SigapColors.diproses,
                   ),
                 ),
                 const SizedBox(width: SigapSpacing.md),

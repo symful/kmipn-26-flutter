@@ -468,11 +468,11 @@ class _DuplicateCasesSection extends ConsumerWidget {
                     final c = cases[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: const Color(0xFFE3F2FD),
+                        backgroundColor: SigapColors.primaryLight,
                         child: Text(
                           c.initials,
                           style: const TextStyle(
-                            color: Color(0xFF1565C0),
+                            color: SigapColors.roleVerifikator,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

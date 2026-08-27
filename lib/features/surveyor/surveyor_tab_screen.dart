@@ -268,7 +268,7 @@ class _SinkronTabState extends ConsumerState<_SinkronTab> {
                       data: (tasks) => Text(
                         '${tasks.length} tugas',
                         style: const TextStyle(
-                          fontFamily: 'IBM Plex Mono',
+                          fontFamily: SigapTypography.fontFamilyMono,
                           fontSize: SigapTypography.size12,
                           color: SigapColors.textTertiary,
                         ),
@@ -519,7 +519,7 @@ class _SinkronTaskCard extends StatelessWidget {
                   Text(
                     _taskIdDisplay,
                     style: const TextStyle(
-                      fontFamily: 'IBM Plex Mono',
+                      fontFamily: SigapTypography.fontFamilyMono,
                       fontSize: SigapTypography.size11,
                       color: SigapColors.textTertiary,
                     ),
@@ -697,7 +697,7 @@ class _RiwayatTabState extends ConsumerState<_RiwayatTab> {
                   Text(
                     '${_visits.length} visit',
                     style: const TextStyle(
-                      fontFamily: 'IBM Plex Mono',
+                      fontFamily: SigapTypography.fontFamilyMono,
                       fontSize: SigapTypography.size11,
                       color: SigapColors.textTertiary,
                     ),
@@ -864,7 +864,7 @@ class _RiwayatVisitCard extends StatelessWidget {
                   Text(
                     _taskIdDisplay,
                     style: const TextStyle(
-                      fontFamily: 'IBM Plex Mono',
+                      fontFamily: SigapTypography.fontFamilyMono,
                       fontSize: SigapTypography.size11,
                       color: SigapColors.textTertiary,
                     ),

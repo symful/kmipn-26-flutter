@@ -104,7 +104,7 @@ class _ChecklistItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         decoration: BoxDecoration(
           border: showDivider
-              ? const Border(bottom: BorderSide(color: Color(0xFFEEF0EC)))
+              ? Border(bottom: BorderSide(color: SigapColors.bgSoft))
               : null,
         ),
         child: Row(
@@ -117,7 +117,9 @@ class _ChecklistItem extends StatelessWidget {
                 color: isChecked ? SigapColors.primary : Colors.white,
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isChecked ? SigapColors.primary : const Color(0xFFCFD3CC),
+                  color: isChecked
+                      ? SigapColors.primary
+                      : SigapColors.borderSoft,
                   width: 2,
                 ),
               ),
@@ -148,4 +150,3 @@ class _ChecklistItem extends StatelessWidget {
     );
   }
 }
-

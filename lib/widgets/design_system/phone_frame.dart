@@ -19,7 +19,7 @@ class PhoneFrame extends StatelessWidget {
       padding: const EdgeInsets.all(SigapSpacing.x11),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF4F5F3),
+          color: SigapColors.bgSurface,
           borderRadius: BorderRadius.circular(SigapRadius.x34),
         ),
         child: child,

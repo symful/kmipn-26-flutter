@@ -79,7 +79,7 @@ class KasusTerdekatCard extends StatelessWidget {
   Color get _statusTextColor {
     switch (status) {
       case KasusStatus.sedangDitangani:
-        return const Color(0xFF1D4ED8); // #1d4ed8 per M-05 spec
+        return SigapColors.info;
       case KasusStatus.terverifikasi:
         return SigapColors.primaryDark;
     }
@@ -118,7 +118,7 @@ class KasusTerdekatCard extends StatelessWidget {
               child: Text(
                 initials,
                 style: const TextStyle(
-                  fontFamily: 'IBM Plex Mono',
+                  fontFamily: SigapTypography.fontFamilyMono,
                   fontSize: SigapTypography.size13,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.primaryDark,

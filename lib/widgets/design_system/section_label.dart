@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/theme/tokens.dart';
 
 class SectionLabel extends StatelessWidget {
   final String text;
@@ -12,7 +13,7 @@ class SectionLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF616770),
+        color: SigapColors.textTertiary,
         letterSpacing: 0.04,
       ),
     );

@@ -76,6 +76,19 @@ class SigapColors {
   static const Color macGreen = Color(0xFF66C07F);
   static const Color macYellow = Color(0xFFE8BD57);
   static const Color macRed = Color(0xFFE06C60);
+
+  // Role colors
+  static const Color roleOperator = Color(0xFF2E7D32);
+  static const Color roleVerifikator = Color(0xFF1565C0);
+  static const Color roleAdmin = Color(0xFF6A1B9A);
+  static const Color rolePetugas = Color(0xFFE65100);
+  static const Color roleSurveyor = Color(0xFF00695C);
+  static const Color roleAuditor = Color(0xFF4527A0);
+  static const Color roleWarga = Color(0xFF558B2F);
+  static const Color roleRtRw = Color(0xFF6D4C41);
+  static const Color rolePengambilKeputusan = Color(0xFFC62828);
+  static const Color roleExec = Color(0xFFC62828);
+
   static const Color mapBg = Color(0xFFEAEEE9);
   static const Color mapGrid = Color(0xFFDFE4DE);
   static const Color phoneBezel = Color(0xFF1F2226);
@@ -105,6 +118,7 @@ class SigapSpacing {
   static const double x14 = 14;
   static const double x15 = 15;
   static const double x17 = 17;
+  static const double x20 = 20;
   static const double x22 = 22;
   static const double x28 = 28;
   static const double x32 = 32;
@@ -198,12 +212,15 @@ class SigapTypography {
   static const double size15 = 15;
   static const double size16 = 16;
   static const double size17 = 17;
+  static const double size18 = 18;
   static const double size19 = 19;
   static const double size20 = 20;
   static const double size22 = 22;
   static const double size24 = 24;
   static const double size26 = 26;
   static const double size30 = 30;
+  static const double size28 = 28;
+  static const double size36 = 36;
 
   // Line heights
   static const double lineHeight125 = 1.25;
