@@ -203,6 +203,8 @@ class SyncWorker {
         'lng': report.lng,
         if (report.deviceId != null) 'device_id': report.deviceId,
         if (photoUrls.isNotEmpty) 'photo_urls': photoUrls,
+        'population_affected': report.populationAffected,
+        'vulnerability_index': report.vulnerabilityIndex,
       });
       reportIdempotencyKeys.add(report.idempotencyKey);
     }

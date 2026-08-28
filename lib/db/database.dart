@@ -14,6 +14,10 @@ class LocalReports extends Table {
   TextColumn get deviceId => text().nullable()();
   TextColumn get status => text().withDefault(const Constant('submitted'))();
   IntColumn get syncStatus => integer().withDefault(const Constant(0))();
+  IntColumn get populationAffected =>
+      integer().withDefault(const Constant(0))();
+  RealColumn get vulnerabilityIndex =>
+      real().withDefault(const Constant(0.5))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   TextColumn get serverId => text().nullable()();
@@ -156,7 +160,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -173,6 +177,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) {
         await m.addColumn(syncQueue, syncQueue.syncStatus);
+      }
+      if (from < 6) {
+        await m.addColumn(localReports, localReports.populationAffected);
+        await m.addColumn(localReports, localReports.vulnerabilityIndex);
       }
     },
   );

@@ -58,7 +58,7 @@ class SigapTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(
             horizontal: SigapSpacing.xl,
-            vertical: SigapSpacing.md,
+            vertical: SigapSpacing.x15,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -71,7 +71,7 @@ class SigapTheme {
           side: const BorderSide(color: SigapColors.primary),
           padding: const EdgeInsets.symmetric(
             horizontal: SigapSpacing.xl,
-            vertical: SigapSpacing.md,
+            vertical: SigapSpacing.x15,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SigapRadius.md),

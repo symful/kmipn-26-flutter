@@ -21,13 +21,13 @@ class PhotoService {
   /// (for offline fallback).
   Future<String> uploadPhotoAndGetUrl(
     String localFilePath,
-    String idempotencyKey,
+    String reportId,
   ) async {
     try {
       final photoFile = File(localFilePath);
       final photoBytes = await photoFile.readAsBytes();
       final filename = localFilePath.split('/').last;
-      final uploadUrl = '/api/reports/$idempotencyKey/photos/upload-url';
+      final uploadUrl = '/api/reports/$reportId/photos/upload-url';
 
       final formData = FormData.fromMap({
         'photo': MultipartFile.fromBytes(photoBytes, filename: filename),

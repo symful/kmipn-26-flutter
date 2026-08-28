@@ -95,7 +95,7 @@ class _ThemeToggle extends ConsumerWidget {
           ),
         ),
         value: isDark,
-        activeColor: SigapColors.primary,
+        activeThumbColor: SigapColors.primary,
         onChanged: (value) {
           ref.read(settingsProvider.notifier).setDarkMode(value);
         },
@@ -129,7 +129,11 @@ class _LanguageSelector extends ConsumerWidget {
             color: SigapColors.primaryLight,
             borderRadius: BorderRadius.circular(SigapRadius.sm),
           ),
-          child: const Icon(Icons.language, size: 20, color: SigapColors.primary),
+          child: const Icon(
+            Icons.language,
+            size: 20,
+            color: SigapColors.primary,
+          ),
         ),
         title: const Text(
           'Bahasa Aplikasi',

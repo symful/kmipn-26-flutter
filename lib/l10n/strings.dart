@@ -7,6 +7,7 @@ abstract class Strings {
   static const String simpan = 'Simpan';
   static const String kirim = 'Kirim';
   static const String tolak = 'Tolak';
+  static const String alasanPenolakan = 'Alasan Penolakan';
   static const String selesai = 'Selesai';
   static const String submitted = 'Submitted';
   static const String rejected = 'Rejected';
@@ -154,4 +155,94 @@ abstract class Strings {
   static const String idLaporanDuplikatHint =
       'Masukkan ID laporan yang duplikat';
   static const String mengirim = 'Mengirim...';
+
+  // Additional hardcoded strings found in features
+  static const String tanpaJudul = 'Tanpa judul';
+  static const String baruSaja = 'Baru saja';
+  static const String tidakAdaTugas = 'Tidak ada tugas';
+  static const String tugasSurveiAkanMuncul =
+      'Tugas survei akan muncul di sini';
+  static const String gagalMemuatTugas = 'Gagal memuat tugas';
+  static const String belumAdaRiwayat = 'Belum ada riwayat';
+  static const String visitYangDikirimAkanMuncul =
+      'Visit yang dikirim akan muncul di sini';
+  static const String gagalMemuatRiwayat = 'Gagal memuat riwayat';
+  static const String terbaru = 'Terbaru';
+  static const String slaTerdekat = 'SLA terdekat';
+  static const String sinkronkan = 'Sinkronkan';
+  static const String kemarin = 'Kemarin';
+  static const String hariYangLalu = 'hari yang lalu';
+  static const String mingguYangLalu = 'minggu yang lalu';
+  static const String jamYangLalu = 'jam yang lalu';
+  static const String menitYangLalu = 'menit yang lalu';
+  static const String filterAntrean = 'Filter Antrean';
+  static const String terapkan = 'Terapkan';
+  static const String sortir = 'Sortir';
+  static const String filterStatus = 'Filter Status';
+  static const String prioritasTertinggi = 'Prioritas Tertinggi';
+  static const String semua = 'Semua';
+  static const String dalamProses = 'Dalam Proses';
+  static const String diverifikasi = 'Diverifikasi';
+  static const String laporanDiterima = 'Laporan diterima';
+  static const String laporanTidakJelas = 'Laporan tidak jelas';
+  static const String refresh = 'Refresh';
+  static const String tidakAdaKasus = 'Tidak Ada Kasus';
+  static const String tidakAdaKasusDenganFilter =
+      'Tidak ada kasus dengan filter';
+  static const String belumAdaKasusMasuk = 'Belum ada kasus yang masuk.';
+  static const String resetFilter = 'Reset Filter';
+  static const String tidakAdaLaporanDiAntrean = 'Tidak Ada Laporan di Antrean';
+  static const String tidakAdaLaporanSesuaiFilter =
+      'Tidak ada laporan yang sesuai dengan filter yang aktif.';
+  static const String semuaLaporanSelesaiDiverifikasi =
+      'Semua laporan masuk telah selesai diverifikasi.';
+  static const String hapusFilter = 'Hapus Filter';
+  static const String verifikatorAntrian = 'Verifikator - Antrian';
+  static const String labelWilayahAktif = 'Wilayah aktif';
+  static const String buatLaporan = 'Buat laporan';
+  static const String fotoLokasiKondisi = 'Foto, lokasi, dan kondisi lapangan';
+  static const String laporanYangAndaKirimkan =
+      'Laporan yang Anda kirimkan akan dicatat di sini.';
+  static const String tanpaDeskripsi = '-';
+  static const String exportPdf = 'Ekspor PDF';
+  static const String pdfSaved = 'PDF saved';
+  static const String error = 'Error';
+  static const String terkirim = 'Terkirim';
+  static const String verifikasi = 'Verifikasi';
+  static const String kembali = 'Kembali';
+  static const String foto = 'Foto';
+  static const String timeline = 'Timeline';
+  static const String tindakan = 'Tindakan';
+  static const String valid = 'Valid';
+  static const String rendah = 'Rendah';
+  static const String tinggi = 'Tinggi';
+  static const String merge = 'Merge';
+  static const String eskalasi = 'Eskalasi';
+  static const String baru = 'Baru';
+  static const String ditugaskan = 'Ditugaskan';
+  static const String mengerjakan = 'Dikerjakan';
+  static const String unduh = 'Unduh';
+  static const String instruksi = 'Instruksi';
+  static const String progress = 'Progress';
+  static const String clarification = 'Clarification';
+  static const String diselesaikan = 'Diselesaikan';
+  static const String item = 'Item';
+  static const String klarifikasi = 'Clarifikasi';
+  static const String kunjungi = 'Kunjungi';
+  static const String akurasiBaik = 'Akurasi baik';
+  static const String berat = 'Berat';
+  static const String siapOffline = 'Siap offline';
+  static const String semuaTersinkron = 'Semua tersinkron';
+  static const String gagalDikirim = 'Gagal dikirim';
+  static const String sedangDiperiksa = 'Sedang diperiksa';
+  static const String lengkapiLaporan = 'Lengkapi laporan';
+  static const String reviewLaporan = 'Review laporan';
+  static const String unduhBatch = 'Unduh batch';
+  static const String beralihPeran = 'Ganti Peran';
+  static const String sinkronLabel = 'Sinkron';
+  static const String pengaturan = 'Pengaturan';
+  static const String english = 'English';
+  static const String tinggal = 'Tinggal';
+  static const String kasusDilaporkan = 'kasus dilaporkan';
+  static const String recentActivity = 'Baru saja';
 }

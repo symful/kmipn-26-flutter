@@ -489,7 +489,7 @@ class Report {
   final Priority? priority;
   final Map<String, dynamic>? location;
   final String? reporterId;
-  final List<Photo>? photos;
+  final List<String>? photos;
   final String? slaDeadline;
   final String? createdAt;
   final String? updatedAt;
@@ -497,7 +497,10 @@ class Report {
   final String? deadline;
   final int? severity;
   final int? priorityScore;
-  Report({this.id, this.title, this.description, this.category, this.status, this.priority, this.location, this.reporterId, this.photos, this.slaDeadline, this.createdAt, this.updatedAt, this.mergedInto, this.deadline, this.severity, this.priorityScore});
+  final String? priorityBucket;
+  final double? lng;
+  final double? lat;
+  Report({this.id, this.title, this.description, this.category, this.status, this.priority, this.location, this.reporterId, this.photos, this.slaDeadline, this.createdAt, this.updatedAt, this.mergedInto, this.deadline, this.severity, this.priorityScore, this.priorityBucket, this.lng, this.lat});
 
   factory Report.fromJson(Map<String, dynamic> json) {
     return Report(
@@ -509,7 +512,7 @@ class Report {
       priority: json['priority'] != null ? Priority.fromJson(json['priority'] as String) : null,
       location: json['location'] as Map<String, dynamic>?,
       reporterId: json['reporter_id']?.toString(),
-      photos: (json['photos'] as List?)?.map((e) => Photo.fromJson(e as Map<String, dynamic>)).toList(),
+      photos: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
       slaDeadline: json['sla_deadline']?.toString(),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
@@ -517,6 +520,9 @@ class Report {
       deadline: json['deadline']?.toString(),
       severity: json['severity'] as int?,
       priorityScore: json['priority_score'] as int?,
+      priorityBucket: json['priority_bucket']?.toString(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
     );
   }
 
@@ -530,7 +536,7 @@ class Report {
       'priority': priority?.value,
       'location': location,
       'reporter_id': reporterId,
-      'photos': photos,
+      'photo_urls': photos,
       'sla_deadline': slaDeadline,
       'created_at': createdAt,
       'updated_at': updatedAt,
@@ -538,6 +544,9 @@ class Report {
       'deadline': deadline,
       'severity': severity,
       'priority_score': priorityScore,
+      'priority_bucket': priorityBucket,
+      'lng': lng,
+      'lat': lat,
     };
   }
 }
@@ -551,13 +560,16 @@ class ReportDetail {
   final Priority? priority;
   final Map<String, dynamic>? location;
   final String? reporterId;
-  final List<Photo>? photos;
+  final List<String>? photos;
   final List<Map<String, dynamic>>? assessments;
   final List<Map<String, dynamic>>? visits;
   final String? slaDeadline;
+  final double? lng;
+  final double? lat;
+  final String? priorityBucket;
   final String? createdAt;
   final String? updatedAt;
-  ReportDetail({this.id, this.title, this.description, this.category, this.status, this.priority, this.location, this.reporterId, this.photos, this.assessments, this.visits, this.slaDeadline, this.createdAt, this.updatedAt});
+  ReportDetail({this.id, this.title, this.description, this.category, this.status, this.priority, this.location, this.reporterId, this.photos, this.assessments, this.visits, this.slaDeadline, this.lng, this.lat, this.priorityBucket, this.createdAt, this.updatedAt});
 
   factory ReportDetail.fromJson(Map<String, dynamic> json) {
     return ReportDetail(
@@ -569,10 +581,13 @@ class ReportDetail {
       priority: json['priority'] != null ? Priority.fromJson(json['priority'] as String) : null,
       location: json['location'] as Map<String, dynamic>?,
       reporterId: json['reporter_id']?.toString(),
-      photos: (json['photos'] as List?)?.map((e) => Photo.fromJson(e as Map<String, dynamic>)).toList(),
+      photos: (json['photo_urls'] as List?)?.map((e) => e as String).toList(),
       assessments: (json['assessments'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       visits: (json['visits'] as List?)?.map((e) => e as Map<String, dynamic>).toList(),
       slaDeadline: json['sla_deadline']?.toString(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      priorityBucket: json['priority_bucket']?.toString(),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
     );
@@ -588,10 +603,13 @@ class ReportDetail {
       'priority': priority?.value,
       'location': location,
       'reporter_id': reporterId,
-      'photos': photos,
+      'photo_urls': photos,
       'assessments': assessments,
       'visits': visits,
       'sla_deadline': slaDeadline,
+      'lng': lng,
+      'lat': lat,
+      'priority_bucket': priorityBucket,
       'created_at': createdAt,
       'updated_at': updatedAt,
     };

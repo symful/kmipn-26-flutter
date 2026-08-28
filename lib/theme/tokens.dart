@@ -20,8 +20,8 @@ class SigapColors {
   // Status
   static const Color perluTindakan = Color(0xFFC0392B);
   static const Color diproses = Color(0xFF2563EB);
-  static const Color selesai = Color(0xFF22C55E);
-  static const Color success = Color(0xFF1F9254);
+  static const Color selesai = Color(0xFF0F7A6B);
+  static const Color success = Color(0xFF0F7A6B);
   static const Color warning = Color(0xFFB8730A);
 
   // Offline Banner
@@ -31,16 +31,16 @@ class SigapColors {
   static const Color offlineDot = Color(0xFFB8730A);
 
   // Base
-  static const Color background = Color(0xFFF4F6F8);
+  static const Color background = Color(0xFFF9FAF8);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color border = Color(0xFFE2E8EC);
 
   // Text
   static const Color textPrimary = Color(0xFF17191C);
-  static const Color textSecondary = Color(0xFF4A5058);
+  static const Color textSecondary = Color(0xFF3A3F45);
   static const Color textTertiary = Color(0xFF616770);
-  static const Color textMuted = Color(0xFF6B7780);
-  static const Color text = Color(0xFF1F2A30);
+  static const Color textMuted = Color(0xFF8A9099);
+  static const Color text = Color(0xFF17191C);
 
   // Sidebar (T-W1.14)
   static const Color sidebarBg = Color(0xFF16302B);

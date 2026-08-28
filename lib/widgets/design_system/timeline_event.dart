@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:kmipn_26/theme/tokens.dart';
+import 'package:sigap/theme/tokens.dart';
 
 enum TimelineVariant { amber, teal, gray }
 

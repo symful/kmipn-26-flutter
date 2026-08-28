@@ -17,10 +17,11 @@ import 'package:image/image.dart' as img;
 import '../../l10n/strings.dart';
 import '../../theme/tokens.dart';
 import '../../db/database.dart';
-import '../../features/warga/presentation/widgets/similar_cases_banner.dart';
+import '../../widgets/design_system/similar_cases_banner.dart';
 import '../../providers/providers.dart';
 import '../../services/photo_service.dart';
 import '../../utils/logger.dart';
+import '../../widgets/design_system/design_system.dart';
 
 class CreateReportScreen extends ConsumerStatefulWidget {
   final bool anonymousMode;
@@ -55,12 +56,8 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: SigapColors.bgCard,
-        borderRadius: BorderRadius.circular(SigapRadius.lg),
-        border: Border.all(color: SigapColors.borderCard),
-      ),
+    return SigapCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -86,7 +83,7 @@ class _SectionCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: SigapColors.borderCard),
+          Divider(height: 1, color: SigapColors.border),
           Padding(padding: const EdgeInsets.all(SigapSpacing.lg), child: child),
         ],
       ),
@@ -374,6 +371,52 @@ class _LocationSection extends StatelessWidget {
   }
 }
 
+// ─── Vulnerability Index Segment ───────────────────────────────────────────
+
+class _VulnerabilitySegment extends StatelessWidget {
+  final String label;
+  final double value;
+  final double groupValue;
+  final ValueChanged<double> onChanged;
+
+  const _VulnerabilitySegment({
+    required this.label,
+    required this.value,
+    required this.groupValue,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = groupValue == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onChanged(value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
+          decoration: BoxDecoration(
+            color: isSelected ? SigapColors.primary : SigapColors.bgSurface,
+            borderRadius: BorderRadius.circular(SigapRadius.md),
+            border: Border.all(
+              color: isSelected ? SigapColors.primary : SigapColors.border,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : SigapColors.textPrimary,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Duplicate Cases Section (M-11) ──────────────────────────────────────────
 
 class _DuplicateCasesSection extends ConsumerWidget {
@@ -484,7 +527,7 @@ class _DuplicateCasesSection extends ConsumerWidget {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.pop(ctx);
-                        context.push('/warga/laporan/${c.id}');
+                        context.push('/laporan/${c.id}');
                       },
                     );
                   },
@@ -517,7 +560,7 @@ class _DuplicateCasesSection extends ConsumerWidget {
           },
           onAddEvidence: (selectedCase) {
             // Navigate to evidence submission for the selected existing case
-            context.push('/warga/evidence/${selectedCase.id}');
+            context.push('/evidence/${selectedCase.id}');
           },
           onCreateSeparate: () {
             // User chose to create separate case - continue with current report
@@ -540,11 +583,16 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   double? _lng;
   String? _categoryId;
   final _descriptionController = TextEditingController();
+  final _populationAffectedController = TextEditingController();
+  int _populationAffected = 0;
+  double _vulnerabilityIndex = 0.5;
   bool _submitting = false;
   bool _isDirty = false;
   DateTime? _autosaveTimestamp;
   Timer? _autosaveTimer;
 
+  // NOTE: This should be fetched from backend config (e.g., /api/config/max_pending)
+  // when the backend supports it. Currently hardcoded for backward compatibility.
   static const int maxPending = 50;
 
   /// Strips EXIF data from JPEG bytes using the image package.
@@ -755,6 +803,8 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           lng: _lng!,
           photoPath: Value(_photoPath),
           exifDataJson: Value(_exifDataJson),
+          populationAffected: Value(_populationAffected),
+          vulnerabilityIndex: Value(_vulnerabilityIndex),
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
@@ -812,15 +862,50 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     try {
       final deviceId = await _getOrCreateDeviceId();
       final client = ref.read(apiClientProvider);
+      final idempotencyKey = const Uuid().v4();
+
+      // Upload the photo anonymously first, then attach its URL to the report
+      // at creation time (anonymous reports are created after the upload, so
+      // server-side auto-attach is not possible).
+      final List<String> photoUrls = [];
+      if (_photoPath != null) {
+        try {
+          final uploaded = await client.uploadReportPhotoAnon(
+            filePath: _photoPath!,
+            idempotencyKey: idempotencyKey,
+          );
+          if (uploaded.publicUrl != null && uploaded.publicUrl!.isNotEmpty) {
+            photoUrls.add(uploaded.publicUrl!);
+          }
+        } catch (uploadErr, uploadStack) {
+          _logger.error(
+            'Anonymous photo upload failed',
+            uploadErr,
+            uploadStack,
+          );
+          if (!mounted) return;
+          setState(() => _submitting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal mengunggah foto: $uploadErr'),
+              backgroundColor: SigapColors.danger,
+            ),
+          );
+          return;
+        }
+      }
 
       final result = await client.submitAnonymousReport(
-        idempotencyKey: const Uuid().v4(),
+        idempotencyKey: idempotencyKey,
         deviceId: deviceId,
         categoryId: _categoryId!,
         description: _descriptionController.text,
         lat: _lat!,
         lng: _lng!,
+        photos: photoUrls,
         captchaToken: 'test-token-bypass',
+        populationAffected: _populationAffected,
+        vulnerabilityIndex: _vulnerabilityIndex,
       );
 
       _logger.info(
@@ -878,6 +963,8 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           lng: _lng!,
           photoPath: Value(_photoPath),
           exifDataJson: Value(_exifDataJson),
+          populationAffected: Value(_populationAffected),
+          vulnerabilityIndex: Value(_vulnerabilityIndex),
           createdAt: now,
           updatedAt: now,
         ),
@@ -992,6 +1079,101 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                       validator: (v) => v == null || v.length < 10
                           ? 'Minimal 10 karakter'
                           : null,
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.lg),
+
+                  // Population Affected Section
+                  _SectionCard(
+                    title: 'Perkiraan Jumlah Terdampak',
+                    icon: Icons.people,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _populationAffectedController,
+                          onChanged: (v) {
+                            final parsed = int.tryParse(v);
+                            if (parsed != null && parsed >= 0) {
+                              setState(() => _populationAffected = parsed);
+                              _onFormChanged();
+                            }
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Perkiraan jumlah warga terdampak',
+                            labelStyle: TextStyle(
+                              color: SigapColors.textSecondary,
+                            ),
+                            hintText: '0',
+                            hintStyle: TextStyle(
+                              color: SigapColors.textTertiary,
+                            ),
+                            suffixText: 'orang',
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                        const SizedBox(height: SigapSpacing.sm),
+                        Text(
+                          'Jumlah perkiraan warga yang terdampak insiden ini',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: SigapColors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.lg),
+
+                  // Vulnerability Index Section
+                  _SectionCard(
+                    title: 'Tingkat Kerentanan',
+                    icon: Icons.warning,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Seberapa rentan kelompok masyarakat setempat?',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: SigapColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
+                        Row(
+                          children: [
+                            _VulnerabilitySegment(
+                              label: 'Rendah',
+                              value: 0.25,
+                              groupValue: _vulnerabilityIndex,
+                              onChanged: (v) {
+                                setState(() => _vulnerabilityIndex = v);
+                                _onFormChanged();
+                              },
+                            ),
+                            const SizedBox(width: SigapSpacing.sm),
+                            _VulnerabilitySegment(
+                              label: 'Sedang',
+                              value: 0.5,
+                              groupValue: _vulnerabilityIndex,
+                              onChanged: (v) {
+                                setState(() => _vulnerabilityIndex = v);
+                                _onFormChanged();
+                              },
+                            ),
+                            const SizedBox(width: SigapSpacing.sm),
+                            _VulnerabilitySegment(
+                              label: 'Tinggi',
+                              value: 0.75,
+                              groupValue: _vulnerabilityIndex,
+                              onChanged: (v) {
+                                setState(() => _vulnerabilityIndex = v);
+                                _onFormChanged();
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(

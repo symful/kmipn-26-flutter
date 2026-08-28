@@ -209,18 +209,19 @@ class PriorityConfigPage {
   });
 
   factory PriorityConfigPage.fromJson(Map<String, dynamic> json) {
+    final pagination = json['pagination'] as Map<String, dynamic>?;
     return PriorityConfigPage(
       entries:
-          (json['entries'] as List?)
+          (json['data'] as List?)
               ?.map(
                 (e) =>
                     PriorityConfig.fromJson((e as Map).cast<String, dynamic>()),
               )
               .toList() ??
           [],
-      total: json['total'] as int? ?? 0,
-      page: json['page'] as int? ?? 1,
-      limit: json['limit'] as int? ?? 20,
+      total: pagination?['total'] as int? ?? 0,
+      page: pagination?['page'] as int? ?? 1,
+      limit: pagination?['limit'] as int? ?? 20,
     );
   }
 }
@@ -294,13 +295,32 @@ class GeocodeResult {
   final String? address;
   final String? district;
   final String? city;
-  GeocodeResult({this.address, this.district, this.city});
+  final String? village;
+  final String? subdistrict;
+  final String? province;
+  GeocodeResult({
+    this.address,
+    this.district,
+    this.city,
+    this.village,
+    this.subdistrict,
+    this.province,
+  });
 
   factory GeocodeResult.fromJson(Map<String, dynamic> json) {
+    // Backend returns nested objects: village, subdistrict, district, province
+    // Flutter flatten for convenience
+    final districtObj = json['district'] as Map<String, dynamic>?;
+    final subdistrictObj = json['subdistrict'] as Map<String, dynamic>?;
+    final provinceObj = json['province'] as Map<String, dynamic>?;
+    final villageObj = json['village'] as Map<String, dynamic>?;
     return GeocodeResult(
       address: json['address'] as String?,
-      district: json['district'] as String?,
-      city: json['city'] as String?,
+      district: districtObj?['name'] as String?,
+      city: districtObj?['name'] as String?, //kabupaten
+      village: villageObj?['name'] as String?,
+      subdistrict: subdistrictObj?['name'] as String?,
+      province: provinceObj?['name'] as String?,
     );
   }
 }
@@ -472,18 +492,39 @@ class WargaStats {
 
 class WargaProfile {
   final String? id;
+  final String? username; // backend sends 'username' — stored but not displayed
   final String? name;
   final String? email;
   final String? role;
+  final String? wilayahId;
+  final String? wilayahName;
+  final String? createdAt;
   final WargaStats? stats;
-  WargaProfile({this.id, this.name, this.email, this.role, this.stats});
+  WargaProfile({
+    this.id,
+    this.username,
+    this.name,
+    this.email,
+    this.role,
+    this.wilayahId,
+    this.wilayahName,
+    this.createdAt,
+    this.stats,
+  });
 
+  /// Backend returns: { id, username, email, role, wilayah_id, wilayah_name, created_at }
+  /// Flutter maps username to name for display compatibility.
   factory WargaProfile.fromJson(Map<String, dynamic> json) {
     return WargaProfile(
       id: json['id'] as String?,
-      name: json['name'] as String?,
+      username: json['username'] as String?,
+      // Map username to name so existing display code using .name continues working
+      name: json['username'] as String? ?? json['name'] as String?,
       email: json['email'] as String?,
       role: json['role'] as String?,
+      wilayahId: json['wilayah_id'] as String?,
+      wilayahName: json['wilayah_name'] as String?,
+      createdAt: json['created_at'] as String?,
       stats: json['stats'] != null
           ? WargaStats.fromJson(json['stats'] as Map<String, dynamic>)
           : null,
@@ -631,11 +672,19 @@ class EvidenceResult {
 }
 
 class SanggahanResult {
-  final String? status;
-  SanggahanResult({this.status});
+  final bool? success;
+  final String? id;
+  SanggahanResult({this.success, this.id});
+
+  /// Legacy accessor — backend returns {success, id}, not {status}.
+  /// Returns 'confirmed' when success is true for backward compatibility.
+  String? get status => success == true ? 'confirmed' : null;
 
   factory SanggahanResult.fromJson(Map<String, dynamic> json) {
-    return SanggahanResult(status: json['status'] as String?);
+    return SanggahanResult(
+      success: json['success'] as bool?,
+      id: json['id'] as String?,
+    );
   }
 }
 
@@ -675,6 +724,176 @@ class CreateReportResult {
     return CreateReportResult(
       id: json['id'] as String?,
       duplicate: json['duplicate'] as bool?,
+    );
+  }
+}
+
+/// Result for flat status-change operations: setReportPriority, closeReport, resolveReport.
+/// Backend returns {status, new_score?, priority_score?} — NOT a full Report.
+class ReportStatusResult {
+  final String? status;
+  final int? newScore;
+  final int? priorityScore;
+  ReportStatusResult({this.status, this.newScore, this.priorityScore});
+
+  factory ReportStatusResult.fromJson(Map<String, dynamic> json) {
+    return ReportStatusResult(
+      status: json['status'] as String?,
+      newScore: json['new_score'] as int?,
+      priorityScore: json['priority_score'] as int?,
+    );
+  }
+}
+
+/// Anonymous report submission result.
+/// Backend: POST /api/public/anonymous-reports → {id, idempotency_key, status:"pending"}
+class AnonymousReportResult {
+  final String? id;
+  final String? idempotencyKey;
+  final String? status;
+  AnonymousReportResult({this.id, this.idempotencyKey, this.status});
+
+  factory AnonymousReportResult.fromJson(Map<String, dynamic> json) {
+    return AnonymousReportResult(
+      id: json['id'] as String?,
+      idempotencyKey: json['idempotency_key'] as String?,
+      status: json['status'] as String?,
+    );
+  }
+}
+
+/// Accept Verifikator case result.
+/// Backend: POST /api/cases/:id/accept → {id, status, severity, assigned_to, assessments}
+class CaseAcceptResult {
+  final String? id;
+  final String? status;
+  final String? severity;
+  final String? assignedTo;
+  final List<dynamic>? assessments;
+  CaseAcceptResult({
+    this.id,
+    this.status,
+    this.severity,
+    this.assignedTo,
+    this.assessments,
+  });
+
+  factory CaseAcceptResult.fromJson(Map<String, dynamic> json) {
+    return CaseAcceptResult(
+      id: json['id'] as String?,
+      status: json['status'] as String?,
+      severity: json['severity'] as String?,
+      assignedTo: json['assigned_to'] as String?,
+      assessments: json['assessments'] as List?,
+    );
+  }
+}
+
+/// Reject Verifikator case result.
+/// Backend: POST /api/cases/:id/reject → {status:"rejected", reason}
+class CaseRejectResult {
+  final String? status;
+  final String? reason;
+  CaseRejectResult({this.status, this.reason});
+
+  factory CaseRejectResult.fromJson(Map<String, dynamic> json) {
+    return CaseRejectResult(
+      status: json['status'] as String?,
+      reason: json['reason'] as String?,
+    );
+  }
+}
+
+/// Combine/Merge Verifikator case result.
+/// Backend: POST /api/cases/:id/combine → {status:"merged", target_case_id}
+class CaseCombineResult {
+  final String? status;
+  final String? targetCaseId;
+  CaseCombineResult({this.status, this.targetCaseId});
+
+  factory CaseCombineResult.fromJson(Map<String, dynamic> json) {
+    return CaseCombineResult(
+      status: json['status'] as String?,
+      targetCaseId: json['target_case_id'] as String?,
+    );
+  }
+}
+
+/// Separate Verifikator case result.
+/// Backend: POST /api/cases/:id/separate → {status:"separated", new_case_id}
+class CaseSeparateResult {
+  final String? status;
+  final String? newCaseId;
+  CaseSeparateResult({this.status, this.newCaseId});
+
+  factory CaseSeparateResult.fromJson(Map<String, dynamic> json) {
+    return CaseSeparateResult(
+      status: json['status'] as String?,
+      newCaseId: json['new_case_id'] as String?,
+    );
+  }
+}
+
+/// Review Sanggahan Verifikator case result.
+/// Backend: POST /api/cases/:id/review-sanggahan → {decision, report_status, reason}
+class CaseReviewSanggahanResult {
+  final String? decision;
+  final String? reportStatus;
+  final String? reason;
+  CaseReviewSanggahanResult({this.decision, this.reportStatus, this.reason});
+
+  factory CaseReviewSanggahanResult.fromJson(Map<String, dynamic> json) {
+    return CaseReviewSanggahanResult(
+      decision: json['decision'] as String?,
+      reportStatus: json['report_status'] as String?,
+      reason: json['reason'] as String?,
+    );
+  }
+}
+
+/// Verify Completion Verifikator case result.
+/// Backend: POST /api/cases/:id/verify-completion → {decision, report_status, reason, task_id, report}
+class CaseVerifyCompletionResult {
+  final String? decision;
+  final String? reportStatus;
+  final String? reason;
+  final String? taskId;
+  CaseVerifyCompletionResult({
+    this.decision,
+    this.reportStatus,
+    this.reason,
+    this.taskId,
+  });
+
+  factory CaseVerifyCompletionResult.fromJson(Map<String, dynamic> json) {
+    return CaseVerifyCompletionResult(
+      decision: json['decision'] as String?,
+      reportStatus: json['report_status'] as String?,
+      reason: json['reason'] as String?,
+      taskId: json['task_id'] as String?,
+    );
+  }
+}
+
+/// Verdict values accepted by RT/RW verification endpoint.
+/// Backend validates against: ["valid","needs_completion","needs_survey","out_of_scope","duplicate","rejected","confirmed"]
+enum RtRwVerdict {
+  valid('valid'),
+  needsCompletion('needs_completion'),
+  needsSurvey('needs_survey'),
+  outOfScope('out_of_scope'),
+  duplicate('duplicate'),
+  rejected('rejected'),
+  confirmed('confirmed');
+
+  final String value;
+  const RtRwVerdict(this.value);
+
+  static RtRwVerdict? fromString(String? v) {
+    if (v == null) return null;
+    return RtRwVerdict.values.cast<RtRwVerdict?>().firstWhere(
+      (e) => e?.value == v,
+      orElse: () => null,
     );
   }
 }
@@ -746,15 +965,26 @@ class FacilityClusterPoint {
   final double? lat;
   final double? lng;
   final int? count;
-  final String? category;
-  FacilityClusterPoint({this.lat, this.lng, this.count, this.category});
+  final String? dominantStatus;
+  final String? dominantCategory;
+  final String? color;
+  FacilityClusterPoint({
+    this.lat,
+    this.lng,
+    this.count,
+    this.dominantStatus,
+    this.dominantCategory,
+    this.color,
+  });
 
   factory FacilityClusterPoint.fromJson(Map<String, dynamic> json) {
     return FacilityClusterPoint(
       lat: (json['lat'] as num?)?.toDouble(),
       lng: (json['lng'] as num?)?.toDouble(),
       count: json['count'] as int?,
-      category: json['category'] as String?,
+      dominantStatus: json['dominant_status'] as String?,
+      dominantCategory: json['dominant_category'] as String?,
+      color: json['color'] as String?,
     );
   }
 }
@@ -768,6 +998,410 @@ class HealthResult {
     return HealthResult(
       status: json['status'] as String?,
       version: json['version'] as String?,
+    );
+  }
+}
+
+/// Public stats response from GET /api/public/stats.
+/// Backend returns: {total, by_status, by_category, recent_reports_7d, resolution_rate_7d}
+class PublicStats {
+  final int? total;
+  final Map<String, dynamic>? byStatus;
+  final List<Map<String, dynamic>>? byCategory;
+  final int? recentReports7d;
+  final double? resolutionRate7d;
+  PublicStats({
+    this.total,
+    this.byStatus,
+    this.byCategory,
+    this.recentReports7d,
+    this.resolutionRate7d,
+  });
+
+  factory PublicStats.fromJson(Map<String, dynamic> json) {
+    return PublicStats(
+      total: json['total'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byCategory: (json['by_category'] as List?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      recentReports7d: json['recent_reports_7d'] as int?,
+      resolutionRate7d: (json['resolution_rate_7d'] as num?)?.toDouble(),
+    );
+  }
+}
+
+/// Auditor stats response from GET /api/auditor/stats.
+/// Backend returns: {counts: {total, last_24h, last_7d, last_30d}, top_actors, failed_attempts, recent_suspicious}
+class AuditorStats {
+  final AuditorStatsCounts? counts;
+  final List<Map<String, dynamic>>? topActors;
+  final int? failedAttempts;
+  final List<Map<String, dynamic>>? recentSuspicious;
+  AuditorStats({
+    this.counts,
+    this.topActors,
+    this.failedAttempts,
+    this.recentSuspicious,
+  });
+
+  factory AuditorStats.fromJson(Map<String, dynamic> json) {
+    return AuditorStats(
+      counts: json['counts'] != null
+          ? AuditorStatsCounts.fromJson(json['counts'] as Map<String, dynamic>)
+          : null,
+      topActors: (json['top_actors'] as List?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      failedAttempts: json['failed_attempts'] as int?,
+      recentSuspicious: (json['recent_suspicious'] as List?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+    );
+  }
+}
+
+class AuditorStatsCounts {
+  final int? total;
+  final int? last24h;
+  final int? last7d;
+  final int? last30d;
+  AuditorStatsCounts({this.total, this.last24h, this.last7d, this.last30d});
+
+  factory AuditorStatsCounts.fromJson(Map<String, dynamic> json) {
+    return AuditorStatsCounts(
+      total: json['total'] as int?,
+      last24h: json['last_24h'] as int?,
+      last7d: json['last_7d'] as int?,
+      last30d: json['last_30d'] as int?,
+    );
+  }
+}
+
+/// Task detail response from GET /api/tasks/:id.
+/// Backend returns: {task, clarifications, evidence}
+class TaskDetailResult {
+  final Map<String, dynamic>? task;
+  final List<Map<String, dynamic>>? clarifications;
+  final List<Map<String, dynamic>>? evidence;
+  TaskDetailResult({this.task, this.clarifications, this.evidence});
+
+  factory TaskDetailResult.fromJson(Map<String, dynamic> json) {
+    return TaskDetailResult(
+      task: json['task'] as Map<String, dynamic>?,
+      clarifications: (json['clarifications'] as List?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      evidence: (json['evidence'] as List?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+    );
+  }
+}
+
+/// Start task response from POST /api/tasks/:id/start.
+/// Backend returns: {task_id, status, started_at}
+class TaskStartResult {
+  final String? taskId;
+  final String? status;
+  final String? startedAt;
+  TaskStartResult({this.taskId, this.status, this.startedAt});
+
+  factory TaskStartResult.fromJson(Map<String, dynamic> json) {
+    return TaskStartResult(
+      taskId: json['task_id'] as String?,
+      status: json['status'] as String?,
+      startedAt: json['started_at'] as String?,
+    );
+  }
+}
+
+/// Reject task response from POST /api/tasks/:id/reject.
+/// Backend returns: {id, status: "rejected"}
+class TaskRejectResult {
+  final String? id;
+  final String? status;
+  TaskRejectResult({this.id, this.status});
+
+  factory TaskRejectResult.fromJson(Map<String, dynamic> json) {
+    return TaskRejectResult(
+      id: json['id'] as String?,
+      status: json['status'] as String?,
+    );
+  }
+}
+
+/// Clarification response from POST /api/tasks/:id/clarification.
+/// Backend returns: {clarification_id, status}
+class TaskClarificationResult {
+  final String? clarificationId;
+  final String? status;
+  TaskClarificationResult({this.clarificationId, this.status});
+
+  factory TaskClarificationResult.fromJson(Map<String, dynamic> json) {
+    return TaskClarificationResult(
+      clarificationId: json['clarification_id'] as String?,
+      status: json['status'] as String?,
+    );
+  }
+}
+
+/// Evidence response from POST /api/tasks/:id/evidence.
+/// Backend returns: {success, evidence_id, task_id, photo_urls}
+class TaskEvidenceResult {
+  final bool? success;
+  final String? evidenceId;
+  final String? taskId;
+  final List<String>? photoUrls;
+  TaskEvidenceResult({
+    this.success,
+    this.evidenceId,
+    this.taskId,
+    this.photoUrls,
+  });
+
+  factory TaskEvidenceResult.fromJson(Map<String, dynamic> json) {
+    return TaskEvidenceResult(
+      success: json['success'] as bool?,
+      evidenceId: json['evidence_id']?.toString(),
+      taskId: json['task_id'] as String?,
+      photoUrls: (json['photo_urls'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
+    );
+  }
+}
+
+/// Complete task response from POST /api/tasks/:id/complete.
+/// Backend returns: {task_id, status, completion_proof, completed_at}
+class TaskCompleteResult {
+  final String? taskId;
+  final String? status;
+  final String? completionProof;
+  final String? completedAt;
+  TaskCompleteResult({
+    this.taskId,
+    this.status,
+    this.completionProof,
+    this.completedAt,
+  });
+
+  factory TaskCompleteResult.fromJson(Map<String, dynamic> json) {
+    return TaskCompleteResult(
+      taskId: json['task_id'] as String?,
+      status: json['status'] as String?,
+      completionProof: json['completion_proof'] as String?,
+      completedAt: json['completed_at'] as String?,
+    );
+  }
+}
+
+/// Checklist template response from GET /api/tasks/:id/checklist-template.
+/// Backend returns: {items: [{id, item, required}]}
+class ChecklistTemplateResult {
+  final List<ChecklistTemplateItem>? items;
+  ChecklistTemplateResult({this.items});
+
+  factory ChecklistTemplateResult.fromJson(Map<String, dynamic> json) {
+    return ChecklistTemplateResult(
+      items: (json['items'] as List?)
+          ?.map(
+            (e) => ChecklistTemplateItem.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
+    );
+  }
+}
+
+class ChecklistTemplateItem {
+  final String? id;
+  final String? item;
+  final bool? required;
+  ChecklistTemplateItem({this.id, this.item, this.required});
+
+  factory ChecklistTemplateItem.fromJson(Map<String, dynamic> json) {
+    return ChecklistTemplateItem(
+      id: json['id']?.toString(),
+      item: json['item']?.toString(),
+      required: json['required'] as bool?,
+    );
+  }
+}
+
+/// Admin Daerah operators response from GET /api/admin-daerah/operators.
+/// Backend returns: {data: [...], pagination: {page, limit, total, total_pages}}
+class AdminDaerahOperatorsPage {
+  final List<Map<String, dynamic>> entries;
+  final Pagination pagination;
+  AdminDaerahOperatorsPage({required this.entries, required this.pagination});
+
+  factory AdminDaerahOperatorsPage.fromJson(Map<String, dynamic> json) {
+    return AdminDaerahOperatorsPage(
+      entries:
+          (json['data'] as List?)
+              ?.map((e) => e as Map<String, dynamic>)
+              .toList() ??
+          [],
+      pagination: Pagination.fromJson(
+        (json['pagination'] as Map<String, dynamic>?)
+                ?.cast<String, dynamic>() ??
+            {},
+      ),
+    );
+  }
+}
+
+/// Admin Daerah petugas response from GET /api/admin-daerah/petugas.
+/// Backend returns: {data: [...], pagination: {page, limit, total, total_pages}}
+class AdminDaerahPetugasPage {
+  final List<Map<String, dynamic>> entries;
+  final Pagination pagination;
+  AdminDaerahPetugasPage({required this.entries, required this.pagination});
+
+  factory AdminDaerahPetugasPage.fromJson(Map<String, dynamic> json) {
+    return AdminDaerahPetugasPage(
+      entries:
+          (json['data'] as List?)
+              ?.map((e) => e as Map<String, dynamic>)
+              .toList() ??
+          [],
+      pagination: Pagination.fromJson(
+        (json['pagination'] as Map<String, dynamic>?)
+                ?.cast<String, dynamic>() ??
+            {},
+      ),
+    );
+  }
+}
+
+/// Admin Daerah dashboard response from GET /api/admin-daerah/dashboard.
+/// Backend returns: {total, by_status, by_category: [...], active_operators, active_petugas, sla_breached, sla_at_risk, avg_verification_days, recent_submissions, resolved_this_month}
+class AdminDaerahDashboard {
+  final int? total;
+  final Map<String, dynamic>? byStatus;
+  final List<Map<String, dynamic>>? byCategory;
+  final int? activeOperators;
+  final int? activePetugas;
+  final int? slaBreached;
+  final int? slaAtRisk;
+  final double? avgVerificationDays;
+  final int? recentSubmissions;
+  final int? resolvedThisMonth;
+  AdminDaerahDashboard({
+    this.total,
+    this.byStatus,
+    this.byCategory,
+    this.activeOperators,
+    this.activePetugas,
+    this.slaBreached,
+    this.slaAtRisk,
+    this.avgVerificationDays,
+    this.recentSubmissions,
+    this.resolvedThisMonth,
+  });
+
+  factory AdminDaerahDashboard.fromJson(Map<String, dynamic> json) {
+    return AdminDaerahDashboard(
+      total: json['total'] as int?,
+      byStatus: json['by_status'] as Map<String, dynamic>?,
+      byCategory: (json['by_category'] as List?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      activeOperators: json['active_operators'] as int?,
+      activePetugas: json['active_petugas'] as int?,
+      slaBreached: json['sla_breached'] as int?,
+      slaAtRisk: json['sla_at_risk'] as int?,
+      avgVerificationDays: (json['avg_verification_days'] as num?)?.toDouble(),
+      recentSubmissions: json['recent_submissions'] as int?,
+      resolvedThisMonth: json['resolved_this_month'] as int?,
+    );
+  }
+}
+
+/// Category create/update response from POST/PATCH /api/categories.
+/// Backend returns the created/updated category object.
+class CategoryResult {
+  final String? id;
+  final String? slug;
+  final String? name;
+  final String? icon;
+  final String? description;
+  final String? parentId;
+  final String? code;
+  final String? shortCode;
+  final String? colorClass;
+  final String? createdAt;
+  CategoryResult({
+    this.id,
+    this.slug,
+    this.name,
+    this.icon,
+    this.description,
+    this.parentId,
+    this.code,
+    this.shortCode,
+    this.colorClass,
+    this.createdAt,
+  });
+
+  factory CategoryResult.fromJson(Map<String, dynamic> json) {
+    return CategoryResult(
+      id: json['id']?.toString(),
+      slug: json['slug']?.toString(),
+      name: json['name']?.toString(),
+      icon: json['icon']?.toString(),
+      description: json['description']?.toString(),
+      parentId: json['parent_id']?.toString(),
+      code: json['code']?.toString(),
+      shortCode: json['short_code']?.toString(),
+      colorClass: json['color_class']?.toString(),
+      createdAt: json['created_at']?.toString(),
+    );
+  }
+}
+
+/// User create response from POST /api/users.
+/// Backend returns: {id, email, name, role, wilayah_id, created_at}
+class UserCreateResult {
+  final String? id;
+  final String? email;
+  final String? name;
+  final String? role;
+  final String? wilayahId;
+  final String? createdAt;
+  UserCreateResult({
+    this.id,
+    this.email,
+    this.name,
+    this.role,
+    this.wilayahId,
+    this.createdAt,
+  });
+
+  factory UserCreateResult.fromJson(Map<String, dynamic> json) {
+    return UserCreateResult(
+      id: json['id']?.toString(),
+      email: json['email']?.toString(),
+      name: json['name']?.toString(),
+      role: json['role']?.toString(),
+      wilayahId: json['wilayah_id']?.toString(),
+      createdAt: json['created_at']?.toString(),
+    );
+  }
+}
+
+/// Priority override response from POST /api/reports/:id/priority.
+class PriorityOverrideResult {
+  final String? status;
+  final int? newScore;
+  final int? priorityScore;
+  PriorityOverrideResult({this.status, this.newScore, this.priorityScore});
+
+  factory PriorityOverrideResult.fromJson(Map<String, dynamic> json) {
+    return PriorityOverrideResult(
+      status: json['status'] as String?,
+      newScore: json['new_score'] as int?,
+      priorityScore: json['priority_score'] as int?,
     );
   }
 }
@@ -831,6 +1465,19 @@ class AiAssessmentResult {
           ?.map((e) => e as String)
           .toList(),
       duplicateCandidates: null, // not in assessment response
+    );
+  }
+}
+
+class TriggerAssessmentResult {
+  final String? reportId;
+  final String? overallStatus;
+  TriggerAssessmentResult({this.reportId, this.overallStatus});
+
+  factory TriggerAssessmentResult.fromJson(Map<String, dynamic> json) {
+    return TriggerAssessmentResult(
+      reportId: json['report_id'] as String?,
+      overallStatus: json['overall_status'] as String?,
     );
   }
 }
@@ -1078,6 +1725,102 @@ class ApiClient {
         .toList();
   }
 
+  /// Fetches all categories with their slugs.
+  /// Returns a list of maps with 'slug' and 'name' keys.
+  Future<List<Map<String, String>>> getCategoriesWithSlug() async {
+    final data = _expectListKey(
+      await _execute<Map<String, dynamic>>(
+        dioCall: () => _dio.get('/api/categories'),
+        endpoint: '/api/categories',
+        parse: (data) => (data as Map).cast<String, dynamic>(),
+      ),
+      'categories',
+    );
+    return data
+        .map(
+          (e) => {
+            'slug': (e as Map)['slug']?.toString() ?? e['id']?.toString() ?? '',
+            'name': e['name']?.toString() ?? '',
+          },
+        )
+        .toList();
+  }
+
+  /// Creates a new category.
+  /// Backend: POST /api/categories → created category object (201)
+  Future<CategoryResult> createCategory({
+    required String name,
+    required String slug,
+    String? icon,
+    String? description,
+    String? parentId,
+    String? code,
+    String? shortCode,
+    String? colorClass,
+  }) async {
+    return await _execute<CategoryResult>(
+      dioCall: () => _dio.post(
+        '/api/categories',
+        data: {
+          'name': name,
+          'slug': slug,
+          if (icon != null) 'icon': icon,
+          if (description != null) 'description': description,
+          if (parentId != null) 'parent_id': parentId,
+          if (code != null) 'code': code,
+          if (shortCode != null) 'short_code': shortCode,
+          if (colorClass != null) 'color_class': colorClass,
+        },
+      ),
+      endpoint: '/api/categories',
+      parse: (data) =>
+          CategoryResult.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
+  /// Updates an existing category.
+  /// Backend: PATCH /api/categories/:id → updated category object
+  Future<CategoryResult> updateCategory(
+    String id, {
+    String? name,
+    String? slug,
+    String? icon,
+    String? description,
+    String? parentId,
+    String? code,
+    String? shortCode,
+    String? colorClass,
+  }) async {
+    return await _execute<CategoryResult>(
+      dioCall: () => _dio.patch(
+        '/api/categories/$id',
+        data: {
+          if (name != null) 'name': name,
+          if (slug != null) 'slug': slug,
+          if (icon != null) 'icon': icon,
+          if (description != null) 'description': description,
+          if (parentId != null) 'parent_id': parentId,
+          if (code != null) 'code': code,
+          if (shortCode != null) 'short_code': shortCode,
+          if (colorClass != null) 'color_class': colorClass,
+        },
+      ),
+      endpoint: '/api/categories/$id',
+      parse: (data) =>
+          CategoryResult.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
+  /// Deletes a category (soft delete).
+  /// Backend: DELETE /api/categories/:id → {success: true}
+  Future<void> deleteCategory(String id) async {
+    await _execute<void>(
+      dioCall: () => _dio.delete('/api/categories/$id'),
+      endpoint: '/api/categories/$id',
+      parse: (_) {},
+    );
+  }
+
   // â”€â”€â”€ Sync/Batch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Syncs batch of reports from offline queue.
@@ -1118,6 +1861,27 @@ class ApiClient {
     }
     throw const FormatException(
       'AI assessment did not complete within timeout',
+    );
+  }
+
+  /// Triggers AI assessment for a report (fire-and-forget async trigger).
+  /// Backend: POST /api/agent/assess → {report_id, overall_status, tool_results}
+  Future<TriggerAssessmentResult> triggerAssessment(
+    String reportId, {
+    String? idempotencyKey,
+  }) async {
+    return await _execute<TriggerAssessmentResult>(
+      dioCall: () => _dio.post(
+        '/api/agent/assess',
+        data: {
+          'report_id': reportId,
+          if (idempotencyKey != null) 'idempotency_key': idempotencyKey,
+        },
+      ),
+      endpoint: '/api/agent/assess',
+      parse: (data) => TriggerAssessmentResult.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
     );
   }
 
@@ -1230,7 +1994,9 @@ class ApiClient {
     );
   }
 
-  /// Submits evidence photos for a report.
+  /// Submits evidence photos for a warga report.
+  /// Backend: POST /api/reports/:id/evidence → {success: true, evidence_id}
+  /// Each photo upload returns an evidence_id from the backend.
   Future<List<EvidenceResult>> wargaSubmitEvidence({
     required String reportId,
     required String description,
@@ -1238,12 +2004,24 @@ class ApiClient {
   }) async {
     final results = <EvidenceResult>[];
     for (final photoPath in photoPaths) {
-      final result = await uploadSinglePhoto(
+      final file = File(photoPath);
+      final bytes = await file.readAsBytes();
+      final name = photoPath.split('/').last;
+      final formData = FormData.fromMap({
+        'description': description,
+        'photo': MultipartFile.fromBytes(bytes, filename: name),
+      });
+      final res = await _dio.post(
         '/api/reports/$reportId/evidence',
-        description: description,
-        photoPath: photoPath,
+        data: formData,
       );
-      results.add(EvidenceResult(photoUrls: [result.publicUrl ?? '']));
+      final data = (res.data as Map).cast<String, dynamic>();
+      results.add(
+        EvidenceResult(
+          evidenceId: data['evidence_id']?.toString(),
+          photoUrls: null,
+        ),
+      );
     }
     return results;
   }
@@ -1310,12 +2088,21 @@ class ApiClient {
   // â”€â”€â”€ Cases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches the verifikator/operator queue (list of cases pending review).
+  /// Requires VERIFIKATOR or ADMIN role.
   Future<VerifikatorQueuePage> getVerifikatorQueue({
+    required String activeRole,
     String? status,
     int page = 1,
     int limit = 20,
     String? kategori,
   }) async {
+    if (activeRole != 'VERIFIKATOR' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/cases/queue',
+        userMessage: 'Endpoint requires VERIFIKATOR or ADMIN role',
+      );
+    }
     // Server returns {items, pagination} - no 'data' envelope
     final response = await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get(
@@ -1353,7 +2140,18 @@ class ApiClient {
   }
 
   /// Fetches a single case by ID.
-  Future<CaseDetail> getVerifikatorCase(String caseId) async {
+  /// Requires VERIFIKATOR or ADMIN role.
+  Future<CaseDetail> getVerifikatorCase({
+    required String caseId,
+    required String activeRole,
+  }) async {
+    if (activeRole != 'VERIFIKATOR' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/cases/$caseId',
+        userMessage: 'Endpoint requires VERIFIKATOR or ADMIN role',
+      );
+    }
     // Server returns case detail directly - no 'data' envelope
     return await _execute<CaseDetail>(
       dioCall: () => _dio.get('/api/cases/$caseId'),
@@ -1364,7 +2162,9 @@ class ApiClient {
   }
 
   /// Makes a decision on a case.
+  /// Requires VERIFIKATOR or ADMIN role.
   Future<DecideResult> decideVerifikatorCase({
+    required String activeRole,
     required String caseId,
     required String decision,
     required String reason,
@@ -1373,6 +2173,13 @@ class ApiClient {
     String? assignedUnitId,
     String? deadline,
   }) async {
+    if (activeRole != 'VERIFIKATOR' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/cases/$caseId/decide',
+        userMessage: 'Endpoint requires VERIFIKATOR or ADMIN role',
+      );
+    }
     return await _execute<DecideResult>(
       dioCall: () => _dio.post(
         '/api/cases/$caseId/decide',
@@ -1395,17 +2202,19 @@ class ApiClient {
   // â”€â”€â”€ RT-RW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Verifies a report via RT/RW.
+  /// Backend: POST /api/rt-rw/verify → {success: true, report_id, status}
+  /// Backend validates verdict against: ["valid","needs_completion","needs_survey","out_of_scope","duplicate","rejected","confirmed"]
   Future<RtRwVerifyResult> rtRwVerify({
     required String verificationToken,
     required String reportId,
-    required String verdict,
+    required RtRwVerdict verdict,
     String? reason,
     String? photoPath,
   }) async {
     final mapData = <String, dynamic>{
       'verification_token': verificationToken,
       'report_id': reportId,
-      'verdict': verdict,
+      'verdict': verdict.value,
     };
     if (reason != null) {
       mapData['reason'] = reason;
@@ -1563,7 +2372,7 @@ class ApiClient {
     );
   }
 
-  // â”€â”€â”€ Warga Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€â”€ Warga Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches warga statistics.
   Future<WargaStats> getWargaStats() async {
@@ -1580,8 +2389,8 @@ class ApiClient {
   /// Fetches role-shaped statistics.
   Future<StatsResponse> getStats() async {
     return await _execute<StatsResponse>(
-      dioCall: () => _dio.get('/api/stats'),
-      endpoint: '/api/stats',
+      dioCall: () => _dio.get('/api/reports/stats'),
+      endpoint: '/api/reports/stats',
       parse: (data) =>
           StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
@@ -1590,7 +2399,17 @@ class ApiClient {
   // â”€â”€â”€ Executive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches executive dashboard summary.
-  Future<StatsResponse> getExecutiveDashboard() async {
+  /// Requires PENGAMBIL_KEPUTUSAN or ADMIN role.
+  Future<StatsResponse> getExecutiveDashboard({
+    required String activeRole,
+  }) async {
+    if (activeRole != 'PENGAMBIL_KEPUTUSAN' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/executive/dashboard',
+        userMessage: 'Endpoint requires PENGAMBIL_KEPUTUSAN or ADMIN role',
+      );
+    }
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/executive/dashboard'),
       endpoint: '/api/executive/dashboard',
@@ -1600,7 +2419,17 @@ class ApiClient {
   }
 
   /// Fetches executive regional statistics.
-  Future<StatsResponse> getExecutiveRegionalStats() async {
+  /// Requires PENGAMBIL_KEPUTUSAN or ADMIN role.
+  Future<StatsResponse> getExecutiveRegionalStats({
+    required String activeRole,
+  }) async {
+    if (activeRole != 'PENGAMBIL_KEPUTUSAN' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/executive/regional-stats',
+        userMessage: 'Endpoint requires PENGAMBIL_KEPUTUSAN or ADMIN role',
+      );
+    }
     return await _execute<StatsResponse>(
       dioCall: () => _dio.get('/api/executive/regional-stats'),
       endpoint: '/api/executive/regional-stats',
@@ -1610,7 +2439,18 @@ class ApiClient {
   }
 
   /// Fetches executive trend analysis over a given period.
-  Future<ExecutiveTrend> getExecutiveTrendAnalysis(String period) async {
+  /// Requires PENGAMBIL_KEPUTUSAN or ADMIN role.
+  Future<ExecutiveTrend> getExecutiveTrendAnalysis({
+    required String activeRole,
+    required String period,
+  }) async {
+    if (activeRole != 'PENGAMBIL_KEPUTUSAN' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/executive/trend-analysis',
+        userMessage: 'Endpoint requires PENGAMBIL_KEPUTUSAN or ADMIN role',
+      );
+    }
     return await _execute<ExecutiveTrend>(
       dioCall: () => _dio.get(
         '/api/executive/trend-analysis',
@@ -1723,16 +2563,18 @@ class ApiClient {
   // â”€â”€â”€ Wilayah â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches the wilayah (region) list.
+  /// Contract specifies response is { wilayah: [...] } not { data: { items: [...] } }
   Future<List<Wilayah>> getWilayahList() async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get('/api/wilayah'),
-        endpoint: '/api/wilayah',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
-      ),
-      'data',
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get('/api/wilayah'),
+      endpoint: '/api/wilayah',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final wilayahData = _expectKey(data, 'items');
+    // Contract says envelope key is 'wilayah', not 'data'
+    final wilayahData = data['wilayah'] ?? data['data']?['items'];
+    if (wilayahData == null) {
+      throw FormatException('Expected wilayah key in response: $data');
+    }
     return (wilayahData as List)
         .map((e) => Wilayah.fromJson((e as Map).cast<String, dynamic>()))
         .toList();
@@ -1741,16 +2583,16 @@ class ApiClient {
   // â”€â”€â”€ Units â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches units list (for admin daerah).
+  /// Backend: GET /api/admin-daerah/units → {data: [...], pagination: {...}}
   Future<UnitsPage> getUnits({
     int page = 1,
     int limit = 20,
     String? wilayahId,
     bool? isActive,
   }) async {
-    // Server returns {data: [...], pagination: {...}}
     final response = await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get(
-        '/api/units',
+        '/api/admin-daerah/units',
         queryParameters: {
           'page': page,
           'limit': limit,
@@ -1758,7 +2600,7 @@ class ApiClient {
           if (isActive != null) 'is_active': isActive.toString(),
         },
       ),
-      endpoint: '/api/units',
+      endpoint: '/api/admin-daerah/units',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
     if (!response.containsKey('data') || !response.containsKey('pagination')) {
@@ -1778,7 +2620,110 @@ class ApiClient {
     );
   }
 
-  // â”€â”€â”€ Geocode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€â”€ Admin Daerah â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  /// Fetches admin daerah cases list.
+  /// Backend: GET /api/admin-daerah/cases → {data: [...], pagination: {...}}
+  Future<VerifikatorQueuePage> getAdminDaerahCases({
+    int page = 1,
+    int limit = 20,
+    String? status,
+    String? categoryId,
+    String? search,
+    String? severity,
+  }) async {
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/admin-daerah/cases',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (status != null) 'status': status,
+          if (categoryId != null) 'category_id': categoryId,
+          if (search != null) 'search': search,
+          if (severity != null) 'severity': severity,
+        },
+      ),
+      endpoint: '/api/admin-daerah/cases',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+    if (!response.containsKey('data') || !response.containsKey('pagination')) {
+      throw FormatException(
+        'Unexpected response shape: expected data and pagination keys',
+      );
+    }
+    final itemsData = response['data'] as List;
+    final paginationData = response['pagination'] as Map? ?? {};
+    return VerifikatorQueuePage(
+      items: itemsData
+          .map((e) => Report.fromJson((e as Map).cast<String, dynamic>()))
+          .toList(),
+      pagination: Pagination.fromJson(paginationData.cast<String, dynamic>()),
+    );
+  }
+
+  /// Fetches admin daerah operators list (paginated).
+  /// Backend: GET /api/admin-daerah/operators → {data: [...], pagination: {page, limit, total, total_pages}}
+  Future<AdminDaerahOperatorsPage> getAdminDaerahOperators({
+    int page = 1,
+    int limit = 20,
+    String? search,
+    bool? isActive,
+  }) async {
+    return await _execute<AdminDaerahOperatorsPage>(
+      dioCall: () => _dio.get(
+        '/api/admin-daerah/operators',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (isActive != null) 'is_active': isActive.toString(),
+        },
+      ),
+      endpoint: '/api/admin-daerah/operators',
+      parse: (data) => AdminDaerahOperatorsPage.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
+    );
+  }
+
+  /// Fetches admin daerah petugas list (paginated).
+  /// Backend: GET /api/admin-daerah/petugas → {data: [...], pagination: {page, limit, total, total_pages}}
+  Future<AdminDaerahPetugasPage> getAdminDaerahPetugas({
+    int page = 1,
+    int limit = 20,
+    String? search,
+    bool? isActive,
+  }) async {
+    return await _execute<AdminDaerahPetugasPage>(
+      dioCall: () => _dio.get(
+        '/api/admin-daerah/petugas',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (isActive != null) 'is_active': isActive.toString(),
+        },
+      ),
+      endpoint: '/api/admin-daerah/petugas',
+      parse: (data) => AdminDaerahPetugasPage.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
+    );
+  }
+
+  /// Fetches admin daerah dashboard statistics.
+  /// Backend: GET /api/admin-daerah/dashboard → {total, by_status, by_category, active_operators, active_petugas, sla_breached, sla_at_risk, avg_verification_days, recent_submissions, resolved_this_month}
+  Future<AdminDaerahDashboard> getAdminDaerahDashboard() async {
+    return await _execute<AdminDaerahDashboard>(
+      dioCall: () => _dio.get('/api/admin-daerah/dashboard'),
+      endpoint: '/api/admin-daerah/dashboard',
+      parse: (data) =>
+          AdminDaerahDashboard.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
+  // â”€â”€â”€ Geocode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches reverse geocoded address for given coordinates.
   Future<GeocodeResult> getGeocodeReverse({
@@ -1815,17 +2760,15 @@ class ApiClient {
   }
 
   /// Fetches facilities cluster data for map visualization.
+  /// Backend: GET /api/facilities/cluster?bbox=... → {clusters: [{lng, lat, count, dominant_status, dominant_category, color}]}
   Future<FacilitiesCluster> getFacilitiesCluster({
-    String? status,
-    String? categoryId,
+    required String bbox,
+    int? zoom,
   }) async {
     return await _execute<FacilitiesCluster>(
       dioCall: () => _dio.get(
         '/api/facilities/cluster',
-        queryParameters: {
-          if (status != null) 'status': status,
-          if (categoryId != null) 'category_id': categoryId,
-        },
+        queryParameters: {'bbox': bbox, if (zoom != null) 'zoom': zoom},
       ),
       endpoint: '/api/facilities/cluster',
       parse: (data) =>
@@ -1836,7 +2779,15 @@ class ApiClient {
   // â”€â”€â”€ Surveyors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Fetches surveyors list.
-  Future<List<UserResponse>> getSurveyors() async {
+  /// Requires VERIFIKATOR or ADMIN role.
+  Future<List<UserResponse>> getSurveyors({required String activeRole}) async {
+    if (activeRole != 'VERIFIKATOR' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/surveyors',
+        userMessage: 'Endpoint requires VERIFIKATOR or ADMIN role',
+      );
+    }
     final data = _expectKey(
       await _execute<Map<String, dynamic>>(
         dioCall: () => _dio.get('/api/surveyors'),
@@ -2061,6 +3012,7 @@ class ApiClient {
   }
 
   /// Fetches auditor system logs.
+  /// Backend: GET /api/auditor/system-logs → {entries, total, page, limit} (flat, no data envelope)
   Future<AuditPage> getAuditorSystemLogs({
     String? level,
     String? from,
@@ -2068,42 +3020,43 @@ class ApiClient {
     int page = 1,
     int limit = 50,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/auditor/system-logs',
-          queryParameters: {
-            'page': page,
-            'limit': limit,
-            if (level != null) 'level': level,
-            if (from != null) 'from': from,
-            if (to != null) 'to': to,
-          },
-        ),
-        endpoint: '/api/auditor/system-logs',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/auditor/system-logs',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          if (level != null) 'level': level,
+          if (from != null) 'from': from,
+          if (to != null) 'to': to,
+        },
       ),
-      'data',
+      endpoint: '/api/auditor/system-logs',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final entriesData = _expectKey(data, 'entries');
-    final paginationData = _expectKey(data, 'pagination');
+    // Backend returns {entries, total, page, limit} directly — no 'data' envelope
+    if (!response.containsKey('entries')) {
+      throw FormatException('Unexpected response shape: expected entries key');
+    }
+    final entriesData = response['entries'];
     return AuditPage(
       entries: (entriesData as List)
           .map((e) => AuditEntry.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: paginationData['total'] as int? ?? 0,
-      page: paginationData['page'] as int? ?? page,
-      limit: paginationData['limit'] as int? ?? limit,
+      total: response['total'] as int? ?? 0,
+      page: response['page'] as int? ?? page,
+      limit: response['limit'] as int? ?? limit,
     );
   }
 
   /// Fetches auditor statistics.
-  Future<StatsResponse> getAuditorStats() async {
-    return await _execute<StatsResponse>(
+  /// Backend: GET /api/auditor/stats → {counts: {total, last_24h, last_7d, last_30d}, top_actors, failed_attempts, recent_suspicious}
+  Future<AuditorStats> getAuditorStats() async {
+    return await _execute<AuditorStats>(
       dioCall: () => _dio.get('/api/auditor/stats'),
       endpoint: '/api/auditor/stats',
       parse: (data) =>
-          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
+          AuditorStats.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2350,7 +3303,9 @@ class ApiClient {
   }
 
   /// Submits an anonymous warga report.
-  Future<Report> submitAnonymousReport({
+  /// Backend: POST /api/public/anonymous-reports → {id, idempotency_key, status:"pending"}
+  /// Unauthenticated public call — uses _publicDio.
+  Future<AnonymousReportResult> submitAnonymousReport({
     required String idempotencyKey,
     required String deviceId,
     required String categoryId,
@@ -2360,9 +3315,14 @@ class ApiClient {
     String? title,
     List<String>? photos,
     String? captchaToken,
+    int? populationAffected,
+    double? vulnerabilityIndex,
   }) async {
     await _checkConnectivity();
     try {
+      // Photos are already-public R2 URLs, so the body is always JSON.
+      // (The backend anonymous-reports endpoint reads JSON via parseJson,
+      // not multipart/form-data.)
       final Map<String, dynamic> body = {
         'idempotency_key': idempotencyKey,
         'device_id': deviceId,
@@ -2372,22 +3332,18 @@ class ApiClient {
         'lng': lng,
         if (title != null) 'title': title,
         if (captchaToken != null) 'captcha_token': captchaToken,
+        if (photos != null && photos.isNotEmpty) 'photos': photos,
+        if (populationAffected != null)
+          'population_affected': populationAffected,
+        if (vulnerabilityIndex != null)
+          'vulnerability_index': vulnerabilityIndex,
       };
 
-      Response<Map<String, dynamic>> res;
-      if (photos != null && photos.isNotEmpty) {
-        final formData = FormData.fromMap({...body, 'photos': photos});
-        res = await _publicDio.post(
-          '/api/public/anonymous-reports',
-          data: formData,
-        );
-      } else {
-        res = await _publicDio.post(
-          '/api/public/anonymous-reports',
-          data: body,
-        );
-      }
-      return Report.fromJson(res.data!.cast<String, dynamic>());
+      final res = await _publicDio.post(
+        '/api/public/anonymous-reports',
+        data: body,
+      );
+      return AnonymousReportResult.fromJson(res.data!.cast<String, dynamic>());
     } on DioException catch (e) {
       final userMessage = extractErrorMessage(e);
       throw ApiException(
@@ -2400,27 +3356,38 @@ class ApiClient {
   }
 
   /// Fetches public categories.
+  /// Backend: GET /api/public/categories → {categories: [...], data: [...]}
   Future<List<Category>> getPublicCategories() async {
-    // Server returns {categories: [...]} - no 'data' envelope
     final response = await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get('/api/public/categories'),
       endpoint: '/api/public/categories',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
+    // Backend returns both 'categories' and 'data' with the same list
     final categoriesData = _expectListKey(response, 'categories');
     return categoriesData
         .map((e) => Category.fromJson((e as Map).cast<String, dynamic>()))
         .toList();
   }
 
+  /// Fetches a single public report by ID.
+  /// Backend: GET /api/public/reports/:id → {id, category_id, status, created_at, last_updated, public_progress, moderated_photo_url, share_token, title, description, severity, generalized_location}
+  Future<Map<String, dynamic>> getPublicReport(String id) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get('/api/public/reports/$id'),
+      endpoint: '/api/public/reports/$id',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
   /// Fetches public statistics.
-  Future<StatsResponse> getPublicStats() async {
-    // Server returns flat stats - no 'data' envelope
-    return await _execute<StatsResponse>(
+  /// Backend: GET /api/public/stats → {total, by_status, by_category, recent_reports_7d, resolution_rate_7d}
+  Future<PublicStats> getPublicStats() async {
+    return await _execute<PublicStats>(
       dioCall: () => _dio.get('/api/public/stats'),
       endpoint: '/api/public/stats',
       parse: (data) =>
-          StatsResponse.fromJson((data as Map).cast<String, dynamic>()),
+          PublicStats.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2576,23 +3543,23 @@ class ApiClient {
         },
       ),
       endpoint: '/api/reports',
-      parse: (data) => CreateReportResult.fromJson(
-        (data as Map).cast<String, dynamic>(),
-      ),
+      parse: (data) =>
+          CreateReportResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
   // â”€â”€â”€ Cases Actions (orphan methods kept for future use) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Accepts a case.
-  Future<CaseDetail> acceptCase(
+  /// Backend: POST /api/cases/:id/accept → {id, status, severity, assigned_to, assessments}
+  Future<CaseAcceptResult> acceptCase(
     String caseId, {
     String? reason,
     String? assignedUnitId,
     String? deadline,
     int? priority,
   }) async {
-    return await _execute<CaseDetail>(
+    return await _execute<CaseAcceptResult>(
       dioCall: () => _dio.post(
         '/api/cases/$caseId/accept',
         data: {
@@ -2605,28 +3572,33 @@ class ApiClient {
       ),
       endpoint: '/api/cases/$caseId/accept',
       parse: (data) =>
-          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
+          CaseAcceptResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
   /// Rejects a case.
-  Future<CaseDetail> rejectCase(String caseId, {required String reason}) async {
-    return await _execute<CaseDetail>(
+  /// Backend: POST /api/cases/:id/reject → {status:"rejected", reason}
+  Future<CaseRejectResult> rejectCase(
+    String caseId, {
+    required String reason,
+  }) async {
+    return await _execute<CaseRejectResult>(
       dioCall: () =>
           _dio.post('/api/cases/$caseId/reject', data: {'reason': reason}),
       endpoint: '/api/cases/$caseId/reject',
       parse: (data) =>
-          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
+          CaseRejectResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
   /// Combines/merges cases.
-  Future<CaseDetail> combineCase(
+  /// Backend: POST /api/cases/:id/combine → {status:"merged", target_case_id}
+  Future<CaseCombineResult> combineCase(
     String caseId, {
     required String targetCaseId,
     String? reason,
   }) async {
-    return await _execute<CaseDetail>(
+    return await _execute<CaseCombineResult>(
       dioCall: () => _dio.post(
         '/api/cases/$caseId/combine',
         data: {
@@ -2636,17 +3608,18 @@ class ApiClient {
       ),
       endpoint: '/api/cases/$caseId/combine',
       parse: (data) =>
-          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
+          CaseCombineResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
   /// Separates a case into new cases.
-  Future<CaseDetail> separateCase(
+  /// Backend: POST /api/cases/:id/separate → {status:"separated", new_case_id}
+  Future<CaseSeparateResult> separateCase(
     String caseId, {
     required String newCaseDescription,
     String? reason,
   }) async {
-    return await _execute<CaseDetail>(
+    return await _execute<CaseSeparateResult>(
       dioCall: () => _dio.post(
         '/api/cases/$caseId/separate',
         data: {
@@ -2656,18 +3629,28 @@ class ApiClient {
       ),
       endpoint: '/api/cases/$caseId/separate',
       parse: (data) =>
-          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
+          CaseSeparateResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
   /// Verifies completion of a case.
-  Future<CaseDetail> verifyCaseCompletion(
+  /// Backend: POST /api/cases/:id/verify-completion → {decision, report_status, reason, task_id, report}
+  /// Requires VERIFIKATOR or ADMIN role.
+  Future<CaseVerifyCompletionResult> verifyCaseCompletion(
     String caseId, {
+    required String activeRole,
     required String decision,
     required String reason,
     String? completionNotes,
   }) async {
-    return await _execute<CaseDetail>(
+    if (activeRole != 'VERIFIKATOR' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/cases/$caseId/verify-completion',
+        userMessage: 'Endpoint requires VERIFIKATOR or ADMIN role',
+      );
+    }
+    return await _execute<CaseVerifyCompletionResult>(
       dioCall: () => _dio.post(
         '/api/cases/$caseId/verify-completion',
         data: {
@@ -2677,45 +3660,72 @@ class ApiClient {
         },
       ),
       endpoint: '/api/cases/$caseId/verify-completion',
-      parse: (data) =>
-          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
+      parse: (data) => CaseVerifyCompletionResult.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
     );
   }
 
   /// Reviews sanggahan on a case.
-  Future<CaseDetail> reviewSanggahanCase(
+  /// Backend: POST /api/cases/:id/review-sanggahan → {decision, report_status, reason}
+  /// Requires VERIFIKATOR or ADMIN role.
+  Future<CaseReviewSanggahanResult> reviewSanggahanCase(
     String caseId, {
+    required String activeRole,
     required String decision,
     required String reason,
   }) async {
-    return await _execute<CaseDetail>(
+    if (activeRole != 'VERIFIKATOR' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/cases/$caseId/review-sanggahan',
+        userMessage: 'Endpoint requires VERIFIKATOR or ADMIN role',
+      );
+    }
+    return await _execute<CaseReviewSanggahanResult>(
       dioCall: () => _dio.post(
         '/api/cases/$caseId/review-sanggahan',
         data: {'decision': decision, 'reason': reason},
       ),
       endpoint: '/api/cases/$caseId/review-sanggahan',
-      parse: (data) =>
-          CaseDetail.fromJson((data as Map).cast<String, dynamic>()),
+      parse: (data) => CaseReviewSanggahanResult.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
     );
   }
 
   // â”€â”€â”€ Reports Actions (orphan methods kept for future use) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Closes a report.
-  Future<Report> closeReport(String id) async {
-    return await _execute<Report>(
+  /// Backend: POST /api/reports/:id/close → {status:"closed", ...after}
+  /// Requires VERIFIKATOR or ADMIN role.
+  Future<ReportStatusResult> closeReport(
+    String id, {
+    required String activeRole,
+  }) async {
+    if (activeRole != 'VERIFIKATOR' && activeRole != 'ADMIN') {
+      throw ApiException(
+        statusCode: 403,
+        endpoint: '/api/reports/$id/close',
+        userMessage: 'Endpoint requires VERIFIKATOR or ADMIN role',
+      );
+    }
+    return await _execute<ReportStatusResult>(
       dioCall: () => _dio.post('/api/reports/$id/close'),
       endpoint: '/api/reports/$id/close',
-      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
+      parse: (data) =>
+          ReportStatusResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
   /// Resolves a report.
-  Future<Report> resolveReport(String id) async {
-    return await _execute<Report>(
+  /// Backend: POST /api/reports/:id/resolve → {status:"resolved", ...after}
+  Future<ReportStatusResult> resolveReport(String id) async {
+    return await _execute<ReportStatusResult>(
       dioCall: () => _dio.post('/api/reports/$id/resolve'),
       endpoint: '/api/reports/$id/resolve',
-      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
+      parse: (data) =>
+          ReportStatusResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -2748,23 +3758,27 @@ class ApiClient {
   }
 
   /// Sets priority on a report.
-  Future<Report> setReportPriority({
+  /// Backend: POST /api/reports/:id/priority → {status: "priority_updated", new_score, priority_score}
+  /// reason is optional per backend schema.
+  Future<PriorityOverrideResult> setReportPriority({
     required String id,
     required int score,
-    required String reason,
+    String? reason,
     Map<String, dynamic>? factorBreakdown,
   }) async {
-    return await _execute<Report>(
+    return await _execute<PriorityOverrideResult>(
       dioCall: () => _dio.post(
         '/api/reports/$id/priority',
         data: {
           'score': score,
-          'reason': reason,
+          if (reason != null) 'reason': reason,
           if (factorBreakdown != null) 'factor_breakdown': factorBreakdown,
         },
       ),
       endpoint: '/api/reports/$id/priority',
-      parse: (data) => Report.fromJson((data as Map).cast<String, dynamic>()),
+      parse: (data) => PriorityOverrideResult.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
     );
   }
 
@@ -2794,7 +3808,7 @@ class ApiClient {
       dioCall: () => _dio.post(
         '/api/reports/$id/merge',
         data: {
-          'target_report_ids': targetReportIds,
+          'target_case_ids': targetReportIds,
           if (reason != null) 'reason': reason,
         },
       ),
@@ -2823,21 +3837,31 @@ class ApiClient {
   }
 
   /// Submits evidence for a report.
-  Future<EvidenceResult> submitReportEvidence(
+  /// Backend: POST /api/reports/:id/evidence → {success: true, evidence_id}
+  Future<List<EvidenceResult>> submitReportEvidence(
     String id, {
     required String description,
     required List<String> photoPaths,
   }) async {
-    final results = <String>[];
+    final results = <EvidenceResult>[];
     for (final photoPath in photoPaths) {
-      final result = await uploadSinglePhoto(
-        '/api/reports/$id/evidence',
-        description: description,
-        photoPath: photoPath,
+      final file = File(photoPath);
+      final bytes = await file.readAsBytes();
+      final name = photoPath.split('/').last;
+      final formData = FormData.fromMap({
+        'description': description,
+        'photo': MultipartFile.fromBytes(bytes, filename: name),
+      });
+      final res = await _dio.post('/api/reports/$id/evidence', data: formData);
+      final data = (res.data as Map).cast<String, dynamic>();
+      results.add(
+        EvidenceResult(
+          evidenceId: data['evidence_id']?.toString(),
+          photoUrls: null,
+        ),
       );
-      results.add(result.publicUrl ?? '');
     }
-    return EvidenceResult(photoUrls: results);
+    return results;
   }
 
   // â”€â”€â”€ Tasks Actions (orphan methods kept for future use) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -2881,7 +3905,7 @@ class ApiClient {
     return await _execute<ClarificationResult>(
       dioCall: () => _dio.post(
         '/api/tasks/$taskId/clarification',
-        data: {'question': question},
+        data: {'message': question},
       ),
       endpoint: '/api/tasks/$taskId/clarification',
       parse: (data) =>
@@ -2922,7 +3946,11 @@ class ApiClient {
       final file = File(photoPaths[i]);
       final bytes = await file.readAsBytes();
       final name = photoPaths[i].split('/').last;
-      mapData['photos[$i]'] = MultipartFile.fromBytes(bytes, filename: name);
+      // Backend expects 'photo' for single file, 'photos[0..3]' for indexed
+      mapData[i == 0 ? 'photo' : 'photos[$i]'] = MultipartFile.fromBytes(
+        bytes,
+        filename: name,
+      );
     }
     final formData = FormData.fromMap(mapData);
     final result = await _execute<Map<String, dynamic>>(
@@ -3008,7 +4036,7 @@ class ApiClient {
     required String password,
     required String name,
     required String role,
-    String? unitId,
+    String? wilayahId,
   }) async {
     return await _execute<UserResponse>(
       dioCall: () => _dio.post(
@@ -3018,7 +4046,7 @@ class ApiClient {
           'password': password,
           'name': name,
           'role': role,
-          if (unitId != null) 'unit_id': unitId,
+          if (wilayahId != null) 'wilayah_id': wilayahId,
         },
       ),
       endpoint: '/api/users',
@@ -3053,22 +4081,20 @@ class ApiClient {
     String? categoryId,
     String? status,
   }) async {
-    final data = _expectKey(
-      await _execute<Map<String, dynamic>>(
-        dioCall: () => _dio.get(
-          '/api/reports/heatmap',
-          queryParameters: {
-            if (categoryId != null) 'category_id': categoryId,
-            if (status != null) 'status': status,
-          },
-        ),
-        endpoint: '/api/reports/heatmap',
-        parse: (data) => (data as Map).cast<String, dynamic>(),
+    final data = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.get(
+        '/api/reports/heatmap',
+        queryParameters: {
+          if (categoryId != null) 'category_id': categoryId,
+          if (status != null) 'status': status,
+        },
       ),
-      'data',
+      endpoint: '/api/reports/heatmap',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    final itemsData = _expectKey(data, 'items');
-    return (itemsData as List).cast<Map<String, dynamic>>();
+    // Backend returns { points: [...] } directly (no data envelope)
+    final pointsData = _expectListKey(data, 'points');
+    return pointsData.map((e) => (e as Map<String, dynamic>)).toList();
   }
 
   // â”€â”€â”€ Reports Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -3086,11 +4112,11 @@ class ApiClient {
   // â”€â”€â”€ Photo Rollback â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Rolls back an uploaded photo.
-  Future<void> rollbackPhoto(String reportId, String photoId) async {
+  Future<void> rollbackPhoto(String photoUrl) async {
     await _execute<void>(
       dioCall: () => _dio.post(
         '/api/reports/photos/rollback',
-        data: {'report_id': reportId, 'photo_id': photoId},
+        data: {'photo_url': photoUrl},
       ),
       endpoint: '/api/reports/photos/rollback',
       parse: (_) {},
@@ -3111,18 +4137,21 @@ class ApiClient {
   // â”€â”€â”€ Public Reports Cluster â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets public reports cluster for map.
+  /// Backend: GET /api/public/reports/cluster?bbox=...&month=...&zoom=...
   /// Server returns {clusters: [{lng, lat, count, dominant_status, ...}]}
   /// We convert to GeoJSON FeatureCollection for compatibility.
   Future<GeoJSONFeatureCollection> getPublicReportsCluster({
-    String? status,
-    String? categoryId,
+    String? bbox,
+    String? month,
+    int? zoom,
   }) async {
     return await _execute<GeoJSONFeatureCollection>(
       dioCall: () => _dio.get(
         '/api/public/reports/cluster',
         queryParameters: {
-          if (status != null) 'status': status,
-          if (categoryId != null) 'category_id': categoryId,
+          if (bbox != null) 'bbox': bbox,
+          if (month != null) 'month': month,
+          if (zoom != null) 'zoom': zoom.toString(),
         },
       ),
       endpoint: '/api/public/reports/cluster',
@@ -3282,18 +4311,39 @@ class ApiClient {
   // â”€â”€â”€ Photo Upload URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Gets presigned URL for photo upload.
+  /// Backend expects multipart FormData with a photo file (not JSON content_type).
   Future<UploadPhotoResult> getPhotoUploadUrl({
     required String reportId,
-    required String filename,
+    required String contentType,
   }) async {
-    return await _execute<UploadPhotoResult>(
-      dioCall: () => _dio.post(
-        '/api/reports/photos/upload-url',
-        data: {'report_id': reportId, 'filename': filename},
+    await _checkConnectivity();
+    // Backend accepts FormData with a photo file; send an empty placeholder
+    // since this method only provides the upload URL (actual file sent separately).
+    final ext = contentType == 'image/png'
+        ? 'png'
+        : contentType == 'image/webp'
+        ? 'webp'
+        : 'jpg';
+    final formData = FormData.fromMap({
+      'photo': MultipartFile.fromBytes(
+        Uint8List(0),
+        filename: 'photo.$ext',
+        contentType: DioMediaType(
+          contentType == 'image/png'
+              ? 'png'
+              : contentType == 'image/webp'
+              ? 'webp'
+              : 'jpeg',
+          ext,
+        ),
       ),
-      endpoint: '/api/reports/photos/upload-url',
-      parse: (data) =>
-          UploadPhotoResult.fromJson((data as Map).cast<String, dynamic>()),
+    });
+    final response = await _dio.post(
+      '/api/reports/$reportId/photos/upload-url',
+      data: formData,
     );
+    // Backend returns { public_url: "..." } directly (no data envelope)
+    final responseData = response.data as Map<String, dynamic>;
+    return UploadPhotoResult(publicUrl: responseData['public_url'] as String?);
   }
 }

@@ -5,11 +5,11 @@ import '../../api/types.g.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/phone_frame.dart';
-import '../surveyor/presentation/widgets/s02_action_bar.dart';
-import '../surveyor/presentation/widgets/s02_instruksi_card.dart';
-import '../surveyor/presentation/widgets/s02_checklist.dart';
-import '../surveyor/presentation/widgets/s02_bukti_thumbnails.dart';
-import '../surveyor/presentation/widgets/s02_offline_banner.dart';
+import '../../widgets/design_system/s02_action_bar.dart';
+import '../../widgets/design_system/s02_instruksi_card.dart';
+import '../../widgets/design_system/s02_checklist.dart';
+import '../../widgets/design_system/s02_bukti_thumbnails.dart';
+import '../../widgets/design_system/s02_offline_banner.dart';
 
 /// Unified TasksFlow Detail Screen for both SURVEYOR and PETUGAS roles.
 ///
@@ -38,7 +38,7 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
   bool _loading = true;
   String? _error;
   TaskDetail? _detail;
-  List<Photo> _reportPhotos = [];
+  List<String> _reportPhotos = [];
   ChecklistTemplate? _checklistTemplate;
   bool _isDownloaded = false;
 
@@ -210,7 +210,7 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
   }
 
   void _navigateToSurveyForm() {
-    context.push('/surveyor/form-survei/${widget.taskId}');
+    context.push('/form-survei/${widget.taskId}');
   }
 
   Color get _statusColor {
@@ -467,14 +467,9 @@ class _TasksFlowDetailScreenState extends ConsumerState<TasksFlowDetailScreen> {
           if (_reportPhotos.isNotEmpty) ...[
             const SizedBox(height: SigapSpacing.lg),
             S02BuktiThumbnails(
-              imageUrls: _reportPhotos
-                  .map((p) => p.url)
-                  .whereType<String>()
-                  .toList(),
-              onThumbnailTap: (index) => _showPhotoFullScreen(
-                _reportPhotos.map((p) => p.url).whereType<String>().toList(),
-                index,
-              ),
+              imageUrls: _reportPhotos,
+              onThumbnailTap: (index) =>
+                  _showPhotoFullScreen(_reportPhotos, index),
             ),
           ],
 

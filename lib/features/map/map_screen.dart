@@ -13,6 +13,7 @@ import '../../providers/auth_provider.dart';
 import '../../api/api_client.dart';
 import '../../api/types.g.dart';
 import '../../utils/logger.dart';
+import '../../widgets/design_system/design_system.dart';
 
 final _logger = Logger('MapScreen');
 
@@ -121,7 +122,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   void _fitIndonesiaOrReports(List<LocalReport> reports) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final validReports = reports.where((r) => r.lat != 0 || r.lng != 0).toList();
+      final validReports = reports
+          .where((r) => r.lat != 0 || r.lng != 0)
+          .toList();
       if (validReports.isEmpty) {
         _mapController.fitCamera(
           CameraFit.bounds(
@@ -183,39 +186,49 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       appBar: AppBar(
         title: const Text('Peta Laporan'),
         actions: [
-          IconButton(
-            icon: Icon(heatmapEnabled ? Icons.layers : Icons.layers_outlined),
-            tooltip: 'Heatmap',
-            onPressed: () {
-              ref.read(heatmapEnabledProvider.notifier).state = !heatmapEnabled;
-            },
-          ),
-          IconButton(
-            icon: Badge(
-              isLabelVisible: filters.isActive,
-              child: const Icon(Icons.filter_list),
+          MinTapTarget(
+            semanticsLabel: 'Heatmap',
+            child: IconButton(
+              icon: Icon(heatmapEnabled ? Icons.layers : Icons.layers_outlined),
+              tooltip: 'Heatmap',
+              onPressed: () {
+                ref.read(heatmapEnabledProvider.notifier).state =
+                    !heatmapEnabled;
+              },
             ),
-            tooltip: Strings.filter,
-            onPressed: _showFilterSheet,
           ),
-          IconButton(
-            icon: Icon(
-              pickMode ? Icons.location_on : Icons.location_on_outlined,
-              color: pickMode ? SigapColors.primary : null,
+          MinTapTarget(
+            semanticsLabel: 'Filter',
+            child: IconButton(
+              icon: Badge(
+                isLabelVisible: filters.isActive,
+                child: const Icon(Icons.filter_list),
+              ),
+              tooltip: Strings.filter,
+              onPressed: _showFilterSheet,
             ),
-            tooltip: 'Pilih Lokasi',
-            onPressed: () {
-              final newPickMode = !pickMode;
-              ref.read(pickLocationModeProvider.notifier).state = newPickMode;
-              if (newPickMode) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Ketuk peta untuk memilih lokasi'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-            },
+          ),
+          MinTapTarget(
+            semanticsLabel: 'Pilih Lokasi',
+            child: IconButton(
+              icon: Icon(
+                pickMode ? Icons.location_on : Icons.location_on_outlined,
+                color: pickMode ? SigapColors.primary : null,
+              ),
+              tooltip: 'Pilih Lokasi',
+              onPressed: () {
+                final newPickMode = !pickMode;
+                ref.read(pickLocationModeProvider.notifier).state = newPickMode;
+                if (newPickMode) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Ketuk peta untuk memilih lokasi'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         ],
       ),
@@ -368,8 +381,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             backgroundColor: SigapColors.primary,
             foregroundColor: Colors.white,
             onPressed: () async {
-              final deviceLocation =
-                  await ref.read(deviceLocationProvider.future);
+              final deviceLocation = await ref.read(
+                deviceLocationProvider.future,
+              );
               if (deviceLocation != null) {
                 _mapController.move(deviceLocation, 14);
               }
@@ -378,7 +392,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ],
       ),
-
     );
   }
 
@@ -522,8 +535,6 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
   DateTime? _startDate;
   DateTime? _endDate;
 
-  static const _availableCategories = ['road', 'bridge', 'drainage', 'public'];
-
   @override
   void initState() {
     super.initState();
@@ -555,6 +566,8 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final categoriesAsync = ref.watch(mapCategoriesProvider);
+
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
@@ -582,24 +595,30 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
               const SizedBox(height: SigapSpacing.lg),
               Text('Kategori', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: SigapSpacing.sm),
-              Wrap(
-                spacing: 8,
-                children: _availableCategories.map((cat) {
-                  final isSelected = _selectedCategories.contains(cat);
-                  return FilterChip(
-                    label: Text(_formatCategory(cat)),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedCategories.add(cat);
-                        } else {
-                          _selectedCategories.remove(cat);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+              categoriesAsync.when(
+                data: (categories) => Wrap(
+                  spacing: 8,
+                  children: categories.map((cat) {
+                    final slug = cat['slug'] ?? '';
+                    final name = cat['name'] ?? slug;
+                    final isSelected = _selectedCategories.contains(slug);
+                    return FilterChip(
+                      label: Text(name),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            _selectedCategories.add(slug);
+                          } else {
+                            _selectedCategories.remove(slug);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (_, __) => _buildHardcodedCategoryChips(),
               ),
               const SizedBox(height: SigapSpacing.lg),
               Text('Status', style: Theme.of(context).textTheme.titleMedium),
@@ -680,6 +699,31 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
         }
       });
     }
+  }
+
+  /// Fallback method to build category chips from hardcoded values
+  /// when API fetch fails.
+  Widget _buildHardcodedCategoryChips() {
+    const hardcodedCategories = ['road', 'bridge', 'drainage', 'public'];
+    return Wrap(
+      spacing: 8,
+      children: hardcodedCategories.map((cat) {
+        final isSelected = _selectedCategories.contains(cat);
+        return FilterChip(
+          label: Text(_formatCategory(cat)),
+          selected: isSelected,
+          onSelected: (selected) {
+            setState(() {
+              if (selected) {
+                _selectedCategories.add(cat);
+              } else {
+                _selectedCategories.remove(cat);
+              }
+            });
+          },
+        );
+      }).toList(),
+    );
   }
 
   String _formatCategory(String cat) {

@@ -5,7 +5,7 @@ import '../../api/api_client.dart' show TimelineEnvelope;
 import '../../api/types.g.dart';
 import '../../theme/tokens.dart';
 import '../../providers/providers.dart';
-import '../../widgets/skeleton_loaders.dart';
+import '../../widgets/design_system/design_system.dart';
 
 /// Provider that fetches a single report from the API by ID.
 final apiReportProvider = FutureProvider.family<Report, String>((
@@ -74,8 +74,7 @@ class ReportDetailScreen extends ConsumerWidget {
       ),
       body: reportAsync.when(
         data: (report) {
-          final photoUrls =
-              report.photos?.map((p) => p.url ?? '').toList() ?? [];
+          final photoUrls = report.photos ?? [];
           final createdAtStr = report.createdAt;
 
           return SingleChildScrollView(
@@ -222,102 +221,88 @@ class ReportDetailScreen extends ConsumerWidget {
         }
       }
 
-      return Container(
-        decoration: BoxDecoration(
-          color: SigapColors.offlineBg,
-          borderRadius: BorderRadius.circular(SigapRadius.md),
-          border: Border(
-            left: BorderSide(color: SigapColors.offlineDot, width: 4),
-          ),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(SigapSpacing.md),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(SigapRadius.md),
-              bottomRight: Radius.circular(SigapRadius.md),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SigapSpacing.sm,
-                  vertical: SigapSpacing.xs,
+      return SigapCard(
+        borderLeftColor: SigapColors.offlineDot,
+        padding: const EdgeInsets.all(SigapSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SigapSpacing.x10,
+                vertical: SigapSpacing.x4,
+              ),
+              decoration: BoxDecoration(
+                color: SigapColors.offlineDot,
+                borderRadius: BorderRadius.circular(SigapRadius.x7),
+              ),
+              child: const Text(
+                'Perlu tindakan Anda',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: SigapTypography.size12,
+                  fontWeight: FontWeight.w700,
                 ),
-                decoration: BoxDecoration(
-                  color: SigapColors.offlineDot,
-                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+              ),
+            ),
+            const SizedBox(height: SigapSpacing.x9),
+            if (deadlineText.isNotEmpty)
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size12_5,
+                    color: SigapColors.warningTextStrong,
+                    height: SigapTypography.lineHeight145,
+                  ),
+                  children: [
+                    const TextSpan(
+                      text:
+                          'Verifikator meminta 1 foto tambahan dari sisi yang '
+                          'berbeda agar lubang terlihat jelas. ',
+                    ),
+                    TextSpan(
+                      text: 'Tenggat $deadlineText.',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              )
+            else
+              const Text(
+                'Verifikator meminta 1 foto tambahan dari sisi yang berbeda '
+                'agar lubang terlihat jelas.',
+                style: TextStyle(
+                  fontSize: SigapTypography.size12_5,
+                  color: SigapColors.warningTextStrong,
+                  height: SigapTypography.lineHeight145,
+                ),
+              ),
+            const SizedBox(height: SigapSpacing.x11),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => context.push('/evidence/${report.id}'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: SigapSpacing.x11,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SigapRadius.x10),
+                  ),
+                  elevation: 0,
                 ),
                 child: const Text(
-                  'Perlu tindakan Anda',
+                  'Lengkapi laporan',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: SigapTypography.size12,
+                    fontSize: SigapTypography.size13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              const SizedBox(height: SigapSpacing.sm),
-              if (deadlineText.isNotEmpty)
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: SigapTypography.size14,
-                      color: SigapColors.warningTextStrong,
-                      height: SigapTypography.lineHeight140,
-                    ),
-                    children: [
-                      const TextSpan(
-                        text:
-                            'Verifikator meminta 1 foto tambahan dari sisi yang '
-                            'berbeda agar lubang terlihat jelas. ',
-                      ),
-                      TextSpan(
-                        text: 'Tenggat $deadlineText.',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                const Text(
-                  'Verifikator meminta 1 foto tambahan dari sisi yang berbeda '
-                  'agar lubang terlihat jelas.',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size14,
-                    color: SigapColors.warningTextStrong,
-                    height: SigapTypography.lineHeight140,
-                  ),
-                ),
-              const SizedBox(height: SigapSpacing.md),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => context.push('/warga/evidence/${report.id}'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SigapColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: SigapSpacing.md,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Lengkapi laporan',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -349,14 +334,8 @@ class ReportDetailScreen extends ConsumerWidget {
     final caseTitle = report.title ?? report.mergedInto ?? 'Kasus';
 
     return GestureDetector(
-      onTap: () => context.push('/warga/report-detail/${report.mergedInto}'),
-      child: Container(
-        padding: const EdgeInsets.all(SigapSpacing.md),
-        decoration: BoxDecoration(
-          color: SigapColors.surface,
-          borderRadius: BorderRadius.circular(SigapRadius.md),
-          border: Border.all(color: SigapColors.border),
-        ),
+      onTap: () => context.push('/detail/${report.mergedInto}'),
+      child: SigapCard(
         child: Row(
           children: [
             Container(
@@ -503,40 +482,19 @@ class ReportDetailScreen extends ConsumerWidget {
           data: (timelineData) {
             final events = timelineData.events;
             if (events?.isEmpty ?? true) {
-              return Container(
-                padding: const EdgeInsets.all(SigapSpacing.md),
-                decoration: BoxDecoration(
-                  color: SigapColors.surface,
-                  borderRadius: BorderRadius.circular(SigapRadius.md),
-                  border: Border.all(color: SigapColors.border),
-                ),
-                child: const Text(
-                  'Belum ada riwayat',
-                  style: TextStyle(
-                    color: SigapColors.textMuted,
-                    fontSize: SigapTypography.size13,
-                  ),
-                ),
+              return const EmptyState(
+                icon: Icons.timeline,
+                title: 'Belum ada riwayat',
+                subtitle: 'Perjalanan laporan akan ditampilkan di sini.',
               );
             }
             return _TimelineWidget(events: events ?? []);
           },
           loading: () =>
               const SkeletonBox(height: 100, borderRadius: SigapRadius.md),
-          error: (_, __) => Container(
-            padding: const EdgeInsets.all(SigapSpacing.md),
-            decoration: BoxDecoration(
-              color: SigapColors.surface,
-              borderRadius: BorderRadius.circular(SigapRadius.md),
-              border: Border.all(color: SigapColors.border),
-            ),
-            child: const Text(
-              'Gagal memuat timeline',
-              style: TextStyle(
-                color: SigapColors.textMuted,
-                fontSize: SigapTypography.size13,
-              ),
-            ),
+          error: (_, __) => ErrorRetryView(
+            message: 'Gagal memuat timeline',
+            onRetry: () => ref.invalidate(reportTimelineProvider(id)),
           ),
         ),
       ],
@@ -603,7 +561,7 @@ class ReportDetailScreen extends ConsumerWidget {
       children: [
         if (canFileSanggahan) ...[
           OutlinedButton.icon(
-            onPressed: () => context.push('/warga/sanggahan/$reportId'),
+            onPressed: () => context.push('/sanggahan/$reportId'),
             icon: const Icon(Icons.thumb_down_outlined, size: 18),
             label: const Text('Ajukan Sanggahan'),
             style: OutlinedButton.styleFrom(
@@ -616,7 +574,7 @@ class ReportDetailScreen extends ConsumerWidget {
         ],
         if (canRequestReopen) ...[
           OutlinedButton.icon(
-            onPressed: () => context.push('/warga/reopen/$reportId'),
+            onPressed: () => context.push('/reopen/$reportId'),
             icon: const Icon(Icons.refresh, size: 18),
             label: const Text('Minta Buka Kembali'),
             style: OutlinedButton.styleFrom(
@@ -628,7 +586,7 @@ class ReportDetailScreen extends ConsumerWidget {
           const SizedBox(height: SigapSpacing.sm),
         ],
         OutlinedButton.icon(
-          onPressed: () => context.push('/warga/evidence/$reportId'),
+          onPressed: () => context.push('/evidence/$reportId'),
           icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
           label: const Text('Kirim Bukti Tambahan'),
           style: OutlinedButton.styleFrom(

@@ -22,7 +22,10 @@ class PhoneFrame extends StatelessWidget {
           color: SigapColors.bgSurface,
           borderRadius: BorderRadius.circular(SigapRadius.x34),
         ),
-        child: child,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(SigapRadius.x34),
+          child: child,
+        ),
       ),
     );
   }

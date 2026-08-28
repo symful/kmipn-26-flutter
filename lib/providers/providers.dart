@@ -15,6 +15,7 @@ import '../sync/background_sync.dart';
 import '../sync/sync_worker.dart';
 import '../utils/logger.dart';
 import 'auth_provider.dart';
+export 'auth_provider.dart';
 
 final _logger = Logger('Providers');
 
@@ -161,6 +162,15 @@ final wargaReportsProvider = FutureProvider<List<Map<String, dynamic>>>((
 final categoriesProvider = FutureProvider<List<Category>>((ref) async {
   final api = ref.watch(apiClientProvider);
   return await api.getCategories();
+});
+
+/// Fetches categories with slugs for map filtering.
+/// Returns a list of maps with 'slug' and 'name' keys.
+final mapCategoriesProvider = FutureProvider<List<Map<String, String>>>((
+  ref,
+) async {
+  final api = ref.watch(apiClientProvider);
+  return await api.getCategoriesWithSlug();
 });
 
 /// Fetches warga statistics (submitted, verified, in_progress, resolved).
@@ -440,4 +450,17 @@ final selectedWilayahNameProvider = Provider<String>((ref) {
         },
       ) ??
       'Pilih Wilayah';
+});
+
+/// Fetches the current user's assigned wilayah name from /api/warga/profile.
+/// Returns the user's wilayahName or 'Kab. Bandung' as fallback for backward compatibility.
+final userWilayahProvider = FutureProvider<String>((ref) async {
+  final api = ref.watch(apiClientProvider);
+  try {
+    final profile = await api.getWargaProfile();
+    return profile.wilayahName ?? profile.wilayahId ?? 'Kab. Bandung';
+  } catch (e) {
+    // Fallback to 'Kab. Bandung' if profile fetch fails
+    return 'Kab. Bandung';
+  }
 });

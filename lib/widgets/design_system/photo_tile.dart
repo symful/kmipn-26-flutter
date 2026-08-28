@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kmipn/theme/tokens.dart';
+import 'package:sigap/theme/tokens.dart';
 
 enum PhotoTileVariant { filled, empty, withLabel }
 

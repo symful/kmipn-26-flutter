@@ -2,6 +2,7 @@
 
 part of 'database.dart';
 
+// ignore_for_file: type=lint
 class $LocalReportsTable extends LocalReports
     with TableInfo<$LocalReportsTable, LocalReport> {
   @override
@@ -118,6 +119,29 @@ class $LocalReportsTable extends LocalReports
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _populationAffectedMeta =
+      const VerificationMeta('populationAffected');
+  @override
+  late final GeneratedColumn<int> populationAffected = GeneratedColumn<int>(
+    'population_affected',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _vulnerabilityIndexMeta =
+      const VerificationMeta('vulnerabilityIndex');
+  @override
+  late final GeneratedColumn<double> vulnerabilityIndex =
+      GeneratedColumn<double>(
+        'vulnerability_index',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0.5),
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -163,6 +187,8 @@ class $LocalReportsTable extends LocalReports
     deviceId,
     status,
     syncStatus,
+    populationAffected,
+    vulnerabilityIndex,
     createdAt,
     updatedAt,
     serverId,
@@ -258,6 +284,24 @@ class $LocalReportsTable extends LocalReports
         syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
       );
     }
+    if (data.containsKey('population_affected')) {
+      context.handle(
+        _populationAffectedMeta,
+        populationAffected.isAcceptableOrUnknown(
+          data['population_affected']!,
+          _populationAffectedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vulnerability_index')) {
+      context.handle(
+        _vulnerabilityIndexMeta,
+        vulnerabilityIndex.isAcceptableOrUnknown(
+          data['vulnerability_index']!,
+          _vulnerabilityIndexMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -329,6 +373,14 @@ class $LocalReportsTable extends LocalReports
         DriftSqlType.int,
         data['${effectivePrefix}sync_status'],
       )!,
+      populationAffected: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}population_affected'],
+      )!,
+      vulnerabilityIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}vulnerability_index'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -361,6 +413,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
   final String? deviceId;
   final String status;
   final int syncStatus;
+  final int populationAffected;
+  final double vulnerabilityIndex;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? serverId;
@@ -375,6 +429,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     this.deviceId,
     required this.status,
     required this.syncStatus,
+    required this.populationAffected,
+    required this.vulnerabilityIndex,
     required this.createdAt,
     required this.updatedAt,
     this.serverId,
@@ -398,6 +454,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     }
     map['status'] = Variable<String>(status);
     map['sync_status'] = Variable<int>(syncStatus);
+    map['population_affected'] = Variable<int>(populationAffected);
+    map['vulnerability_index'] = Variable<double>(vulnerabilityIndex);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || serverId != null) {
@@ -424,6 +482,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
           : Value(deviceId),
       status: Value(status),
       syncStatus: Value(syncStatus),
+      populationAffected: Value(populationAffected),
+      vulnerabilityIndex: Value(vulnerabilityIndex),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       serverId: serverId == null && nullToAbsent
@@ -448,6 +508,10 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
       deviceId: serializer.fromJson<String?>(json['deviceId']),
       status: serializer.fromJson<String>(json['status']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      populationAffected: serializer.fromJson<int>(json['populationAffected']),
+      vulnerabilityIndex: serializer.fromJson<double>(
+        json['vulnerabilityIndex'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       serverId: serializer.fromJson<String?>(json['serverId']),
@@ -467,6 +531,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
       'deviceId': serializer.toJson<String?>(deviceId),
       'status': serializer.toJson<String>(status),
       'syncStatus': serializer.toJson<int>(syncStatus),
+      'populationAffected': serializer.toJson<int>(populationAffected),
+      'vulnerabilityIndex': serializer.toJson<double>(vulnerabilityIndex),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'serverId': serializer.toJson<String?>(serverId),
@@ -484,6 +550,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     Value<String?> deviceId = const Value.absent(),
     String? status,
     int? syncStatus,
+    int? populationAffected,
+    double? vulnerabilityIndex,
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<String?> serverId = const Value.absent(),
@@ -498,6 +566,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     deviceId: deviceId.present ? deviceId.value : this.deviceId,
     status: status ?? this.status,
     syncStatus: syncStatus ?? this.syncStatus,
+    populationAffected: populationAffected ?? this.populationAffected,
+    vulnerabilityIndex: vulnerabilityIndex ?? this.vulnerabilityIndex,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     serverId: serverId.present ? serverId.value : this.serverId,
@@ -524,6 +594,12 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
           : this.syncStatus,
+      populationAffected: data.populationAffected.present
+          ? data.populationAffected.value
+          : this.populationAffected,
+      vulnerabilityIndex: data.vulnerabilityIndex.present
+          ? data.vulnerabilityIndex.value
+          : this.vulnerabilityIndex,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
@@ -543,6 +619,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
           ..write('deviceId: $deviceId, ')
           ..write('status: $status, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('populationAffected: $populationAffected, ')
+          ..write('vulnerabilityIndex: $vulnerabilityIndex, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('serverId: $serverId')
@@ -562,6 +640,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     deviceId,
     status,
     syncStatus,
+    populationAffected,
+    vulnerabilityIndex,
     createdAt,
     updatedAt,
     serverId,
@@ -580,6 +660,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
           other.deviceId == this.deviceId &&
           other.status == this.status &&
           other.syncStatus == this.syncStatus &&
+          other.populationAffected == this.populationAffected &&
+          other.vulnerabilityIndex == this.vulnerabilityIndex &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.serverId == this.serverId);
@@ -596,6 +678,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
   final Value<String?> deviceId;
   final Value<String> status;
   final Value<int> syncStatus;
+  final Value<int> populationAffected;
+  final Value<double> vulnerabilityIndex;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String?> serverId;
@@ -611,6 +695,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     this.deviceId = const Value.absent(),
     this.status = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.populationAffected = const Value.absent(),
+    this.vulnerabilityIndex = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.serverId = const Value.absent(),
@@ -627,6 +713,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     this.deviceId = const Value.absent(),
     this.status = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.populationAffected = const Value.absent(),
+    this.vulnerabilityIndex = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.serverId = const Value.absent(),
@@ -649,6 +737,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     Expression<String>? deviceId,
     Expression<String>? status,
     Expression<int>? syncStatus,
+    Expression<int>? populationAffected,
+    Expression<double>? vulnerabilityIndex,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? serverId,
@@ -665,6 +755,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
       if (deviceId != null) 'device_id': deviceId,
       if (status != null) 'status': status,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (populationAffected != null) 'population_affected': populationAffected,
+      if (vulnerabilityIndex != null) 'vulnerability_index': vulnerabilityIndex,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (serverId != null) 'server_id': serverId,
@@ -683,6 +775,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     Value<String?>? deviceId,
     Value<String>? status,
     Value<int>? syncStatus,
+    Value<int>? populationAffected,
+    Value<double>? vulnerabilityIndex,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String?>? serverId,
@@ -699,6 +793,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
       deviceId: deviceId ?? this.deviceId,
       status: status ?? this.status,
       syncStatus: syncStatus ?? this.syncStatus,
+      populationAffected: populationAffected ?? this.populationAffected,
+      vulnerabilityIndex: vulnerabilityIndex ?? this.vulnerabilityIndex,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       serverId: serverId ?? this.serverId,
@@ -739,6 +835,12 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     if (syncStatus.present) {
       map['sync_status'] = Variable<int>(syncStatus.value);
     }
+    if (populationAffected.present) {
+      map['population_affected'] = Variable<int>(populationAffected.value);
+    }
+    if (vulnerabilityIndex.present) {
+      map['vulnerability_index'] = Variable<double>(vulnerabilityIndex.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -767,6 +869,8 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
           ..write('deviceId: $deviceId, ')
           ..write('status: $status, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('populationAffected: $populationAffected, ')
+          ..write('vulnerabilityIndex: $vulnerabilityIndex, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('serverId: $serverId, ')
@@ -2897,6 +3001,8 @@ typedef $$LocalReportsTableCreateCompanionBuilder =
       Value<String?> deviceId,
       Value<String> status,
       Value<int> syncStatus,
+      Value<int> populationAffected,
+      Value<double> vulnerabilityIndex,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<String?> serverId,
@@ -2914,6 +3020,8 @@ typedef $$LocalReportsTableUpdateCompanionBuilder =
       Value<String?> deviceId,
       Value<String> status,
       Value<int> syncStatus,
+      Value<int> populationAffected,
+      Value<double> vulnerabilityIndex,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<String?> serverId,
@@ -3004,6 +3112,16 @@ class $$LocalReportsTableFilterComposer
 
   ColumnFilters<int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get populationAffected => $composableBuilder(
+    column: $table.populationAffected,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get vulnerabilityIndex => $composableBuilder(
+    column: $table.vulnerabilityIndex,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3107,6 +3225,16 @@ class $$LocalReportsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get populationAffected => $composableBuilder(
+    column: $table.populationAffected,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get vulnerabilityIndex => $composableBuilder(
+    column: $table.vulnerabilityIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3169,6 +3297,16 @@ class $$LocalReportsTableAnnotationComposer
 
   GeneratedColumn<int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get populationAffected => $composableBuilder(
+    column: $table.populationAffected,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get vulnerabilityIndex => $composableBuilder(
+    column: $table.vulnerabilityIndex,
     builder: (column) => column,
   );
 
@@ -3245,6 +3383,8 @@ class $$LocalReportsTableTableManager
                 Value<String?> deviceId = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
+                Value<int> populationAffected = const Value.absent(),
+                Value<double> vulnerabilityIndex = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
@@ -3260,6 +3400,8 @@ class $$LocalReportsTableTableManager
                 deviceId: deviceId,
                 status: status,
                 syncStatus: syncStatus,
+                populationAffected: populationAffected,
+                vulnerabilityIndex: vulnerabilityIndex,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 serverId: serverId,
@@ -3277,6 +3419,8 @@ class $$LocalReportsTableTableManager
                 Value<String?> deviceId = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
+                Value<int> populationAffected = const Value.absent(),
+                Value<double> vulnerabilityIndex = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<String?> serverId = const Value.absent(),
@@ -3292,6 +3436,8 @@ class $$LocalReportsTableTableManager
                 deviceId: deviceId,
                 status: status,
                 syncStatus: syncStatus,
+                populationAffected: populationAffected,
+                vulnerabilityIndex: vulnerabilityIndex,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 serverId: serverId,

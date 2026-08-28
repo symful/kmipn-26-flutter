@@ -5,13 +5,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../api/api_client.dart';
 import '../../api/types.g.dart';
+import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/bottom_nav_5.dart';
 import '../../widgets/design_system/phone_frame.dart';
 import '../../widgets/design_system/status_bar.dart';
-import '../surveyor/presentation/widgets/task_filter_chips.dart';
-import '../surveyor/presentation/widgets/connectivity_indicator.dart';
+import '../../widgets/design_system/task_filter_chips.dart';
+import 'package:sigap/widgets/design_system/sync_status_indicator.dart';
 
 /// Unified TasksFlow List Screen for both SURVEYOR and PETUGAS roles.
 ///
@@ -40,7 +41,7 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
   bool _loading = true;
   String? _error;
   int? _filterIndex;
-  String _sortValue = 'Terbaru';
+  String _sortValue = Strings.slaTerdekat;
   int _selectedNavIndex = 0;
 
   List<_TaskItem> _tasks = [];
@@ -212,14 +213,14 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
   List<_TaskItem> _applySort(List<_TaskItem> tasks, String sortValue) {
     final sorted = List<_TaskItem>.from(tasks);
     switch (sortValue) {
-      case 'Terbaru':
+      case Strings.terbaru:
         sorted.sort((a, b) {
           if (a.createdAt == null && b.createdAt == null) return 0;
           if (a.createdAt == null) return 1;
           if (b.createdAt == null) return -1;
           return b.createdAt!.compareTo(a.createdAt!);
         });
-      case 'Paling mendesak':
+      case Strings.slaTerdekat:
         sorted.sort((a, b) {
           if (a.deadline == null && b.deadline == null) return 0;
           if (a.deadline == null) return 1;
@@ -323,9 +324,7 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                             ),
                           ),
                         ),
-                      const ConnectivityIndicator(
-                        status: ConnectivityStatus.online,
-                      ),
+                      const SyncStatusIndicator(state: SyncState.online),
                     ],
                   ),
                 ),
@@ -449,7 +448,7 @@ class _TasksFlowListScreenState extends ConsumerState<TasksFlowListScreen> {
                           _selectedNavIndex = index;
                         });
                         if (index == 1) {
-                          context.go('/surveyor/map');
+                          context.go('/map');
                         } else if (index == 4) {
                           context.go('/profile');
                         }

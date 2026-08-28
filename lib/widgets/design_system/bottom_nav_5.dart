@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sigap/l10n/strings.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/components/app_icons.dart';
+import 'package:sigap/widgets/design_system/a11y.dart' show MinTapTarget;
 
 enum BottomNavVariant { warga, surveyor }
 
@@ -76,31 +77,34 @@ class BottomNav5 extends StatelessWidget {
   }
 
   Widget _buildFAB() {
-    return GestureDetector(
-      onTap: () => onTap(2),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: SigapColors.primary,
-              borderRadius: BorderRadius.circular(SigapRadius.x16),
-              boxShadow: SigapShadows.fab,
+    return MinTapTarget(
+      semanticsLabel: 'Buat Laporan',
+      child: GestureDetector(
+        onTap: () => onTap(2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: SigapColors.primary,
+                borderRadius: BorderRadius.circular(SigapRadius.x16),
+                boxShadow: SigapShadows.fab,
+              ),
+              child: const _PlusIcon(),
             ),
-            child: const _PlusIcon(),
-          ),
-          SizedBox(height: SigapSpacing.x4),
-          Text(
-            Strings.buat,
-            style: TextStyle(
-              fontSize: SigapTypography.size10,
-              fontWeight: FontWeight.w600,
-              color: SigapColors.primary,
+            SizedBox(height: SigapSpacing.x4),
+            Text(
+              Strings.buat,
+              style: TextStyle(
+                fontSize: SigapTypography.size10,
+                fontWeight: FontWeight.w600,
+                color: SigapColors.primary,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -170,26 +174,29 @@ class _WargaNavItem extends StatelessWidget {
     final onTap = nav?.onTap ?? (_) {};
     final isSelected = selectedIndex == index;
 
-    return GestureDetector(
-      onTap: () => onTap(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(width: 18, height: 18, child: _buildIcon(isSelected)),
-          SizedBox(height: SigapSpacing.x4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: SigapTypography.size10,
-              fontWeight: isSelected
-                  ? FontWeight.w600
-                  : FontWeight.w400, // w400 per M-05 inactive spec
-              color: isSelected
-                  ? SigapColors.primary
-                  : SigapColors.textTertiary,
+    return MinTapTarget(
+      semanticsLabel: label,
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(width: 18, height: 18, child: _buildIcon(isSelected)),
+            SizedBox(height: SigapSpacing.x4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: SigapTypography.size10,
+                fontWeight: isSelected
+                    ? FontWeight.w600
+                    : FontWeight.w400, // w400 per M-05 inactive spec
+                color: isSelected
+                    ? SigapColors.primary
+                    : SigapColors.textTertiary,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -245,28 +252,33 @@ class _SurveyorNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 24,
-            color: isSelected ? SigapColors.primary : SigapColors.textTertiary,
-          ),
-          SizedBox(height: SigapSpacing.x4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: SigapTypography.size10,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+    return MinTapTarget(
+      semanticsLabel: label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 24,
               color: isSelected
                   ? SigapColors.primary
                   : SigapColors.textTertiary,
             ),
-          ),
-        ],
+            SizedBox(height: SigapSpacing.x4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: SigapTypography.size10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected
+                    ? SigapColors.primary
+                    : SigapColors.textTertiary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
