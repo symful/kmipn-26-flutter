@@ -38,7 +38,7 @@ The SIGAP mobile application is engineered for reliable field operations even in
 - **Geospatial Map Intelligence**: Centered on the Indonesian archipelago (`LatLng(-2.548926, 118.0148634)`), constrained within national boundaries, auto-fitting report markers with clustering and interactive pins, plus a one-tap "Pusat Indonesia" camera reset floating action button.
 - **Multi-Camera & Exif Extraction**: Integrated camera capture and photo picker with automatic GPS metadata (Latitude, Longitude) and timestamp extraction for verifiable report evidence.
 - **Dynamic Field Surveys**: Surveyor checklists with location geocoding, multi-photo attachments, condition scoring, and instant sync.
-- **Role Switcher & Quick QA**: Built-in role switcher dialog allowing evaluators and testers to switch between any of the 10 role personas seamlessly.
+- **Role Switcher & Quick QA**: Built-in role switcher dialog allowing evaluators and testers to switch between any of the 9 role personas seamlessly.
 - **State Management & Architecture**: Feature-driven architecture using Riverpod (`riverpod_annotation`), GoRouter declarative routing, and Dio HTTP client with JWT interceptors.
 
 ---
@@ -160,6 +160,114 @@ flutter build apk --release --dart-define=API_BASE_URL=https://kmipn-26-deno.car
 
 ---
 
+## 🌐 Unified REST API Reference
+
+The Flutter app communicates with a single unified backend surface. All endpoints require the `/api` prefix. Role-based access is enforced server-side via capability middleware — there are no role-prefixed route families (no `/api/verifikator/*`, `/api/operator/*`, etc.).
+
+> **Important:** Always use the `/api` prefix. For example, `/api/auth/refresh` — not `/auth/refresh`.
+
+### Public (no authentication)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Worker health check |
+| GET | `/api/categories` | List damage/infrastructure categories |
+| GET | `/api/map/heatmap` | Aggregated heatmap coordinates (rate-limited) |
+| GET | `/api/map/geojson` | GeoJSON FeatureCollection of all reports (rate-limited) |
+
+### Authentication (`/api/auth/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Authenticate and receive JWT access + refresh tokens |
+| POST | `/api/auth/register` | Citizen self-registration (WARGA role only) |
+| POST | `/api/auth/refresh` | Rotate access token using refresh token |
+| GET | `/api/auth/me` | Return current user session and role details |
+| GET | `/api/auth/capabilities` | Return server-authoritative capability set for active role |
+| POST | `/api/auth/switch-role` | Switch active role within granted roles (QA/testing) |
+| POST | `/api/auth/logout` | Revoke refresh token |
+
+### Reports (`/api/reports/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/reports` | List reports with pagination, status/category/search filters, wilayah-scoped |
+| POST | `/api/reports` | Submit new citizen report (auth optional — anonymous allowed) |
+| GET | `/api/reports/:id` | Report detail including timeline and AI assessments |
+| POST | `/api/reports/:id/photos` | Get a presigned R2 URL for photo upload |
+| PUT | `/api/reports/:id/photos/put` | Upload photo bytes to R2 (token-gated) |
+| POST | `/api/reports/:id/action` | Perform action on report (complete/edit — warga or admin) |
+
+### Case Actions (`/api/cases/:id/action`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/cases/:id/action` | Dispatch, merge, split, verify, reject, request_info, prioritize, complete — role-determined transition table |
+
+### Task Actions (`/api/tasks/:id/action`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/tasks/:id/action` | Accept, start, submit_result (with condition + coordinates), reject, clarify — PETUGAS and SURVEYOR only |
+
+### Admin (`/api/admin/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/users` | List all users |
+| POST | `/api/admin/users` | Create user |
+| PUT | `/api/admin/users/:id` | Update user role or wilayah |
+| GET | `/api/admin/categories` | List damage categories |
+| POST | `/api/admin/categories` | Create category |
+| GET | `/api/admin/wilayah` | List wilayah hierarchy |
+| POST | `/api/admin/wilayah` | Create wilayah entry |
+| GET | `/api/admin/diagnostics` | Priority weight configuration |
+
+### Technical Units (`/api/units/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/units` | List all technical units |
+| POST | `/api/units` | Create unit |
+| PUT | `/api/units/:id` | Update unit |
+
+### Statistics (`/api/stats`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/stats` | Role-aware aggregates — WARGA gets own reports; VERIFIKATOR/OPERATOR get case queue and SLA counts; ADMIN_DAERAH gets subtree breakdown; PENGAMBIL_KEPUTUSAN gets global KPIs and 30-day trend; AUDITOR gets timeline action counts |
+
+### Notifications (`/api/notifications/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/notifications` | List user notifications (supports `?unread=1` filter) |
+| POST | `/api/notifications/:id/read` | Mark notification as read |
+
+### Audit Trail (`/api/audit/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/audit` | Full audit log (supports filters: report_id, actor_role, action, from, to) |
+| GET | `/api/audit/search` | Paginated audit search with page/limit |
+| GET | `/api/audit/export` | Export audit log as CSV or JSON (`?format=csv\|json`) |
+| GET | `/api/audit/verify-chain` | Verify audit chain integrity |
+
+### AI Agent (`/api/agent/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/agent/assess` | Trigger AI assessment on a report |
+| POST | `/api/agent/retry-scan` | Re-scan pending assessments |
+
+### Export (`/api/export/*`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/export/reports?format=csv` | Export reports as CSV |
+| GET | `/api/export/reports?format=geojson` | Export reports as GeoJSON FeatureCollection |
+
+> **Export path correction:** Use `/api/export/reports?format=geojson` — the path `/api/export/geojson` does not exist.
+
+### Removed Ghost Endpoints
+The following endpoints do not exist in the real API and should not be used:
+- `/api/sync/batch`
+- `/api/cases/queue`
+- `/api/auth/validate-role`
+- `/api/export/geojson` (use `/api/export/reports?format=geojson`)
+- `/api/surveyors`
+- `/api/users` (non-admin)
+
+---
+
 ## 👥 Manual QA Test Accounts
 
 The mobile app includes a built-in **Role Switcher** accessible from the drawer or profile menu. You can also log in directly using the following pre-seeded test accounts:
@@ -174,7 +282,7 @@ The mobile app includes a built-in **Role Switcher** accessible from the drawer 
 | **ADMIN_DAERAH** | `admin.daerah@sigap.id` | `admin123` | Regional admin dashboard, technical units, SLA configurations |
 | **AUDITOR** | `auditor@sigap.id` | `auditor123` | Immutable audit log trail and user activity inspection |
 | **PENGAMBIL_KEPUTUSAN** | `eksekutif@sigap.id` | `exec123` | Executive KPI analytics, budget statistics, resolution trends |
-| **ADMIN** | `admin@sigap.id` | `admin123` | Full administrative control, category management, priority weights |
+
 | **RT_RW** | `rtrw@sigap.id` | `rtrw123` | Local RT/RW report validation and community confirmation |
 
 ---
