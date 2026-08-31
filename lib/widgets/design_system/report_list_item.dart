@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sigap/api/types.g.dart';
+import 'package:sigap/api/client.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
 import 'package:sigap/widgets/design_system/status_pill.dart';

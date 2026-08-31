@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
-import '../../../api/api_client.dart';
+import '../../../api/client.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
@@ -50,7 +50,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
     final q = _searchQuery.toLowerCase();
     return _items.where((item) {
       final name = (item.name ?? '').toLowerCase();
-      final level = (item.level ?? '').toLowerCase();
+      final level = (item.level?.toString() ?? '').toLowerCase();
       return name.contains(q) || level.contains(q);
     }).toList();
   }
@@ -112,7 +112,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                 ),
                 const SizedBox(height: SigapSpacing.md),
                 DropdownButtonFormField<String>(
-                  value: selectedLevel,
+                  initialValue: selectedLevel,
                   decoration: InputDecoration(
                     labelText: 'Tingkat / Level Administratif',
                     prefixIcon: const Icon(Icons.layers_outlined, size: 20),
@@ -198,7 +198,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                 try {
                   final client = ref.read(apiClientProvider);
                   await client.dio.post(
-                    '/api/wilayah',
+                    '/api/admin/wilayah',
                     data: {
                       'name': nameController.text.trim(),
                       if (parentController.text.trim().isNotEmpty)
@@ -401,8 +401,8 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                         final item = _filtered[index];
                         final id = item.id?.toString() ?? '';
                         final name = item.name ?? '-';
-                        final level = item.level ?? '-';
-                        final levelCol = _levelColor(level);
+                        final levelStr = item.level?.toString() ?? '-';
+                        final levelCol = _levelColor(levelStr);
 
                         return Container(
                           margin: const EdgeInsets.only(
@@ -461,7 +461,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                                 ),
                               ),
                               child: Text(
-                                level.toUpperCase(),
+                                levelStr.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: SigapTypography.size10,
                                   color: levelCol,

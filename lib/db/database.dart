@@ -21,6 +21,7 @@ class LocalReports extends Table {
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   TextColumn get serverId => text().nullable()();
+  TextColumn get addressArea => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {idempotencyKey};
@@ -98,6 +99,17 @@ class LocalSurveyorVisits extends Table {
   Set<Column> get primaryKey => {idempotencyKey};
 }
 
+class CapabilitiesCache extends Table {
+  TextColumn get userId => text()();
+  TextColumn get role => text()();
+  TextColumn get version => text()();
+  TextColumn get payload => text()();
+  DateTimeColumn get fetchedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {userId};
+}
+
 extension LocalPhotosDao on AppDatabase {
   Future<List<LocalPhotoData>> getPhotosByReportIdempotencyKey(String key) {
     final query = customSelect(
@@ -153,6 +165,7 @@ extension LocalPhotosDao on AppDatabase {
     LocalPhotos,
     LocalSurveyorTasks,
     LocalSurveyorVisits,
+    CapabilitiesCache,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -160,7 +173,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -181,6 +194,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 6) {
         await m.addColumn(localReports, localReports.populationAffected);
         await m.addColumn(localReports, localReports.vulnerabilityIndex);
+      }
+      if (from < 7) {
+        await m.createTable(capabilitiesCache);
       }
     },
   );

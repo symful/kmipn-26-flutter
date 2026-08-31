@@ -4,7 +4,7 @@ import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
-import '../../api/types.g.dart';
+import '../../api/client.dart';
 
 class PriorityConfigScreen extends ConsumerStatefulWidget {
   const PriorityConfigScreen({super.key});
@@ -35,7 +35,12 @@ class _PriorityConfigScreenState extends ConsumerState<PriorityConfigScreen> {
       final client = ref.read(apiClientProvider);
       final data = await client.getPriorityConfigs();
       setState(() {
-        _config = data.entries.isNotEmpty ? data.entries.first : null;
+        final pw = data['priority_weights'] as Map<String, dynamic>?;
+        if (pw != null) {
+          _config = PriorityConfig.fromJson(pw);
+        } else {
+          _config = null;
+        }
         _loading = false;
       });
     } catch (e) {

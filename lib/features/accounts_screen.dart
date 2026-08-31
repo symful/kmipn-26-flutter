@@ -239,7 +239,6 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
 
   StatusTone _roleTone(String role) {
     switch (role.toUpperCase()) {
-      case 'ADMIN':
       case 'ADMIN_DAERAH':
         return StatusTone.danger;
       case 'OPERATOR':

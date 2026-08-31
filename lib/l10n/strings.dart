@@ -143,7 +143,9 @@ abstract class Strings {
   static const String tandaiDuplikat = 'Tandai Duplikat';
   static const String diluteJangkauan = 'Diluar Jangkauan';
   static const String dilute = 'Diluar';
-  static const String perluLengkapi = 'Perlu Lengkapi';
+  static const String perluKelengkapan = 'Perlu kelengkapan';
+  static const String perluDilengkapi = 'Perlu dilengkapi';
+  static const String perluLengkapi = perluDilengkapi;
   static const String underReview = 'Under Review';
   static const String verified = 'Verified';
   static const String inProgress = 'In Progress';
@@ -152,6 +154,8 @@ abstract class Strings {
   static const String filter = 'Filter';
   static const String reset = 'Reset';
   static const String tersimpan = 'Tersimpan';
+  static const String tersimpanDiPerangkat = 'Tersimpan di perangkat';
+  static const String perluTindakanAnda = 'Perlu tindakan Anda';
   static const String idLaporanDuplikatHint =
       'Masukkan ID laporan yang duplikat';
   static const String mengirim = 'Mengirim...';

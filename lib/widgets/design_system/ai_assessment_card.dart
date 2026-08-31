@@ -1,304 +1,255 @@
-﻿import 'package:flutter/material.dart';
-import '../../theme/tokens.dart';
+import 'package:flutter/material.dart';
+import 'package:sigap/theme/tokens.dart';
 
-/// AI pre-verification assessment card widget.
+/// Displays AI-generated assessment results for a case.
 ///
-/// Displays AI assessment results including confidence score, supporting factors,
-/// risk factors, and duplicate candidates. Used by operator and verifikator
-/// roles only â€” warga must not see AI assessments.
-///
-/// Data shape (from backend `AssessmentResponse`):
-/// ```dart
-/// {
-///   confidence: number,           // 0.0 - 1.0
-///   factors: {
-///     supporting: string[],      // e.g. ["EXIF consistent", "GPS matches description"]
-///     risk: string[],            // e.g. ["Photo too dark", "Location unclear"]
-///     correlation_ids: string[]  // duplicate candidate report IDs
-///   },
-///   tool_name: string,
-///   agent_version: string,
-///   status: string,
-/// }
-/// ```
+/// Renders confidence score, supporting factors, risk factors,
+/// and duplicate correlation IDs derived from the AI assessment pipeline.
 class AiAssessmentCard extends StatelessWidget {
-  /// Full assessment data map from API.
+  /// Assessment data map with keys:
+  /// - `confidence` (double): confidence score 0–1
+  /// - `factors` (Map): `{ supporting: List<String>, risk: List<String>, correlation_ids: List<String> }`
   final Map<String, dynamic> assessment;
 
   const AiAssessmentCard({super.key, required this.assessment});
 
-  // ---------------------------------------------------------------------------
-  // Derived data
-  // ---------------------------------------------------------------------------
-
-  double get _confidence =>
-      (assessment['confidence'] as num?)?.toDouble() ?? 0.0;
-
-  List<String> get _supportingFactors {
-    final f = assessment['factors'];
-    if (f is Map) {
-      final s = f['supporting'];
-      if (s is List) return s.cast<String>();
-    }
-    return [];
-  }
-
-  List<String> get _riskFactors {
-    final f = assessment['factors'];
-    if (f is Map) {
-      final r = f['risk'];
-      if (r is List) return r.cast<String>();
-    }
-    return [];
-  }
-
-  List<String> get _duplicateCandidates {
-    final f = assessment['factors'];
-    if (f is Map) {
-      final c = f['correlation_ids'];
-      if (c is List) return c.cast<String>();
-    }
-    return [];
-  }
-
-  String? get _toolName => assessment['tool_name'] as String?;
-
-  // ---------------------------------------------------------------------------
-  // Color coding
-  // ---------------------------------------------------------------------------
-
-  Color get _confidenceColor {
-    if (_confidence >= 0.7) return SigapColors.selesai;
-    if (_confidence >= 0.4) return SigapColors.offlineDot;
-    return SigapColors.perluTindakan;
-  }
-
-  String get _confidenceLabel {
-    if (_confidence >= 0.7) return 'Tinggi';
-    if (_confidence >= 0.4) return 'Sedang';
-    return 'Rendah';
-  }
-
-  // ---------------------------------------------------------------------------
-  // Build
-  // ---------------------------------------------------------------------------
-
   @override
   Widget build(BuildContext context) {
+    final confidence = (assessment['confidence'] as num?)?.toDouble() ?? 0.0;
+    final factors = assessment['factors'] as Map<String, dynamic>? ?? {};
+    final supporting = (factors['supporting'] as List?)?.cast<String>() ?? [];
+    final risks = (factors['risk'] as List?)?.cast<String>() ?? [];
+    final correlationIds =
+        (factors['correlation_ids'] as List?)?.cast<String>() ?? [];
+
+    final confidencePct = (confidence * 100).clamp(0, 100).toInt();
+    final confidenceColor = confidence >= 0.7
+        ? SigapColors.success
+        : confidence >= 0.4
+        ? SigapColors.warning
+        : SigapColors.danger;
+
     return Container(
-      padding: const EdgeInsets.all(SigapSpacing.md),
       decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
         border: Border.all(color: SigapColors.border),
+        borderRadius: BorderRadius.circular(SigapRadius.md),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: confidence badge + tool name
-          _buildHeader(),
-          const SizedBox(height: SigapSpacing.md),
+          // Confidence header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(SigapSpacing.md),
+            decoration: BoxDecoration(
+              color: confidenceColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(SigapRadius.md - 1),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.psychology_outlined,
+                  color: confidenceColor,
+                  size: 18,
+                ),
+                const SizedBox(width: SigapSpacing.sm),
+                Text(
+                  'Confidence',
+                  style: TextStyle(
+                    fontSize: SigapTypography.size13,
+                    fontWeight: FontWeight.w600,
+                    color: SigapColors.textPrimary,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: SigapSpacing.sm,
+                    vertical: SigapSpacing.xxs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: confidenceColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(SigapRadius.pill),
+                  ),
+                  child: Text(
+                    '$confidencePct%',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size13,
+                      fontWeight: FontWeight.w700,
+                      color: confidenceColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-          // Supporting factors
-          if (_supportingFactors.isNotEmpty) ...[
-            _buildSectionTitle('Faktor Pendukung'),
-            const SizedBox(height: SigapSpacing.xs),
-            ..._supportingFactors.map(_buildSupportingFactor),
-            const SizedBox(height: SigapSpacing.md),
-          ],
-
-          // Risk factors
-          if (_riskFactors.isNotEmpty) ...[
-            _buildSectionTitle('Faktor Risiko'),
-            const SizedBox(height: SigapSpacing.xs),
-            ..._riskFactors.map(_buildRiskFactor),
-            const SizedBox(height: SigapSpacing.md),
-          ],
-
-          // Duplicate candidates
-          if (_duplicateCandidates.isNotEmpty) ...[
-            _buildSectionTitle('Kandidat Duplikat'),
-            const SizedBox(height: SigapSpacing.xs),
-            ..._duplicateCandidates.map(_buildDuplicateCandidate),
-            const SizedBox(height: SigapSpacing.md),
-          ],
-
-          // Disclaimer
-          _buildDisclaimer(),
+          Padding(
+            padding: const EdgeInsets.all(SigapSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (supporting.isNotEmpty) ...[
+                  _FactorList(
+                    title: 'Supporting Factors',
+                    icon: Icons.thumb_up_outlined,
+                    color: SigapColors.success,
+                    items: supporting,
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                ],
+                if (risks.isNotEmpty) ...[
+                  _FactorList(
+                    title: 'Risk Factors',
+                    icon: Icons.warning_amber_outlined,
+                    color: SigapColors.danger,
+                    items: risks,
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                ],
+                if (correlationIds.isNotEmpty) ...[
+                  _CorrelationIds(correlationIds: correlationIds),
+                ],
+                if (supporting.isEmpty &&
+                    risks.isEmpty &&
+                    correlationIds.isEmpty)
+                  Text(
+                    'No assessment factors available.',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size13,
+                      color: SigapColors.textMuted,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
-    final confidencePercent = (_confidence * 100).toStringAsFixed(0);
-    return Row(
+class _FactorList extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final List<String> items;
+
+  const _FactorList({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Confidence badge
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SigapSpacing.sm,
-            vertical: SigapSpacing.xs,
-          ),
-          decoration: BoxDecoration(
-            color: _confidenceColor.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(SigapRadius.sm),
-            border: Border.all(color: _confidenceColor.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.psychology, size: 14, color: _confidenceColor),
-              const SizedBox(width: 4),
-              Text(
-                'AI Confidence: $confidencePercent%',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: _confidenceColor,
-                ),
+        Row(
+          children: [
+            Icon(icon, color: color, size: 14),
+            const SizedBox(width: SigapSpacing.xs),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: SigapTypography.size12,
+                fontWeight: FontWeight.w600,
+                color: color,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const SizedBox(width: SigapSpacing.sm),
-
-        // Confidence level label
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SigapSpacing.sm,
-            vertical: SigapSpacing.xs,
-          ),
-          decoration: BoxDecoration(
-            color: _confidenceColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(SigapRadius.sm),
-          ),
-          child: Text(
-            _confidenceLabel,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: _confidenceColor,
+        const SizedBox(height: SigapSpacing.xs),
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(
+              left: SigapSpacing.lg,
+              bottom: SigapSpacing.xxs,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '• ',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: SigapTypography.size13,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: TextStyle(
+                      fontSize: SigapTypography.size13,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-
-        const Spacer(),
-
-        // Tool name (if available)
-        if (_toolName != null && _toolName!.isNotEmpty)
-          Text(
-            _toolName!,
-            style: const TextStyle(fontSize: 11, color: SigapColors.textMuted),
-          ),
       ],
     );
   }
+}
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: SigapColors.textSecondary,
-      ),
-    );
-  }
+class _CorrelationIds extends StatelessWidget {
+  final List<String> correlationIds;
 
-  Widget _buildSupportingFactor(String factor) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.check_circle, size: 14, color: SigapColors.selesai),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              factor,
-              style: const TextStyle(
-                fontSize: 13,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  const _CorrelationIds({required this.correlationIds});
 
-  Widget _buildRiskFactor(String factor) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.warning_amber_rounded,
-            size: 14,
-            color: SigapColors.offlineDot,
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              factor,
-              style: const TextStyle(
-                fontSize: 13,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDuplicateCandidate(String reportId) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
-      child: Row(
-        children: [
-          const Icon(Icons.link, size: 14, color: SigapColors.primary),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              'ID: $reportId',
-              style: const TextStyle(
-                fontSize: 13,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDisclaimer() {
-    return Container(
-      padding: const EdgeInsets.all(SigapSpacing.sm),
-      decoration: BoxDecoration(
-        color: SigapColors.bgSoft,
-        borderRadius: BorderRadius.circular(SigapRadius.sm),
-      ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, size: 14, color: SigapColors.textMuted),
-          SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              'Ini hanya rekomendasi. Keputusan akhir oleh verifikator.',
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.link, color: SigapColors.info, size: 14),
+            const SizedBox(width: SigapSpacing.xs),
+            Text(
+              'Duplicate Candidates',
               style: TextStyle(
-                fontSize: 11,
-                color: SigapColors.textMuted,
-                fontStyle: FontStyle.italic,
+                fontSize: SigapTypography.size12,
+                fontWeight: FontWeight.w600,
+                color: SigapColors.info,
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+        const SizedBox(height: SigapSpacing.xs),
+        Wrap(
+          spacing: SigapSpacing.xs,
+          runSpacing: SigapSpacing.xs,
+          children: correlationIds
+              .map(
+                (id) => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: SigapSpacing.sm,
+                    vertical: SigapSpacing.xxs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: SigapColors.infoBg,
+                    borderRadius: BorderRadius.circular(SigapRadius.sm),
+                  ),
+                  child: Text(
+                    id,
+                    style: TextStyle(
+                      fontSize: SigapTypography.size11,
+                      color: SigapColors.info,
+                      fontFamily: SigapTypography.fontFamilyMono,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ],
     );
   }
 }

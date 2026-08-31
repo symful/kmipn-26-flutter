@@ -23,20 +23,19 @@ export 'responsive_scaffold.dart';
 export 'sticky_action_bar.dart';
 export 'stat_grid.dart';
 export 'sigap_app_bar.dart';
-export 'sigap_bottom_nav.dart';
+export '../adaptive_nav.dart';
 
 // Migrated sibling widgets (F1-6, F1-7, F1-10)
 export 'error_retry_view.dart';
 export 'skeleton_loaders.dart';
 export 'role_banner.dart';
-export 'priority_score_card.dart';
 export 'ai_assessment_card.dart';
-
-// Section widgets
-export 'section_header.dart';
 
 // Report / case list item
 export 'report_list_item.dart';
+
+// Photo viewer
+export 'photo_full_screen.dart';
 
 // AppBar widgets
 export 'back_arrow_button.dart';
@@ -46,5 +45,11 @@ export 'title_app_bar.dart';
 export 'async_data_widget.dart';
 export 'pending_sync_banner.dart';
 
+// Capability gates
+export '../can.dart';
+
 // Shell widgets
 export 'authenticated_shell.dart';
+
+// Section label
+export 'section_label.dart';

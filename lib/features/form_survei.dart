@@ -5,9 +5,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:exif/exif.dart';
-import '../../db/database.dart';
+import '../../api/client.dart';
 import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
+import '../../services/photo_service.dart';
 import '../../theme/tokens.dart';
 import '../../components/app_icons.dart';
 import '../../widgets/design_system/phone_frame.dart';
@@ -19,7 +20,8 @@ import '../widgets/design_system/survey_submit_button.dart';
 
 class FormSurveiScreen extends ConsumerStatefulWidget {
   final String? taskId;
-  const FormSurveiScreen({super.key, this.taskId});
+  final Map<String, dynamic>? extra;
+  const FormSurveiScreen({super.key, this.taskId, this.extra});
 
   @override
   ConsumerState<FormSurveiScreen> createState() => _FormSurveiScreenState();
@@ -44,6 +46,12 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   String? _submitError;
   bool _success = false;
 
+  // Checklist items passed from task workspace
+  List<Map<String, dynamic>> _checklistItems = [];
+
+  // Task detail for header
+  TaskDetail? _taskDetail;
+
   // Kondisi: 0=Ringan, 1=Berat, 2=Kritis
   int _selectedKondisi = 0;
   // Rekomendasi: 0=Valid/ditemukan, 1=Tidak ditemukan
@@ -57,10 +65,42 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Extract checked checklist items from route extra
+    if (widget.extra != null &&
+        widget.extra!['checkedChecklistItems'] != null) {
+      _checklistItems = List<Map<String, dynamic>>.from(
+        widget.extra!['checkedChecklistItems'] as List,
+      );
+    }
+    // Load task detail for header
+    if (widget.taskId != null) {
+      _loadTaskDetail();
+    }
+  }
+
+  @override
   void dispose() {
     _damageDescriptionController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadTaskDetail() async {
+    if (widget.taskId == null) return;
+
+    try {
+      final client = ref.read(apiClientProvider);
+      final detail = await client.getTaskDetail(widget.taskId!);
+      if (mounted) {
+        setState(() {
+          _taskDetail = detail;
+        });
+      }
+    } catch (e) {
+      // Silently fail - header will show default values
+    }
   }
 
   Future<void> _captureGps() async {
@@ -192,42 +232,62 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
     });
 
     try {
-      final db = ref.read(databaseProvider);
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final idempotencyKey = 'survei_${widget.taskId ?? 'standalone'}_$now';
+      final client = ref.read(apiClientProvider);
 
-      // Store photos locally with EXIF data
-      for (final photo in _photos) {
-        await db.insertPhoto(
-          reportIdempotencyKey: idempotencyKey,
-          filePath: photo.path,
-          exifDataJson: photo.exifJson,
-          capturedAt: now,
-        );
+      // Get task details to retrieve uploadToken and reportId
+      final taskDetail = await client.getTaskDetail(widget.taskId!);
+      final uploadToken = taskDetail.uploadToken;
+      final reportId = taskDetail.reportId;
+
+      if (uploadToken == null || reportId == null) {
+        throw Exception('Task details missing uploadToken or reportId');
       }
 
-      // Build submission data
-      final submitData = {
-        'task_id': widget.taskId,
-        'damage_description': _damageDescriptionController.text.trim(),
-        'notes': _notesController.text.trim(),
-        'gps': _capturedGps != null
-            ? {'lat': _capturedGps!.$1, 'lng': _capturedGps!.$2}
-            : null,
-        'photo_count': _photos.length,
-        'submitted_at': DateTime.now().toIso8601String(),
-      };
+      // Upload photos and collect public URLs
+      final photoUrls = <String>[];
+      for (var i = 0; i < _photos.length; i++) {
+        final photo = _photos[i];
+        final photoUrl = await PhotoService(
+          client,
+        ).uploadPhotoAndGetUrl(photo.path, reportId, uploadToken, slot: i);
+        photoUrls.add(photoUrl);
+      }
 
-      // Queue for later sync
-      final taskRepo = ref.read(surveyorTaskRepositoryProvider);
-      final queueRepo = ref.read(syncQueueRepositoryProvider);
+      // Build checklist from form data
+      final kondisiLabels = ['Ringan', 'Berat', 'Kritis'];
+      final rekomendasiLabels = [
+        'Valid — perlu tindak lanjut',
+        'Tidak ditemukan di lokasi',
+      ];
+      final checklist = [
+        ..._checklistItems,
+        {
+          'item': 'Kondisi: ${kondisiLabels[_selectedKondisi]}',
+          'status': 'completed',
+          'notes': _damageDescriptionController.text.trim(),
+        },
+        {
+          'item': 'Rekomendasi: ${rekomendasiLabels[_selectedRekomendasi]}',
+          'status': 'completed',
+          'notes': '',
+        },
+      ];
 
-      await taskRepo.saveVisit(
-        idempotencyKey: idempotencyKey,
-        taskId: widget.taskId ?? 'form_survei',
-        visitData: submitData,
+      // Submit visit report directly via API (NOT via sync queue)
+      final findings =
+          '${kondisiLabels[_selectedKondisi]}, ${rekomendasiLabels[_selectedRekomendasi]}';
+      await client.submitVisitReport(
+        taskId: widget.taskId!,
+        findings: findings,
+        checklist: checklist,
+        photoUrls: photoUrls,
+        gpsLat: _capturedGps!.$1,
+        gpsLng: _capturedGps!.$2,
+        accuracy: _gpsAccuracy ?? 6.0,
+        conditionAssessment: kondisiLabels[_selectedKondisi],
+        recommendation: rekomendasiLabels[_selectedRekomendasi],
+        catatan: _notesController.text.trim(),
       );
-      await queueRepo.enqueue(idempotencyKey);
 
       setState(() => _success = true);
     } catch (e) {
@@ -493,6 +553,27 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   /// S-04 Header matching: "Form survei / TGS-3402 · offline" + "Tersimpan 10:02" + 66% progress
   Widget _FormSurveiHeader() {
+    // Construct task code from taskId (following task_workspace pattern)
+    final taskCode = _taskDetail?.taskId != null
+        ? 'TGS-${_taskDetail!.taskId!.length >= 4 ? _taskDetail!.taskId!.substring(0, 4) : _taskDetail!.taskId}'
+        : 'TGS-';
+
+    // Format assignedAt (created_at) to HH:mm
+    String formattedTime = '--:--';
+    if (_taskDetail?.assignedAt != null) {
+      try {
+        final dt = DateTime.parse(_taskDetail!.assignedAt!);
+        formattedTime =
+            '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      } catch (_) {
+        // Keep default if parsing fails
+      }
+    }
+
+    // Calculate progress from form state
+    final progressValue = _calculateProgress();
+    final progressFactor = progressValue / 100;
+
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + SigapSpacing.md,
@@ -527,7 +608,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               ),
               const SizedBox(width: SigapSpacing.md),
               Text(
-                'TGS-3402',
+                taskCode,
                 style: TextStyle(
                   fontSize: SigapTypography.size11,
                   fontWeight: FontWeight.w600,
@@ -556,7 +637,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    'Tersimpan 10:02',
+                    'Tersimpan $formattedTime',
                     style: TextStyle(
                       fontSize: SigapTypography.size11,
                       fontWeight: FontWeight.w600,
@@ -568,7 +649,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
             ],
           ),
           const SizedBox(height: SigapSpacing.md),
-          // Progress bar (66%)
+          // Progress bar
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -580,7 +661,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 ),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
-                  widthFactor: 0.66,
+                  widthFactor: progressFactor.clamp(0.0, 1.0),
                   child: Container(
                     decoration: BoxDecoration(
                       color: SigapColors.primary,
@@ -591,7 +672,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               ),
               const SizedBox(height: SigapSpacing.xs),
               Text(
-                '66%',
+                '$progressValue%',
                 style: TextStyle(
                   fontSize: SigapTypography.size10,
                   fontWeight: FontWeight.w600,
@@ -603,6 +684,35 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         ],
       ),
     );
+  }
+
+  /// Calculate form completion progress percentage
+  int _calculateProgress() {
+    int filled = 0;
+    int total = 4;
+
+    // Photos filled (1 slot = 1/3, 2 slots = 2/3, 3 slots = 100%)
+    if (_photos.isNotEmpty) {
+      filled += (_photos.length / 3 * total).round().clamp(0, total);
+    }
+
+    // GPS captured
+    if (_capturedGps != null) {
+      filled += (total ~/ 4);
+    }
+
+    // Notes filled (at least 10 chars)
+    if (_notesController.text.trim().length >= 10) {
+      filled += (total ~/ 4);
+    }
+
+    // Description filled (at least 10 chars)
+    if (_damageDescriptionController.text.trim().length >= 10) {
+      filled += (total ~/ 4);
+    }
+
+    // Cap at 100%
+    return (filled * 100 / total).round().clamp(0, 100);
   }
 
   Widget _buildPhotoCounter() {

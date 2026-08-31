@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../api/types.g.dart';
+import '../../api/client.dart';
 import '../../l10n/strings.dart';
+import '../../providers/capability_provider.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
@@ -36,27 +37,28 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
   String? _errorMessage;
   bool _exporting = false;
 
-  bool get _isVerifikator {
-    final role = ref.read(authNotifierProvider).activeRole;
-    return role?.toUpperCase() == 'VERIFIKATOR';
+  bool get _canExportPdf {
+    final caps = ref.read(capabilityNotifierProvider).valueOrNull;
+    return caps?.can('case.export') ?? false;
   }
 
-  bool get _isOperator {
-    final role = ref.read(authNotifierProvider).activeRole;
-    return role?.toUpperCase() == 'OPERATOR';
+  bool get _canVerify {
+    final caps = ref.read(capabilityNotifierProvider).valueOrNull;
+    return caps?.can('case.verify') ?? false;
+  }
+
+  bool get _canReject {
+    final caps = ref.read(capabilityNotifierProvider).valueOrNull;
+    return caps?.can('case.reject') ?? false;
   }
 
   String get _pageTitle {
-    if (_isVerifikator) return Strings.verifikatorAntrian;
-    if (_isOperator) return Strings.daftarKasus;
+    if (_canVerify) return Strings.verifikatorAntrian;
+    if (_canExportPdf) return Strings.daftarKasus;
     return Strings.daftarKasus;
   }
 
-  String get _detailRoute {
-    if (_isVerifikator) return '/case-review';
-    if (_isOperator) return '/case-action';
-    return '/cases';
-  }
+  String get _detailRoute => '/case-workspace';
 
   @override
   void initState() {
@@ -71,15 +73,15 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
     });
     try {
       final client = ref.read(apiClientProvider);
-      final activeRole = ref.read(authNotifierProvider).activeRole ?? '';
-      final result = await client.getVerifikatorQueue(
-        activeRole: activeRole,
-        status: _statusFilter,
-        kategori: _kategoriFilter,
+      final result = await client.getReports(
+        status: (_statusFilter?.isNotEmpty ?? false) ? _statusFilter : null,
+        categoryId: (_kategoriFilter?.isNotEmpty ?? false)
+            ? _kategoriFilter
+            : null,
         limit: 100,
       );
       setState(() {
-        _entries = result.items;
+        _entries = result.data;
         _loading = false;
       });
     } catch (e) {
@@ -93,7 +95,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
   Future<void> _acceptCase(String id) async {
     try {
       final client = ref.read(apiClientProvider);
-      await client.acceptCase(id);
+      await client.caseAction(caseId: id, action: 'verify');
       await _loadQueue();
       if (mounted) {
         ScaffoldMessenger.of(
@@ -134,7 +136,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
     if (reason == null) return;
     try {
       final client = ref.read(apiClientProvider);
-      await client.rejectCase(id, reason: reason);
+      await client.caseAction(caseId: id, action: 'reject', note: reason);
       await _loadQueue();
     } catch (e) {
       if (mounted) {
@@ -209,8 +211,8 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
         title: Text(_pageTitle),
         automaticallyImplyLeading: true,
         actions: [
-          // Sort button (operator only)
-          if (_isOperator) ...[
+          // Sort button (available when can export)
+          if (_canExportPdf) ...[
             PopupMenuButton<String>(
               icon: const Icon(Icons.sort),
               tooltip: Strings.sortir,
@@ -252,8 +254,8 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
             onPressed: _loadQueue,
             tooltip: Strings.refresh,
           ),
-          // PDF export (operator only)
-          if (_isOperator) ...[
+          // PDF export (available when can export)
+          if (_canExportPdf) ...[
             if (_exporting)
               const Padding(
                 padding: EdgeInsets.all(16),
@@ -318,22 +320,28 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
   List<Widget>? _buildTrailingActions(Report entry) {
     final actions = <Widget>[];
 
-    // Verifikator actions: Accept / Reject
-    if (_isVerifikator) {
-      actions.addAll([
+    // Accept action (case.verify capability)
+    if (_canVerify) {
+      actions.add(
         IconButton(
           icon: const Icon(Icons.check_circle_outline),
           color: SigapColors.selesai,
           onPressed: () => _acceptCase(entry.id!),
           tooltip: Strings.terima,
         ),
+      );
+    }
+
+    // Reject action (case.reject capability)
+    if (_canReject) {
+      actions.add(
         IconButton(
           icon: const Icon(Icons.highlight_off),
           color: SigapColors.perluTindakan,
           onPressed: () => _rejectCase(entry.id!),
           tooltip: Strings.tolak,
         ),
-      ]);
+      );
     }
 
     // Common action: View detail
@@ -356,7 +364,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
         (_statusFilter != 'all');
 
     String subtitle;
-    if (_isVerifikator) {
+    if (_canVerify) {
       subtitle = hasActiveFilters
           ? Strings.tidakAdaLaporanSesuaiFilter
           : Strings.semuaLaporanSelesaiDiverifikasi;
@@ -388,7 +396,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
       padding: const EdgeInsets.all(SigapSpacing.xl),
       child: EmptyState(
         icon: Icons.inbox_outlined,
-        title: _isVerifikator
+        title: _canVerify
             ? Strings.tidakAdaLaporanDiAntrean
             : Strings.tidakAdaKasus,
         subtitle: subtitle,
@@ -403,7 +411,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
       builder: (ctx) => _FilterSheet(
         currentStatus: _statusFilter,
         currentKategori: _kategoriFilter,
-        isOperator: _isOperator,
+        isOperator: _canExportPdf,
         onApply: (status, kategori) {
           setState(() {
             _statusFilter = status;

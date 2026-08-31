@@ -3,18 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
-import '../api/types.g.dart';
+import 'package:sigap/api/client.dart';
 import '../db/database.dart';
 import '../l10n/strings.dart';
 import '../providers/providers.dart';
-import '../providers/auth_provider.dart';
 import '../theme/tokens.dart';
-import '../widgets/design_system/bottom_nav_5.dart';
+import '../widgets/adaptive_nav.dart';
 import '../widgets/design_system/buttons.dart';
 import '../widgets/design_system/phone_frame.dart';
 import '../widgets/design_system/status_bar.dart';
-import '../widgets/design_system/wilayah_dropdown.dart';
-import '../widgets/design_system/notification_bell.dart';
 import '../widgets/design_system/skeleton_loaders.dart';
 import '../widgets/design_system/status_grid.dart';
 import '../widgets/design_system/kasus_terdekat_cards.dart';
@@ -23,6 +20,7 @@ import '../widgets/design_system/task_filter_chips.dart';
 import '../widgets/design_system/task_sort_row.dart';
 import '../widgets/design_system/task_card.dart';
 import '../widgets/design_system/offline_pill.dart';
+import '../widgets/can.dart';
 
 // ─── Shared models ───────────────────────────────────────────────────────────
 
@@ -681,12 +679,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (!mounted) return;
       final loc = GoRouterState.of(context).uri.toString();
       int newIndex = 0;
-      if (loc.startsWith('/map'))
+      if (loc.startsWith('/map')) {
         newIndex = 1;
-      else if (loc.startsWith('/laporan'))
+      } else if (loc.startsWith('/laporan')) {
         newIndex = 3;
-      else if (loc == '/profile')
+      } else if (loc == '/profile') {
         newIndex = 4;
+      }
       if (_selectedNavIndex != newIndex) {
         setState(() => _selectedNavIndex = newIndex);
       }
@@ -712,7 +711,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final activeRole = ref.watch(authNotifierProvider).activeRole ?? 'warga';
     final connectivityAsync = ref.watch(connectivityProvider);
 
     final isOffline =
@@ -730,28 +728,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: Scaffold(
               backgroundColor: SigapColors.bgSurface,
-              body: _buildBody(activeRole, isOffline),
-              bottomNavigationBar: BottomNav5(
-                variant: _bottomNavVariant(activeRole),
-                selectedIndex: _selectedNavIndex,
+              body: _buildBody(isOffline),
+              bottomNavigationBar: AdaptiveNav(
+                activeIndex: _selectedNavIndex,
                 onTap: (index) {
                   setState(() => _selectedNavIndex = index);
-                  switch (index) {
-                    case 0:
-                      context.go('/');
-                      break;
-                    case 1:
-                      context.push('/map');
-                      break;
-                    case 2:
-                      context.push('/create');
-                      break;
-                    case 3:
-                      context.push('/laporan');
-                      break;
-                    case 4:
-                      context.push('/profile');
-                      break;
+                  // Derive route from the nav item's position in the capability-built list.
+                  // Order in _buildNavItems: peta → antrean → audit → analitik → tugas → laporan
+                  final routes = [
+                    '/map', // index 0: peta (public.read)
+                    '/queue', // index 1: antrean (case.read/case.verify)
+                    '/audit', // index 2: audit (audit.read)
+                    '/stats', // index 3: analitik (analytics.read)
+                    '/tasks', // index 4: tugas (task.accept)
+                    '/detail', // index 5: laporan (report.submit)
+                  ];
+                  final route = index < routes.length
+                      ? routes[index]
+                      : '/dashboard';
+                  if (index == 0) {
+                    context.go(route);
+                  } else {
+                    context.push(route);
                   }
                 },
               ),
@@ -762,260 +760,154 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  BottomNavVariant _bottomNavVariant(String role) {
-    switch (role) {
-      case 'warga':
-        return BottomNavVariant.warga;
-      case 'surveyor':
-        return BottomNavVariant.surveyor;
-      default:
-        return BottomNavVariant.warga;
-    }
+  Widget _buildBody(bool isOffline) {
+    return HomeShell(isOffline: isOffline, currentPosition: _currentPosition);
   }
+}
 
-  Widget _buildBody(String role, bool isOffline) {
-    switch (role) {
-      case 'warga':
-        return _buildWargaBody(isOffline);
-      case 'surveyor':
-        return _buildSurveyorBody(isOffline);
-      default:
-        return _buildWargaBody(isOffline);
-    }
+/// Capability-driven home shell that renders modules based on capabilities.
+///
+/// Replaces the role-branched _buildWargaBody / _buildSurveyorBody pattern.
+class HomeShell extends ConsumerWidget {
+  const HomeShell({super.key, required this.isOffline, this.currentPosition});
+
+  final bool isOffline;
+  final Position? currentPosition;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(SigapSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: SigapSpacing.lg),
+          // ── Warga CTA (report.submit) ─────────────────────────────────
+          Can(
+            action: 'report.submit',
+            child: CtaButton(
+              label: 'Buat laporan',
+              subtitle: 'Foto, lokasi, dan kondisi lapangan',
+              onPressed: () => context.push('/create'),
+            ),
+          ),
+          const SizedBox(height: SigapSpacing.md),
+          // ── Pending banner (report.read) ──────────────────────────────
+          Can(
+            action: 'report.read',
+            child: _PendingBannerContent(isOffline: isOffline),
+          ),
+          const SizedBox(height: SigapSpacing.md),
+          // ── Warga stats + list (report.read) ─────────────────────────
+          Can(
+            action: 'report.read',
+            child: _WargaReportsModule(isOffline: isOffline),
+          ),
+          // ── Nearest cases (case.read) ─────────────────────────────────
+          Can(
+            action: 'case.read',
+            child: _NearestCasesModule(currentPosition: currentPosition),
+          ),
+          // ── Surveyor tasks (task.read) ────────────────────────────────
+          Can(
+            action: 'task.read',
+            child: _SurveyorTasksModule(isOffline: isOffline),
+          ),
+        ],
+      ),
+    );
   }
+}
 
-  // ─── WARGA BODY ─────────────────────────────────────────────────────────
+/// Pending banner content for warga.
+class _PendingBannerContent extends ConsumerWidget {
+  const _PendingBannerContent({required this.isOffline});
+  final bool isOffline;
 
-  Widget _buildWargaBody(bool isOffline) {
-    final authState = ref.watch(authNotifierProvider);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pendingAsync = ref.watch(pendingCountProvider);
+    return pendingAsync.when(
+      data: (count) =>
+          count > 0 ? _PendingBanner(count: count) : const SizedBox.shrink(),
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+/// Warga reports module: stats + merged local/server report list.
+class _WargaReportsModule extends ConsumerWidget {
+  const _WargaReportsModule({required this.isOffline});
+  final bool isOffline;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final localAsync = ref.watch(localReportsProvider);
     final serverAsync = ref.watch(wargaReportsProvider);
-    final pendingAsync = ref.watch(pendingCountProvider);
     final statsAsync = ref.watch(wargaStatsProvider);
-    final selectedWilayah = ref.watch(selectedWilayahNameProvider);
-
-    Widget? nearbySection;
-    if (_currentPosition != null) {
-      final nearbyAsync = ref.watch(
-        nearbyReportsProvider((
-          lat: _currentPosition!.latitude,
-          lng: _currentPosition!.longitude,
-        )),
-      );
-      nearbySection = nearbyAsync.when(
-        data: (reports) {
-          if (reports.isEmpty) return const SizedBox.shrink();
-          final cases = reports.map((r) {
-            final statusStr = r['status']?.toString() ?? '';
-            KasusStatus status =
-                statusStr.contains('verified') ||
-                    statusStr.contains('terverifikasi')
-                ? KasusStatus.terverifikasi
-                : KasusStatus.sedangDitangani;
-            return KasusTerdekatCase(
-              initials: (r['short_code'] ?? 'XX').toString().substring(
-                0,
-                2.clamp(0, (r['short_code'] ?? 'XX').toString().length),
-              ),
-              title: r['title']?.toString() ?? 'Tanpa judul',
-              rw: r['village_name']?.toString() ?? 'RW -',
-              distanceMeters: (r['distance_meters'] ?? 0).toInt(),
-              laporanCount: (r['supporting_count'] ?? 0).toInt(),
-              status: status,
-            );
-          }).toList();
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: SigapSpacing.md),
-              KasusTerdekatSection(
-                cases: cases,
-                onLihatPeta: () => context.push('/map'),
-                onCaseTap: (kasus) {
-                  final reportId = reports
-                      .firstWhere(
-                        (r) => r['title']?.toString() == kasus.title,
-                        orElse: () => {},
-                      )['id']
-                      ?.toString();
-                  if (reportId != null) context.push('/detail/$reportId');
-                },
-              ),
-            ],
-          );
-        },
-        loading: () => _buildNearbyLoading(),
-        error: (error, _) => _buildNearbyError(
-          error,
-          () => ref.invalidate(
-            nearbyReportsProvider((
-              lat: _currentPosition!.latitude,
-              lng: _currentPosition!.longitude,
-            )),
-          ),
-        ),
-      );
-    }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // AppBar
-        AppBar(
-          title: WilayahDropdown(
-            label: 'Wilayah aktif',
-            value: '$selectedWilayah ▾',
-            onTap: null,
+        // Stats
+        statsAsync.when(
+          data: (stats) => StatusGrid(
+            perluTindakan: stats.submitted ?? 0,
+            diproses: (stats.verified ?? 0) + (stats.inProgress ?? 0),
+            selesai: stats.resolved ?? 0,
           ),
-          automaticallyImplyLeading: false,
-          actions: [
-            if (isOffline)
-              Container(
-                margin: const EdgeInsets.only(right: SigapSpacing.x4),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SigapSpacing.x9,
-                  vertical: SigapSpacing.x4,
-                ),
-                decoration: BoxDecoration(
-                  color: SigapColors.offlineBg,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: SigapColors.offlineBorder),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: SigapColors.offlineDot,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: SigapSpacing.xs),
-                    const Text(
-                      'Offline',
-                      style: TextStyle(
-                        color: SigapColors.offlineText,
-                        fontSize: SigapTypography.size11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            if (authState.roles.length > 1)
-              IconButton(
-                icon: const Icon(Icons.swap_horiz),
-                tooltip: 'Ganti Peran',
-                onPressed: () => context.push('/switch-role'),
-              ),
-            IconButton(
-              onPressed: () => context.push('/notifications'),
-              icon: NotificationBell(
-                unreadCount: ref.watch(unreadCountProvider),
-              ),
-            ),
-          ],
+          loading: () => _buildStatsLoading(),
+          error: (error, _) =>
+              _buildStatsError(error, () => ref.invalidate(wargaStatsProvider)),
         ),
-        // Body
-        Expanded(
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(SigapSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: SigapSpacing.lg),
-                  // CTA
-                  CtaButton(
-                    label: 'Buat laporan',
-                    subtitle: 'Foto, lokasi, dan kondisi lapangan',
-                    onPressed: () => context.push('/create'),
-                  ),
-                  const SizedBox(height: SigapSpacing.md),
-                  // Pending banner
-                  pendingAsync.when(
-                    data: (count) => count > 0
-                        ? _PendingBanner(count: count)
-                        : const SizedBox.shrink(),
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
-                  ),
-                  const SizedBox(height: SigapSpacing.md),
-                  // Stats
-                  statsAsync.when(
-                    data: (stats) => StatusGrid(
-                      perluTindakan: stats.submitted ?? 0,
-                      diproses: (stats.verified ?? 0) + (stats.inProgress ?? 0),
-                      selesai: stats.resolved ?? 0,
-                    ),
-                    loading: () => _buildStatsLoading(),
-                    error: (error, _) => _buildStatsError(
-                      error,
-                      () => ref.invalidate(wargaStatsProvider),
-                    ),
-                  ),
-                  // Nearby
-                  if (nearbySection != null) nearbySection,
-                  // List header
-                  Padding(
-                    padding: const EdgeInsets.only(top: SigapSpacing.md),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          Strings.laporanSaya,
-                          style: TextStyle(
-                            fontSize: SigapTypography.size13,
-                            fontWeight: FontWeight.w700,
-                            color: SigapColors.textPrimary,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => context.push('/laporan'),
-                          child: const Text(
-                            Strings.lihatSemua,
-                            style: TextStyle(
-                              fontSize: SigapTypography.size12,
-                              fontWeight: FontWeight.w600,
-                              color: SigapColors.primary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: SigapSpacing.sm),
-                  // List
-                  Expanded(
-                    child: localAsync.when(
-                      loading: () => _buildListLoading(),
-                      error: (e, _) => _buildListError(
-                        e,
-                        () => ref.invalidate(localReportsProvider),
-                      ),
-                      data: (localReports) => serverAsync.when(
-                        loading: () => _buildListLoading(),
-                        error: (e, _) => _buildListError(
-                          e,
-                          () => ref.invalidate(wargaReportsProvider),
-                        ),
-                        data: (serverReports) => _buildWargaList(
-                          mergeReports(localReports, serverReports),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+        // List header
+        Padding(
+          padding: const EdgeInsets.only(top: SigapSpacing.md),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                Strings.laporanSaya,
+                style: TextStyle(
+                  fontSize: SigapTypography.size13,
+                  fontWeight: FontWeight.w700,
+                  color: SigapColors.textPrimary,
+                ),
               ),
-            ),
+              GestureDetector(
+                onTap: () => context.push('/laporan'),
+                child: const Text(
+                  Strings.lihatSemua,
+                  style: TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w600,
+                    color: SigapColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: SigapSpacing.sm),
+        // List
+        localAsync.when(
+          loading: () => _buildListLoading(),
+          error: (e, _) =>
+              _buildListError(e, () => ref.invalidate(localReportsProvider)),
+          data: (localReports) => serverAsync.when(
+            loading: () => _buildListLoading(),
+            error: (e, _) =>
+                _buildListError(e, () => ref.invalidate(wargaReportsProvider)),
+            data: (serverReports) =>
+                _buildWargaList(ref, mergeReports(localReports, serverReports)),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildWargaList(List<ReportItem> reports) {
+  Widget _buildWargaList(WidgetRef ref, List<ReportItem> reports) {
     if (reports.isEmpty) return _buildWargaEmpty();
     return RefreshIndicator(
       onRefresh: () async {
@@ -1030,15 +922,92 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         itemCount: reports.length,
         itemBuilder: (context, index) => _ReportListItem(
           report: reports[index],
-          onTap: () => context.push('/detail/${reports[index].navKey}'),
+          onTap: () => context.push('/laporan/${reports[index].navKey}'),
         ),
       ),
     );
   }
+}
 
-  // ─── SURVEYOR BODY ───────────────────────────────────────────────────────
+/// Nearest cases module (KasusTerdekatSection) for warga.
+class _NearestCasesModule extends ConsumerWidget {
+  const _NearestCasesModule({this.currentPosition});
+  final Position? currentPosition;
 
-  Widget _buildSurveyorBody(bool isOffline) {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (currentPosition == null) return const SizedBox.shrink();
+
+    final nearbyAsync = ref.watch(
+      nearbyReportsProvider((
+        lat: currentPosition!.latitude,
+        lng: currentPosition!.longitude,
+      )),
+    );
+
+    return nearbyAsync.when(
+      data: (reports) {
+        if (reports.isEmpty) return const SizedBox.shrink();
+        final cases = reports.map((r) {
+          final statusStr = r['status']?.toString() ?? '';
+          KasusStatus status =
+              statusStr.contains('verified') ||
+                  statusStr.contains('terverifikasi')
+              ? KasusStatus.terverifikasi
+              : KasusStatus.sedangDitangani;
+          return KasusTerdekatCase(
+            initials: (r['short_code'] ?? 'XX').toString().substring(
+              0,
+              2.clamp(0, (r['short_code'] ?? 'XX').toString().length),
+            ),
+            title: r['title']?.toString() ?? 'Tanpa judul',
+            rw: r['village_name']?.toString() ?? 'RW -',
+            distanceMeters: (r['distance_meters'] ?? 0).toInt(),
+            laporanCount: (r['supporting_count'] ?? 0).toInt(),
+            status: status,
+          );
+        }).toList();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: SigapSpacing.md),
+            KasusTerdekatSection(
+              cases: cases,
+              onLihatPeta: () => context.push('/map'),
+              onCaseTap: (kasus) {
+                final reportId = reports
+                    .firstWhere(
+                      (r) => r['title']?.toString() == kasus.title,
+                      orElse: () => {},
+                    )['id']
+                    ?.toString();
+                if (reportId != null) context.push('/laporan/$reportId');
+              },
+            ),
+          ],
+        );
+      },
+      loading: () => _buildNearbyLoading(),
+      error: (error, _) => _buildNearbyError(
+        error,
+        () => ref.invalidate(
+          nearbyReportsProvider((
+            lat: currentPosition!.latitude,
+            lng: currentPosition!.longitude,
+          )),
+        ),
+      ),
+    );
+  }
+}
+
+/// Surveyor tasks module with SLA filters.
+class _SurveyorTasksModule extends ConsumerWidget {
+  const _SurveyorTasksModule({required this.isOffline});
+  final bool isOffline;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final tasksAsync = ref.watch(surveyorTasksProvider);
     final filterIndex = ref.watch(surveyorFilterProvider);
     final sortValue = ref.watch(surveyorSortProvider);
@@ -1103,15 +1072,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             children: [
               ConnectivityIndicator(status: onlineStatus),
               const Spacer(),
-              if (isOffline)
-                TextButton.icon(
-                  onPressed: () => ref.read(syncWorkerProvider).syncNow(),
-                  icon: const Icon(Icons.sync, size: 16),
-                  label: const Text('Sinkronkan'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: SigapColors.primary,
-                  ),
-                ),
             ],
           ),
         ),
@@ -1143,15 +1103,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
         // Task list
-        Expanded(
-          child: tasksAsync.when(
-            data: (tasks) =>
-                _buildSurveyorTaskList(tasks, filterIndex, sortValue),
-            loading: () => _buildSurveyorLoading(),
-            error: (error, _) => _buildSurveyorError(
-              error,
-              () => ref.invalidate(surveyorTasksProvider),
-            ),
+        tasksAsync.when(
+          data: (tasks) =>
+              _buildSurveyorTaskList(ref, tasks, filterIndex, sortValue),
+          loading: () => _buildSurveyorLoading(),
+          error: (error, _) => _buildSurveyorError(
+            error,
+            () => ref.invalidate(surveyorTasksProvider),
           ),
         ),
       ],
@@ -1159,6 +1117,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildSurveyorTaskList(
+    WidgetRef ref,
     List<SurveyorTask> tasks,
     int? filterIndex,
     String sortValue,
@@ -1277,7 +1236,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } else if (diff.inHours > 0) {
       return '${diff.inHours} jam yang lalu';
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes} menit lalu';
+      return '${diff.inMinutes} menit yang lalu';
     }
     return 'Baru saja';
   }

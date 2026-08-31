@@ -70,6 +70,8 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   http: ^1.2.0
+  uuid: ^4.5.1
+  crypto: ^3.0.5
 
 flutter:
   uses-material-design: true

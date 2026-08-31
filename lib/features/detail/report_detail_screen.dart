@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../api/api_client.dart' show TimelineEnvelope;
-import '../../api/types.g.dart';
-import '../../theme/tokens.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../api/client.dart' as api_client;
+import '../../capabilities/can.dart';
 import '../../providers/providers.dart';
+import '../../theme/tokens.dart';
+
+import '../../widgets/design_system/buttons.dart';
 import '../../widgets/design_system/design_system.dart';
+import '../../widgets/design_system/timeline_event.dart';
 
 /// Provider that fetches a single report from the API by ID.
-final apiReportProvider = FutureProvider.family<Report, String>((
+final apiReportProvider = FutureProvider.family<api_client.Report, String>((
   ref,
   id,
 ) async {
@@ -17,13 +22,18 @@ final apiReportProvider = FutureProvider.family<Report, String>((
 });
 
 /// Provider that fetches the timeline for a report.
-final reportTimelineProvider = FutureProvider.family<TimelineEnvelope, String>((
-  ref,
-  id,
-) async {
-  final apiClient = ref.read(apiClientProvider);
-  return apiClient.getReportTimeline(id);
-});
+final reportTimelineProvider =
+    FutureProvider.family<api_client.TimelineEnvelope, String>((ref, id) async {
+      final apiClient = ref.read(apiClientProvider);
+      return apiClient.getReportTimeline(id);
+    });
+
+/// Provider that fetches OG meta for share preview.
+final shareMetadataProvider =
+    FutureProvider.family<api_client.ShareMetadata, String>((ref, id) async {
+      final apiClient = ref.read(apiClientProvider);
+      return apiClient.getShareMetadata(id);
+    });
 
 class ReportDetailScreen extends ConsumerWidget {
   final String id;
@@ -51,14 +61,18 @@ class ReportDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               reportAsync.when(
-                data: (report) => Text(
-                  'Lokal ${report.id ?? '-'} · Server ${report.id ?? '-'}',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12,
-                    color: SigapColors.textSecondary,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
+                data: (report) {
+                  // Try to find local ID from Drift DB when route ID is an idempotency key
+                  final localId = _getLocalId(ref, id, report.id);
+                  return Text(
+                    'Lokal ${localId ?? '-'} · Server ${report.id ?? '-'}',
+                    style: const TextStyle(
+                      fontSize: SigapTypography.size12,
+                      color: SigapColors.textSecondary,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  );
+                },
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
               ),
@@ -66,6 +80,13 @@ class ReportDetailScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.share_outlined,
+              color: SigapColors.textSecondary,
+            ),
+            onPressed: () => _onShare(context, ref),
+          ),
           IconButton(
             icon: const Icon(Icons.more_vert, color: SigapColors.textSecondary),
             onPressed: () {},
@@ -97,7 +118,13 @@ class ReportDetailScreen extends ConsumerWidget {
                 ],
 
                 // Description
-                _SectionLabel(label: 'Deskripsi'),
+                SectionLabel(
+                  label: 'Deskripsi',
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   report.description ?? '-',
@@ -109,10 +136,18 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.lg),
 
                 // Location
-                _SectionLabel(label: 'Lokasi'),
+                SectionLabel(
+                  label: 'Lokasi',
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
-                  '${report.location?['lat']?.toStringAsFixed(6) ?? '-'}, ${report.location?['lng']?.toStringAsFixed(6) ?? '-'}',
+                  report.addressArea ??
+                      report.address ??
+                      '${report.location?['lat']?.toStringAsFixed(6) ?? '-'}, ${report.location?['lng']?.toStringAsFixed(6) ?? '-'}',
                   style: const TextStyle(
                     fontSize: SigapTypography.size14,
                     fontFamily: SigapTypography.fontFamilyMono,
@@ -122,7 +157,13 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.lg),
 
                 // Category
-                _SectionLabel(label: 'Kategori'),
+                SectionLabel(
+                  label: 'Kategori',
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   report.category ?? '-',
@@ -134,7 +175,13 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.lg),
 
                 // Severity / Priority
-                _SectionLabel(label: 'Tingkat Prioritas'),
+                SectionLabel(
+                  label: 'Tingkat Prioritas',
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   report.priority?.value ?? '-',
@@ -146,7 +193,13 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.lg),
 
                 // Created at
-                _SectionLabel(label: 'Dibuat'),
+                SectionLabel(
+                  label: 'Dibuat',
+                  style: const TextStyle(
+                    fontSize: SigapTypography.size12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: SigapSpacing.xs),
                 Text(
                   createdAtStr != null ? _formatApiDate(createdAtStr) : '-',
@@ -166,11 +219,8 @@ class ReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: SigapSpacing.xl),
 
                 // Action buttons
-                _buildActionButtons(
-                  context,
-                  report.status?.value ?? '',
-                  report.id ?? id,
-                ),
+                _buildActionButtons(context, ref, report, id),
+                _buildSanggahanButton(context, ref, report, id),
               ],
             ),
           );
@@ -205,7 +255,16 @@ class ReportDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusBanner(BuildContext context, Report report) {
+  Future<void> _onShare(BuildContext context, WidgetRef ref) async {
+    final shareMeta = await ref.read(shareMetadataProvider(id).future);
+    final shareUrl = shareMeta.url ?? 'https://sigap.live/public/cases/$id';
+    final shareText = shareMeta.title != null && shareMeta.description != null
+        ? '${shareMeta.title}\n\n${shareMeta.description}\n\n$shareUrl'
+        : shareUrl;
+    await Share.share(shareText, subject: shareMeta.title);
+  }
+
+  Widget _buildStatusBanner(BuildContext context, api_client.Report report) {
     final status = report.status?.value ?? '';
 
     // Only show banner if needs_completion
@@ -278,30 +337,6 @@ class ReportDetailScreen extends ConsumerWidget {
                 ),
               ),
             const SizedBox(height: SigapSpacing.x11),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => context.push('/evidence/${report.id}'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: SigapSpacing.x11,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(SigapRadius.x10),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Lengkapi laporan',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       );
@@ -327,14 +362,14 @@ class ReportDetailScreen extends ConsumerWidget {
     return months[month - 1];
   }
 
-  Widget _buildParentCaseCard(BuildContext context, Report report) {
+  Widget _buildParentCaseCard(BuildContext context, api_client.Report report) {
     final categoryTag = report.category != null && report.category!.length >= 2
         ? report.category!.substring(0, 2).toUpperCase()
         : 'CS';
     final caseTitle = report.title ?? report.mergedInto ?? 'Kasus';
 
     return GestureDetector(
-      onTap: () => context.push('/detail/${report.mergedInto}'),
+      onTap: () => context.push('/laporan/${report.mergedInto}'),
       child: SigapCard(
         child: Row(
           children: [
@@ -455,11 +490,7 @@ class ReportDetailScreen extends ConsumerWidget {
   }
 
   void _showPhotoFullScreen(BuildContext ctx, List<String> photos, int index) {
-    Navigator.of(ctx).push(
-      MaterialPageRoute(
-        builder: (_) => _PhotoFullScreen(photos: photos, initialIndex: index),
-      ),
-    );
+    PhotoFullScreen.show(ctx, photos, index);
   }
 
   Widget _buildTimelineSection(BuildContext context, WidgetRef ref) {
@@ -547,55 +578,96 @@ class ReportDetailScreen extends ConsumerWidget {
 
   Widget _buildActionButtons(
     BuildContext context,
-    String status,
+    WidgetRef ref,
+    api_client.Report report,
     String reportId,
   ) {
-    final bool canFileSanggahan =
-        status == 'rejected' ||
-        status == 'out_of_scope' ||
-        status == 'needs_completion';
-    final bool canRequestReopen = status == 'resolved';
+    final status = report.status?.value ?? '';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (canFileSanggahan) ...[
-          OutlinedButton.icon(
-            onPressed: () => context.push('/sanggahan/$reportId'),
-            icon: const Icon(Icons.thumb_down_outlined, size: 18),
-            label: const Text('Ajukan Sanggahan'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: SigapColors.perluTindakan,
-              side: const BorderSide(color: SigapColors.perluTindakan),
-              padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
-            ),
-          ),
-          const SizedBox(height: SigapSpacing.sm),
-        ],
-        if (canRequestReopen) ...[
-          OutlinedButton.icon(
-            onPressed: () => context.push('/reopen/$reportId'),
-            icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Minta Buka Kembali'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: SigapColors.diproses,
-              side: const BorderSide(color: SigapColors.diproses),
-              padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
-            ),
-          ),
-          const SizedBox(height: SigapSpacing.sm),
-        ],
-        OutlinedButton.icon(
-          onPressed: () => context.push('/evidence/$reportId'),
-          icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
-          label: const Text('Kirim Bukti Tambahan'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: SigapColors.primary,
-            side: const BorderSide(color: SigapColors.primary),
-            padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
-          ),
+    // Only show when report needs completion (status gate — capability is checked by Can widget)
+    if (status != 'needs_completion') {
+      return const SizedBox.shrink();
+    }
+
+    return Can(
+      action: 'report.lengkapi',
+      resource: Resource(type: 'report', id: reportId),
+      child: Padding(
+        padding: const EdgeInsets.only(top: SigapSpacing.md),
+        child: SecondaryButton(
+          label: 'Lengkapi laporan',
+          onPressed: () =>
+              _showLengkapiBottomSheet(context, ref, report, reportId),
         ),
-      ],
+      ),
+    );
+  }
+
+  /// Builds the Sanggahan action button shown when report is rejected (DITOLAK).
+  Widget _buildSanggahanButton(
+    BuildContext context,
+    WidgetRef ref,
+    api_client.Report report,
+    String reportId,
+  ) {
+    final status = report.status?.value ?? '';
+
+    // Only show for rejected status (DITOLAK = rejected by verifier)
+    if (status != 'rejected') {
+      return const SizedBox.shrink();
+    }
+
+    return Can(
+      action: 'report.sanggah',
+      resource: Resource(type: 'report', id: reportId),
+      child: Padding(
+        padding: const EdgeInsets.only(top: SigapSpacing.md),
+        child: DangerButton(
+          label: 'Sanggah Keputusan',
+          onPressed: () => _showSanggahanBottomSheet(context, ref, reportId),
+        ),
+      ),
+    );
+  }
+
+  void _showLengkapiBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+    api_client.Report report,
+    String reportId,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _LengkapiBottomSheet(
+        reportId: reportId,
+        onComplete: () {
+          // Refresh the report detail after completing
+          ref.invalidate(apiReportProvider(reportId));
+          ref.invalidate(reportTimelineProvider(reportId));
+        },
+      ),
+    );
+  }
+
+  void _showSanggahanBottomSheet(
+    BuildContext context,
+    WidgetRef ref,
+    String reportId,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _SanggahanBottomSheet(
+        reportId: reportId,
+        onComplete: () {
+          // Refresh the report detail after submitting sanggahan
+          ref.invalidate(apiReportProvider(reportId));
+          ref.invalidate(reportTimelineProvider(reportId));
+        },
+      ),
     );
   }
 
@@ -607,29 +679,22 @@ class ReportDetailScreen extends ConsumerWidget {
       return isoString;
     }
   }
-}
 
-/// Section label widget with consistent styling.
-class _SectionLabel extends StatelessWidget {
-  final String label;
-  const _SectionLabel({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: const TextStyle(
-        color: SigapColors.textSecondary,
-        fontSize: SigapTypography.size12,
-        fontWeight: FontWeight.w600,
-      ),
-    );
+  /// Returns the local idempotency key for this report if the route [reportId]
+  /// matches a pending local report (not yet synced to server). Returns null if
+  /// the report has been synced — the server only stores the server ID.
+  String? _getLocalId(WidgetRef ref, String reportId, String? serverId) {
+    // If the route ID != server ID, the route ID is the local idempotency key
+    if (serverId != null && reportId != serverId) {
+      return reportId;
+    }
+    return null;
   }
 }
 
 /// Timeline widget showing report history events.
 class _TimelineWidget extends StatelessWidget {
-  final List<TimelineEvent> events;
+  final List<api_client.TimelineEvent> events;
   const _TimelineWidget({required this.events});
 
   @override
@@ -637,142 +702,28 @@ class _TimelineWidget extends StatelessWidget {
     return Column(
       children: [
         for (int i = 0; i < events.length; i++)
-          _TimelineEventItem(
-            event: events[i],
-            isFirst: i == 0,
+          TimelineEvent(
+            title: events[i].message ?? events[i].type ?? 'Event',
+            subtitle: _formatDate(events[i].timestamp),
+            actor: events[i].userId,
+            variant: _getVariant(events[i].type),
             isLast: i == events.length - 1,
           ),
       ],
     );
   }
-}
 
-/// Individual timeline event item.
-class _TimelineEventItem extends StatelessWidget {
-  final TimelineEvent event;
-  final bool isFirst;
-  final bool isLast;
-
-  const _TimelineEventItem({
-    required this.event,
-    required this.isFirst,
-    required this.isLast,
-  });
-
-  Color _getEventColor(String? eventType) {
+  TimelineVariant _getVariant(String? eventType) {
     switch (eventType) {
-      case 'submitted':
-      case 'created':
-      case 'offline':
-        return SigapColors.primary;
       case 'needs_completion':
-        return SigapColors.offlineDot;
-      case 'verified':
-      case 'accepted':
-      case 'in_review':
-        return SigapColors.diproses;
-      case 'resolved':
-      case 'completed':
-        return SigapColors.selesai;
+        return TimelineVariant.amber;
       default:
-        return SigapColors.primary;
+        return TimelineVariant.teal;
     }
   }
 
-  bool _isActiveEvent(String? eventType) {
-    return eventType == 'needs_completion' ||
-        eventType == 'rejected' ||
-        eventType == 'offline';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final eventType = event.type;
-    final title = event.message ?? eventType ?? 'Event';
-    final timestamp = event.timestamp;
-    final actor = event.userId;
-    final eventColor = _getEventColor(eventType);
-    final isActive = _isActiveEvent(eventType);
-
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Timeline indicator column with vertical connecting line
-          SizedBox(
-            width: 16,
-            child: Column(
-              children: [
-                Container(
-                  width: isActive ? 13 : 11,
-                  height: isActive ? 13 : 11,
-                  margin: EdgeInsets.only(top: isActive ? 0 : 2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isActive ? SigapColors.offlineDot : eventColor,
-                    border: isActive
-                        ? Border.all(color: Colors.white, width: 2)
-                        : null,
-                    boxShadow: isActive
-                        ? [
-                            BoxShadow(
-                              color: SigapColors.offlineDot.withValues(
-                                alpha: 0.8,
-                              ),
-                              spreadRadius: 2,
-                            ),
-                          ]
-                        : null,
-                  ),
-                ),
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 2,
-                      color: SigapColors.borderCard,
-                      constraints: const BoxConstraints(minHeight: 22),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.x11),
-          // Event content
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: SigapTypography.size13,
-                      fontWeight: FontWeight.w600,
-                      color: SigapColors.textPrimary,
-                    ),
-                  ),
-                  if (actor != null || timestamp != null) ...[
-                    const SizedBox(height: 1),
-                    Text(
-                      '${timestamp != null ? _formatDate(timestamp) : ''}${actor != null ? ' · $actor' : ''}',
-                      style: const TextStyle(
-                        fontFamily: SigapTypography.fontFamilyMono,
-                        fontSize: SigapTypography.size11,
-                        color: SigapColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(String iso) {
+  String _formatDate(String? iso) {
+    if (iso == null) return '';
     try {
       final dt = DateTime.parse(iso);
       return '${dt.day} Jul, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
@@ -782,62 +733,691 @@ class _TimelineEventItem extends StatelessWidget {
   }
 }
 
-/// Full screen photo viewer with page navigation.
-class _PhotoFullScreen extends StatefulWidget {
-  final List<String> photos;
-  final int initialIndex;
+/// Bottom sheet for completing a report with additional photos and description.
+class _LengkapiBottomSheet extends ConsumerStatefulWidget {
+  final String reportId;
+  final VoidCallback? onComplete;
 
-  const _PhotoFullScreen({required this.photos, required this.initialIndex});
+  const _LengkapiBottomSheet({required this.reportId, this.onComplete});
 
   @override
-  State<_PhotoFullScreen> createState() => _PhotoFullScreenState();
+  ConsumerState<_LengkapiBottomSheet> createState() =>
+      _LengkapiBottomSheetState();
 }
 
-class _PhotoFullScreenState extends State<_PhotoFullScreen> {
-  late PageController _pageController;
-  late int _currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialIndex;
-    _pageController = PageController(initialPage: widget.initialIndex);
-  }
+class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
+  final _descriptionController = TextEditingController();
+  final _imagePicker = ImagePicker();
+  XFile? _selectedPhoto;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickPhoto() async {
+    final photo = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+    );
+    if (photo != null) {
+      setState(() => _selectedPhoto = photo);
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    final photo = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (photo != null) {
+      setState(() => _selectedPhoto = photo);
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_selectedPhoto == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Silakan tambahkan foto terlebih dahulu'),
+          backgroundColor: SigapColors.danger,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final client = ref.read(apiClientProvider);
+
+      // Upload photo first to get URL
+      final uploadResult = await client.getPhotoUploadUrl(
+        widget.reportId,
+        'lengkapi-upload-token',
+      );
+
+      final putUrl = uploadResult.putUrl;
+      if (putUrl == null) {
+        throw Exception('Gagal mendapatkan URL upload foto');
+      }
+
+      final bytes = await _selectedPhoto!.readAsBytes();
+
+      await client.putPhoto(
+        reportId: widget.reportId,
+        putUrl: putUrl,
+        bytes: bytes,
+        contentType: 'image/jpeg',
+      );
+
+      // Call reportAction with lengkapi action
+      await client.reportAction(
+        reportId: widget.reportId,
+        action: 'lengkapi',
+        note: _descriptionController.text.isNotEmpty
+            ? _descriptionController.text
+            : null,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Laporan berhasil dilengkapi'),
+          backgroundColor: SigapColors.primary,
+        ),
+      );
+
+      widget.onComplete?.call();
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal melengkapi laporan: $e'),
+          backgroundColor: SigapColors.danger,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: SigapColors.textPrimary,
-      appBar: AppBar(
-        backgroundColor: SigapColors.textPrimary,
-        foregroundColor: SigapColors.surface,
-        title: Text('${_currentIndex + 1} / ${widget.photos.length}'),
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.photos.length,
-        onPageChanged: (i) => setState(() => _currentIndex = i),
-        itemBuilder: (context, index) {
-          return InteractiveViewer(
-            child: Center(
-              child: Image.network(
-                widget.photos[index],
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Icon(
-                  Icons.broken_image,
-                  color: SigapColors.surface,
-                  size: 64,
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (_, scrollController) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(SigapSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Lengkapi Laporan',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size20,
+                      fontWeight: FontWeight.w700,
+                      color: SigapColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.xs),
+                  const Text(
+                    'Tambahkan foto dan deskripsi untuk melengkapi laporan Anda.',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size14,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
+                padding: const EdgeInsets.all(SigapSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Photo selection
+                    const Text(
+                      'Foto',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size14,
+                        fontWeight: FontWeight.w600,
+                        color: SigapColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: SigapSpacing.sm),
+                    if (_selectedPhoto != null)
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(SigapRadius.md),
+                            child: Image.network(
+                              _selectedPhoto!.path,
+                              width: double.infinity,
+                              height: 200,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                height: 200,
+                                color: SigapColors.bgSoft,
+                                child: const Center(
+                                  child: Icon(Icons.image_not_supported),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: () =>
+                                  setState(() => _selectedPhoto = null),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: SigapColors.danger,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _PhotoOptionButton(
+                              icon: Icons.camera_alt,
+                              label: 'Kamera',
+                              onTap: _pickPhoto,
+                            ),
+                          ),
+                          const SizedBox(width: SigapSpacing.sm),
+                          Expanded(
+                            child: _PhotoOptionButton(
+                              icon: Icons.photo_library,
+                              label: 'Galeri',
+                              onTap: _pickFromGallery,
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: SigapSpacing.xl),
+
+                    // Description
+                    const Text(
+                      'Deskripsi (opsional)',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size14,
+                        fontWeight: FontWeight.w600,
+                        color: SigapColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: SigapSpacing.sm),
+                    TextField(
+                      controller: _descriptionController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText:
+                            'Jelaskan informasi tambahan yang ingin Anda berikan...',
+                        hintStyle: const TextStyle(
+                          color: SigapColors.textMuted,
+                          fontSize: SigapTypography.size14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                          borderSide: const BorderSide(
+                            color: SigapColors.borderCard,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                          borderSide: const BorderSide(
+                            color: SigapColors.borderCard,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                          borderSide: const BorderSide(
+                            color: SigapColors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          );
-        },
+            // Submit button
+            Padding(
+              padding: EdgeInsets.only(
+                left: SigapSpacing.lg,
+                right: SigapSpacing.lg,
+                bottom:
+                    MediaQuery.of(context).viewInsets.bottom + SigapSpacing.lg,
+              ),
+              child: PrimaryButton(
+                label: 'Kirim',
+                isLoading: _isSubmitting,
+                onPressed: _isSubmitting ? null : _submit,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotoOptionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _PhotoOptionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: SigapSpacing.lg),
+        decoration: BoxDecoration(
+          color: SigapColors.bgSoft,
+          borderRadius: BorderRadius.circular(SigapRadius.md),
+          border: Border.all(color: SigapColors.borderCard),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: SigapColors.primary, size: 32),
+            const SizedBox(height: SigapSpacing.xs),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: SigapTypography.size13,
+                color: SigapColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet for submitting a formal objection (sanggahan) to a rejected report.
+class _SanggahanBottomSheet extends ConsumerStatefulWidget {
+  final String reportId;
+  final VoidCallback? onComplete;
+
+  const _SanggahanBottomSheet({required this.reportId, this.onComplete});
+
+  @override
+  ConsumerState<_SanggahanBottomSheet> createState() =>
+      _SanggahanBottomSheetState();
+}
+
+class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
+  final _reasonController = TextEditingController();
+  final _imagePicker = ImagePicker();
+  XFile? _selectedPhoto;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  static const int _minReasonLength = 30;
+
+  bool get _isReasonValid =>
+      _reasonController.text.trim().length >= _minReasonLength;
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickPhoto() async {
+    final photo = await _imagePicker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+    );
+    if (photo != null) {
+      setState(() => _selectedPhoto = photo);
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    final photo = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (photo != null) {
+      setState(() => _selectedPhoto = photo);
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_isReasonValid) {
+      setState(() {
+        _errorMessage = 'Alasan harus minimal $_minReasonLength karakter';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final client = ref.read(apiClientProvider);
+
+      // Upload photo if provided
+      if (_selectedPhoto != null) {
+        final uploadResult = await client.getPhotoUploadUrl(
+          widget.reportId,
+          'sanggah-upload-token',
+        );
+
+        final putUrl = uploadResult.putUrl;
+        if (putUrl == null) {
+          throw Exception('Gagal mendapatkan URL upload foto');
+        }
+
+        final bytes = await _selectedPhoto!.readAsBytes();
+
+        await client.putPhoto(
+          reportId: widget.reportId,
+          putUrl: putUrl,
+          bytes: bytes,
+          contentType: 'image/jpeg',
+        );
+      }
+
+      // Call reportAction with sanggah action
+      await client.reportAction(
+        reportId: widget.reportId,
+        action: 'sanggah',
+        note: _reasonController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sanggahan berhasil diajukan'),
+          backgroundColor: SigapColors.primary,
+        ),
+      );
+
+      widget.onComplete?.call();
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _errorMessage = 'Gagal mengajukan sanggahan: $e';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reasonLength = _reasonController.text.trim().length;
+    final isValid = _isReasonValid;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (_, scrollController) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(SigapSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Sanggahan',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size20,
+                      fontWeight: FontWeight.w700,
+                      color: SigapColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.xs),
+                  const Text(
+                    'Ajukan keberatan atas keputusan penolakan laporan Anda.',
+                    style: TextStyle(
+                      fontSize: SigapTypography.size14,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
+                padding: const EdgeInsets.all(SigapSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Reason textarea with validation
+                    const Text(
+                      'Alasan Sanggahan',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size14,
+                        fontWeight: FontWeight.w600,
+                        color: SigapColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: SigapSpacing.xs),
+                    Text(
+                      'Minimal $_minReasonLength karakter',
+                      style: const TextStyle(
+                        fontSize: SigapTypography.size12,
+                        color: SigapColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: SigapSpacing.sm),
+                    TextField(
+                      controller: _reasonController,
+                      maxLines: 6,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText:
+                            'Jelaskan alasan keberatan Anda secara detail...',
+                        hintStyle: const TextStyle(
+                          color: SigapColors.textMuted,
+                          fontSize: SigapTypography.size14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                          borderSide: const BorderSide(
+                            color: SigapColors.borderCard,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                          borderSide: const BorderSide(
+                            color: SigapColors.borderCard,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(SigapRadius.md),
+                          borderSide: const BorderSide(
+                            color: SigapColors.primary,
+                            width: 2,
+                          ),
+                        ),
+                        errorText: _errorMessage != null && !isValid
+                            ? _errorMessage
+                            : null,
+                        counterText: '$reasonLength/$_minReasonLength',
+                      ),
+                    ),
+                    const SizedBox(height: SigapSpacing.xl),
+
+                    // Photo evidence (optional)
+                    const Text(
+                      'Bukti Foto (opsional)',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size14,
+                        fontWeight: FontWeight.w600,
+                        color: SigapColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: SigapSpacing.xs),
+                    const Text(
+                      'Tambahkan foto sebagai bukti pendukung sanggahan Anda',
+                      style: TextStyle(
+                        fontSize: SigapTypography.size12,
+                        color: SigapColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: SigapSpacing.sm),
+                    if (_selectedPhoto != null)
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(SigapRadius.md),
+                            child: Image.network(
+                              _selectedPhoto!.path,
+                              width: double.infinity,
+                              height: 200,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                height: 200,
+                                color: SigapColors.bgSoft,
+                                child: const Center(
+                                  child: Icon(Icons.image_not_supported),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: () =>
+                                  setState(() => _selectedPhoto = null),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: SigapColors.danger,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _PhotoOptionButton(
+                              icon: Icons.camera_alt,
+                              label: 'Kamera',
+                              onTap: _pickPhoto,
+                            ),
+                          ),
+                          const SizedBox(width: SigapSpacing.sm),
+                          Expanded(
+                            child: _PhotoOptionButton(
+                              icon: Icons.photo_library,
+                              label: 'Galeri',
+                              onTap: _pickFromGallery,
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (_errorMessage != null && isValid) ...[
+                      const SizedBox(height: SigapSpacing.md),
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.size12,
+                          color: SigapColors.perluTindakan,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            // Submit button
+            Padding(
+              padding: EdgeInsets.only(
+                left: SigapSpacing.lg,
+                right: SigapSpacing.lg,
+                bottom:
+                    MediaQuery.of(context).viewInsets.bottom + SigapSpacing.lg,
+              ),
+              child: PrimaryButton(
+                label: 'Ajukan Sanggahan',
+                isLoading: _isSubmitting,
+                onPressed: _isSubmitting || !isValid ? null : _submit,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

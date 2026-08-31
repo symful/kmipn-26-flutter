@@ -8,6 +8,7 @@ import '../../db/database.dart';
 import '../../providers/providers.dart';
 import '../../services/photo_service.dart';
 import '../../theme/tokens.dart';
+import '../../utils/logger.dart';
 import 'review_app_bar_screen.dart';
 import '../../widgets/design_system/report_summary_card.dart';
 import '../../widgets/design_system/similar_cases_banner.dart';
@@ -88,6 +89,7 @@ class ReviewKirimanScreen extends ConsumerStatefulWidget {
 }
 
 class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
+  static final _logger = Logger('ReviewKirimanScreen');
   bool _isSubmitting = false;
   bool _isPublicIdentity = false;
   bool _isTruthStatementChecked = false;
@@ -98,10 +100,10 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
 
     try {
       final client = ref.read(apiClientProvider);
-      await client.wargaSubmitEvidence(
+      await client.reportAction(
         reportId: selectedCase.id,
-        description: widget.description,
-        photoPaths: widget.photoPath != null ? [widget.photoPath!] : [],
+        action: 'lengkapi',
+        note: widget.description,
       );
 
       if (!mounted) return;
@@ -142,9 +144,43 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
     setState(() => _isSubmitting = true);
 
     try {
+      final client = ref.read(apiClientProvider);
       final idempotencyKey = const Uuid().v4();
       final reportRepo = ref.read(reportRepositoryProvider);
       final db = ref.read(databaseProvider);
+
+      // Submit report first to get server reportId and uploadToken
+      final result = await client.submitReport(
+        idempotencyKey: idempotencyKey,
+        categoryId: widget.categoryId!,
+        description: widget.description,
+        lat: widget.lat,
+        lng: widget.lng,
+      );
+
+      final serverReportId = result.id ?? idempotencyKey;
+      _logger.info(
+        'Reviewkiriman report submitted: id=$serverReportId, uploadToken=${result.uploadToken}',
+      );
+
+      // Upload photo if available and we have an uploadToken
+      String r2Url = widget.photoPath ?? '';
+      if (widget.photoPath != null && result.uploadToken != null) {
+        try {
+          final photoService = PhotoService(client);
+          r2Url = await photoService.uploadPhotoAndGetUrl(
+            widget.photoPath!,
+            serverReportId,
+            result.uploadToken!,
+          );
+          _logger.info(
+            'Photo uploaded for reviewkiriman report: $serverReportId, url: $r2Url',
+          );
+        } catch (photoError) {
+          _logger.warning('Photo upload failed, using local path: $photoError');
+          // r2Url stays as local path
+        }
+      }
 
       // Save report locally
       await reportRepo.saveLocal(
@@ -154,36 +190,19 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
           description: widget.description,
           lat: widget.lat,
           lng: widget.lng,
-          photoPath: Value(widget.photoPath),
+          photoPath: Value(r2Url),
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
       );
 
-      // Upload photo if available
+      // Insert photo record
       if (widget.photoPath != null) {
-        try {
-          final photoService = PhotoService(ref.read(apiClientProvider));
-          final r2Url = await photoService.uploadPhotoAndGetUrl(
-            widget.photoPath!,
-            idempotencyKey,
-          );
-
-          // Insert photo record with R2 URL
-          await db.insertPhoto(
-            reportIdempotencyKey: idempotencyKey,
-            filePath: r2Url,
-            capturedAt: DateTime.now().millisecondsSinceEpoch,
-          );
-        } catch (photoError) {
-          // Photo upload failed, but report is saved locally
-          // Insert with local path as fallback
-          await db.insertPhoto(
-            reportIdempotencyKey: idempotencyKey,
-            filePath: widget.photoPath!,
-            capturedAt: DateTime.now().millisecondsSinceEpoch,
-          );
-        }
+        await db.insertPhoto(
+          reportIdempotencyKey: idempotencyKey,
+          filePath: r2Url,
+          capturedAt: DateTime.now().millisecondsSinceEpoch,
+        );
       }
 
       // Enqueue for sync

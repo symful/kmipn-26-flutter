@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/phone_frame.dart';
+import '../../widgets/design_system/section_label.dart';
 import '../../widgets/design_system/status_bar.dart';
 
 /// S-01 Sinkron Screen — role-aware unified sync center.
@@ -180,9 +181,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
   }
 
   Future<void> _syncAll() async {
-    final worker = ref.read(syncWorkerProvider);
-    await worker.syncNow();
-    await _load();
+    // Sync feature removed — no-op
   }
 
   @override
@@ -329,8 +328,8 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
         children: [
           // Dead-letter section
           if (_wargaDeadLetter.isNotEmpty) ...[
-            const _SectionHeader(
-              title: 'Gagal dikirim',
+            SectionLabel(
+              label: 'Gagal dikirim',
               color: SigapColors.perluTindakan,
             ),
             ..._wargaDeadLetter.map(
@@ -347,7 +346,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
 
           // Pending section
           if (_wargaPending.isNotEmpty) ...[
-            const _SectionHeader(title: 'Menunggu', color: SigapColors.warning),
+            SectionLabel(label: 'Menunggu', color: SigapColors.warning),
             ..._wargaPending.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: SigapSpacing.md),
@@ -460,43 +459,6 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
                   context.push('/tasks/${item.taskId}');
                 },
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Section header ─────────────────────────────────────────────────────────
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final Color color;
-
-  const _SectionHeader({required this.title, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 16,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.sm),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: SigapTypography.size13,
-              fontWeight: FontWeight.w700,
-              color: color,
             ),
           ),
         ],

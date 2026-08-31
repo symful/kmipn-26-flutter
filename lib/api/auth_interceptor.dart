@@ -14,21 +14,25 @@ class AuthInterceptor extends Interceptor {
   /// When provided, this overrides storage reads for BOTH token and role.
   final Future<String?> Function(String role)? _authTokenProvider;
 
+  /// Optional callback to refetch capabilities when 403 cap_stale is received.
+  final Future<void> Function()? _onCapabilitiesStale;
+
   AuthInterceptor({
     required FlutterSecureStorage storage,
     required Dio dio,
     required Future<void> Function() onLogout,
     String? testAccessToken,
     Future<String?> Function(String role)? authTokenProvider,
+    Future<void> Function()? onCapabilitiesStale,
   }) : _storage = storage,
        _dio = dio,
        _onLogout = onLogout,
        _testAccessToken = testAccessToken,
-       _authTokenProvider = authTokenProvider;
+       _authTokenProvider = authTokenProvider,
+       _onCapabilitiesStale = onCapabilitiesStale;
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
-  static const _activeRoleKey = 'active_role';
 
   @override
   void onRequest(
@@ -47,21 +51,32 @@ class AuthInterceptor extends Interceptor {
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
-    // Wire X-Active-Role header — use provider if available, else storage
-    final String? activeRole;
-    if (tokenProvider != null) {
-      activeRole = await tokenProvider('active_role');
-    } else {
-      activeRole = await _storage.read(key: _activeRoleKey);
-    }
-    if (activeRole != null) {
-      options.headers['X-Active-Role'] = activeRole;
-    }
+    // NOTE: X-Active-Role header is no longer used.
+    // Role switching is done via POST /api/auth/switch-role endpoint.
+    // The backend is the sole authority for roles.
     handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
+    // Handle 403 cap_stale — refetch capabilities then retry
+    if (err.response?.statusCode == 403) {
+      final errorCode = err.response?.data?['error']?.toString();
+      if (errorCode == 'cap_stale' && _onCapabilitiesStale != null) {
+        try {
+          await _onCapabilitiesStale();
+          // Retry the original request
+          final retryRes = await _dio.fetch(err.requestOptions);
+          handler.resolve(retryRes);
+          return;
+        } catch (e, s) {
+          _logger.error('Error refetching capabilities after cap_stale', e, s);
+          handler.next(err);
+          return;
+        }
+      }
+    }
+
     if (err.response?.statusCode != 401) {
       handler.next(err);
       return;
@@ -85,7 +100,7 @@ class AuthInterceptor extends Interceptor {
         ),
       );
       final refreshRes = await refreshDio.post(
-        '/auth/refresh',
+        '/api/auth/refresh',
         data: jsonEncode({'refresh_token': refreshToken}),
         options: Options(contentType: 'application/json'),
       );
@@ -103,7 +118,13 @@ class AuthInterceptor extends Interceptor {
       _logger.error('Error refreshing token', e, s);
       await _storage.delete(key: _accessTokenKey);
       await _storage.delete(key: _refreshTokenKey);
-      await _onLogout();
+      // Don't call _onLogout() for auth endpoint failures (logout/refresh).
+      // Calling _onLogout() re-triggers logout which will fail again with no tokens,
+      // causing cascading 401s. For auth failures, just clear storage locally.
+      final isAuthEndpoint = err.requestOptions.path.contains('/auth/');
+      if (!isAuthEndpoint) {
+        await _onLogout();
+      }
       handler.next(err);
     }
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
-import '../../../api/types.g.dart';
+import '../../../api/client.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
@@ -32,9 +32,14 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
     });
     try {
       final client = ref.read(apiClientProvider);
-      final data = await client.getSlaConfigs(limit: 100);
+      final data = await client.getSlaConfigs();
       setState(() {
-        _items = data.entries;
+        final slaList = data['sla_configs'] as List<dynamic>?;
+        _items =
+            slaList
+                ?.map((e) => SlaConfig.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [];
         _loading = false;
       });
     } catch (e) {
@@ -161,7 +166,7 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
                           int.tryParse(slaHoursController.text.trim()) ?? 0,
                       priority: item.priority,
                       isActive: isActive,
-                    ),
+                    ).toJson(),
                   );
                   if (ctx.mounted) Navigator.pop(ctx, true);
                 } catch (e) {

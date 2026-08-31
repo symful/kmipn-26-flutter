@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../l10n/strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/design_system/section_label.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -34,7 +35,10 @@ class ProfileScreen extends ConsumerWidget {
               role: authState.activeRole ?? authState.userRole ?? 'Warga',
             ),
             const SizedBox(height: SigapSpacing.lg),
-            const _SectionHeader(title: 'Peran & Akses'),
+            SectionLabel(
+              label: 'Peran & Akses',
+              padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
+            ),
             const SizedBox(height: SigapSpacing.sm),
             _RoleCard(
               role: authState.activeRole ?? authState.userRole ?? 'Warga',
@@ -54,7 +58,10 @@ class ProfileScreen extends ConsumerWidget {
               onPressed: () => context.push('/switch-role'),
             ),
             const SizedBox(height: SigapSpacing.xl),
-            const _SectionHeader(title: 'Pengaturan & Preferensi'),
+            SectionLabel(
+              label: 'Pengaturan & Preferensi',
+              padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
+            ),
             const SizedBox(height: SigapSpacing.sm),
             _ActionCard(
               icon: Icons.tune,
@@ -139,26 +146,6 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: SigapTypography.size13,
-          fontWeight: FontWeight.bold,
-          color: SigapColors.textSecondary,
-        ),
-      ),
-    );
-  }
-}
-
 class _UserInfoCard extends StatelessWidget {
   final String name;
   final String email;
@@ -186,10 +173,7 @@ class _UserInfoCard extends StatelessWidget {
             foregroundColor: Colors.white,
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : '?',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(width: SigapSpacing.md),

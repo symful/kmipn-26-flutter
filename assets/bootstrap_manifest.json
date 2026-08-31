@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "capabilities": {
+    "PUBLIC": ["public.read", "report.submit.public"],
+    "WARGA": ["case.read", "public.read", "report.lengkapi", "report.read", "report.sanggah", "report.submit"],
+    "SURVEYOR": ["case.read", "report.read", "survey.start", "task.accept", "task.complete", "task.read", "task.reject", "task.upload_proof"],
+    "PETUGAS": ["case.read", "report.read", "task.accept", "task.complete", "task.read", "task.reject", "task.upload_proof"],
+    "OPERATOR": ["case.close", "case.dispatch", "case.export", "case.merge", "case.read", "case.reopen", "case.separate", "report.read", "task.read"],
+    "VERIFIKATOR": ["case.export", "case.merge", "case.read", "case.reject", "case.request_info", "case.separate", "case.verify", "report.read", "task.read"],
+    "RT_RW": ["case.read", "case.reject", "case.request_info", "case.verify", "report.read", "task.accept", "task.read", "task.reject"],
+    "ADMIN_DAERAH": ["admin.category.manage", "admin.integration.manage", "admin.scoring.manage", "admin.sla.manage", "admin.units.manage", "admin.users.manage", "admin.wilayah.manage", "analytics.read", "audit.read", "case.close", "case.export", "case.merge", "case.read", "case.reopen", "case.separate", "report.read"],
+    "AUDITOR": ["analytics.read", "audit.read", "case.read", "report.read"],
+    "PENGAMBIL_KEPUTUSAN": ["analytics.read", "case.read", "report.read"]
+  },
+  "roles": ["PUBLIC", "WARGA", "SURVEYOR", "PETUGAS", "OPERATOR", "VERIFIKATOR", "RT_RW", "ADMIN_DAERAH", "AUDITOR", "PENGAMBIL_KEPUTUSAN"]
+}

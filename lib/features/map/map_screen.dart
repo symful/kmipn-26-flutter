@@ -9,9 +9,7 @@ import '../../db/database.dart';
 import '../../l10n/strings.dart';
 import '../../theme/tokens.dart';
 import '../../providers/providers.dart';
-import '../../providers/auth_provider.dart';
-import '../../api/api_client.dart';
-import '../../api/types.g.dart';
+import '../../api/client.dart';
 import '../../utils/logger.dart';
 import '../../widgets/design_system/design_system.dart';
 
@@ -69,10 +67,8 @@ final heatmapEnabledProvider = StateProvider<bool>((ref) => false);
 final geoJsonReportsProvider = FutureProvider<GeoJSONFeatureCollection>((
   ref,
 ) async {
-  final api = ApiClient(
-    onLogout: () => ref.read(authNotifierProvider.notifier).logout(),
-  );
-  return await api.getPublicGeojson();
+  final api = ref.read(apiClientProvider);
+  return await api.getMapGeoJson();
 });
 
 final deviceLocationProvider = FutureProvider<LatLng?>((ref) async {
@@ -451,13 +447,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         case ReportStatus.verified:
         case ReportStatus.inProgress:
         case ReportStatus.needsCompletion:
+        case ReportStatus.inReview:
+        case ReportStatus.needsAction:
           return SigapColors.diproses;
         case ReportStatus.resolved:
+        case ReportStatus.completed:
           return SigapColors.selesai;
         case ReportStatus.rejected:
         case ReportStatus.duplicateMerged:
         case ReportStatus.outOfScope:
         case ReportStatus.pending:
+        case ReportStatus.locallyCreated:
+        case ReportStatus.locallySaved:
           return SigapColors.textMuted;
         case ReportStatus.assigned:
         case ReportStatus.closed:
@@ -497,6 +498,22 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
+            if (report.addressArea != null &&
+                report.addressArea!.isNotEmpty) ...[
+              const SizedBox(height: SigapSpacing.sm),
+              Row(
+                children: [
+                  Icon(Icons.place, size: 16, color: SigapColors.textMuted),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      report.addressArea!,
+                      style: TextStyle(color: SigapColors.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: SigapSpacing.sm),
             Text(
               'Status: ${report.status}',

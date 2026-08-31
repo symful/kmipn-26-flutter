@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 
-/// Notifications screen that displays user notifications from the server.
-/// Supports marking individual notifications as read and marking all as read.
+/// Notifications screen using the unified REST API client.
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -21,8 +20,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     if (_markingAllRead) return;
     setState(() => _markingAllRead = true);
     try {
-      final api = ref.read(apiClientProvider);
-      await api.markAllNotificationsRead();
+      final client = ref.read(apiClientProvider);
+      await client.markAllNotificationsRead();
       ref.invalidate(notificationsProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -49,8 +48,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   Future<void> _markAsRead(String notificationId) async {
     try {
-      final api = ref.read(apiClientProvider);
-      await api.markNotificationRead(notificationId);
+      final client = ref.read(apiClientProvider);
+      await client.markNotificationRead(notificationId);
       ref.invalidate(notificationsProvider);
     } catch (e) {
       if (mounted) {
@@ -111,14 +110,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   child: _NotificationTile(
                     notification: notification,
                     onTap: () {
-                      final notificationId = notification['id']?.toString();
-                      final relatedReportId = notification['related_report_id']
-                          ?.toString();
-                      if (notificationId != null) {
-                        _markAsRead(notificationId);
-                      }
-                      if (relatedReportId != null && relatedReportId.isNotEmpty) {
-                        context.push('/detail/$relatedReportId');
+                      final id = notification['id'] as String?;
+                      if (id != null) _markAsRead(id);
+                      final relatedCaseId =
+                          notification['related_case_id'] as String?;
+                      if (relatedCaseId != null && relatedCaseId.isNotEmpty) {
+                        context.push('/laporan/$relatedCaseId');
                       }
                     },
                   ),
@@ -128,9 +125,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(
-            color: SigapColors.primary,
-          ),
+          child: CircularProgressIndicator(color: SigapColors.primary),
         ),
         error: (error, _) => _buildErrorState(error),
       ),
@@ -243,20 +238,28 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final readAt = notification['read_at'];
+    // notification.read_at from backend, derive isRead as read_at == null means unread
+    final readAt = notification['read_at'] as String?;
     final isRead = readAt != null;
-    final title = notification['title']?.toString() ?? '';
-    final body = notification['body']?.toString() ?? '';
-    final createdAt = _formatDate(notification['created_at']);
-    final kind = notification['kind']?.toString() ?? '';
+    final title = notification['title'] as String? ?? '';
+    final body = notification['body'] as String? ?? '';
+    final createdAtStr = notification['created_at'] as String?;
+    final createdAt = createdAtStr != null
+        ? DateTime.tryParse(createdAtStr)
+        : null;
+    final kind = notification['kind'] as String? ?? 'general';
     final color = _kindColor(kind);
 
     return Container(
       decoration: BoxDecoration(
-        color: isRead ? SigapColors.surface : SigapColors.primaryLight.withValues(alpha: 0.25),
+        color: isRead
+            ? SigapColors.surface
+            : SigapColors.primaryLight.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(SigapRadius.md),
         border: Border.all(
-          color: isRead ? SigapColors.border : SigapColors.primary.withValues(alpha: 0.3),
+          color: isRead
+              ? SigapColors.border
+              : SigapColors.primary.withValues(alpha: 0.3),
         ),
       ),
       child: InkWell(
@@ -267,7 +270,6 @@ class _NotificationTile extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Icon based on kind
               Container(
                 width: 40,
                 height: 40,
@@ -278,7 +280,6 @@ class _NotificationTile extends StatelessWidget {
                 child: Icon(_kindIcon(kind), size: 20, color: color),
               ),
               const SizedBox(width: SigapSpacing.md),
-              // Content
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,7 +302,9 @@ class _NotificationTile extends StatelessWidget {
                           Container(
                             width: 8,
                             height: 8,
-                            margin: const EdgeInsets.only(left: SigapSpacing.xs),
+                            margin: const EdgeInsets.only(
+                              left: SigapSpacing.xs,
+                            ),
                             decoration: const BoxDecoration(
                               color: SigapColors.primary,
                               shape: BoxShape.circle,
@@ -323,7 +326,7 @@ class _NotificationTile extends StatelessWidget {
                     ],
                     const SizedBox(height: 4),
                     Text(
-                      createdAt,
+                      createdAt != null ? _formatDate(createdAt) : '-',
                       style: const TextStyle(
                         fontSize: SigapTypography.size11,
                         color: SigapColors.textTertiary,
@@ -339,23 +342,16 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 
-  String _formatDate(dynamic value) {
-    if (value == null) return '-';
-    try {
-      final date = DateTime.parse(value.toString());
-      final now = DateTime.now();
-      final diff = now.difference(date);
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
 
-      if (diff.inMinutes < 1) return 'Baru saja';
-      if (diff.inHours < 1) return '${diff.inMinutes} menit lalu';
-      if (diff.inDays < 1) return '${diff.inHours} jam lalu';
-      if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+    if (diff.inMinutes < 1) return 'Baru saja';
+    if (diff.inHours < 1) return '${diff.inMinutes} menit lalu';
+    if (diff.inDays < 1) return '${diff.inHours} jam lalu';
+    if (diff.inDays < 7) return '${diff.inDays} hari lalu';
 
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      debugPrint('Error parsing date "$value": $e');
-      return 'Tanggal tidak valid';
-    }
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   IconData _kindIcon(String kind) {
@@ -408,3 +404,23 @@ class _NotificationTile extends StatelessWidget {
     }
   }
 }
+
+// Provider - returns List<Map<String, dynamic> with all fields needed by the screen
+final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
+  final client = ref.read(apiClientProvider);
+  final response = await client.getNotifications();
+  return response.entries.map((n) {
+    // Add isRead derived from read_at, and keep kind/related_case_id from backend
+    final map = n.toJson();
+    map['is_read'] = n.read == true;
+    // Include read_at so the screen can derive isRead from it
+    map['read_at'] = n.read == true
+        ? (map['created_at'] ?? DateTime.now().toIso8601String())
+        : null;
+    map['kind'] = map['kind'] ?? 'general';
+    map['related_case_id'] = map['related_case_id'];
+    return map;
+  }).toList();
+});

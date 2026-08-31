@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sigap/api/types.g.dart';
+
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:exif/exif.dart';
@@ -17,6 +17,7 @@ import 'package:image/image.dart' as img;
 import '../../l10n/strings.dart';
 import '../../theme/tokens.dart';
 import '../../db/database.dart';
+import '../../api/client.dart';
 import '../../widgets/design_system/similar_cases_banner.dart';
 import '../../providers/providers.dart';
 import '../../services/photo_service.dart';
@@ -542,11 +543,15 @@ class _DuplicateCasesSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final duplicatesAsync = ref.watch(
-      duplicateCasesProvider((lat: lat, lng: lng, categoryId: categoryId)),
+    // Similar cases are fetched from GET /api/reports/similar using
+    // location + category entered during report creation (M-11).
+    final similarAsync = ref.watch(
+      similarCasesProvider(
+        SimilarCasesParams(lat: lat, lng: lng, categoryId: categoryId!),
+      ),
     );
 
-    return duplicatesAsync.when(
+    return similarAsync.when(
       loading: () => const LinearProgressIndicator(),
       error: (_, __) => const SizedBox.shrink(), // Silent fail, banner hidden
       data: (duplicates) {
@@ -586,14 +591,11 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   final _populationAffectedController = TextEditingController();
   int _populationAffected = 0;
   double _vulnerabilityIndex = 0.5;
+  final Set<String> _selectedDampak = {};
   bool _submitting = false;
   bool _isDirty = false;
   DateTime? _autosaveTimestamp;
   Timer? _autosaveTimer;
-
-  // NOTE: This should be fetched from backend config (e.g., /api/config/max_pending)
-  // when the backend supports it. Currently hardcoded for backward compatibility.
-  static const int maxPending = 50;
 
   /// Strips EXIF data from JPEG bytes using the image package.
   /// Throws [Exception] if stripping fails — never returns original bytes.
@@ -773,27 +775,51 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     }
 
     // Regular authenticated submission
-    final pendingCount = await ref
-        .read(reportRepositoryProvider)
-        .countPending();
-    if (pendingCount >= maxPending) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Batas tercapai: $maxPending laporan belum tersinkron. Sinkronkan dulu.',
-          ),
-        ),
-      );
-      return;
-    }
-
     setState(() => _submitting = true);
 
     try {
+      final client = ref.read(apiClientProvider);
       final idempotencyKey = const Uuid().v4();
-      final reportRepo = ref.read(reportRepositoryProvider);
 
+      // Submit report first to get server reportId and uploadToken
+      final result = await client.submitReport(
+        idempotencyKey: idempotencyKey,
+        categoryId: _categoryId!,
+        description: _descriptionController.text,
+        lat: _lat!,
+        lng: _lng!,
+        populationAffected: _populationAffected,
+        vulnerabilityIndex: _vulnerabilityIndex,
+        impactDampak: _selectedDampak.isNotEmpty
+            ? _selectedDampak.toList()
+            : null,
+      );
+
+      final serverReportId = result.id ?? idempotencyKey;
+      _logger.info(
+        'Authenticated report submitted: id=$serverReportId, uploadToken=${result.uploadToken}',
+      );
+
+      // Upload photo using uploadToken from create response
+      String r2Url = _photoPath ?? '';
+      if (_photoPath != null && result.uploadToken != null) {
+        try {
+          final photoService = PhotoService(client);
+          r2Url = await photoService.uploadPhotoAndGetUrl(
+            _photoPath!,
+            serverReportId,
+            result.uploadToken!,
+          );
+          _logger.info(
+            'Photo uploaded for report: $serverReportId, url: $r2Url',
+          );
+        } catch (e) {
+          _logger.warning('Photo upload failed, using local path: $e');
+        }
+      }
+
+      // Save locally for offline support
+      final reportRepo = ref.read(reportRepositoryProvider);
       await reportRepo.saveLocal(
         LocalReportsCompanion.insert(
           idempotencyKey: idempotencyKey,
@@ -801,33 +827,27 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           description: _descriptionController.text,
           lat: _lat!,
           lng: _lng!,
-          photoPath: Value(_photoPath),
+          photoPath: Value(r2Url),
           exifDataJson: Value(_exifDataJson),
           populationAffected: Value(_populationAffected),
           vulnerabilityIndex: Value(_vulnerabilityIndex),
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
+          addressArea: Value(result.addressArea),
         ),
-      );
-
-      // Upload photo immediately via signed URL and get R2 URL
-      final photoService = PhotoService(ref.read(apiClientProvider));
-      final r2Url = await photoService.uploadPhotoAndGetUrl(
-        _photoPath!,
-        idempotencyKey,
       );
 
       // Insert photo record with R2 URL (or local path if upload failed)
       final db = ref.read(databaseProvider);
       await db.insertPhoto(
         reportIdempotencyKey: idempotencyKey,
-        filePath: r2Url, // Store R2 URL, not local path
+        filePath: r2Url,
         exifDataJson: _exifDataJson,
         capturedAt: DateTime.now().millisecondsSinceEpoch,
       );
-      _logger.info('Photo uploaded for report: $idempotencyKey, url: $r2Url');
 
-      // Enqueue for sync
+      // No need to enqueue for creation since report is already created
+      // Enqueue is still useful for future status updates if needed
       final queueRepo = ref.read(syncQueueRepositoryProvider);
       await queueRepo.enqueue(idempotencyKey);
 
@@ -835,9 +855,14 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       ref.invalidate(pendingCountProvider);
 
       if (!mounted) return;
+      final addressText = result.addressArea ?? result.address;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Laporan tersimpan. Akan sinkron otomatis.'),
+        SnackBar(
+          content: Text(
+            addressText != null
+                ? 'Laporan tersimpan di $addressText'
+                : 'Laporan tersimpan dan terkirim.',
+          ),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -864,58 +889,58 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       final client = ref.read(apiClientProvider);
       final idempotencyKey = const Uuid().v4();
 
-      // Upload the photo anonymously first, then attach its URL to the report
-      // at creation time (anonymous reports are created after the upload, so
-      // server-side auto-attach is not possible).
-      final List<String> photoUrls = [];
-      if (_photoPath != null) {
-        try {
-          final uploaded = await client.uploadReportPhotoAnon(
-            filePath: _photoPath!,
-            idempotencyKey: idempotencyKey,
-          );
-          if (uploaded.publicUrl != null && uploaded.publicUrl!.isNotEmpty) {
-            photoUrls.add(uploaded.publicUrl!);
-          }
-        } catch (uploadErr, uploadStack) {
-          _logger.error(
-            'Anonymous photo upload failed',
-            uploadErr,
-            uploadStack,
-          );
-          if (!mounted) return;
-          setState(() => _submitting = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Gagal mengunggah foto: $uploadErr'),
-              backgroundColor: SigapColors.danger,
-            ),
-          );
-          return;
-        }
-      }
-
-      final result = await client.submitAnonymousReport(
+      // Submit report first to get server reportId and uploadToken
+      final result = await client.submitReport(
         idempotencyKey: idempotencyKey,
         deviceId: deviceId,
         categoryId: _categoryId!,
         description: _descriptionController.text,
         lat: _lat!,
         lng: _lng!,
-        photos: photoUrls,
-        captchaToken: 'test-token-bypass',
         populationAffected: _populationAffected,
         vulnerabilityIndex: _vulnerabilityIndex,
+        impactDampak: _selectedDampak.isNotEmpty
+            ? _selectedDampak.toList()
+            : null,
       );
 
       _logger.info(
-        'Anonymous report submitted: id=${result.id}, status=${result.status}',
+        'Anonymous report submitted: id=${result.id}, status=${result.status}, uploadToken=${result.uploadToken}',
+      );
+
+      // Upload photo using uploadToken from create response
+      String? r2Url;
+      if (_photoPath != null &&
+          result.uploadToken != null &&
+          result.id != null) {
+        try {
+          final photoService = PhotoService(client);
+          r2Url = await photoService.uploadPhotoAndGetUrl(
+            _photoPath!,
+            result.id!,
+            result.uploadToken!,
+          );
+          _logger.info('Anonymous photo uploaded: $r2Url');
+        } catch (e) {
+          _logger.warning(
+            'Anonymous photo upload failed, continuing without photo: $e',
+          );
+        }
+      }
+
+      _logger.info(
+        'Anonymous report completed: id=${result.id}, photoUrl=$r2Url',
       );
 
       if (!mounted) return;
+      final addressText = result.addressArea ?? result.address;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Laporan匿名 tersimpan: ${result.id}'),
+          content: Text(
+            addressText != null
+                ? 'Laporan anonim tersimpan di $addressText'
+                : 'Laporan anonim tersimpan: ${result.id}',
+          ),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -1172,6 +1197,56 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                               },
                             ),
                           ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.lg),
+
+                  // Dampak Section
+                  _SectionCard(
+                    title: 'Dampak',
+                    icon: Icons.warning,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Pilih jenis dampak yang terjadi:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: SigapColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: SigapSpacing.md),
+                        Wrap(
+                          spacing: SigapSpacing.sm,
+                          runSpacing: SigapSpacing.sm,
+                          children:
+                              [
+                                'Keselamatan',
+                                'Akses wilayah',
+                                'Layanan sekolah',
+                                'Ekonomi',
+                                'Lingkungan',
+                              ].map((dampak) {
+                                final isSelected = _selectedDampak.contains(
+                                  dampak,
+                                );
+                                return FilterChip(
+                                  label: Text(dampak),
+                                  selected: isSelected,
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      if (selected) {
+                                        _selectedDampak.add(dampak);
+                                      } else {
+                                        _selectedDampak.remove(dampak);
+                                      }
+                                    });
+                                    _onFormChanged();
+                                  },
+                                );
+                              }).toList(),
                         ),
                       ],
                     ),

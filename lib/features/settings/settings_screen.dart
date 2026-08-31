@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/strings.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/design_system/section_label.dart';
 import '../../providers/settings_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -16,35 +17,15 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(SigapSpacing.lg),
           children: const [
-            _SectionHeader(title: 'Tampilan & Tema'),
+            SectionLabel(label: 'Tampilan & Tema'),
             _ThemeToggle(),
             SizedBox(height: SigapSpacing.lg),
-            _SectionHeader(title: 'Bahasa & Lokalisasi'),
+            SectionLabel(label: 'Bahasa & Lokalisasi'),
             _LanguageSelector(),
             SizedBox(height: SigapSpacing.xl),
-            _SectionHeader(title: 'Informasi Aplikasi'),
+            SectionLabel(label: 'Informasi Aplikasi'),
             _AppInfoCard(),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: SigapTypography.size13,
-          fontWeight: FontWeight.bold,
-          color: SigapColors.textSecondary,
         ),
       ),
     );

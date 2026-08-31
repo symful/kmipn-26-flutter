@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:sigap/api/types.g.dart';
+import 'package:sigap/api/client.dart';
 import '../../../api/exceptions.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers/providers.dart';
@@ -66,7 +66,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
     try {
       final client = ref.read(apiClientProvider);
       final page = (_offset ~/ _pageSize) + 1;
-      final data = await client.getAuditorAuditSearch(
+      final data = await client.getAuditSearch(
         actorId: _actorIdFilter,
         action: _actionFilter,
         objectType: _objectTypeFilter,
@@ -518,7 +518,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
         ),
       );
 
-      final content = await client.getAuditorAuditExport(
+      final content = await client.getAuditExport(
         actorId: _actorIdFilter,
         action: _actionFilter,
         objectType: _objectTypeFilter,

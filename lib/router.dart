@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'features/auth/login_screen.dart';
+import 'features/auth/register_screen.dart';
+import 'features/stats/stats_screen.dart';
 import 'features/create/create_report_screen.dart';
 import 'features/detail/report_detail_screen.dart';
 import 'features/map/map_screen.dart';
-import 'features/verify_screen.dart';
-import 'features/case_review_screen.dart';
-import 'features/case_action_screen.dart';
-import 'features/tasks/tasks_flow_list_screen.dart';
-import 'features/tasks/tasks_flow_detail_screen.dart';
+
+import 'features/case/case_workspace_screen.dart';
+import 'features/tasks/task_workspace.dart';
 import 'features/sync_center_screen.dart';
 import 'features/riwayat_screen.dart';
 import 'features/form_survei.dart';
@@ -18,31 +19,35 @@ import 'features/sla_screen.dart';
 import 'features/units_screen.dart';
 import 'features/priority_config_screen.dart';
 import 'features/accounts_screen.dart';
-import 'features/sanggahan_screen.dart';
-import 'features/reopen_request_screen.dart';
-import 'features/complementary_evidence_screen.dart';
 import 'features/review_kiriman_screen.dart';
-import 'features/anon/anon_landing_screen.dart';
+import 'features/public/public_portal_screen.dart';
 import 'features/notifications/notifications_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/audit_log_screen.dart';
+import 'features/export_screen.dart';
+import 'features/ai_console_screen.dart';
+import 'features/dashboard/dashboard_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/role_switcher/role_switcher_screen.dart';
 import 'features/home_screen.dart';
 import 'features/cases/case_queue_page.dart';
+import 'features/rt_rw/rt_rw_verification_screen.dart';
+import 'features/rt_rw/rt_rw_training_screen.dart';
+import 'features/sanggahan/sanggahan_screen.dart';
 import 'providers/auth_provider.dart';
+import 'providers/capability_provider.dart';
 import 'providers/providers.dart';
 import 'providers/onboarding_provider.dart';
 import 'widgets/design_system/design_system.dart';
 import 'features/onboarding/onboarding_screen.dart';
 
-// Helper wrapper widgets for Tasks screens that derive role from auth state
+// Helper wrapper widgets for Tasks screens - capabilities drive UI behavior
 class _TasksPage extends ConsumerWidget {
   const _TasksPage();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final role = ref.read(authNotifierProvider).activeRole ?? 'surveyor';
-    return TasksFlowListScreen(role: role);
+    return const TaskWorkspace();
   }
 }
 
@@ -53,8 +58,7 @@ class _TaskDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final role = ref.read(authNotifierProvider).activeRole ?? 'surveyor';
-    return TasksFlowDetailScreen(role: role, taskId: taskId);
+    return TaskWorkspace(taskId: taskId);
   }
 }
 
@@ -70,10 +74,10 @@ class RootRedirectScreen extends ConsumerWidget {
     return onboardingAsync.when(
       data: (onboardingComplete) {
         if (!authState.isAuthenticated) {
-          // No token → /anon
+          // No token → /portal
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) {
-              context.go('/anon');
+              context.go('/portal');
             }
           });
         } else if (!onboardingComplete) {
@@ -96,17 +100,20 @@ class RootRedirectScreen extends ConsumerWidget {
   }
 }
 
-// Role-based redirect screen - reads activeRole and navigates to appropriate dashboard
+// Role-based redirect screen - derives redirect from capabilities, not hardcoded role→path
 class RoleBasedRedirectScreen extends ConsumerWidget {
   const RoleBasedRedirectScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authNotifierProvider);
-    final activeRole = authState.activeRole ?? authState.userRole;
+    final capabilityState = ref.watch(
+      capabilityNotifierProvider.select((state) => state.valueOrNull),
+    );
 
-    // Redirect based on active role
-    final redirectPath = RoleRedirectHelper.getRedirectPath(activeRole);
+    // Derive redirect path from capabilities (first nav item = default landing)
+    final redirectPath = _deriveRedirectFromCapabilities(
+      capabilityState?.capabilities ?? {},
+    );
 
     // Use delayed navigation to avoid build-time issues
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -119,34 +126,14 @@ class RoleBasedRedirectScreen extends ConsumerWidget {
   }
 }
 
-// Helper class for role-based redirect paths
-class RoleRedirectHelper {
-  static String getRedirectPath(String? role) {
-    switch (role?.toUpperCase()) {
-      case 'ADMIN':
-        return '/dashboard';
-      case 'ADMIN_DAERAH':
-        return '/dashboard';
-      case 'SURVEYOR':
-        return '/tasks';
-      case 'PETUGAS':
-        return '/tasks';
-      case 'VERIFIKATOR':
-        return '/queue';
-      case 'RT_RW':
-        return '/dashboard';
-      case 'WARGA':
-        return '/dashboard';
-      case 'OPERATOR':
-        return '/queue';
-      case 'AUDITOR':
-        return '/dashboard';
-      case 'PENGAMBIL_KEPUTUSAN':
-        return '/dashboard';
-      default:
-        return '/dashboard';
-    }
-  }
+/// Derives the default redirect path from the user's capability set.
+///
+/// The first item in the capability-derived nav list is the default landing.
+/// This mirrors the same capability→nav derivation as AdaptiveNav._buildNavItems.
+String _deriveRedirectFromCapabilities(Set<String> capabilities) {
+  // Dashboard is always first for any authenticated user.
+  // Return immediately — Dashboard is always the default landing.
+  return '/dashboard';
 }
 
 // Wrapper widget that adds role switcher to app bar for multi-role users
@@ -212,9 +199,15 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (c, s) => const RootRedirectScreen()),
 
+    // AUTH (new unified API screens)
+    GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
+    GoRoute(path: '/register', builder: (c, s) => const RegisterScreen()),
+
     // UNIFIED
     GoRoute(path: '/dashboard', builder: (c, s) => const HomeScreen()),
+    GoRoute(path: '/gov-dashboard', builder: (c, s) => const DashboardScreen()),
     GoRoute(path: '/queue', builder: (c, s) => const CaseQueuePage()),
+    GoRoute(path: '/stats', builder: (c, s) => const StatsScreen()),
 
     // TASKS (read role from auth state via wrapper)
     GoRoute(path: '/tasks', builder: (c, s) => const _TasksPage()),
@@ -240,23 +233,15 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/laporan/:reportId',
+      builder: (c, s) => ReportDetailScreen(id: s.pathParameters['reportId']!),
+    ),
+
+    // SANGGAHAN (WARGA OBJECTION)
+    GoRoute(
       path: '/sanggahan/:reportId',
       builder: (c, s) =>
           SanggahanScreen(reportId: s.pathParameters['reportId']!),
-    ),
-    GoRoute(
-      path: '/reopen/:reportId',
-      builder: (c, s) =>
-          ReopenRequestScreen(reportId: s.pathParameters['reportId']!),
-    ),
-    GoRoute(
-      path: '/evidence/:reportId',
-      builder: (c, s) =>
-          ComplementaryEvidenceScreen(reportId: s.pathParameters['reportId']!),
-    ),
-    GoRoute(
-      path: '/laporan/:reportId',
-      builder: (c, s) => ReportDetailScreen(id: s.pathParameters['reportId']!),
     ),
 
     // FORM SURVEI
@@ -266,12 +251,14 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/form-survei/:taskId',
-      builder: (c, s) => FormSurveiScreen(taskId: s.pathParameters['taskId']!),
+      builder: (c, s) => FormSurveiScreen(
+        taskId: s.pathParameters['taskId']!,
+        extra: s.extra as Map<String, dynamic>?,
+      ),
     ),
 
     // SYNC
     GoRoute(path: '/sync-center', builder: (c, s) => const SyncCenterScreen()),
-    GoRoute(path: '/sinkron', builder: (c, s) => const SyncCenterScreen()),
 
     // RIWAYAT
     GoRoute(path: '/riwayat', builder: (c, s) => const RiwayatScreen()),
@@ -286,12 +273,29 @@ final appRouter = GoRouter(
 
     // CASE DETAIL
     GoRoute(
-      path: '/case-review/:id',
-      builder: (c, s) => CaseReviewScreen(caseId: s.pathParameters['id']!),
+      path: '/case-workspace/:id',
+      builder: (c, s) => CaseWorkspaceScreen(caseId: s.pathParameters['id']!),
     ),
     GoRoute(
-      path: '/case-action/:id',
-      builder: (c, s) => CaseActionScreen(caseId: s.pathParameters['id']!),
+      path: '/case/:id',
+      builder: (c, s) => CaseWorkspaceScreen(caseId: s.pathParameters['id']!),
+    ),
+
+    // RT_RW VERIFICATION
+    GoRoute(
+      path: '/rt-rw-verification',
+      builder: (c, s) => const RtRwVerificationScreen(),
+    ),
+    GoRoute(
+      path: '/rt-rw-verification/:id',
+      builder: (c, s) =>
+          RtRwVerificationDetailScreen(caseId: s.pathParameters['id']!),
+    ),
+
+    // RT_RW TRAINING
+    GoRoute(
+      path: '/rt-rw/training',
+      builder: (c, s) => const RtRwTrainingScreen(),
     ),
 
     // COMMON
@@ -300,26 +304,22 @@ final appRouter = GoRouter(
       path: '/create-anonymous',
       builder: (c, s) => const CreateReportScreen(anonymousMode: true),
     ),
-    GoRoute(path: '/anon', builder: (c, s) => const AnonLandingScreen()),
+    GoRoute(path: '/portal', builder: (c, s) => const PublicPortalScreen()),
     GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
     GoRoute(
       path: '/detail/:id',
-      builder: (c, s) => ReportDetailScreen(id: s.pathParameters['id']!),
+      redirect: (c, s) => '/laporan/${s.pathParameters['id']}',
     ),
     GoRoute(path: '/map', builder: (c, s) => const MapScreen()),
-    GoRoute(
-      path: '/rt-rw/verify/:token/:reportId',
-      builder: (c, s) => VerifyScreen(
-        token: s.pathParameters['token']!,
-        reportId: s.pathParameters['reportId']!,
-      ),
-    ),
     GoRoute(
       path: '/notifications',
       builder: (c, s) => const NotificationsScreen(),
     ),
     GoRoute(path: '/settings', builder: (c, s) => const SettingsScreen()),
     GoRoute(path: '/profile', builder: (c, s) => const ProfileScreen()),
+    GoRoute(path: '/audit', builder: (c, s) => const AuditLogScreen()),
+    GoRoute(path: '/export', builder: (c, s) => const ExportScreen()),
+    GoRoute(path: '/ai-console', builder: (c, s) => const AiConsoleScreen()),
     GoRoute(
       path: '/switch-role',
       builder: (c, s) => const RoleSwitcherScreen(),

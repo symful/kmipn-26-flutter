@@ -24,10 +24,11 @@ class _OperatorPriorityDialogState
     setState(() => _loading = true);
     try {
       final client = ref.read(apiClientProvider);
-      await client.setReportPriority(
-        id: widget.caseId,
+      await client.caseAction(
+        caseId: widget.caseId,
+        action: 'prioritize',
         score: _priority.round(),
-        reason: _reasonController.text.trim().isNotEmpty
+        scoreReason: _reasonController.text.trim().isNotEmpty
             ? _reasonController.text.trim()
             : 'Prioritas diubah',
       );

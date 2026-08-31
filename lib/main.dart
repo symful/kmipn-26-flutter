@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'db/database.dart';
 import 'providers/providers.dart';
 import 'providers/settings_provider.dart';
 import 'router.dart';
 import 'services/notification_service.dart';
-import 'sync/background_sync.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -15,14 +13,6 @@ void main() async {
   await NotificationService().initialize();
 
   final database = AppDatabase();
-
-  const storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  );
-  const accessTokenKey = 'access_token';
-  final token = await storage.read(key: accessTokenKey);
-
-  await initializeBackgroundSync(accessToken: token);
 
   runApp(
     ProviderScope(
@@ -68,8 +58,6 @@ class _SigapAppState extends ConsumerState<SigapApp> {
     }
 
     final settings = ref.watch(settingsProvider);
-
-    ref.watch(syncInitProvider);
 
     return MaterialApp.router(
       title: 'SIGAP',

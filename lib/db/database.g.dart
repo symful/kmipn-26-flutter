@@ -175,6 +175,17 @@ class $LocalReportsTable extends LocalReports
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _addressAreaMeta = const VerificationMeta(
+    'addressArea',
+  );
+  @override
+  late final GeneratedColumn<String> addressArea = GeneratedColumn<String>(
+    'address_area',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     idempotencyKey,
@@ -192,6 +203,7 @@ class $LocalReportsTable extends LocalReports
     createdAt,
     updatedAt,
     serverId,
+    addressArea,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -324,6 +336,15 @@ class $LocalReportsTable extends LocalReports
         serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
       );
     }
+    if (data.containsKey('address_area')) {
+      context.handle(
+        _addressAreaMeta,
+        addressArea.isAcceptableOrUnknown(
+          data['address_area']!,
+          _addressAreaMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -393,6 +414,10 @@ class $LocalReportsTable extends LocalReports
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
       ),
+      addressArea: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address_area'],
+      ),
     );
   }
 
@@ -418,6 +443,7 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? serverId;
+  final String? addressArea;
   const LocalReport({
     required this.idempotencyKey,
     required this.categoryId,
@@ -434,6 +460,7 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     required this.createdAt,
     required this.updatedAt,
     this.serverId,
+    this.addressArea,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -460,6 +487,9 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
+    }
+    if (!nullToAbsent || addressArea != null) {
+      map['address_area'] = Variable<String>(addressArea);
     }
     return map;
   }
@@ -489,6 +519,9 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
+      addressArea: addressArea == null && nullToAbsent
+          ? const Value.absent()
+          : Value(addressArea),
     );
   }
 
@@ -515,6 +548,7 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       serverId: serializer.fromJson<String?>(json['serverId']),
+      addressArea: serializer.fromJson<String?>(json['addressArea']),
     );
   }
   @override
@@ -536,6 +570,7 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'serverId': serializer.toJson<String?>(serverId),
+      'addressArea': serializer.toJson<String?>(addressArea),
     };
   }
 
@@ -555,6 +590,7 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<String?> serverId = const Value.absent(),
+    Value<String?> addressArea = const Value.absent(),
   }) => LocalReport(
     idempotencyKey: idempotencyKey ?? this.idempotencyKey,
     categoryId: categoryId ?? this.categoryId,
@@ -571,6 +607,7 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     serverId: serverId.present ? serverId.value : this.serverId,
+    addressArea: addressArea.present ? addressArea.value : this.addressArea,
   );
   LocalReport copyWithCompanion(LocalReportsCompanion data) {
     return LocalReport(
@@ -603,6 +640,9 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      addressArea: data.addressArea.present
+          ? data.addressArea.value
+          : this.addressArea,
     );
   }
 
@@ -623,7 +663,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
           ..write('vulnerabilityIndex: $vulnerabilityIndex, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('serverId: $serverId')
+          ..write('serverId: $serverId, ')
+          ..write('addressArea: $addressArea')
           ..write(')'))
         .toString();
   }
@@ -645,6 +686,7 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
     createdAt,
     updatedAt,
     serverId,
+    addressArea,
   );
   @override
   bool operator ==(Object other) =>
@@ -664,7 +706,8 @@ class LocalReport extends DataClass implements Insertable<LocalReport> {
           other.vulnerabilityIndex == this.vulnerabilityIndex &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
-          other.serverId == this.serverId);
+          other.serverId == this.serverId &&
+          other.addressArea == this.addressArea);
 }
 
 class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
@@ -683,6 +726,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String?> serverId;
+  final Value<String?> addressArea;
   final Value<int> rowid;
   const LocalReportsCompanion({
     this.idempotencyKey = const Value.absent(),
@@ -700,6 +744,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.serverId = const Value.absent(),
+    this.addressArea = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LocalReportsCompanion.insert({
@@ -718,6 +763,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     required DateTime createdAt,
     required DateTime updatedAt,
     this.serverId = const Value.absent(),
+    this.addressArea = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : idempotencyKey = Value(idempotencyKey),
        categoryId = Value(categoryId),
@@ -742,6 +788,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? serverId,
+    Expression<String>? addressArea,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -760,6 +807,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (serverId != null) 'server_id': serverId,
+      if (addressArea != null) 'address_area': addressArea,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -780,6 +828,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String?>? serverId,
+    Value<String?>? addressArea,
     Value<int>? rowid,
   }) {
     return LocalReportsCompanion(
@@ -798,6 +847,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       serverId: serverId ?? this.serverId,
+      addressArea: addressArea ?? this.addressArea,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -850,6 +900,9 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
+    if (addressArea.present) {
+      map['address_area'] = Variable<String>(addressArea.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -874,6 +927,7 @@ class LocalReportsCompanion extends UpdateCompanion<LocalReport> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('serverId: $serverId, ')
+          ..write('addressArea: $addressArea, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2962,6 +3016,371 @@ class LocalSurveyorVisitsCompanion extends UpdateCompanion<LocalSurveyorVisit> {
   }
 }
 
+class $CapabilitiesCacheTable extends CapabilitiesCache
+    with TableInfo<$CapabilitiesCacheTable, CapabilitiesCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CapabilitiesCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+    'role',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta(
+    'version',
+  );
+  @override
+  late final GeneratedColumn<String> version = GeneratedColumn<String>(
+    'version',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    userId,
+    role,
+    version,
+    payload,
+    fetchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'capabilities_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CapabilitiesCacheData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(
+        _versionMeta,
+        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_versionMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId};
+  @override
+  CapabilitiesCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CapabilitiesCacheData(
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}version'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CapabilitiesCacheTable createAlias(String alias) {
+    return $CapabilitiesCacheTable(attachedDatabase, alias);
+  }
+}
+
+class CapabilitiesCacheData extends DataClass
+    implements Insertable<CapabilitiesCacheData> {
+  final String userId;
+  final String role;
+  final String version;
+  final String payload;
+  final DateTime fetchedAt;
+  const CapabilitiesCacheData({
+    required this.userId,
+    required this.role,
+    required this.version,
+    required this.payload,
+    required this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['role'] = Variable<String>(role);
+    map['version'] = Variable<String>(version);
+    map['payload'] = Variable<String>(payload);
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    return map;
+  }
+
+  CapabilitiesCacheCompanion toCompanion(bool nullToAbsent) {
+    return CapabilitiesCacheCompanion(
+      userId: Value(userId),
+      role: Value(role),
+      version: Value(version),
+      payload: Value(payload),
+      fetchedAt: Value(fetchedAt),
+    );
+  }
+
+  factory CapabilitiesCacheData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CapabilitiesCacheData(
+      userId: serializer.fromJson<String>(json['userId']),
+      role: serializer.fromJson<String>(json['role']),
+      version: serializer.fromJson<String>(json['version']),
+      payload: serializer.fromJson<String>(json['payload']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'role': serializer.toJson<String>(role),
+      'version': serializer.toJson<String>(version),
+      'payload': serializer.toJson<String>(payload),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+    };
+  }
+
+  CapabilitiesCacheData copyWith({
+    String? userId,
+    String? role,
+    String? version,
+    String? payload,
+    DateTime? fetchedAt,
+  }) => CapabilitiesCacheData(
+    userId: userId ?? this.userId,
+    role: role ?? this.role,
+    version: version ?? this.version,
+    payload: payload ?? this.payload,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+  );
+  CapabilitiesCacheData copyWithCompanion(CapabilitiesCacheCompanion data) {
+    return CapabilitiesCacheData(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      role: data.role.present ? data.role.value : this.role,
+      version: data.version.present ? data.version.value : this.version,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CapabilitiesCacheData(')
+          ..write('userId: $userId, ')
+          ..write('role: $role, ')
+          ..write('version: $version, ')
+          ..write('payload: $payload, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, role, version, payload, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CapabilitiesCacheData &&
+          other.userId == this.userId &&
+          other.role == this.role &&
+          other.version == this.version &&
+          other.payload == this.payload &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class CapabilitiesCacheCompanion
+    extends UpdateCompanion<CapabilitiesCacheData> {
+  final Value<String> userId;
+  final Value<String> role;
+  final Value<String> version;
+  final Value<String> payload;
+  final Value<DateTime> fetchedAt;
+  final Value<int> rowid;
+  const CapabilitiesCacheCompanion({
+    this.userId = const Value.absent(),
+    this.role = const Value.absent(),
+    this.version = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CapabilitiesCacheCompanion.insert({
+    required String userId,
+    required String role,
+    required String version,
+    required String payload,
+    required DateTime fetchedAt,
+    this.rowid = const Value.absent(),
+  }) : userId = Value(userId),
+       role = Value(role),
+       version = Value(version),
+       payload = Value(payload),
+       fetchedAt = Value(fetchedAt);
+  static Insertable<CapabilitiesCacheData> custom({
+    Expression<String>? userId,
+    Expression<String>? role,
+    Expression<String>? version,
+    Expression<String>? payload,
+    Expression<DateTime>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (role != null) 'role': role,
+      if (version != null) 'version': version,
+      if (payload != null) 'payload': payload,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CapabilitiesCacheCompanion copyWith({
+    Value<String>? userId,
+    Value<String>? role,
+    Value<String>? version,
+    Value<String>? payload,
+    Value<DateTime>? fetchedAt,
+    Value<int>? rowid,
+  }) {
+    return CapabilitiesCacheCompanion(
+      userId: userId ?? this.userId,
+      role: role ?? this.role,
+      version: version ?? this.version,
+      payload: payload ?? this.payload,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<String>(version.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CapabilitiesCacheCompanion(')
+          ..write('userId: $userId, ')
+          ..write('role: $role, ')
+          ..write('version: $version, ')
+          ..write('payload: $payload, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2975,6 +3394,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocalSurveyorTasksTable(this);
   late final $LocalSurveyorVisitsTable localSurveyorVisits =
       $LocalSurveyorVisitsTable(this);
+  late final $CapabilitiesCacheTable capabilitiesCache =
+      $CapabilitiesCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2986,6 +3407,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localPhotos,
     localSurveyorTasks,
     localSurveyorVisits,
+    capabilitiesCache,
   ];
 }
 
@@ -3006,6 +3428,7 @@ typedef $$LocalReportsTableCreateCompanionBuilder =
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<String?> serverId,
+      Value<String?> addressArea,
       Value<int> rowid,
     });
 typedef $$LocalReportsTableUpdateCompanionBuilder =
@@ -3025,6 +3448,7 @@ typedef $$LocalReportsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<String?> serverId,
+      Value<String?> addressArea,
       Value<int> rowid,
     });
 
@@ -3140,6 +3564,11 @@ class $$LocalReportsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get addressArea => $composableBuilder(
+    column: $table.addressArea,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> localPhotosRefs(
     Expression<bool> Function($$LocalPhotosTableFilterComposer f) f,
   ) {
@@ -3249,6 +3678,11 @@ class $$LocalReportsTableOrderingComposer
     column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get addressArea => $composableBuilder(
+    column: $table.addressArea,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LocalReportsTableAnnotationComposer
@@ -3319,6 +3753,11 @@ class $$LocalReportsTableAnnotationComposer
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
 
+  GeneratedColumn<String> get addressArea => $composableBuilder(
+    column: $table.addressArea,
+    builder: (column) => column,
+  );
+
   Expression<T> localPhotosRefs<T extends Object>(
     Expression<T> Function($$LocalPhotosTableAnnotationComposer a) f,
   ) {
@@ -3388,6 +3827,7 @@ class $$LocalReportsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
+                Value<String?> addressArea = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalReportsCompanion(
                 idempotencyKey: idempotencyKey,
@@ -3405,6 +3845,7 @@ class $$LocalReportsTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 serverId: serverId,
+                addressArea: addressArea,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3424,6 +3865,7 @@ class $$LocalReportsTableTableManager
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<String?> serverId = const Value.absent(),
+                Value<String?> addressArea = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalReportsCompanion.insert(
                 idempotencyKey: idempotencyKey,
@@ -3441,6 +3883,7 @@ class $$LocalReportsTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 serverId: serverId,
+                addressArea: addressArea,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4749,6 +5192,219 @@ typedef $$LocalSurveyorVisitsTableProcessedTableManager =
       LocalSurveyorVisit,
       PrefetchHooks Function()
     >;
+typedef $$CapabilitiesCacheTableCreateCompanionBuilder =
+    CapabilitiesCacheCompanion Function({
+      required String userId,
+      required String role,
+      required String version,
+      required String payload,
+      required DateTime fetchedAt,
+      Value<int> rowid,
+    });
+typedef $$CapabilitiesCacheTableUpdateCompanionBuilder =
+    CapabilitiesCacheCompanion Function({
+      Value<String> userId,
+      Value<String> role,
+      Value<String> version,
+      Value<String> payload,
+      Value<DateTime> fetchedAt,
+      Value<int> rowid,
+    });
+
+class $$CapabilitiesCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $CapabilitiesCacheTable> {
+  $$CapabilitiesCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CapabilitiesCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $CapabilitiesCacheTable> {
+  $$CapabilitiesCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CapabilitiesCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CapabilitiesCacheTable> {
+  $$CapabilitiesCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+}
+
+class $$CapabilitiesCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CapabilitiesCacheTable,
+          CapabilitiesCacheData,
+          $$CapabilitiesCacheTableFilterComposer,
+          $$CapabilitiesCacheTableOrderingComposer,
+          $$CapabilitiesCacheTableAnnotationComposer,
+          $$CapabilitiesCacheTableCreateCompanionBuilder,
+          $$CapabilitiesCacheTableUpdateCompanionBuilder,
+          (
+            CapabilitiesCacheData,
+            BaseReferences<
+              _$AppDatabase,
+              $CapabilitiesCacheTable,
+              CapabilitiesCacheData
+            >,
+          ),
+          CapabilitiesCacheData,
+          PrefetchHooks Function()
+        > {
+  $$CapabilitiesCacheTableTableManager(
+    _$AppDatabase db,
+    $CapabilitiesCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CapabilitiesCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CapabilitiesCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CapabilitiesCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> userId = const Value.absent(),
+                Value<String> role = const Value.absent(),
+                Value<String> version = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CapabilitiesCacheCompanion(
+                userId: userId,
+                role: role,
+                version: version,
+                payload: payload,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String userId,
+                required String role,
+                required String version,
+                required String payload,
+                required DateTime fetchedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CapabilitiesCacheCompanion.insert(
+                userId: userId,
+                role: role,
+                version: version,
+                payload: payload,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CapabilitiesCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CapabilitiesCacheTable,
+      CapabilitiesCacheData,
+      $$CapabilitiesCacheTableFilterComposer,
+      $$CapabilitiesCacheTableOrderingComposer,
+      $$CapabilitiesCacheTableAnnotationComposer,
+      $$CapabilitiesCacheTableCreateCompanionBuilder,
+      $$CapabilitiesCacheTableUpdateCompanionBuilder,
+      (
+        CapabilitiesCacheData,
+        BaseReferences<
+          _$AppDatabase,
+          $CapabilitiesCacheTable,
+          CapabilitiesCacheData
+        >,
+      ),
+      CapabilitiesCacheData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4765,4 +5421,6 @@ class $AppDatabaseManager {
       $$LocalSurveyorTasksTableTableManager(_db, _db.localSurveyorTasks);
   $$LocalSurveyorVisitsTableTableManager get localSurveyorVisits =>
       $$LocalSurveyorVisitsTableTableManager(_db, _db.localSurveyorVisits);
+  $$CapabilitiesCacheTableTableManager get capabilitiesCache =>
+      $$CapabilitiesCacheTableTableManager(_db, _db.capabilitiesCache);
 }

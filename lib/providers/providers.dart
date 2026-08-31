@@ -1,18 +1,13 @@
-import 'dart:async';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sigap/api/exceptions.dart';
-import '../api/api_client.dart';
-import '../api/types.g.dart';
+import '../api/client.dart';
 import '../db/database.dart';
 import '../db/repositories/report_repository.dart';
 import '../db/repositories/category_repository.dart';
 import '../db/repositories/sync_queue_repository.dart';
 import '../db/repositories/surveyor_task_repository.dart';
-import '../sync/background_sync.dart';
-import '../sync/sync_worker.dart';
 import '../utils/logger.dart';
 import 'auth_provider.dart';
 export 'auth_provider.dart';
@@ -56,42 +51,19 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   );
 });
 
-final syncWorkerProvider = Provider<SyncWorker>((ref) {
-  final worker = SyncWorker(
-    api: ref.watch(apiClientProvider),
-    reportRepo: ref.watch(reportRepositoryProvider),
-    surveyorTaskRepo: ref.watch(surveyorTaskRepositoryProvider),
-    queueRepo: ref.watch(syncQueueRepositoryProvider),
-  );
-  ref.onDispose(() => worker.stop());
-  return worker;
-});
-
 final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) {
   return Connectivity().onConnectivityChanged;
 });
 
+/// Returns locally cached reports from Drift database.
+/// Note: background sync feature removed — this provides offline-cached data only.
 final localReportsProvider = FutureProvider<List<LocalReport>>((ref) async {
   final repo = ref.watch(reportRepositoryProvider);
-  ref.watch(syncWorkerProvider);
   return repo.getAllReports();
 });
 
-/// Stream-based pending count provider for real-time UI updates.
-///
-/// Uses PendingCountNotifier from SyncWorker to emit count changes after each
-/// sync operation. Backed by a broadcast StreamController in dart:async.
-///
-/// - Initial value: fetched from repository on first watch
-/// - Updates: emitted by SyncWorker.syncNow() after each sync completes
-/// - Consumers: warga_home_screen.dart pending banner, etc.
-final pendingCountProvider = StreamProvider<int>((ref) {
-  final worker = ref.watch(syncWorkerProvider);
-  // Trigger initial count fetch by watching syncWorkerProvider
-  // The worker loads initial count and emits it on first sync
-  ref.watch(syncWorkerProvider);
-  return worker.pendingCountNotifier.stream;
-});
+/// Pending sync count — always 0 since background sync feature was removed.
+final pendingCountProvider = FutureProvider<int>((ref) async => 0);
 
 /// Tracks whether wargaReportsProvider is serving stale (offline-cached) data.
 final isStaleWargaReportsProvider = StateProvider<bool>((ref) => false);
@@ -103,38 +75,14 @@ final wargaReportsProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
   final api = ref.watch(apiClientProvider);
-  ref.watch(syncWorkerProvider); // react to sync state changes
   try {
-    final page = await api.getWargaReports();
+    final page = await api.getMyReports();
 
     ref.read(isStaleWargaReportsProvider.notifier).state = false;
     return page.items.map((r) => r.toJson()).toList();
   } on NetworkException catch (e, st) {
     _logger.warning('wargaReportsProvider network error, trying cache', e, st);
     // Try offline cache
-    final localReports = await ref.read(localReportsProvider.future);
-    if (localReports.isNotEmpty) {
-      ref.read(isStaleWargaReportsProvider.notifier).state = true;
-      return localReports
-          .map(
-            (r) => {
-              'id': r.serverId ?? r.idempotencyKey,
-              'idempotency_key': r.idempotencyKey,
-              'category_id': r.categoryId,
-              'description': r.description,
-              'lat': r.lat,
-              'lng': r.lng,
-              'status': r.status,
-              'created_at': r.createdAt.toIso8601String(),
-              'updated_at': r.updatedAt.toIso8601String(),
-              'device_id': r.deviceId,
-            },
-          )
-          .toList();
-    }
-    rethrow;
-  } on ConnectivityException catch (e, st) {
-    _logger.warning('wargaReportsProvider offline, trying cache', e, st);
     final localReports = await ref.read(localReportsProvider.future);
     if (localReports.isNotEmpty) {
       ref.read(isStaleWargaReportsProvider.notifier).state = true;
@@ -170,13 +118,18 @@ final mapCategoriesProvider = FutureProvider<List<Map<String, String>>>((
   ref,
 ) async {
   final api = ref.watch(apiClientProvider);
-  return await api.getCategoriesWithSlug();
+  final categories = await api.getCategories();
+  return categories
+      .map(
+        (c) => {'slug': c.slug ?? c.id ?? '', 'name': c.name ?? c.slug ?? ''},
+      )
+      .toList();
 });
 
 /// Fetches warga statistics (submitted, verified, in_progress, resolved).
-final wargaStatsProvider = FutureProvider<WargaStats>((ref) async {
+final wargaStatsProvider = FutureProvider<StatsResponse>((ref) async {
   final api = ref.watch(apiClientProvider);
-  return await api.getWargaStats();
+  return await api.getStats();
 });
 
 /// Fetches nearby reports based on user location.
@@ -204,25 +157,74 @@ final nearbyReportsProvider =
           .toList();
     });
 
-/// Fetches duplicate case candidates for a given location and category.
-/// Used by SimilarCasesBanner (M-11) during report creation.
+/// Fetches duplicate case candidates for a given report.
+/// Returns empty list if reportId is null (report not yet created).
+/// Used by SimilarCasesBanner (M-11) to show AI-detected duplicates.
 final duplicateCasesProvider =
-    FutureProvider.family<
-      List<Map<String, dynamic>>,
-      ({double lat, double lng, String? categoryId})
-    >((ref, params) async {
+    FutureProvider.family<List<Map<String, dynamic>>, String?>((
+      ref,
+      reportId,
+    ) async {
+      if (reportId == null) return [];
       final api = ref.watch(apiClientProvider);
-      final candidates = await api.getDuplicateCases(
-        lat: params.lat,
-        lng: params.lng,
-        categoryId: params.categoryId,
-      );
+      final candidates = await api.getDuplicateCases(reportId);
       return candidates
           .map(
             (c) => {
               'report_id': c.reportId,
               'description': c.description,
               'status': c.status,
+              'distance_m': c.distanceM,
+              'report_count': c.reportCount,
+              'similarity_score': c.similarityScore,
+            },
+          )
+          .toList();
+    });
+
+/// Parameters for the similar cases query during report creation.
+class SimilarCasesParams {
+  final double lat;
+  final double lng;
+  final String categoryId;
+  const SimilarCasesParams({
+    required this.lat,
+    required this.lng,
+    required this.categoryId,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SimilarCasesParams &&
+          runtimeType == other.runtimeType &&
+          lat == other.lat &&
+          lng == other.lng &&
+          categoryId == other.categoryId;
+
+  @override
+  int get hashCode => lat.hashCode ^ lng.hashCode ^ categoryId.hashCode;
+}
+
+/// Fetches similar report candidates from GET /api/reports/similar.
+/// Called during report creation (M-11) after user enters location + category.
+final similarCasesProvider =
+    FutureProvider.family<List<Map<String, dynamic>>, SimilarCasesParams>((
+      ref,
+      params,
+    ) async {
+      final api = ref.watch(apiClientProvider);
+      final similar = await api.getSimilarReports(
+        lat: params.lat,
+        lng: params.lng,
+        categoryId: params.categoryId,
+      );
+      return similar
+          .map(
+            (c) => {
+              'report_id': c.reportId,
+              'title': c.title,
+              'initials': c.initials,
               'distance_m': c.distanceM,
               'report_count': c.reportCount,
               'similarity_score': c.similarityScore,
@@ -251,40 +253,6 @@ final reportTimelineProvider =
       };
     });
 
-final syncManagerProvider = AsyncNotifierProvider<SyncManager, void>(() {
-  return SyncManager();
-});
-
-class SyncManager extends AsyncNotifier<void> {
-  Timer? _periodicTimer;
-
-  @override
-  Future<void> build() async {
-    final worker = ref.read(syncWorkerProvider);
-
-    worker.start();
-
-    // Get token from auth state to initialize background sync
-    final authState = ref.read(authNotifierProvider);
-    await initializeBackgroundSync(accessToken: authState.accessToken);
-
-    _periodicTimer = Timer.periodic(const Duration(minutes: 5), (_) {
-      worker.syncNow();
-    });
-
-    ref.onDispose(() {
-      _periodicTimer?.cancel();
-    });
-  }
-}
-
-/// Provider that triggers sync initialization on first watch.
-/// Watches [syncManagerProvider] to ensure SyncWorker.start() and
-/// initializeBackgroundSync() are called on app startup.
-final syncInitProvider = Provider<void>((ref) {
-  ref.watch(syncManagerProvider);
-});
-
 // ─── Surveyor S-01 Filter & Sort Providers ─────────────────────────────────
 
 /// Tracks selected filter index for surveyor S-01 screen.
@@ -298,7 +266,7 @@ final surveyorSortProvider = StateProvider<String>((ref) => 'terbaru');
 /// Fetches surveyor tasks from the server for S-01 screen.
 final surveyorTasksProvider = FutureProvider<List<SurveyorTask>>((ref) async {
   final api = ref.watch(apiClientProvider);
-  final page = await api.surveyorGetTasks();
+  final page = await api.getTasks();
   return page.tasks.cast<SurveyorTask>();
 });
 
@@ -308,7 +276,7 @@ final surveyorTasksProvider = FutureProvider<List<SurveyorTask>>((ref) async {
 final surveyorAcceptTaskProvider =
     FutureProvider.family<TaskActionResult, String>((ref, taskId) async {
       final api = ref.watch(apiClientProvider);
-      return await api.acceptTask(taskId);
+      return await api.taskAction(taskId, action: 'accept');
     });
 
 /// Rejects a surveyor task with a reason.
@@ -318,21 +286,25 @@ final surveyorRejectTaskProvider =
       params,
     ) async {
       final api = ref.watch(apiClientProvider);
-      return await api.rejectTask(params.taskId, params.reason);
+      return await api.taskAction(
+        params.taskId,
+        action: 'reject',
+        note: params.reason,
+      );
     });
 
 /// Requests clarification for a surveyor task.
 final surveyorRequestClarificationProvider =
-    FutureProvider.family<
-      ClarificationResult,
-      ({String taskId, String question})
-    >((ref, params) async {
-      final api = ref.watch(apiClientProvider);
-      return await api.requestClarification(
-        params.taskId,
-        question: params.question,
-      );
-    });
+    FutureProvider.family<TaskActionResult, ({String taskId, String question})>(
+      (ref, params) async {
+        final api = ref.watch(apiClientProvider);
+        return await api.taskAction(
+          params.taskId,
+          action: 'clarify',
+          note: params.question,
+        );
+      },
+    );
 
 // ─── Surveyor S-04 Visit Report Submission ─────────────────────────────────────
 
@@ -403,7 +375,17 @@ final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((
 ) async {
   final api = ref.watch(apiClientProvider);
   final page = await api.getNotifications();
-  return page.entries.map((e) => e.toJson()).toList();
+  return page.entries.map((e) {
+    final map = e.toJson();
+    // Derive is_read from the read field (backend uses read_at)
+    map['is_read'] = e.read == true;
+    map['read_at'] = e.read == true
+        ? (map['created_at'] ?? DateTime.now().toIso8601String())
+        : null;
+    map['kind'] = map['kind'] ?? 'general';
+    map['related_case_id'] = map['related_case_id'];
+    return map;
+  }).toList();
 });
 
 /// Computed provider that returns the count of unread notifications.
@@ -452,13 +434,14 @@ final selectedWilayahNameProvider = Provider<String>((ref) {
       'Pilih Wilayah';
 });
 
-/// Fetches the current user's assigned wilayah name from /api/warga/profile.
+/// Fetches the current user's assigned wilayah name from /api/auth/me.
 /// Returns the user's wilayahName or 'Kab. Bandung' as fallback for backward compatibility.
 final userWilayahProvider = FutureProvider<String>((ref) async {
   final api = ref.watch(apiClientProvider);
   try {
-    final profile = await api.getWargaProfile();
-    return profile.wilayahName ?? profile.wilayahId ?? 'Kab. Bandung';
+    final profile = await api.me();
+    // Use name as fallback since UserResponse doesn't include wilayahName
+    return profile.name ?? 'Kab. Bandung';
   } catch (e) {
     // Fallback to 'Kab. Bandung' if profile fetch fails
     return 'Kab. Bandung';

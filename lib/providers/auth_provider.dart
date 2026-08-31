@@ -1,9 +1,9 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../api/api_client.dart';
+import '../api/client.dart';
 import '../api/exceptions.dart';
 import '../utils/logger.dart';
+import 'capability_provider.dart';
 
 class AuthState {
   final String? accessToken;
@@ -62,6 +62,7 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final ApiClient _client;
   final FlutterSecureStorage _storage;
+  final Ref _ref;
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
@@ -73,7 +74,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   static const _userNameKey = 'user_name';
   static final _logger = Logger('AuthNotifier');
 
-  AuthNotifier(this._client, this._storage) : super(const AuthState());
+  AuthNotifier(this._client, this._storage, this._ref)
+    : super(const AuthState());
 
   Future<void> init() async {
     final accessToken = await _storage.read(key: _accessTokenKey);
@@ -110,45 +112,53 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final refreshToken = loginResponse.refreshToken;
       final user = loginResponse.user;
 
+      if (accessToken == null || user == null) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Login failed: invalid response',
+        );
+        return false;
+      }
+
       await _storage.write(key: _accessTokenKey, value: accessToken);
       await _storage.write(key: _refreshTokenKey, value: refreshToken);
-      if (user != null) {
-        final userId = user.id;
-        final userRole = user.role;
-        final userEmail = user.email;
-        final userName = user.name;
-        final activeRole = userRole;
 
-        await _storage.write(key: _userIdKey, value: userId);
-        await _storage.write(key: _userRoleKey, value: userRole);
-        await _storage.write(key: _activeRoleKey, value: activeRole);
-        await _storage.write(key: _rolesKey, value: userRole ?? '');
-        await _storage.write(key: _userEmailKey, value: userEmail);
-        await _storage.write(key: _userNameKey, value: userName);
+      final userId = user.id;
+      final userRole = user.role;
+      final userEmail = user.email;
+      final userName = user.name;
 
-        state = AuthState(
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-          userId: userId,
-          userRole: userRole,
-          activeRole: activeRole,
-          userEmail: userEmail,
-          userName: userName,
-          roles: userRole != null ? [userRole] : [],
-        );
-      } else {
-        state = AuthState(accessToken: accessToken, refreshToken: refreshToken);
+      await _storage.write(key: _userIdKey, value: userId);
+      await _storage.write(key: _userRoleKey, value: userRole);
+      await _storage.write(key: _activeRoleKey, value: userRole);
+      await _storage.write(key: _rolesKey, value: userRole);
+      await _storage.write(key: _userEmailKey, value: userEmail);
+      await _storage.write(key: _userNameKey, value: userName);
+
+      state = AuthState(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        userId: userId,
+        userRole: userRole,
+        activeRole: userRole,
+        userEmail: userEmail,
+        userName: userName,
+        roles: userRole != null ? [userRole] : [],
+      );
+
+      // Hydrate capability state from login response
+      try {
+        await _ref
+            .read(capabilityNotifierProvider.notifier)
+            .hydrateFromLogin(loginResponse);
+      } catch (e, st) {
+        _logger.warning('Failed to hydrate capabilities after login', e, st);
       }
+
       return true;
-    } on DioException catch (e) {
+    } catch (e) {
       final detail = extractErrorMessage(e);
       state = state.copyWith(isLoading: false, error: detail);
-      return false;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: 'Tidak dapat terhubung ke server.',
-      );
       return false;
     }
   }
@@ -157,20 +167,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (!state.roles.contains(role)) {
       return false;
     }
-
-    try {
-      final response = await _client.validateRole(role);
-      if (response.valid != true) {
-        return false;
-      }
-
-      await _storage.write(key: _activeRoleKey, value: role);
-      state = state.copyWith(activeRole: role);
-      return true;
-    } catch (e) {
-      _logger.warning('Role validation failed', e);
-      return false;
-    }
+    await _storage.write(key: _activeRoleKey, value: role);
+    state = state.copyWith(activeRole: role);
+    return true;
   }
 
   Future<void> logout() async {
@@ -191,6 +190,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await _storage.delete(key: _userEmailKey);
     await _storage.delete(key: _userNameKey);
     state = const AuthState();
+
+    // Clear capability cache on logout
+    try {
+      await _ref.read(capabilityNotifierProvider.notifier).clearCache();
+    } catch (e, st) {
+      _logger.warning('Failed to clear capability cache on logout', e, st);
+    }
   }
 
   String? get accessToken => state.accessToken;
@@ -208,5 +214,5 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((
 ) {
   final storage = ref.watch(secureStorageProvider);
   final client = ApiClient(storage: storage);
-  return AuthNotifier(client, storage);
+  return AuthNotifier(client, storage, ref);
 });

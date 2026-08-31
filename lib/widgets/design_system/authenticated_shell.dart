@@ -2,9 +2,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/widgets/can.dart';
 import 'package:sigap/widgets/design_system/phone_frame.dart';
 import 'package:sigap/widgets/design_system/sync_status_indicator.dart';
 import 'package:sigap/widgets/design_system/status_bar.dart';
+import 'package:sigap/widgets/stale_permissions_banner.dart';
 
 /// Canonical shell for authenticated screens.
 ///
@@ -60,6 +62,10 @@ class AuthenticatedShell extends ConsumerWidget {
   /// Optional callback to invoke sync button press when offline.
   final VoidCallback? onSyncPressed;
 
+  /// Optional FAB shown only when the actor has `admin.*.manage` capability.
+  /// Demo application of the [Can] widget.
+  final Widget? floatingActionButton;
+
   const AuthenticatedShell({
     super.key,
     required this.activeRole,
@@ -72,6 +78,7 @@ class AuthenticatedShell extends ConsumerWidget {
     this.bottomNavigationBar,
     this.isOffline = false,
     this.onSyncPressed,
+    this.floatingActionButton,
   }) : assert(
          child != null || body != null,
          'Provide either child or body, not both',
@@ -100,15 +107,34 @@ class AuthenticatedShell extends ConsumerWidget {
       backgroundColor: effectiveBackgroundColor,
       appBar: appBar,
       bottomNavigationBar: bottomNavigationBar,
-      body: effectiveBody,
+      body: Column(
+        children: [
+          const StalePermissionsBanner(),
+          Expanded(child: effectiveBody),
+        ],
+      ),
+      floatingActionButton: floatingActionButton != null
+          ? Can(
+              action: 'admin.users.manage',
+              fallback: const SizedBox.shrink(),
+              child: floatingActionButton!,
+            )
+          : null,
     );
   }
 
   Widget _buildPaddedChild() {
     return SafeArea(
-      child: Padding(
-        padding: padding ?? const EdgeInsets.all(SigapSpacing.lg),
-        child: child ?? const SizedBox.shrink(),
+      child: Column(
+        children: [
+          const StalePermissionsBanner(),
+          Expanded(
+            child: Padding(
+              padding: padding ?? const EdgeInsets.all(SigapSpacing.lg),
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ),
+        ],
       ),
     );
   }

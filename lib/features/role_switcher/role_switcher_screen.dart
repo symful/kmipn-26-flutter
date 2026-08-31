@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/capability_provider.dart';
 import '../../theme/tokens.dart';
 
 class RoleSwitcherScreen extends ConsumerStatefulWidget {
@@ -109,12 +110,17 @@ class _RoleSwitcherScreenState extends ConsumerState<RoleSwitcherScreen> {
       if (!mounted) return;
 
       if (success) {
+        // Refresh capabilities for the new role (async, non-blocking)
+        ref.read(capabilityNotifierProvider.notifier).refetch();
+
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Berhasil beralih ke peran ${_formatRoleName(role)}'),
             backgroundColor: SigapColors.primary,
           ),
         );
+        if (!mounted) return;
         context.pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
