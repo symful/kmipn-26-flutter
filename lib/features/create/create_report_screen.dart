@@ -543,7 +543,7 @@ class _DuplicateCasesSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Similar cases are fetched from GET /api/reports/similar using
+    // Similar cases are fetched from GET /api/reports/duplicates using
     // location + category entered during report creation (M-11).
     final similarAsync = ref.watch(
       similarCasesProvider(

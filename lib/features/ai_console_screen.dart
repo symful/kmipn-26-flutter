@@ -6,7 +6,7 @@ import 'package:sigap/theme/tokens.dart';
 /// AI Console screen for reviewing AI assessment results and triggering re-scans.
 ///
 /// This screen provides access to AI vision assessment functionality for verifikators.
-/// It wraps the backend /api/agent endpoints (assess, retry-scan).
+/// It wraps the backend /api/agent/assess endpoint.
 class AiConsoleScreen extends ConsumerStatefulWidget {
   const AiConsoleScreen({super.key});
 

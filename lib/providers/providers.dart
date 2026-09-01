@@ -206,7 +206,7 @@ class SimilarCasesParams {
   int get hashCode => lat.hashCode ^ lng.hashCode ^ categoryId.hashCode;
 }
 
-/// Fetches similar report candidates from GET /api/reports/similar.
+/// Fetches similar report candidates from GET /api/reports/duplicates.
 /// Called during report creation (M-11) after user enters location + category.
 final similarCasesProvider =
     FutureProvider.family<List<Map<String, dynamic>>, SimilarCasesParams>((

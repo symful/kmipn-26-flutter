@@ -1533,7 +1533,7 @@ class NearbyReport {
   }
 }
 
-/// A similar report candidate returned by GET /api/reports/similar (M-11).
+/// A similar report candidate returned by GET /api/reports/duplicates (M-11).
 class SimilarReport {
   final String? reportId;
   final String? title;
@@ -3383,13 +3383,37 @@ class ApiClient {
     required String action,
     String? note,
   }) async {
+    // Dispatch action to the specific backend sub-route
+    String endpoint;
+    Map<String, dynamic> body;
+
+    switch (action) {
+      case 'sanggah':
+        endpoint = '/api/reports/$reportId/sanggahan';
+        body = {'reason': note ?? ''};
+        break;
+      case 'lengkapi':
+        // lengkapi (add evidence) — submit via evidence endpoint
+        endpoint = '/api/reports/$reportId/evidence';
+        body = {'description': note ?? ''};
+        break;
+      case 'reopen':
+        endpoint = '/api/reports/$reportId/reopen';
+        body = {'reason': note ?? ''};
+        break;
+      default:
+        // Unknown action — best-effort fallback
+        endpoint = '/api/reports/$reportId/sanggahan';
+        body = {'reason': note ?? action};
+    }
+
     return await _execute<ReportActionResponse>(
       dioCall: () => _dio.post(
-        '/api/reports/$reportId/action',
-        data: {'action': action, if (note != null) 'note': note},
+        endpoint,
+        data: body,
         options: Options(contentType: 'application/json'),
       ),
-      endpoint: '/api/reports/$reportId/action',
+      endpoint: endpoint,
       parse: (data) =>
           ReportActionResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
@@ -3579,7 +3603,7 @@ class ApiClient {
     return withDistance.take(limit).toList();
   }
 
-  /// Fetches similar report candidates from GET /api/reports/similar.
+  /// Fetches similar report candidates from GET /api/reports/duplicates.
   /// Used during report creation (M-11) to suggest attaching to existing cases.
   Future<List<SimilarReport>> getSimilarReports({
     required double lat,
@@ -3588,7 +3612,7 @@ class ApiClient {
     int limit = 10,
   }) async {
     final res = await _dio.get<Map<String, dynamic>>(
-      '/api/reports/similar',
+      '/api/reports/duplicates',
       queryParameters: {
         'lat': lat,
         'lng': lng,
@@ -3653,20 +3677,32 @@ class ApiClient {
     String? assignedUnitId,
     String? deadline,
   }) async {
-    // Repoint to unified caseAction endpoint with 'verify' action
-    final response = await caseAction(
-      caseId: caseId,
-      action: 'verify',
-      note: reason,
+    // Dispatch directly to the specific decide endpoint
+    final response = await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/cases/$caseId/decide',
+        data: {
+          'decision': decision,
+          'reason': reason,
+          if (duplicateOfReportId != null)
+            'duplicate_of_report_id': duplicateOfReportId,
+          if (surveyorId != null) 'surveyor_id': surveyorId,
+          if (assignedUnitId != null) 'assigned_unit_id': assignedUnitId,
+          if (deadline != null) 'deadline': deadline,
+        },
+        options: Options(contentType: 'application/json'),
+      ),
+      endpoint: '/api/cases/$caseId/decide',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
     return DecideResult(
-      caseId: response.id,
+      caseId: caseId,
       decision: decision,
-      status: response.status,
+      status: response['status']?.toString(),
     );
   }
 
-  // ─── Case Actions (unified via POST /api/cases/:id/action) ───────────────
+  // ─── Case Actions (dispatched to specific sub-routes) ─────────────────────
 
   Future<CaseActionResponse> caseAction({
     required String caseId,
@@ -3677,20 +3713,74 @@ class ApiClient {
     String? scoreReason,
     String? intoCaseId,
   }) async {
+    // Dispatch action to the specific backend sub-route
+    String endpoint;
+    Map<String, dynamic> body;
+
+    switch (action) {
+      case 'accept':
+      case 'verify':
+        endpoint = '/api/cases/$caseId/accept';
+        body = {
+          if (note != null) 'reason': note,
+          if (unitId != null) 'assigned_unit_id': unitId,
+        };
+        break;
+      case 'reject':
+        endpoint = '/api/cases/$caseId/reject';
+        body = {'reason': note ?? ''};
+        break;
+      case 'combine':
+      case 'merge':
+        endpoint = '/api/cases/$caseId/combine';
+        body = {
+          if (intoCaseId != null) 'target_case_id': intoCaseId,
+          if (note != null) 'reason': note,
+        };
+        break;
+      case 'separate':
+      case 'split':
+        endpoint = '/api/cases/$caseId/separate';
+        body = {
+          'new_case_description': note ?? '',
+          if (note != null) 'reason': note,
+        };
+        break;
+      case 'request_info':
+        endpoint = '/api/cases/$caseId/decide';
+        body = {'decision': 'needs_clarification', 'reason': note ?? ''};
+        break;
+      case 'prioritize':
+        endpoint = '/api/cases/$caseId/override-priority';
+        body = {
+          if (score != null) 'override_score': score,
+          'reason': scoreReason ?? '',
+        };
+        break;
+      case 'review-sanggahan':
+        endpoint = '/api/cases/$caseId/review-sanggahan';
+        body = {
+          'decision': note ?? 'accepted',
+          if (note != null) 'reason': note,
+        };
+        break;
+      case 'verify-completion':
+        endpoint = '/api/cases/$caseId/verify-completion';
+        body = {'decision': 'approved', if (note != null) 'reason': note};
+        break;
+      default:
+        // Unknown action — fall through to accept endpoint as legacy fallback
+        endpoint = '/api/cases/$caseId/accept';
+        body = {if (note != null) 'reason': note};
+    }
+
     return await _execute<CaseActionResponse>(
       dioCall: () => _dio.post(
-        '/api/cases/$caseId/action',
-        data: {
-          'action': action,
-          if (note != null) 'note': note,
-          if (unitId != null) 'unit_id': unitId,
-          if (score != null) 'score': score,
-          if (scoreReason != null) 'score_reason': scoreReason,
-          if (intoCaseId != null) 'into_case_id': intoCaseId,
-        },
+        endpoint,
+        data: body,
         options: Options(contentType: 'application/json'),
       ),
-      endpoint: '/api/cases/$caseId/action',
+      endpoint: endpoint,
       parse: (data) =>
           CaseActionResponse.fromJson((data as Map).cast<String, dynamic>()),
     );
@@ -3741,13 +3831,43 @@ class ApiClient {
     required String action,
     String? note,
   }) async {
+    // Dispatch action to the specific backend sub-route
+    String endpoint;
+    Map<String, dynamic> body;
+
+    switch (action) {
+      case 'accept':
+        endpoint = '/api/tasks/$taskId/accept';
+        body = {'accept': true, if (note != null) 'reason': note};
+        break;
+      case 'start':
+        endpoint = '/api/tasks/$taskId/start';
+        body = {};
+        break;
+      case 'reject':
+        endpoint = '/api/tasks/$taskId/reject';
+        body = {'reason': note ?? ''};
+        break;
+      case 'clarify':
+        endpoint = '/api/tasks/$taskId/clarification';
+        body = {'message': note ?? ''};
+        break;
+      case 'complete':
+        endpoint = '/api/tasks/$taskId/complete';
+        body = {'summary': note ?? ''};
+        break;
+      default:
+        endpoint = '/api/tasks/$taskId/$action';
+        body = {'action': action, if (note != null) 'note': note};
+    }
+
     return await _execute<TaskActionResult>(
       dioCall: () => _dio.post(
-        '/api/tasks/$taskId/action',
-        data: {'action': action, if (note != null) 'note': note},
+        endpoint,
+        data: body,
         options: Options(contentType: 'application/json'),
       ),
-      endpoint: '/api/tasks/$taskId/action',
+      endpoint: endpoint,
       parse: (data) =>
           TaskActionResult.fromJson((data as Map).cast<String, dynamic>()),
     );
@@ -3777,9 +3897,8 @@ class ApiClient {
 
     return await _execute<VisitResult>(
       dioCall: () => _dio.post(
-        '/api/tasks/$taskId/action',
+        '/api/tasks/$taskId/visit',
         data: {
-          'action': 'submit_result',
           'findings': findings,
           'checklist': checklist,
           'photo_urls': photoUrls,
@@ -3789,7 +3908,7 @@ class ApiClient {
           if (catatan != null && catatan.isNotEmpty) 'notes': catatan,
         },
       ),
-      endpoint: '/api/tasks/$taskId/action',
+      endpoint: '/api/tasks/$taskId/visit',
       parse: (data) =>
           VisitResult.fromJson((data as Map).cast<String, dynamic>()),
     );
