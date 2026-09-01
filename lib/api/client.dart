@@ -632,8 +632,8 @@ class LoginResponse {
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
-      token: json['accessToken']?.toString(),
-      refreshToken: json['refreshToken']?.toString(),
+      token: json['access_token']?.toString(),
+      refreshToken: json['refresh_token']?.toString(),
       user: json['user'] != null
           ? User.fromJson(json['user'] as Map<String, dynamic>)
           : null,
@@ -2969,7 +2969,7 @@ class ApiClient {
     return await _execute<LoginResponse>(
       dioCall: () => _dio.post(
         '/api/auth/refresh',
-        data: {'refreshToken': refreshToken},
+        data: {'refresh_token': refreshToken},
         options: Options(contentType: 'application/json'),
       ),
       endpoint: '/api/auth/refresh',
@@ -2999,7 +2999,7 @@ class ApiClient {
   Future<void> logout(String refreshToken) async {
     await _execute<void>(
       dioCall: () =>
-          _dio.post('/api/auth/logout', data: {'refreshToken': refreshToken}),
+          _dio.post('/api/auth/logout', data: {'refresh_token': refreshToken}),
       endpoint: '/api/auth/logout',
       parse: (_) {},
     );
