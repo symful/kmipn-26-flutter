@@ -1,23 +1,78 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sigap/api/client.dart';
-import 'package:sigap/api/exceptions.dart';
+import '../helpers/api_expect.dart';
 import '../helpers/test_env.dart';
 
 const _apiBaseUrl = 'https://kmipn-26-deno.careday17.workers.dev';
+
+/// HTTP client helper using dart:io HttpClient (works in Flutter test on Windows).
+Future<Map<String, dynamic>> _httpJson(
+  String method,
+  String path, {
+  Object? body,
+  Map<String, String>? headers,
+}) async {
+  final uri = Uri.parse('$_apiBaseUrl$path');
+  final client = HttpClient();
+  HttpClientRequest req;
+  if (method == 'POST') {
+    req = await client.postUrl(uri);
+  } else {
+    req = await client.getUrl(uri);
+  }
+  req.headers.set('Content-Type', 'application/json');
+  if (headers != null) {
+    headers.forEach((k, v) => req.headers.set(k, v));
+  }
+  if (body != null) {
+    req.write(jsonEncode(body));
+  }
+  final resp = await req.close();
+  final bodyStr = await resp.transform(utf8.decoder).join();
+  if (resp.statusCode >= 400) {
+    throw Exception('HTTP ${resp.statusCode}: $bodyStr');
+  }
+  return jsonDecode(bodyStr) as Map<String, dynamic>;
+}
 
 /// Authenticates and returns tokens. Throws if login fails so setUpAll fails loudly.
 Future<({String accessToken, String refreshToken})> _login(
   String email,
   String password,
 ) async {
-  final client = ApiClient(baseUrl: _apiBaseUrl);
-  final resp = await client.login(email, password);
-  final token = resp.token;
-  final refresh = resp.refreshToken;
-  expect(token, isNotNull, reason: 'login returned null access token');
-  expect(token, isNotEmpty, reason: 'login returned empty access token');
-  expect(refresh, isNotNull, reason: 'login returned null refresh token');
-  return (accessToken: token!, refreshToken: refresh!);
+  // Use dart:io HttpClient directly - Dio has issues in Flutter test on Windows
+  final delays = [2000, 3000, 5000, 7000, 8000];
+  String? lastError;
+  for (int attempt = 0; attempt < 5; attempt++) {
+    try {
+      final data = await _httpJson(
+        'POST',
+        '/api/auth/login',
+        body: {'email': email, 'password': password},
+      );
+      final token = data['accessToken'] ?? data['access_token'];
+      final refresh = data['refreshToken'] ?? data['refresh_token'];
+      expect(token, isNotNull, reason: 'login returned null access token');
+      expect(token, isNotEmpty, reason: 'login returned empty access token');
+      expect(refresh, isNotNull, reason: 'login returned null refresh token');
+      return (accessToken: token as String, refreshToken: refresh as String);
+    } catch (e) {
+      lastError = e.toString();
+      // Check if it's a rate limit error
+      if (lastError.contains('429') && attempt < delays.length) {
+        final jitter = DateTime.now().millisecondsSinceEpoch % 500;
+        await Future.delayed(Duration(milliseconds: delays[attempt] + jitter));
+        continue;
+      }
+      rethrow;
+    }
+  }
+  throw Exception(
+    'loginWithBackoff: rate-limited after 5 attempts. Last error: $lastError',
+  );
 }
 
 void main() {
@@ -30,6 +85,7 @@ void main() {
     wargaClient = ApiClient(
       baseUrl: _apiBaseUrl,
       testAccessToken: tokens.accessToken,
+      checkConnectivity: () async {}, // skip connectivity check in tests
     );
 
     // Fetch a category to use in tests
@@ -155,7 +211,7 @@ void main() {
       );
     });
 
-    test('reportAction(close) returns status or 404 for warga role', () async {
+    test('reportAction(close) returns 403 FORBIDDEN for warga role', () async {
       final createRes = await wargaClient.submitReport(
         idempotencyKey:
             'TEST_${testRunId}_close_${DateTime.now().millisecondsSinceEpoch}',
@@ -166,25 +222,12 @@ void main() {
       );
       expect(createRes.id, isNotNull, reason: 'created report should have id');
 
-      // warga role may get 404 for close action — both are acceptable
-      try {
-        final closeRes = await wargaClient.reportAction(
-          reportId: createRes.id!,
-          action: 'close',
-        );
-        expect(
-          closeRes.status,
-          isA<String>(),
-          reason: 'close action status should be string',
-        );
-      } on ApiException catch (e) {
-        // 404 is expected for warga role; allow it
-        expect(
-          e.statusCode,
-          equals(404),
-          reason: 'expected 404 for warga close action, got ${e.statusCode}',
-        );
-      }
+      await expectApiError(
+        () =>
+            wargaClient.reportAction(reportId: createRes.id!, action: 'close'),
+        403,
+        context: 'warga close via reportAction',
+      );
     });
   });
 }
