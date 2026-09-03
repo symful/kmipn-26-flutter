@@ -23,6 +23,12 @@ import 'package:sigap/widgets/design_system/s02_bukti_thumbnails.dart';
 import 'package:sigap/widgets/design_system/s02_offline_banner.dart';
 import 'package:sigap/widgets/design_system/offline_ready_badge.dart';
 
+/// Approximate tile bundle size for offline map area — picked once.
+const double kMapTileEstimateMb = 2.0;
+
+/// Approximate average size of a compressed field evidence photo in bytes.
+const int _kAvgEvidencePhotoBytes = 500_000; // ~500 KB per JPEG
+
 /// Unified TaskWorkspace for both SURVEYOR and PETUGAS roles.
 ///
 /// Combines list and detail views into a single capability-driven workspace:
@@ -1007,7 +1013,13 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
           // Offline status card (surveyor only)
           if (isSurveyor) ...[
             const SizedBox(height: SigapSpacing.lg),
-            S02OfflineBanner(isOfflineReady: _isDownloaded),
+            S02OfflineBanner(
+              isOfflineReady: _isDownloaded,
+              payloadBytes: _isDownloaded
+                  ? (_reportPhotos.length * _kAvgEvidencePhotoBytes +
+                        (kMapTileEstimateMb * 1000000).toInt())
+                  : null,
+            ),
           ],
 
           // Citizen evidence gallery (Bukti warga)
