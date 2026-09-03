@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,10 +7,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:exif/exif.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../api/client.dart';
+import '../../db/database.dart';
 import '../../l10n/strings.dart';
 import '../../providers/providers.dart';
 import '../../services/photo_service.dart';
+import '../../sync/sync_engine.dart';
 import '../../theme/tokens.dart';
 import '../../components/app_icons.dart';
 import '../../widgets/design_system/phone_frame.dart';
@@ -45,6 +50,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   bool _submitting = false;
   String? _submitError;
   bool _success = false;
+  bool _queuedOffline = false;
 
   // Checklist items passed from task workspace
   List<Map<String, dynamic>> _checklistItems = [];
@@ -56,6 +62,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   int _selectedKondisi = 0;
   // Rekomendasi: 0=Valid/ditemukan, 1=Tidak ditemukan
   int _selectedRekomendasi = 0;
+
+  // ─── S-04 Autosave state ──────────────────────────────────────────────
+  Timer? _autosaveTimer;
+  DateTime? _lastSavedTime;
 
   bool get _canSubmit {
     if (_damageDescriptionController.text.trim().length < 10) return false;
@@ -77,11 +87,19 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
     // Load task detail for header
     if (widget.taskId != null) {
       _loadTaskDetail();
+      _restoreAutosave();
     }
+    // Start periodic autosave timer (~15s)
+    _autosaveTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      _autoSave();
+    });
+    // Trigger initial autosave after a brief delay (let form settle)
+    Future.delayed(const Duration(seconds: 2), () => _autoSave());
   }
 
   @override
   void dispose() {
+    _autosaveTimer?.cancel();
     _damageDescriptionController.dispose();
     _notesController.dispose();
     super.dispose();
@@ -100,6 +118,67 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
       }
     } catch (e) {
       // Silently fail - header will show default values
+    }
+  }
+
+  /// S-04: Persist form state to local storage for autosave.
+  Future<void> _autoSave() async {
+    if (!mounted || widget.taskId == null) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saveData = <String, dynamic>{
+        'damageDescription': _damageDescriptionController.text,
+        'notes': _notesController.text,
+        'selectedKondisi': _selectedKondisi,
+        'selectedRekomendasi': _selectedRekomendasi,
+        'gpsLat': _capturedGps?.$1,
+        'gpsLng': _capturedGps?.$2,
+        'gpsAccuracy': _gpsAccuracy,
+        'photoCount': _photos.length,
+        'savedAt': DateTime.now().toIso8601String(),
+      };
+      await prefs.setString(
+        'survey_autosave_${widget.taskId}',
+        jsonEncode(saveData),
+      );
+      if (mounted) {
+        setState(() => _lastSavedTime = DateTime.now());
+      }
+    } catch (_) {
+      // Autosave is best-effort; silently ignore failures
+    }
+  }
+
+  /// S-04: Restore form state from local autosave storage.
+  Future<void> _restoreAutosave() async {
+    if (widget.taskId == null) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString('survey_autosave_${widget.taskId}');
+      if (raw == null) return;
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+
+      if (mounted) {
+        setState(() {
+          _damageDescriptionController.text =
+              (data['damageDescription'] as String?) ?? '';
+          _notesController.text = (data['notes'] as String?) ?? '';
+          _selectedKondisi = (data['selectedKondisi'] as int?) ?? 0;
+          _selectedRekomendasi = (data['selectedRekomendasi'] as int?) ?? 0;
+          final gpsLat = (data['gpsLat'] as num?)?.toDouble();
+          final gpsLng = (data['gpsLng'] as num?)?.toDouble();
+          if (gpsLat != null && gpsLng != null) {
+            _capturedGps = (gpsLat, gpsLng);
+          }
+          _gpsAccuracy = (data['gpsAccuracy'] as num?)?.toDouble();
+          final savedAtStr = data['savedAt'] as String?;
+          if (savedAtStr != null) {
+            _lastSavedTime = DateTime.tryParse(savedAtStr);
+          }
+        });
+      }
+    } catch (_) {
+      // Restore is best-effort
     }
   }
 
@@ -168,7 +247,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
           final bytes = await image.readAsBytes();
           final exifData = await readExifFromBytes(bytes);
           if (exifData.isNotEmpty) {
-            exifJson = jsonEncode({
+            exifJson = _encodeExifJson({
               for (final entry in exifData.entries)
                 entry.key: entry.value.toString(),
             });
@@ -243,6 +322,79 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         throw Exception('Task details missing uploadToken or reportId');
       }
 
+      // Check connectivity: if offline, queue the visit for later sync
+      final online = await SyncEngine.isOnline();
+      if (!online) {
+        // Build checklist from form data
+        final kondisiLabels = ['Ringan', 'Berat', 'Kritis'];
+        final rekomendasiLabels = [
+          'Valid — perlu tindak lanjut',
+          'Tidak ditemukan di lokasi',
+        ];
+        final checklist = [
+          ..._checklistItems,
+          {
+            'item': 'Kondisi: ${kondisiLabels[_selectedKondisi]}',
+            'status': 'completed',
+            'notes': _damageDescriptionController.text.trim(),
+          },
+          {
+            'item': 'Rekomendasi: ${rekomendasiLabels[_selectedRekomendasi]}',
+            'status': 'completed',
+            'notes': '',
+          },
+        ];
+
+        // Serialize visit payload for later sync
+        final visitPayload = jsonEncode({
+          'task_id': widget.taskId,
+          'findings':
+              '${kondisiLabels[_selectedKondisi]}, ${rekomendasiLabels[_selectedRekomendasi]}',
+          'checklist': checklist,
+          'photo_urls': <String>[], // Photos will need re-upload when online
+          'gps_lat': _capturedGps!.$1,
+          'gps_lng': _capturedGps!.$2,
+          'accuracy': _gpsAccuracy ?? 6.0,
+          'condition_assessment': kondisiLabels[_selectedKondisi],
+          'recommendation': rekomendasiLabels[_selectedRekomendasi],
+          'catatan': _notesController.text.trim(),
+          'saved_at': DateTime.now().toIso8601String(),
+          'local_photo_paths': _photos.map((p) => p.path).toList(),
+        });
+
+        // Save photo paths locally for re-upload when online
+        for (var i = 0; i < _photos.length; i++) {
+          final photo = _photos[i];
+          try {
+            await ref
+                .read(databaseProvider)
+                .insertPhoto(
+                  reportIdempotencyKey: widget.taskId!,
+                  filePath: photo.path,
+                  exifDataJson: photo.exifJson,
+                  capturedAt: DateTime.now().millisecondsSinceEpoch,
+                );
+          } catch (_) {
+            // Photo insert is best-effort for offline queue
+          }
+        }
+
+        // Enqueue to sync queue with kind='visit'
+        final queueRepo = ref.read(syncQueueRepositoryProvider);
+        await queueRepo.enqueue(
+          'visit_${widget.taskId}_${DateTime.now().millisecondsSinceEpoch}',
+          kind: 'visit',
+          payloadJson: visitPayload,
+        );
+
+        setState(() {
+          _success = true;
+          _queuedOffline = true;
+        });
+        return;
+      }
+
+      // Online path: upload photos and submit directly
       // Upload photos and collect public URLs
       final photoUrls = <String>[];
       for (var i = 0; i < _photos.length; i++) {
@@ -273,7 +425,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         },
       ];
 
-      // Submit visit report directly via API (NOT via sync queue)
+      // Submit visit report directly via API when online
       final findings =
           '${kondisiLabels[_selectedKondisi]}, ${rekomendasiLabels[_selectedRekomendasi]}';
       await client.submitVisitReport(
@@ -329,7 +481,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                         ),
                         const SizedBox(height: SigapSpacing.sm),
                         Text(
-                          'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
+                          _queuedOffline
+                              ? 'Data survei tersimpan lokal. Akan dikirim otomatis saat online.'
+                              : 'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
                           style: TextStyle(
                             color: SigapColors.textSecondary,
                             fontSize: 14,
@@ -558,9 +712,12 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         ? 'TGS-${_taskDetail!.taskId!.length >= 4 ? _taskDetail!.taskId!.substring(0, 4) : _taskDetail!.taskId}'
         : 'TGS-';
 
-    // Format assignedAt (created_at) to HH:mm
+    // S-04: Show actual last-saved time from autosave, not task creation time
     String formattedTime = '--:--';
-    if (_taskDetail?.assignedAt != null) {
+    if (_lastSavedTime != null) {
+      formattedTime =
+          '${_lastSavedTime!.hour.toString().padLeft(2, '0')}:${_lastSavedTime!.minute.toString().padLeft(2, '0')}';
+    } else if (_taskDetail?.assignedAt != null) {
       try {
         final dt = DateTime.parse(_taskDetail!.assignedAt!);
         formattedTime =
@@ -976,7 +1133,7 @@ class _FotoSudutRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  hasPhoto ? '${_labels[index]} ✓' : _labels[index],
+                  hasPhoto ? '${_labels[index]} ✓' : '${_labels[index]} +',
                   style: TextStyle(
                     color: hasPhoto
                         ? SigapColors.textSecondary
@@ -995,8 +1152,8 @@ class _FotoSudutRow extends StatelessWidget {
   }
 }
 
-// Helper for JSON encoding
-String jsonEncode(Map<String, String> map) {
+// Helper for EXIF JSON encoding (avoids shadowing dart:convert jsonEncode)
+String _encodeExifJson(Map<String, String> map) {
   final entries = map.entries.map((e) => '"${e.key}":"${e.value}"');
   return '{${entries.join(',')}}';
 }

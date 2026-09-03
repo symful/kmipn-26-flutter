@@ -208,12 +208,16 @@ class SigapActionButton extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.semanticsLabel,
+    this.maxLines,
+    this.overflow,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
   final String? semanticsLabel;
+  final int? maxLines;
+  final TextOverflow? overflow;
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +231,7 @@ class SigapActionButton extends StatelessWidget {
             ? FilledButton.icon(
                 onPressed: onPressed,
                 icon: Icon(icon, size: 20),
-                label: Text(label),
+                label: Text(label, maxLines: maxLines, overflow: overflow),
                 style: FilledButton.styleFrom(
                   backgroundColor: SigapColors.primary,
                   foregroundColor: Colors.white,
@@ -253,7 +257,7 @@ class SigapActionButton extends StatelessWidget {
                     borderRadius: BorderRadius.circular(SigapRadius.x8),
                   ),
                 ),
-                child: Text(label),
+                child: Text(label, maxLines: maxLines, overflow: overflow),
               ),
       ),
     );

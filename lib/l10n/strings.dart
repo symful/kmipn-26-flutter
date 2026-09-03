@@ -111,7 +111,7 @@ abstract class Strings {
 
   // Surveyor
   static const String prioritasSlider = 'Prioritas';
-  static const String kirimHasilKunjungan = 'Kirim Hasil Kunjungan';
+  static const String lanjutKeReviewHasil = 'Lanjut ke review hasil';
   static const String hariIni = 'Hari ini';
   static const String terlambat = 'Terlambat';
   static const String belumDiunduh = 'Belum diunduh';
@@ -137,6 +137,55 @@ abstract class Strings {
   static const String duplikat = 'Duplikat';
   static const String perluSurvei = 'Perlu Survei';
   static const String unknown = 'Unknown';
+
+  /// Centralized status label mapping from server status strings to
+  /// human-readable Indonesian labels. Replaces 6+ independent
+  /// `_formatStatus` / `_statusLabel` / `_serverStatusLabel` implementations.
+  static String statusLabel(String? status) {
+    switch (status) {
+      case 'draft':
+        return 'Draft';
+      case 'submitted':
+      case 'under_review':
+        return 'Perlu Tindakan';
+      case 'verified':
+      case 'in_progress':
+        return 'Diproses';
+      case 'resolved':
+      case 'completed':
+        return 'Selesai';
+      case 'rejected':
+        return 'Ditolak';
+      case 'duplicate_merged':
+        return 'Duplikat';
+      case 'needs_survey':
+        return 'Perlu Survei';
+      case 'assigned':
+        return 'Ditugaskan';
+      case 'closed':
+        return 'Tutup';
+      case 'merged':
+        return 'Digabung';
+      case 'separated':
+        return 'Dipisah';
+      case 'needs_completion':
+        return 'Perlu Dilengkapi';
+      case 'out_of_scope':
+        return 'Di Luar Jangkauan';
+      case 'pending':
+        return 'Menunggu';
+      case 'locally_created':
+        return 'Draft';
+      case 'locally_saved':
+        return 'Tersimpan Lokal';
+      case 'in_review':
+        return 'Dalam Review';
+      case 'needs_action':
+        return 'Perlu Tindakan';
+      default:
+        return status ?? 'Unknown';
+    }
+  }
 
   // Additional labels
   static const String mergeDuplikat = 'Merge duplikat';

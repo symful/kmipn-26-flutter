@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/strings.dart';
 import '../../../../widgets/design_system/design_system.dart';
 
 /// Survey submit button for surveyor visit form screen.
@@ -6,7 +7,7 @@ import '../../../../widgets/design_system/design_system.dart';
 /// Full-width primary button fixed at the bottom of the form.
 /// Shows loading spinner during submission and is disabled when form is incomplete.
 ///
-/// Design: Primary filled button "Kirim Hasil Kunjungan" with send icon.
+/// Design: Primary filled button with send icon, label from [Strings.lanjutKeReviewHasil].
 /// Matches PantauDesa S-04 design spec for the visit form submit action.
 class SurveySubmitButton extends StatelessWidget {
   /// Called when the submit button is tapped.
@@ -33,13 +34,17 @@ class SurveySubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // NOTE: spec CTA is 'Lanjut ke review hasil'; app submits directly
+    // (no review step) — per locked decision, label matches spec, flow unchanged.
     return StickyActionBar(
       actions: [
         SigapActionButton(
-          label: 'Kirim Hasil Kunjungan',
+          label: Strings.lanjutKeReviewHasil,
           icon: Icons.send,
           onPressed: isEnabled ? onPressed : null,
-          semanticsLabel: 'Kirim hasil kunjungan survei',
+          semanticsLabel: 'Lanjut ke review hasil survei',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
