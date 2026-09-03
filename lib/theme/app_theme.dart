@@ -11,6 +11,9 @@ class SigapTheme {
   SigapTheme._();
 
   static ThemeData light() {
+    // Precache IBM Plex Mono so fontFamilyMono consumers resolve at runtime
+    GoogleFonts.ibmPlexMonoTextTheme();
+
     final textTheme = GoogleFonts.ibmPlexSansTextTheme().copyWith(
       displayLarge: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
       displayMedium: GoogleFonts.ibmPlexSans(color: SigapColors.textPrimary),
