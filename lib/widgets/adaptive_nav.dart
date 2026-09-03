@@ -237,6 +237,52 @@ List<String> navItemsForCapabilities(Set<String> capabilities) {
   return items;
 }
 
+/// Provides the nav item routes for a given set of capabilities.
+/// Matches the same ordering as [navItemsForCapabilities].
+///
+/// Returns a list of route paths in left-to-right order.
+List<String> navRoutesForCapabilities(Set<String> capabilities) {
+  final routes = <String>[];
+
+  // Dashboard — always first for authenticated users.
+  routes.add('/dashboard');
+
+  if (capabilities.contains('public.read')) {
+    routes.add('/map');
+  }
+
+  if (capabilities.contains('case.read') ||
+      capabilities.contains('case.verify')) {
+    routes.add('/queue');
+  }
+
+  if (capabilities.contains('case.verify')) {
+    routes.add('/ai-console');
+  }
+
+  if (capabilities.contains('case.export')) {
+    routes.add('/export');
+  }
+
+  if (capabilities.contains('audit.read')) {
+    routes.add('/audit');
+  }
+
+  if (capabilities.contains('analytics.read')) {
+    routes.add('/stats');
+  }
+
+  if (capabilities.contains('task.accept')) {
+    routes.add('/tasks');
+  }
+
+  if (capabilities.contains('report.submit')) {
+    routes.add('/laporan');
+  }
+
+  return routes;
+}
+
 // ---------------------------------------------------------------------------
 // Inlined SigapBottomNav / SigapBottomNavItem (formerly sigap_bottom_nav.dart)
 // ---------------------------------------------------------------------------
@@ -378,6 +424,598 @@ class _SigapNavItem extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SurveyorBottomNav — role-specific 5-tab nav matching DC S-01
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Fixed 5-tab bottom nav for the SURVEYOR role.
+///
+/// Tabs: Tugas, Peta, Sinkron, Riwayat, Akun.
+/// Uses border-based custom icons (not Material icons) to match the DC spec.
+class SurveyorBottomNav extends StatelessWidget {
+  const SurveyorBottomNav({
+    super.key,
+    required this.activeIndex,
+    required this.onTap,
+  });
+
+  /// Index of the currently active tab (0–4).
+  final int activeIndex;
+
+  /// Callback fired when a tab is tapped.
+  final ValueChanged<int> onTap;
+
+  static const _activeColor = SigapColors.primary; // #0f7a6b
+  static const _inactiveColor = SigapColors.textMuted; // #8a9099
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 9, 12, 20),
+        decoration: const BoxDecoration(
+          color: SigapColors.surface,
+          border: Border(
+            top: BorderSide(color: SigapColors.borderCard, width: 1),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _NavItem(
+              label: 'Tugas',
+              isActive: activeIndex == 0,
+              onTap: () => onTap(0),
+              child: _TugasIcon(
+                color: activeIndex == 0 ? _activeColor : _inactiveColor,
+              ),
+            ),
+            _NavItem(
+              label: 'Peta',
+              isActive: activeIndex == 1,
+              onTap: () => onTap(1),
+              child: _PetaIcon(
+                color: activeIndex == 1 ? _activeColor : _inactiveColor,
+              ),
+            ),
+            _NavItem(
+              label: 'Sinkron',
+              isActive: activeIndex == 2,
+              onTap: () => onTap(2),
+              child: _SinkronIcon(
+                color: activeIndex == 2 ? _activeColor : _inactiveColor,
+              ),
+            ),
+            _NavItem(
+              label: 'Riwayat',
+              isActive: activeIndex == 3,
+              onTap: () => onTap(3),
+              child: _RiwayatIcon(
+                color: activeIndex == 3 ? _activeColor : _inactiveColor,
+              ),
+            ),
+            _NavItem(
+              label: 'Akun',
+              isActive: activeIndex == 4,
+              onTap: () => onTap(4),
+              child: _AkunIcon(
+                color: activeIndex == 4 ? _activeColor : _inactiveColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Shared nav item wrapper ────────────────────────────────────────────────
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+    required this.child,
+  });
+
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive
+        ? SurveyorBottomNav._activeColor
+        : SurveyorBottomNav._inactiveColor;
+
+    return Semantics(
+      label: label,
+      button: true,
+      selected: isActive,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(SigapRadius.sm),
+        child: SizedBox(
+          width: 60,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              child,
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: SigapTypography.size10,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── DC S-01 border-based icons ─────────────────────────────────────────────
+
+/// Tugas: document — 16×18 rounded rectangle (border-radius 3px).
+class _TugasIcon extends StatelessWidget {
+  const _TugasIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 16,
+      height: 18,
+      decoration: BoxDecoration(
+        border: Border.all(color: color, width: 2),
+        borderRadius: BorderRadius.circular(3),
+      ),
+    );
+  }
+}
+
+/// Peta: diamond — 16×16 square rotated 45°.
+class _PetaIcon extends StatelessWidget {
+  const _PetaIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: 45 * 3.14159265359 / 180,
+      child: Container(
+        width: 14,
+        height: 14,
+        decoration: BoxDecoration(
+          border: Border.all(color: color, width: 2),
+          borderRadius: BorderRadius.circular(3),
+        ),
+      ),
+    );
+  }
+}
+
+/// Sinkron: circle + horizontal line — 18×18 circle with centered line.
+class _SinkronIcon extends StatelessWidget {
+  const _SinkronIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 18,
+      height: 18,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              border: Border.all(color: color, width: 2),
+              shape: BoxShape.circle,
+            ),
+          ),
+          Container(width: 12, height: 2, color: color),
+        ],
+      ),
+    );
+  }
+}
+
+/// Riwayat: document with thick top — 16×16 rounded rectangle, top border 5px.
+class _RiwayatIcon extends StatelessWidget {
+  const _RiwayatIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 16,
+      height: 16,
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: color, width: 5),
+          left: BorderSide(color: color, width: 2),
+          right: BorderSide(color: color, width: 2),
+          bottom: BorderSide(color: color, width: 2),
+        ),
+        borderRadius: BorderRadius.circular(3),
+      ),
+    );
+  }
+}
+
+/// Akun: circle — 17×17 circular border.
+class _AkunIcon extends StatelessWidget {
+  const _AkunIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 17,
+      height: 17,
+      decoration: BoxDecoration(
+        border: Border.all(color: color, width: 2),
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+// ── Surveyor nav route/label helpers ───────────────────────────────────────
+
+/// Route paths for the surveyor 5-tab nav, left-to-right.
+const List<String> surveyorNavRoutes = [
+  '/tasks',
+  '/map',
+  '/sync-center',
+  '/riwayat',
+  '/profile',
+];
+
+/// Label strings for the surveyor 5-tab nav, left-to-right.
+const List<String> surveyorNavLabels = [
+  'Tugas',
+  'Peta',
+  'Sinkron',
+  'Riwayat',
+  'Akun',
+];
+
+// ---------------------------------------------------------------------------
+// FixedWargaBottomNav — M-05 DC contract for WARGA role
+// ---------------------------------------------------------------------------
+
+/// Fixed 5-tab bottom navigation for the WARGA role, matching the DC (M-05).
+///
+/// Tabs: Beranda, Peta, Buat (center FAB), Laporan, Akun.
+/// The center FAB triggers the /create route instead of switching tabs.
+class FixedWargaBottomNav extends StatelessWidget {
+  const FixedWargaBottomNav({
+    super.key,
+    required this.activeIndex,
+    required this.onTabTap,
+    required this.onFabTap,
+  });
+
+  /// Index of the currently active tab (0–4, excluding FAB at index 2).
+  final int activeIndex;
+
+  /// Callback when a regular tab is tapped (indices 0, 1, 3, 4).
+  final ValueChanged<int> onTabTap;
+
+  /// Callback when the center FAB is tapped.
+  final VoidCallback onFabTap;
+
+  /// Fixed routes for each tab index.
+  static const List<String> fixedRoutes = [
+    '/dashboard', // 0 - Beranda
+    '/map', // 1 - Peta
+    '/create', // 2 - Buat (FAB)
+    '/laporan', // 3 - Laporan
+    '/profile', // 4 - Akun
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    const activeColor = SigapColors.primary;
+    const inactiveColor = SigapColors.textMuted;
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        height: 84, // 64px nav + 20px bottom padding
+        decoration: const BoxDecoration(
+          color: SigapColors.surface,
+          border: Border(
+            top: BorderSide(color: SigapColors.borderCard, width: 1),
+          ),
+        ),
+        padding: const EdgeInsets.only(
+          top: SigapSpacing.x9,
+          left: SigapSpacing.x12,
+          right: SigapSpacing.x12,
+          bottom: SigapSpacing.x20,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // 0 — Beranda (home bordered square)
+            _WargaNavItem(
+              isActive: activeIndex == 0,
+              color: activeIndex == 0 ? activeColor : inactiveColor,
+              label: 'Beranda',
+              fontWeight: activeIndex == 0 ? FontWeight.w600 : FontWeight.w500,
+              icon: _HomeIcon(
+                color: activeIndex == 0 ? activeColor : inactiveColor,
+              ),
+              onTap: () => onTabTap(0),
+            ),
+            // 1 — Peta (rotated diamond)
+            _WargaNavItem(
+              isActive: activeIndex == 1,
+              color: activeIndex == 1 ? activeColor : inactiveColor,
+              label: 'Peta',
+              fontWeight: activeIndex == 1 ? FontWeight.w600 : FontWeight.w500,
+              icon: _DiamondIcon(
+                color: activeIndex == 1 ? activeColor : inactiveColor,
+              ),
+              onTap: () => onTabTap(1),
+            ),
+            // 2 — Buat (center FAB)
+            _WargaFabItem(onTap: onFabTap),
+            // 3 — Laporan (document bordered rectangle)
+            _WargaNavItem(
+              isActive: activeIndex == 3,
+              color: activeIndex == 3 ? activeColor : inactiveColor,
+              label: 'Laporan',
+              fontWeight: activeIndex == 3 ? FontWeight.w600 : FontWeight.w500,
+              icon: _DocumentIcon(
+                color: activeIndex == 3 ? activeColor : inactiveColor,
+              ),
+              onTap: () => onTabTap(3),
+            ),
+            // 4 — Akun (circle)
+            _WargaNavItem(
+              isActive: activeIndex == 4,
+              color: activeIndex == 4 ? activeColor : inactiveColor,
+              label: 'Akun',
+              fontWeight: activeIndex == 4 ? FontWeight.w600 : FontWeight.w500,
+              icon: _CircleIcon(
+                color: activeIndex == 4 ? activeColor : inactiveColor,
+              ),
+              onTap: () => onTabTap(4),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Regular nav item for the Warga fixed bottom nav.
+class _WargaNavItem extends StatelessWidget {
+  const _WargaNavItem({
+    required this.isActive,
+    required this.color,
+    required this.label,
+    required this.fontWeight,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final bool isActive;
+  final Color color;
+  final String label;
+  final FontWeight fontWeight;
+  final Widget icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label,
+      button: true,
+      selected: isActive,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 56,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              icon,
+              const SizedBox(height: SigapSpacing.x4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: SigapTypography.size10,
+                  fontWeight: fontWeight,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Center FAB item for "Buat" action.
+class _WargaFabItem extends StatelessWidget {
+  const _WargaFabItem({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Buat laporan',
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          width: 60,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // FAB circle — 50x50, teal, raised shadow
+              Container(
+                width: 50,
+                height: 50,
+                margin: const EdgeInsets.only(bottom: SigapSpacing.x4),
+                decoration: BoxDecoration(
+                  color: SigapColors.primary,
+                  borderRadius: BorderRadius.circular(SigapRadius.x16),
+                  boxShadow: SigapShadows.fab,
+                ),
+                child: const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Stack(
+                      children: [
+                        // Horizontal bar of +
+                        Positioned(
+                          top: 9,
+                          left: 2,
+                          width: 16,
+                          height: 2.4,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(2),
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Vertical bar of +
+                        Positioned(
+                          left: 9,
+                          top: 2,
+                          width: 2.4,
+                          height: 16,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(2),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                'Buat',
+                style: TextStyle(
+                  fontSize: SigapTypography.size10,
+                  fontWeight: FontWeight.w600,
+                  color: SigapColors.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Custom DC border-style icons matching the M-05 design contract
+// ---------------------------------------------------------------------------
+
+/// Home icon — bordered rounded square.
+class _HomeIcon extends StatelessWidget {
+  const _HomeIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 18,
+      height: 18,
+      decoration: BoxDecoration(
+        border: Border.all(color: color, width: 2),
+        borderRadius: BorderRadius.circular(5),
+      ),
+    );
+  }
+}
+
+/// Peta icon — bordered rotated diamond.
+class _DiamondIcon extends StatelessWidget {
+  const _DiamondIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: 45 * 3.14159265359 / 180,
+      child: Container(
+        width: 16,
+        height: 16,
+        decoration: BoxDecoration(
+          border: Border.all(color: color, width: 2),
+          borderRadius: BorderRadius.circular(3),
+        ),
+      ),
+    );
+  }
+}
+
+/// Laporan icon — bordered rectangle (document).
+class _DocumentIcon extends StatelessWidget {
+  const _DocumentIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 16,
+      height: 18,
+      decoration: BoxDecoration(
+        border: Border.all(color: color, width: 2),
+        borderRadius: BorderRadius.circular(3),
+      ),
+    );
+  }
+}
+
+/// Akun icon — bordered circle.
+class _CircleIcon extends StatelessWidget {
+  const _CircleIcon({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 17,
+      height: 17,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: color, width: 2),
       ),
     );
   }
