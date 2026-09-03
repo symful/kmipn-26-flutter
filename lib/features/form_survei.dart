@@ -1066,6 +1066,49 @@ class _HatchPainter extends CustomPainter {
   bool shouldRepaint(covariant _HatchPainter old) => false;
 }
 
+/// Spec dashed border for empty photo slots.
+/// 2px dashed #CFD3CC with 5px dash, 3px gap.
+class _DashedBorderPainter extends CustomPainter {
+  final double radius;
+
+  const _DashedBorderPainter({this.radius = 11});
+
+  static const _dash = 5.0;
+  static const _gap = 3.0;
+  static const _color = Color(0xFFCFD3CC); // spec exact
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = _color
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)),
+      );
+
+    _drawDashedPath(canvas, path, paint);
+  }
+
+  static void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
+    final metrics = path.computeMetrics().toList();
+    for (final metric in metrics) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final end = (distance + _dash).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, end), paint);
+        distance += _dash + _gap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedBorderPainter old) =>
+      radius != old.radius;
+}
+
 /// S-04 Foto per sudut row: 3 horizontal slots (Depan, Samping, Atas).
 /// Spec: captured = photo over hatch bg + "✓" label #616770;
 /// empty = transparent + 2px dashed #CFD3CC + "+" 22px #8a9099 + bare red label.
@@ -1153,27 +1196,25 @@ class _FotoSudutRow extends StatelessWidget {
                         )
                       : GestureDetector(
                           onTap: onAddPhoto,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(
-                                SigapRadius.md,
-                              ),
-                              border: Border.all(
-                                color: const Color(0xFFCFD3CC), // spec exact
-                                width: 2,
-                                style: BorderStyle.solid,
-                              ),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '+',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  color: SigapColors.textMuted,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: CustomPaint(
+                                  painter: _DashedBorderPainter(
+                                    radius: SigapRadius.md,
+                                  ),
                                 ),
                               ),
-                            ),
+                              const Center(
+                                child: Text(
+                                  '+',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    color: SigapColors.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                 ),
