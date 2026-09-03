@@ -1037,8 +1037,38 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   }
 }
 
+/// Spec diagonal hatch for captured photo slots.
+/// Repeating-linear-gradient(135deg,#e4e7e2 0 6px,#eef0ec 6px 12px).
+class _HatchPainter extends CustomPainter {
+  const _HatchPainter();
+
+  static const _stripeWidth = 6.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..strokeWidth = _stripeWidth;
+    final colors = [
+      const Color(0xFFE4E7E2), // borderCard
+      const Color(0xFFEEF0EC), // lighter alternating
+    ];
+    final step = _stripeWidth * 1.414; // hypotenuse of 45° triangle
+    final diag = size.width + size.height;
+    final count = (diag / step).ceil();
+    for (var i = -count; i <= count; i++) {
+      paint.color = colors[i.abs() % 2];
+      final cx = i * step;
+      // 135° line: direction (-1, 1) per unit
+      canvas.drawLine(Offset(cx, 0), Offset(cx - diag, diag), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _HatchPainter old) => false;
+}
+
 /// S-04 Foto per sudut row: 3 horizontal slots (Depan, Samping, Atas).
-/// Mimics FotoSudutCapture visual style but in a 3-column horizontal layout.
+/// Spec: captured = photo over hatch bg + "✓" label #616770;
+/// empty = transparent + 2px dashed #CFD3CC + "+" 22px #8a9099 + bare red label.
 class _FotoSudutRow extends StatelessWidget {
   final List<_PhotoEntry> photos;
   final VoidCallback onAddPhoto;
@@ -1067,6 +1097,22 @@ class _FotoSudutRow extends StatelessWidget {
                   child: hasPhoto
                       ? Stack(
                           children: [
+                            // Hatch background (spec: diagonal stripes)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.md,
+                              ),
+                              child: const DecoratedBox(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(SigapRadius.md),
+                                  ),
+                                ),
+                                child: SizedBox.expand(
+                                  child: CustomPaint(painter: _HatchPainter()),
+                                ),
+                              ),
+                            ),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(
                                 SigapRadius.md,
@@ -1109,34 +1155,34 @@ class _FotoSudutRow extends StatelessWidget {
                           onTap: onAddPhoto,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: SigapColors.bgSurface,
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(
                                 SigapRadius.md,
                               ),
                               border: Border.all(
-                                color: SigapColors.borderCard,
+                                color: const Color(0xFFCFD3CC), // spec exact
+                                width: 2,
                                 style: BorderStyle.solid,
                               ),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  size: 22,
+                            child: const Center(
+                              child: Text(
+                                '+',
+                                style: TextStyle(
+                                  fontSize: 22,
                                   color: SigapColors.textMuted,
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  hasPhoto ? '${_labels[index]} ✓' : '${_labels[index]} +',
+                  hasPhoto ? '${_labels[index]} ✓' : _labels[index],
                   style: TextStyle(
                     color: hasPhoto
-                        ? SigapColors.textSecondary
+                        ? SigapColors.textTertiary
                         : SigapColors.danger,
                     fontSize: SigapTypography.size10,
                     fontWeight: FontWeight.w500,
