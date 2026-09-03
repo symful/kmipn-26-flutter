@@ -21,6 +21,7 @@ import 'package:sigap/widgets/design_system/s02_instruksi_card.dart';
 import 'package:sigap/widgets/design_system/s02_checklist.dart';
 import 'package:sigap/widgets/design_system/s02_bukti_thumbnails.dart';
 import 'package:sigap/widgets/design_system/s02_offline_banner.dart';
+import 'package:sigap/widgets/design_system/offline_ready_badge.dart';
 
 /// Unified TaskWorkspace for both SURVEYOR and PETUGAS roles.
 ///
@@ -190,9 +191,9 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
           taskId: task.id,
           title: task.title,
           description: task.description,
-          instructions: null, // TODO: fetch instructions from API
+          instructions: task.instructions,
           status: task.status,
-          checklistTemplate: [],
+          checklistTemplate: [], // Checklist fetched on task detail view
         );
         downloaded++;
       }
@@ -489,21 +490,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
   }
 
   String _getStatusLabel(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'Baru';
-      case 'assigned':
-        return 'Ditugaskan';
-      case 'in_progress':
-        return 'Dikerjakan';
-      case 'completed':
-      case 'resolved':
-        return 'Selesai';
-      case 'rejected':
-        return 'Ditolak';
-      default:
-        return status;
-    }
+    return Strings.statusLabel(status);
   }
 
   String _formatDate(String? s) {
@@ -1121,6 +1108,8 @@ class _TaskItem {
   final double? lat;
   final double? lng;
   final String? checklistTemplateJson;
+  final String? instructions;
+  final bool unclaimed;
 
   _TaskItem({
     required this.id,
@@ -1136,6 +1125,8 @@ class _TaskItem {
     this.lat,
     this.lng,
     this.checklistTemplateJson,
+    this.instructions,
+    this.unclaimed = false,
   });
 
   factory _TaskItem.fromTask(dynamic t, bool isSurveyor) {
@@ -1152,6 +1143,7 @@ class _TaskItem {
         title: task.reportTitle ?? '-',
         description: null,
         status: task.status ?? 'pending',
+        unclaimed: task.surveyorId == null && task.status == 'assigned',
         createdAt: parseDate(task.assignedAt),
         deadline: parseDate(task.deadline),
         categoryName: task.categoryName,
@@ -1161,6 +1153,7 @@ class _TaskItem {
         lat: task.reportLat,
         lng: task.reportLng,
         checklistTemplateJson: null,
+        instructions: task.instructions,
       );
     } else {
       final task = t as PetugasTask;
@@ -1178,6 +1171,7 @@ class _TaskItem {
         lat: null,
         lng: null,
         checklistTemplateJson: null,
+        instructions: null,
       );
     }
   }
@@ -1219,21 +1213,7 @@ class _TasksFlowCard extends StatelessWidget {
   }
 
   String get _statusLabel {
-    switch (task.status.toLowerCase()) {
-      case 'pending':
-        return 'Baru';
-      case 'assigned':
-        return 'Ditugaskan';
-      case 'in_progress':
-        return 'Dikerjakan';
-      case 'completed':
-      case 'resolved':
-        return 'Selesai';
-      case 'rejected':
-        return 'Ditolak';
-      default:
-        return task.status;
-    }
+    return Strings.statusLabel(task.status);
   }
 
   Color get _priorityColor {
@@ -1243,6 +1223,7 @@ class _TasksFlowCard extends StatelessWidget {
       if (hours < 0) return SigapColors.danger;
       if (hours < 24) return SigapColors.warning;
     }
+    if (!isDownloaded) return SigapColors.borderSoft;
     return SigapColors.primary;
   }
 
@@ -1338,6 +1319,17 @@ class _TasksFlowCard extends StatelessWidget {
                           color: SigapColors.textTertiary,
                         ),
                       ),
+                      if (task.unclaimed) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          'Menunggu klaim personel',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size11,
+                            fontWeight: FontWeight.w600,
+                            color: SigapColors.warning,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -1473,49 +1465,10 @@ class _TasksFlowCard extends StatelessWidget {
                 // Download status/button for surveyor
                 if (isSurveyor) ...[
                   const Spacer(),
-                  if (isDownloaded)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.download_done,
-                          size: 14,
-                          color: SigapColors.selesai,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          'Siap offline',
-                          style: TextStyle(
-                            fontSize: SigapTypography.size10,
-                            color: SigapColors.selesai,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    )
-                  else if (onDownload != null)
-                    GestureDetector(
-                      onTap: onDownload,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.download_outlined,
-                            size: 14,
-                            color: SigapColors.primary,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            'Unduh',
-                            style: TextStyle(
-                              fontSize: SigapTypography.size10,
-                              color: SigapColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  OfflineReadyBadge(
+                    isOfflineAvailable: isDownloaded,
+                    onDownloadTap: onDownload,
+                  ),
                 ],
               ],
             ),
