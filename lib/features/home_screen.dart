@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import 'package:sigap/api/client.dart';
 import '../db/database.dart';
 import '../l10n/strings.dart';
 import '../providers/providers.dart';
+import '../providers/auth_provider.dart';
 import '../theme/tokens.dart';
+import '../providers/capability_provider.dart';
 import '../widgets/adaptive_nav.dart';
 import '../widgets/design_system/buttons.dart';
 import '../widgets/design_system/phone_frame.dart';
@@ -20,6 +23,8 @@ import '../widgets/design_system/task_filter_chips.dart';
 import '../widgets/design_system/task_sort_row.dart';
 import '../widgets/design_system/task_card.dart';
 import '../widgets/design_system/offline_pill.dart';
+import '../widgets/design_system/notification_bell.dart';
+import '../widgets/design_system/pending_sync_banner.dart';
 import '../widgets/can.dart';
 
 // ─── Shared models ───────────────────────────────────────────────────────────
@@ -141,24 +146,7 @@ Color _syncDotColor(int syncStatus) {
 }
 
 String _serverStatusLabel(String? status) {
-  switch (status) {
-    case 'submitted':
-    case 'under_review':
-      return Strings.perluTindakanCapital;
-    case 'verified':
-    case 'in_progress':
-      return Strings.diproses;
-    case 'resolved':
-      return Strings.selesai;
-    case 'rejected':
-      return Strings.ditolak;
-    case 'duplicate_merged':
-      return Strings.duplikat;
-    case 'needs_survey':
-      return Strings.perluSurvei;
-    default:
-      return status ?? Strings.unknown;
-  }
+  return Strings.statusLabel(status);
 }
 
 Color _serverStatusColor(String? status) {
@@ -570,87 +558,6 @@ Widget _buildSurveyorError(Object error, VoidCallback onRetry) {
   );
 }
 
-// ─── Pending banner ───────────────────────────────────────────────────────────
-
-class _PendingBanner extends StatelessWidget {
-  final int count;
-  const _PendingBanner({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: SigapSpacing.x14,
-        vertical: SigapSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: SigapColors.offlineBg,
-        border: Border.all(color: SigapColors.offlineBorder),
-        borderRadius: BorderRadius.circular(SigapRadius.lg),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: SigapColors.offlineDot,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '$count',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: SigapTypography.size14,
-              ),
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.x11),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$count laporan belum tersinkron',
-                  style: const TextStyle(
-                    color: SigapColors.warningTextStrong,
-                    fontWeight: FontWeight.w600,
-                    fontSize: SigapTypography.size13_5,
-                  ),
-                ),
-                const SizedBox(height: SigapRadius.x1),
-                const Text(
-                  'Aman tersimpan di perangkat. Akan terkirim otomatis saat ada koneksi.',
-                  style: TextStyle(
-                    color: SigapColors.offlineText,
-                    fontSize: SigapTypography.size12,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.sm),
-                GestureDetector(
-                  onTap: () => context.push('/sync-center'),
-                  child: const Text(
-                    'Buka Pusat Sinkronisasi →',
-                    style: TextStyle(
-                      color: SigapColors.primaryDark,
-                      fontWeight: FontWeight.w600,
-                      fontSize: SigapTypography.size12_5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ─── UNIFIED HOME SCREEN ──────────────────────────────────────────────────────
 
 /// Unified home screen — renders role-specific content based on activeRole.
@@ -678,13 +585,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final loc = GoRouterState.of(context).uri.toString();
+      final authState = ref.read(authNotifierProvider);
+      final activeRole = authState.activeRole;
+
       int newIndex = 0;
-      if (loc.startsWith('/map')) {
-        newIndex = 1;
-      } else if (loc.startsWith('/laporan')) {
-        newIndex = 3;
-      } else if (loc == '/profile') {
-        newIndex = 4;
+      if (activeRole == 'WARGA') {
+        // Fixed WARGA nav: match route to tab index directly.
+        const routes = FixedWargaBottomNav.fixedRoutes;
+        for (int i = 0; i < routes.length; i++) {
+          // Skip index 2 (FAB /create) — it's not a nav tab.
+          if (i == 2) continue;
+          if (loc.startsWith(routes[i])) {
+            newIndex = i;
+            break;
+          }
+        }
+      } else if (activeRole == 'SURVEYOR') {
+        // Fixed SURVEYOR nav: 5 tabs (Tugas, Peta, Sinkron, Riwayat, Akun).
+        for (int i = 0; i < surveyorNavRoutes.length; i++) {
+          if (loc.startsWith(surveyorNavRoutes[i])) {
+            newIndex = i;
+            break;
+          }
+        }
+      } else {
+        // Derive nav index from capabilities — same order as AdaptiveNav._buildNavItems.
+        final capabilityState = ref.read(
+          capabilityNotifierProvider.select((state) => state.valueOrNull),
+        );
+        final routes = navRoutesForCapabilities(
+          capabilityState?.capabilities ?? {},
+        );
+        for (int i = 0; i < routes.length; i++) {
+          if (loc.startsWith(routes[i])) {
+            newIndex = i;
+            break;
+          }
+        }
       }
       if (_selectedNavIndex != newIndex) {
         setState(() => _selectedNavIndex = newIndex);
@@ -712,6 +649,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final connectivityAsync = ref.watch(connectivityProvider);
+    final authState = ref.watch(authNotifierProvider);
+    final activeRole = authState.activeRole;
 
     final isOffline =
         connectivityAsync.whenOrNull(
@@ -729,30 +668,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Scaffold(
               backgroundColor: SigapColors.bgSurface,
               body: _buildBody(isOffline),
-              bottomNavigationBar: AdaptiveNav(
-                activeIndex: _selectedNavIndex,
-                onTap: (index) {
-                  setState(() => _selectedNavIndex = index);
-                  // Derive route from the nav item's position in the capability-built list.
-                  // Order in _buildNavItems: peta → antrean → audit → analitik → tugas → laporan
-                  final routes = [
-                    '/map', // index 0: peta (public.read)
-                    '/queue', // index 1: antrean (case.read/case.verify)
-                    '/audit', // index 2: audit (audit.read)
-                    '/stats', // index 3: analitik (analytics.read)
-                    '/tasks', // index 4: tugas (task.accept)
-                    '/detail', // index 5: laporan (report.submit)
-                  ];
-                  final route = index < routes.length
-                      ? routes[index]
-                      : '/dashboard';
-                  if (index == 0) {
-                    context.go(route);
-                  } else {
-                    context.push(route);
-                  }
-                },
-              ),
+              bottomNavigationBar: activeRole == 'WARGA'
+                  ? FixedWargaBottomNav(
+                      activeIndex: _selectedNavIndex,
+                      onTabTap: (index) {
+                        setState(() => _selectedNavIndex = index);
+                        final route = FixedWargaBottomNav.fixedRoutes[index];
+                        if (index == 0) {
+                          context.go(route);
+                        } else {
+                          context.push(route);
+                        }
+                      },
+                      onFabTap: () => context.push('/create'),
+                    )
+                  : activeRole == 'SURVEYOR'
+                  ? SurveyorBottomNav(
+                      activeIndex: _selectedNavIndex,
+                      onTap: (index) {
+                        setState(() => _selectedNavIndex = index);
+                        final route = surveyorNavRoutes[index];
+                        if (index == 0) {
+                          context.go(route);
+                        } else {
+                          context.push(route);
+                        }
+                      },
+                    )
+                  : AdaptiveNav(
+                      activeIndex: _selectedNavIndex,
+                      onTap: (index) {
+                        setState(() => _selectedNavIndex = index);
+                        // Derive route from capabilities — same order as AdaptiveNav._buildNavItems.
+                        final capabilityState = ref.read(
+                          capabilityNotifierProvider.select(
+                            (state) => state.valueOrNull,
+                          ),
+                        );
+                        final routes = navRoutesForCapabilities(
+                          capabilityState?.capabilities ?? {},
+                        );
+                        final route = index < routes.length
+                            ? routes[index]
+                            : '/dashboard';
+                        if (index == 0) {
+                          context.go(route);
+                        } else {
+                          context.push(route);
+                        }
+                      },
+                    ),
             ),
           ),
         ],
@@ -776,11 +741,75 @@ class HomeShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userWilayahAsync = ref.watch(userWilayahProvider);
+    final unreadCount = ref.watch(unreadCountProvider);
+
+    final onlineStatus = isOffline
+        ? ConnectivityStatus.offline
+        : ConnectivityStatus.online;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(SigapSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // ── Wilayah aktif header (M-05) ───────────────────────────────
+          Padding(
+            padding: const EdgeInsets.only(top: SigapSpacing.sm),
+            child: Row(
+              children: [
+                // Left: wilayah label + name
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Wilayah aktif',
+                        style: TextStyle(
+                          fontSize: SigapTypography.size11,
+                          color: SigapColors.textMuted,
+                        ),
+                      ),
+                      const SizedBox(height: SigapSpacing.xxs),
+                      userWilayahAsync.when(
+                        data: (wilayahName) => Text(
+                          '$wilayahName ▾',
+                          style: const TextStyle(
+                            fontSize: SigapTypography.size17,
+                            fontWeight: FontWeight.w700,
+                            color: SigapColors.textPrimary,
+                          ),
+                        ),
+                        loading: () => const Text(
+                          'Memuat...',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size17,
+                            fontWeight: FontWeight.w700,
+                            color: SigapColors.textMuted,
+                          ),
+                        ),
+                        error: (_, __) => const Text(
+                          '-',
+                          style: TextStyle(
+                            fontSize: SigapTypography.size17,
+                            fontWeight: FontWeight.w700,
+                            color: SigapColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Right: connectivity indicator + notification bell
+                ConnectivityIndicator(status: onlineStatus),
+                const SizedBox(width: SigapSpacing.sm),
+                GestureDetector(
+                  onTap: () => context.push('/notifications'),
+                  child: NotificationBell(unreadCount: unreadCount),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: SigapSpacing.lg),
           // ── Warga CTA (report.submit) ─────────────────────────────────
           Can(
@@ -828,8 +857,9 @@ class _PendingBannerContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pendingAsync = ref.watch(pendingCountProvider);
     return pendingAsync.when(
-      data: (count) =>
-          count > 0 ? _PendingBanner(count: count) : const SizedBox.shrink(),
+      data: (count) => count > 0
+          ? PendingSyncBanner(pendingCount: count)
+          : const SizedBox.shrink(),
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
     );
@@ -1051,11 +1081,11 @@ class _SurveyorTasksModule extends ConsumerWidget {
                   ),
                 ),
                 error: (_, __) => const Text(
-                  'Kab. Bandung',
+                  '-',
                   style: TextStyle(
                     fontSize: SigapTypography.size22,
                     fontWeight: FontWeight.w700,
-                    color: SigapColors.textPrimary,
+                    color: SigapColors.textMuted,
                   ),
                 ),
               ),
@@ -1072,6 +1102,16 @@ class _SurveyorTasksModule extends ConsumerWidget {
             children: [
               ConnectivityIndicator(status: onlineStatus),
               const Spacer(),
+              // M-05 notification bell with unread badge
+              Consumer(
+                builder: (context, ref, _) {
+                  final unreadCount = ref.watch(unreadCountProvider);
+                  return GestureDetector(
+                    onTap: () => context.push('/notifications'),
+                    child: NotificationBell(unreadCount: unreadCount),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -1094,12 +1134,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
             onSortChanged: (value) =>
                 ref.read(surveyorSortProvider.notifier).state =
                     _mapDisplayToSort(value),
-            onUnduhBatchTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Fitur unduh batch belum tersedia'),
-                duration: Duration(seconds: 2),
-              ),
-            ),
+            onUnduhBatchTap: () => _batchDownloadTasks(ref),
           ),
         ),
         // Task list
@@ -1151,12 +1186,61 @@ class _SurveyorTasksModule extends ConsumerWidget {
     );
   }
 
+  /// Batch download tasks for offline use via surveyorTaskRepository.
+  Future<void> _batchDownloadTasks(WidgetRef ref) async {
+    final tasksAsync = ref.read(surveyorTasksProvider);
+    final tasks = tasksAsync.valueOrNull;
+    if (tasks == null || tasks.isEmpty) {
+      if (ref.context.mounted) {
+        ScaffoldMessenger.of(ref.context).showSnackBar(
+          const SnackBar(
+            content: Text('Tidak ada tugas untuk diunduh'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final repo = ref.read(surveyorTaskRepositoryProvider);
+    int downloaded = 0;
+    for (final task in tasks) {
+      final taskId = task.taskId;
+      if (taskId == null) continue;
+      final existing = await repo.getDownloadedTask(taskId);
+      if (existing == null) {
+        await repo.saveDownloadedTask(
+          taskId: taskId,
+          title: task.reportTitle ?? '-',
+          description: task.reportTitle ?? '',
+          instructions: null, // Instructions available on detail view
+          status: task.status ?? 'pending',
+          checklistTemplate: [],
+        );
+        downloaded++;
+      }
+    }
+
+    if (ref.context.mounted) {
+      ScaffoldMessenger.of(ref.context).showSnackBar(
+        SnackBar(
+          content: Text(
+            downloaded > 0
+                ? 'Berhasil mengunduh $downloaded tugas'
+                : 'Semua tugas sudah diunduh',
+          ),
+          backgroundColor: downloaded > 0 ? SigapColors.selesai : null,
+        ),
+      );
+    }
+  }
+
   List<SurveyorTask> _applyFilter(List<SurveyorTask> tasks, int? filterIndex) {
     if (filterIndex == null) return tasks;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     switch (filterIndex) {
-      case 0:
+      case 0: // Hari ini
         return tasks.where((t) {
           final parsed = _parseDate(t.assignedAt);
           return parsed != null &&
@@ -1164,6 +1248,16 @@ class _SurveyorTasksModule extends ConsumerWidget {
               parsed.month == today.month &&
               parsed.day == today.day;
         }).toList();
+      case 1: // Terlambat — SLA has passed (deadline in the past)
+        return tasks.where((t) {
+          if (t.deadline == null) return false;
+          final deadline = _parseDate(t.deadline);
+          return deadline != null && deadline.isBefore(now);
+        }).toList();
+      case 2: // Belum diunduh — tasks not saved locally for offline
+        // This filter is checked by the widget itself using _downloadedTaskIds
+        // The actual filtering happens in the list builder
+        return tasks;
       default:
         return tasks;
     }
@@ -1182,20 +1276,63 @@ class _SurveyorTasksModule extends ConsumerWidget {
           return dateB.compareTo(dateA);
         });
         break;
+      case 'sla':
+        // SLA terdekat — sort by deadline ascending (nearest deadline first)
+        sorted.sort((a, b) {
+          final deadlineA = _parseDate(a.deadline);
+          final deadlineB = _parseDate(b.deadline);
+          if (deadlineA == null && deadlineB == null) return 0;
+          if (deadlineA == null) return 1; // null deadlines go last
+          if (deadlineB == null) return -1;
+          return deadlineA.compareTo(deadlineB);
+        });
+        break;
+      case 'prioritas':
+        // Priority sort: critical > high > medium > low, then by SLA
+        const priorityOrder = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3};
+        sorted.sort((a, b) {
+          final pA = priorityOrder[a.priority?.toLowerCase()] ?? 4;
+          final pB = priorityOrder[b.priority?.toLowerCase()] ?? 4;
+          if (pA != pB) return pA.compareTo(pB);
+          // Same priority → sort by SLA deadline
+          final deadlineA = _parseDate(a.deadline);
+          final deadlineB = _parseDate(b.deadline);
+          if (deadlineA == null && deadlineB == null) return 0;
+          if (deadlineA == null) return 1;
+          if (deadlineB == null) return -1;
+          return deadlineA.compareTo(deadlineB);
+        });
+        break;
     }
     return sorted;
   }
 
   TaskData _mapToTaskData(SurveyorTask task) {
-    const priority = TaskPriority.normal;
+    // Derive priority from actual task data (S-01)
+    final priority = _mapTaskPriority(task.priority);
     final timeAgo = _formatTimeAgo(_parseDate(task.assignedAt));
     return TaskData(
       id: task.taskId ?? '',
       title: task.reportTitle ?? 'Tanpa judul',
-      location: '-',
+      location: task.address ?? '-',
       timeAgo: timeAgo,
       priority: priority,
     );
+  }
+
+  TaskPriority _mapTaskPriority(String? priority) {
+    switch (priority?.toLowerCase()) {
+      case 'critical':
+        return TaskPriority.urgent;
+      case 'high':
+        return TaskPriority.high;
+      case 'medium':
+        return TaskPriority.normal;
+      case 'low':
+        return TaskPriority.low;
+      default:
+        return TaskPriority.normal;
+    }
   }
 
   String _mapSortToDisplay(String sort) {
@@ -1242,34 +1379,10 @@ class _SurveyorTasksModule extends ConsumerWidget {
   }
 
   String _hariIni() {
-    const days = [
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu',
-      'Minggu',
-    ];
-    return days[DateTime.now().weekday - 1];
+    return DateFormat('EEEE', 'id_ID').format(DateTime.now());
   }
 
   String _tanggalIni() {
-    const months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
-    ];
-    final d = DateTime.now();
-    return '${d.day} ${months[d.month - 1]} ${d.year}';
+    return DateFormat('d MMMM yyyy', 'id_ID').format(DateTime.now());
   }
 }
