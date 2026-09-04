@@ -53,3 +53,13 @@ export 'authenticated_shell.dart';
 
 // Section label
 export 'section_label.dart';
+
+// Extracted reusable widgets
+export 'metric_card.dart';
+export 'progress_metric_card.dart';
+export 'access_denied_card.dart';
+export 'trend_chart.dart';
+export 'filter_bottom_sheet.dart';
+export 'urgent_case_list.dart';
+export 'legend_dot.dart';
+export 'error_card.dart';

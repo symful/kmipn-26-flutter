@@ -59,7 +59,7 @@ class ErrorRetryView extends StatelessWidget {
                 message,
                 style: const TextStyle(
                   color: SigapColors.textSecondary,
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                 ),
               ),
             ),
@@ -74,7 +74,7 @@ class ErrorRetryView extends StatelessWidget {
               ),
               child: Text(
                 retryLabel ?? 'Coba lagi',
-                style: const TextStyle(fontSize: SigapTypography.size13),
+                style: const TextStyle(fontSize: SigapTypography.bodyText),
               ),
             ),
           ),

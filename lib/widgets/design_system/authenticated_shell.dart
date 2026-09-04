@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/can.dart';
-import 'package:sigap/widgets/design_system/phone_frame.dart';
 import 'package:sigap/widgets/design_system/sync_status_indicator.dart';
-import 'package:sigap/widgets/design_system/status_bar.dart';
 import 'package:sigap/widgets/stale_permissions_banner.dart';
 
 /// Canonical shell for authenticated screens.
@@ -86,15 +84,12 @@ class AuthenticatedShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return PhoneFrame(
-      child: Column(
-        children: [
-          const StatusBar(),
-          Expanded(
-            child: useScaffold ? _buildScaffold(context) : _buildPaddedChild(),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child: useScaffold ? _buildScaffold(context) : _buildPaddedChild(),
+        ),
+      ],
     );
   }
 

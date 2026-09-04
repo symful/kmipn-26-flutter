@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../theme/tokens.dart';
 
 /// Filter chip data model with count
@@ -47,12 +48,13 @@ class TaskFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final chips = [
-      TaskFilterChipData(index: 0, label: 'Hari ini', count: todayCount),
-      TaskFilterChipData(index: 1, label: 'Terlambat', count: overdueCount),
+      TaskFilterChipData(index: 0, label: l10n.hariIni, count: todayCount),
+      TaskFilterChipData(index: 1, label: l10n.terlambat, count: overdueCount),
       TaskFilterChipData(
         index: 2,
-        label: 'Belum diunduh',
+        label: l10n.belumDiunduh,
         count: notDownloadedCount,
       ),
     ];
@@ -159,7 +161,7 @@ class _TaskFilterChip extends StatelessWidget {
               label,
               style: TextStyle(
                 color: _textColor,
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -168,7 +170,7 @@ class _TaskFilterChip extends StatelessWidget {
                 ' $count',
                 style: TextStyle(
                   color: _textColor.withValues(alpha: 0.7),
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   fontWeight: FontWeight.w600,
                 ),
               ),

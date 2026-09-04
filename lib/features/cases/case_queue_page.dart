@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../api/client.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/capability_provider.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
@@ -52,12 +52,6 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
     return caps?.can('case.reject') ?? false;
   }
 
-  String get _pageTitle {
-    if (_canVerify) return Strings.verifikatorAntrian;
-    if (_canExportPdf) return Strings.daftarKasus;
-    return Strings.daftarKasus;
-  }
-
   String get _detailRoute => '/case-workspace';
 
   @override
@@ -93,6 +87,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
   }
 
   Future<void> _acceptCase(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final client = ref.read(apiClientProvider);
       await client.caseAction(caseId: id, action: 'verify');
@@ -100,35 +95,36 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(Strings.laporanDiterima)));
+        ).showSnackBar(SnackBar(content: Text(l10n.laporanDiterima)));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${Strings.gagal}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.gagal}: $e')));
       }
     }
   }
 
   Future<void> _rejectCase(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final reason = await showDialog<String>(
       context: context,
       builder: (c) => AlertDialog(
-        title: Text(Strings.tolakLaporan),
+        title: Text(l10n.tolakLaporan),
         content: TextField(
-          decoration: InputDecoration(labelText: Strings.alasanPenolakan),
+          decoration: InputDecoration(labelText: l10n.alasanPenolakan),
           maxLines: 2,
           onChanged: (v) {},
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c),
-            child: Text(Strings.batal),
+            child: Text(l10n.batal),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(c, Strings.laporanTidakJelas),
-            child: Text(Strings.tolak),
+            onPressed: () => Navigator.pop(c, l10n.laporanTidakJelas),
+            child: Text(l10n.tolak),
           ),
         ],
       ),
@@ -142,7 +138,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${Strings.gagal}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.gagal}: $e')));
       }
     }
   }
@@ -159,15 +155,17 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
       final file = File('${dir.path}/sigap-reports-$timestamp.pdf');
       await file.writeAsBytes(bytes);
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${Strings.pdfSaved}: ${file.path}')),
+          SnackBar(content: Text('${l10n.pdfSaved}: ${file.path}')),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${Strings.error}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.error}: $e')));
       }
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -203,19 +201,22 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
   @override
   Widget build(BuildContext context) {
     final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    final l10n = AppLocalizations.of(context)!;
+
+    final pageTitle = _canVerify ? l10n.verifikatorAntrian : l10n.daftarKasus;
 
     return AuthenticatedShell(
       activeRole: activeRole,
       useScaffold: true,
       appBar: AppBar(
-        title: Text(_pageTitle),
+        title: Text(pageTitle),
         automaticallyImplyLeading: true,
         actions: [
           // Sort button (available when can export)
           if (_canExportPdf) ...[
             PopupMenuButton<String>(
               icon: const Icon(Icons.sort),
-              tooltip: Strings.sortir,
+              tooltip: l10n.sortir,
               onSelected: (v) => setState(() => _sortBy = v),
               itemBuilder: (_) => [
                 PopupMenuItem(
@@ -224,7 +225,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
                     children: [
                       if (_sortBy == 'date') const Icon(Icons.check, size: 16),
                       const SizedBox(width: 8),
-                      const Text(Strings.terbaru),
+                      Text(l10n.terbaru),
                     ],
                   ),
                 ),
@@ -235,7 +236,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
                       if (_sortBy == 'priority')
                         const Icon(Icons.check, size: 16),
                       const SizedBox(width: 8),
-                      const Text(Strings.prioritasTertinggi),
+                      Text(l10n.prioritasTertinggi),
                     ],
                   ),
                 ),
@@ -246,13 +247,13 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showFilterSheet,
-            tooltip: Strings.filter,
+            tooltip: l10n.filter,
           ),
           // Refresh button
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadQueue,
-            tooltip: Strings.refresh,
+            tooltip: l10n.refresh,
           ),
           // PDF export (available when can export)
           if (_canExportPdf) ...[
@@ -269,7 +270,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
               IconButton(
                 icon: const Icon(Icons.picture_as_pdf),
                 onPressed: _exportPdf,
-                tooltip: Strings.exportPdf,
+                tooltip: l10n.exportPdf,
               ),
           ],
         ],
@@ -283,7 +284,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
           ? Padding(
               padding: const EdgeInsets.all(SigapSpacing.xl),
               child: ErrorRetryView(
-                message: Strings.gagalMemuatTugas,
+                message: l10n.gagalMemuatTugas,
                 onRetry: _loadQueue,
               ),
             )
@@ -291,7 +292,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
               onRefresh: _loadQueue,
               color: SigapColors.primary,
               child: _filteredAndSorted.isEmpty
-                  ? _buildEmptyState()
+                  ? _buildEmptyState(l10n)
                   : ListView.builder(
                       padding: const EdgeInsets.all(SigapSpacing.md),
                       itemCount: _filteredAndSorted.length,
@@ -318,6 +319,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
   }
 
   List<Widget>? _buildTrailingActions(Report entry) {
+    final l10n = AppLocalizations.of(context)!;
     final actions = <Widget>[];
 
     // Accept action (case.verify capability)
@@ -327,7 +329,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
           icon: const Icon(Icons.check_circle_outline),
           color: SigapColors.selesai,
           onPressed: () => _acceptCase(entry.id!),
-          tooltip: Strings.terima,
+          tooltip: l10n.terima,
         ),
       );
     }
@@ -339,7 +341,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
           icon: const Icon(Icons.highlight_off),
           color: SigapColors.perluTindakan,
           onPressed: () => _rejectCase(entry.id!),
-          tooltip: Strings.tolak,
+          tooltip: l10n.tolak,
         ),
       );
     }
@@ -350,14 +352,14 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
         icon: const Icon(Icons.chevron_right),
         color: SigapColors.textTertiary,
         onPressed: () => context.push('$_detailRoute/${entry.id}'),
-        tooltip: Strings.detail,
+        tooltip: l10n.detail,
       ),
     );
 
     return actions;
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AppLocalizations l10n) {
     final hasActiveFilters =
         _statusFilter != null ||
         _kategoriFilter != null ||
@@ -366,12 +368,12 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
     String subtitle;
     if (_canVerify) {
       subtitle = hasActiveFilters
-          ? Strings.tidakAdaLaporanSesuaiFilter
-          : Strings.semuaLaporanSelesaiDiverifikasi;
+          ? l10n.tidakAdaLaporanSesuaiFilter
+          : l10n.semuaLaporanSelesaiDiverifikasi;
     } else {
       subtitle = hasActiveFilters
-          ? Strings.tidakAdaKasusDenganFilter
-          : Strings.belumAdaKasusMasuk;
+          ? l10n.tidakAdaKasusDenganFilter
+          : l10n.belumAdaKasusMasuk;
     }
 
     Widget? action;
@@ -387,7 +389,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
             _loadQueue();
           },
           icon: const Icon(Icons.clear, size: 16),
-          label: Text(Strings.hapusFilter),
+          label: Text(l10n.hapusFilter),
         ),
       );
     }
@@ -396,9 +398,7 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
       padding: const EdgeInsets.all(SigapSpacing.xl),
       child: EmptyState(
         icon: Icons.inbox_outlined,
-        title: _canVerify
-            ? Strings.tidakAdaLaporanDiAntrean
-            : Strings.tidakAdaKasus,
+        title: _canVerify ? l10n.tidakAdaLaporanDiAntrean : l10n.tidakAdaKasus,
         subtitle: subtitle,
         action: action,
       ),
@@ -449,24 +449,24 @@ class _FilterSheetState extends State<_FilterSheet> {
   // These values are stable RBAC status values defined in ReportStatus enum.
   // If the backend introduces dynamic status configuration, this should be
   // refactored to fetch from /api/statuses or similar endpoint.
-  final _verifikatorStatusOptions = [
-    ('pending', Strings.menunggu),
-    ('submitted', Strings.submitted),
-    ('under_review', Strings.diproses),
-    ('in_progress', Strings.dalamProses),
-    ('verified', Strings.diverifikasi),
-    ('rejected', Strings.ditolak),
+  static const _verifikatorStatusKeys = [
+    ('pending', 'menunggu'),
+    ('submitted', 'submitted'),
+    ('under_review', 'diproses'),
+    ('in_progress', 'dalamProses'),
+    ('verified', 'diverifikasi'),
+    ('rejected', 'ditolak'),
   ];
 
   // NOTE: Status options are intentionally static (not fetched from API).
   // These values are stable RBAC status values defined in ReportStatus enum.
-  final _operatorStatusOptions = [
-    ('all', Strings.semua),
-    ('submitted', Strings.submitted),
-    ('under_review', Strings.diproses),
-    ('in_progress', Strings.dalamProses),
-    ('resolved', Strings.diselesaikan),
-    ('rejected', Strings.ditolak),
+  static const _operatorStatusKeys = [
+    ('all', 'semua'),
+    ('submitted', 'submitted'),
+    ('under_review', 'diproses'),
+    ('in_progress', 'dalamProses'),
+    ('resolved', 'diselesaikan'),
+    ('rejected', 'ditolak'),
   ];
 
   @override
@@ -478,9 +478,34 @@ class _FilterSheetState extends State<_FilterSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final statusOptions = widget.isOperator
-        ? _operatorStatusOptions
-        : _verifikatorStatusOptions;
+    final l10n = AppLocalizations.of(context)!;
+    final statusKeys = widget.isOperator
+        ? _operatorStatusKeys
+        : _verifikatorStatusKeys;
+    final statusOptions = statusKeys.map((opt) {
+      String label;
+      switch (opt.$2) {
+        case 'menunggu':
+          label = l10n.menunggu;
+        case 'submitted':
+          label = l10n.submitted;
+        case 'diproses':
+          label = l10n.diproses;
+        case 'dalamProses':
+          label = l10n.dalamProses;
+        case 'diverifikasi':
+          label = l10n.diverifikasi;
+        case 'ditolak':
+          label = l10n.ditolak;
+        case 'semua':
+          label = l10n.semua;
+        case 'diselesaikan':
+          label = l10n.diselesaikan;
+        default:
+          label = opt.$2;
+      }
+      return (opt.$1, label);
+    }).toList();
 
     return Padding(
       padding: EdgeInsets.only(
@@ -496,9 +521,9 @@ class _FilterSheetState extends State<_FilterSheet> {
           Row(
             children: [
               Text(
-                Strings.filterAntrean,
+                l10n.filterAntrean,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size19,
+                  fontSize: SigapTypography.sectionTitle,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -511,9 +536,9 @@ class _FilterSheetState extends State<_FilterSheet> {
           ),
           const SizedBox(height: SigapSpacing.lg),
           Text(
-            Strings.status,
+            l10n.status,
             style: const TextStyle(
-              fontSize: SigapTypography.size14,
+              fontSize: SigapTypography.bodyMedium,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -548,7 +573,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                     _selectedKategori = null;
                   });
                 },
-                child: Text(Strings.reset),
+                child: Text(l10n.reset),
               ),
               const Spacer(),
               FilledButton(
@@ -556,7 +581,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                   widget.onApply(_selectedStatus, _selectedKategori);
                   Navigator.pop(context);
                 },
-                child: Text(Strings.terapkan),
+                child: Text(l10n.terapkan),
               ),
             ],
           ),

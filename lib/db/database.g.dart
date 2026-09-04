@@ -1008,6 +1008,26 @@ class $SyncQueueTable extends SyncQueue
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _payloadJsonMeta = const VerificationMeta(
+    'payloadJson',
+  );
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+    'payload_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     idempotencyKey,
@@ -1016,6 +1036,8 @@ class $SyncQueueTable extends SyncQueue
     lastError,
     syncStatus,
     updatedAt,
+    kind,
+    payloadJson,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1075,6 +1097,21 @@ class $SyncQueueTable extends SyncQueue
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+        _payloadJsonMeta,
+        payloadJson.isAcceptableOrUnknown(
+          data['payload_json']!,
+          _payloadJsonMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1108,6 +1145,14 @@ class $SyncQueueTable extends SyncQueue
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       ),
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      ),
+      payloadJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload_json'],
+      ),
     );
   }
 
@@ -1124,6 +1169,8 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
   final String? lastError;
   final int syncStatus;
   final DateTime? updatedAt;
+  final String? kind;
+  final String? payloadJson;
   const SyncQueueData({
     required this.idempotencyKey,
     required this.retryCount,
@@ -1131,6 +1178,8 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
     this.lastError,
     required this.syncStatus,
     this.updatedAt,
+    this.kind,
+    this.payloadJson,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1144,6 +1193,12 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
     map['sync_status'] = Variable<int>(syncStatus);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || kind != null) {
+      map['kind'] = Variable<String>(kind);
+    }
+    if (!nullToAbsent || payloadJson != null) {
+      map['payload_json'] = Variable<String>(payloadJson);
     }
     return map;
   }
@@ -1160,6 +1215,10 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
+      kind: kind == null && nullToAbsent ? const Value.absent() : Value(kind),
+      payloadJson: payloadJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payloadJson),
     );
   }
 
@@ -1175,6 +1234,8 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
       lastError: serializer.fromJson<String?>(json['lastError']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      kind: serializer.fromJson<String?>(json['kind']),
+      payloadJson: serializer.fromJson<String?>(json['payloadJson']),
     );
   }
   @override
@@ -1187,6 +1248,8 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
       'lastError': serializer.toJson<String?>(lastError),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'kind': serializer.toJson<String?>(kind),
+      'payloadJson': serializer.toJson<String?>(payloadJson),
     };
   }
 
@@ -1197,6 +1260,8 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
     Value<String?> lastError = const Value.absent(),
     int? syncStatus,
     Value<DateTime?> updatedAt = const Value.absent(),
+    Value<String?> kind = const Value.absent(),
+    Value<String?> payloadJson = const Value.absent(),
   }) => SyncQueueData(
     idempotencyKey: idempotencyKey ?? this.idempotencyKey,
     retryCount: retryCount ?? this.retryCount,
@@ -1204,6 +1269,8 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
     lastError: lastError.present ? lastError.value : this.lastError,
     syncStatus: syncStatus ?? this.syncStatus,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    kind: kind.present ? kind.value : this.kind,
+    payloadJson: payloadJson.present ? payloadJson.value : this.payloadJson,
   );
   SyncQueueData copyWithCompanion(SyncQueueCompanion data) {
     return SyncQueueData(
@@ -1221,6 +1288,10 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
           ? data.syncStatus.value
           : this.syncStatus,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      payloadJson: data.payloadJson.present
+          ? data.payloadJson.value
+          : this.payloadJson,
     );
   }
 
@@ -1232,7 +1303,9 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
           ..write('nextRetryAt: $nextRetryAt, ')
           ..write('lastError: $lastError, ')
           ..write('syncStatus: $syncStatus, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('kind: $kind, ')
+          ..write('payloadJson: $payloadJson')
           ..write(')'))
         .toString();
   }
@@ -1245,6 +1318,8 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
     lastError,
     syncStatus,
     updatedAt,
+    kind,
+    payloadJson,
   );
   @override
   bool operator ==(Object other) =>
@@ -1255,7 +1330,9 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
           other.nextRetryAt == this.nextRetryAt &&
           other.lastError == this.lastError &&
           other.syncStatus == this.syncStatus &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.kind == this.kind &&
+          other.payloadJson == this.payloadJson);
 }
 
 class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
@@ -1265,6 +1342,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
   final Value<String?> lastError;
   final Value<int> syncStatus;
   final Value<DateTime?> updatedAt;
+  final Value<String?> kind;
+  final Value<String?> payloadJson;
   final Value<int> rowid;
   const SyncQueueCompanion({
     this.idempotencyKey = const Value.absent(),
@@ -1273,6 +1352,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
     this.lastError = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.payloadJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SyncQueueCompanion.insert({
@@ -1282,6 +1363,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
     this.lastError = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.payloadJson = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : idempotencyKey = Value(idempotencyKey),
        nextRetryAt = Value(nextRetryAt);
@@ -1292,6 +1375,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
     Expression<String>? lastError,
     Expression<int>? syncStatus,
     Expression<DateTime>? updatedAt,
+    Expression<String>? kind,
+    Expression<String>? payloadJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1301,6 +1386,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
       if (lastError != null) 'last_error': lastError,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (kind != null) 'kind': kind,
+      if (payloadJson != null) 'payload_json': payloadJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1312,6 +1399,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
     Value<String?>? lastError,
     Value<int>? syncStatus,
     Value<DateTime?>? updatedAt,
+    Value<String?>? kind,
+    Value<String?>? payloadJson,
     Value<int>? rowid,
   }) {
     return SyncQueueCompanion(
@@ -1321,6 +1410,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
       lastError: lastError ?? this.lastError,
       syncStatus: syncStatus ?? this.syncStatus,
       updatedAt: updatedAt ?? this.updatedAt,
+      kind: kind ?? this.kind,
+      payloadJson: payloadJson ?? this.payloadJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1346,6 +1437,12 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1361,6 +1458,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
           ..write('lastError: $lastError, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('kind: $kind, ')
+          ..write('payloadJson: $payloadJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3953,6 +4052,8 @@ typedef $$SyncQueueTableCreateCompanionBuilder =
       Value<String?> lastError,
       Value<int> syncStatus,
       Value<DateTime?> updatedAt,
+      Value<String?> kind,
+      Value<String?> payloadJson,
       Value<int> rowid,
     });
 typedef $$SyncQueueTableUpdateCompanionBuilder =
@@ -3963,6 +4064,8 @@ typedef $$SyncQueueTableUpdateCompanionBuilder =
       Value<String?> lastError,
       Value<int> syncStatus,
       Value<DateTime?> updatedAt,
+      Value<String?> kind,
+      Value<String?> payloadJson,
       Value<int> rowid,
     });
 
@@ -4002,6 +4105,16 @@ class $$SyncQueueTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -4044,6 +4157,16 @@ class $$SyncQueueTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SyncQueueTableAnnotationComposer
@@ -4080,6 +4203,14 @@ class $$SyncQueueTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get payloadJson => $composableBuilder(
+    column: $table.payloadJson,
+    builder: (column) => column,
+  );
 }
 
 class $$SyncQueueTableTableManager
@@ -4119,6 +4250,8 @@ class $$SyncQueueTableTableManager
                 Value<String?> lastError = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<String?> kind = const Value.absent(),
+                Value<String?> payloadJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SyncQueueCompanion(
                 idempotencyKey: idempotencyKey,
@@ -4127,6 +4260,8 @@ class $$SyncQueueTableTableManager
                 lastError: lastError,
                 syncStatus: syncStatus,
                 updatedAt: updatedAt,
+                kind: kind,
+                payloadJson: payloadJson,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4137,6 +4272,8 @@ class $$SyncQueueTableTableManager
                 Value<String?> lastError = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<String?> kind = const Value.absent(),
+                Value<String?> payloadJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SyncQueueCompanion.insert(
                 idempotencyKey: idempotencyKey,
@@ -4145,6 +4282,8 @@ class $$SyncQueueTableTableManager
                 lastError: lastError,
                 syncStatus: syncStatus,
                 updatedAt: updatedAt,
+                kind: kind,
+                payloadJson: payloadJson,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

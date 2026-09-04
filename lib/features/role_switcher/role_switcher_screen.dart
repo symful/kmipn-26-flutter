@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/capability_provider.dart';
 import '../../theme/tokens.dart';
@@ -23,7 +24,9 @@ class _RoleSwitcherScreenState extends ConsumerState<RoleSwitcherScreen> {
 
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(title: const Text('Ganti Peran Pengguna')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.gantiPeranPengguna),
+      ),
       body: SafeArea(
         child: _isLoading
             ? const Center(
@@ -54,7 +57,7 @@ class _RoleSwitcherScreenState extends ConsumerState<RoleSwitcherScreen> {
                           child: Text(
                             'Pilih peran untuk berganti konteks kerja. Menu, alur data, dan izin akses akan disesuaikan secara otomatis.',
                             style: TextStyle(
-                              fontSize: SigapTypography.size12,
+                              fontSize: SigapTypography.bodySmall,
                               color: SigapColors.textSecondary,
                             ),
                           ),
@@ -64,10 +67,10 @@ class _RoleSwitcherScreenState extends ConsumerState<RoleSwitcherScreen> {
                   ),
                   const SizedBox(height: SigapSpacing.lg),
 
-                  const Text(
-                    'Peran Tersedia untuk Akun Ini',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                  Text(
+                    AppLocalizations.of(context)!.peranTersedia,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodyMedium,
                       fontWeight: FontWeight.bold,
                       color: SigapColors.textPrimary,
                     ),
@@ -116,7 +119,11 @@ class _RoleSwitcherScreenState extends ConsumerState<RoleSwitcherScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Berhasil beralih ke peran ${_formatRoleName(role)}'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.berhasilBeralihPeran(_formatRoleName(role)),
+            ),
             backgroundColor: SigapColors.primary,
           ),
         );
@@ -124,8 +131,8 @@ class _RoleSwitcherScreenState extends ConsumerState<RoleSwitcherScreen> {
         context.pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Gagal beralih peran. Silakan coba lagi.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.gagalBeralihPeran),
             backgroundColor: SigapColors.perluTindakan,
           ),
         );
@@ -134,7 +141,9 @@ class _RoleSwitcherScreenState extends ConsumerState<RoleSwitcherScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text(
+            AppLocalizations.of(context)!.errorDenganPesan(e.toString()),
+          ),
           backgroundColor: SigapColors.perluTindakan,
         ),
       );
@@ -210,7 +219,7 @@ class _RoleSwitchCard extends StatelessWidget {
               _formatRoleName(role),
               style: TextStyle(
                 fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
-                fontSize: SigapTypography.size14,
+                fontSize: SigapTypography.bodyMedium,
                 color: isActive ? SigapColors.primary : SigapColors.textPrimary,
               ),
             ),
@@ -222,10 +231,10 @@ class _RoleSwitchCard extends StatelessWidget {
                   color: SigapColors.primary,
                   borderRadius: BorderRadius.circular(SigapRadius.pill),
                 ),
-                child: const Text(
-                  'AKTIF',
+                child: Text(
+                  AppLocalizations.of(context)!.aktif,
                   style: TextStyle(
-                    fontSize: SigapTypography.size9,
+                    fontSize: SigapTypography.captionMicro,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     letterSpacing: SigapTypography.letterSpacingLabel,
@@ -240,7 +249,7 @@ class _RoleSwitchCard extends StatelessWidget {
           child: Text(
             _getRoleDescription(role),
             style: TextStyle(
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               color: isActive ? SigapColors.primary : SigapColors.textSecondary,
             ),
           ),
@@ -366,10 +375,10 @@ class _EmptyRolesCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: SigapSpacing.md),
-          const Text(
-            'Peran Saat Ini',
-            style: TextStyle(
-              fontSize: SigapTypography.size12,
+          Text(
+            AppLocalizations.of(context)!.peranSaatIni,
+            style: const TextStyle(
+              fontSize: SigapTypography.bodySmall,
               color: SigapColors.textSecondary,
             ),
           ),
@@ -377,17 +386,17 @@ class _EmptyRolesCard extends StatelessWidget {
           Text(
             currentRole.toUpperCase(),
             style: const TextStyle(
-              fontSize: SigapTypography.size18,
+              fontSize: SigapTypography.titleLarge,
               fontWeight: FontWeight.bold,
               color: SigapColors.primary,
             ),
           ),
           const SizedBox(height: SigapSpacing.md),
-          const Text(
-            'Akun Anda saat ini hanya memiliki satu peran yang aktif. Hubungi Administrator Daerah jika Anda membutuhkan akses ke peran tambahan.',
+          Text(
+            AppLocalizations.of(context)!.akunHanyaSatuPeran,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: SigapTypography.size13,
+            style: const TextStyle(
+              fontSize: SigapTypography.bodyText,
               color: SigapColors.textSecondary,
             ),
           ),

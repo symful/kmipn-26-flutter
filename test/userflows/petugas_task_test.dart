@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import '../helpers/test_env.dart';
 
-const _apiBaseUrl = 'https://kmipn-26-deno.careday17.workers.dev';
+const _apiBaseUrl = 'https://sigap.live';
 
 Future<Map<String, dynamic>> _httpJson(
   String method,

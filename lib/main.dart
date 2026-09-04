@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'db/database.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'providers/providers.dart';
 import 'providers/settings_provider.dart';
 import 'router.dart';
@@ -62,9 +64,16 @@ class _SigapAppState extends ConsumerState<SigapApp> {
     return MaterialApp.router(
       title: 'SIGAP',
       theme: SigapTheme.light(),
-      darkTheme: SigapTheme.light(),
+      darkTheme: SigapTheme.dark(),
       themeMode: settings.themeMode,
       locale: settings.locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
     );

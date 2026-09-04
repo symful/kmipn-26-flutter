@@ -30,7 +30,7 @@ class MinTapTarget extends StatelessWidget {
     Widget result = SizedBox(
       width: kMinTapTarget,
       height: kMinTapTarget,
-      child: child,
+      child: Center(child: child),
     );
 
     if (semanticsLabel != null) {

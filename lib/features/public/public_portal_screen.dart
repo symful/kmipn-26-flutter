@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sigap/api/client.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
+import 'package:sigap/l10n/status_label.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/design_system.dart';
 
@@ -55,57 +57,8 @@ StatusTone _mapStatusToTone(String? statusStr) {
   }
 }
 
-String _formatStatus(String? statusStr) {
-  if (statusStr == null) return 'Unknown';
-  try {
-    final status = ReportStatus.fromJson(statusStr);
-    switch (status) {
-      case ReportStatus.submitted:
-        return 'Submitted';
-      case ReportStatus.underReview:
-        return 'Under Review';
-      case ReportStatus.verified:
-        return 'Verified';
-      case ReportStatus.assigned:
-        return 'Assigned';
-      case ReportStatus.inProgress:
-        return 'In Progress';
-      case ReportStatus.resolved:
-        return 'Resolved';
-      case ReportStatus.closed:
-        return 'Closed';
-      case ReportStatus.rejected:
-        return 'Rejected';
-      case ReportStatus.duplicateMerged:
-        return 'Duplicate';
-      case ReportStatus.needsSurvey:
-        return 'Needs Survey';
-      case ReportStatus.merged:
-        return 'Merged';
-      case ReportStatus.separated:
-        return 'Separated';
-      case ReportStatus.needsCompletion:
-        return 'Needs Completion';
-      case ReportStatus.outOfScope:
-        return 'Out of Scope';
-      case ReportStatus.pending:
-        return 'Pending';
-      case ReportStatus.draft:
-        return 'Draft';
-      case ReportStatus.locallyCreated:
-        return 'Draft';
-      case ReportStatus.locallySaved:
-        return 'Saved Locally';
-      case ReportStatus.inReview:
-        return 'In Review';
-      case ReportStatus.needsAction:
-        return 'Needs Action';
-      case ReportStatus.completed:
-        return 'Completed';
-    }
-  } catch (_) {
-    return statusStr;
-  }
+String _formatStatus(BuildContext context, String? statusStr) {
+  return statusLabel(context, statusStr);
 }
 
 // ─── Providers ────────────────────────────────────────────────────────────────
@@ -243,8 +196,9 @@ class _PublicAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SigapAppBar(
-      title: 'Portal Publik',
+      title: l10n.portalPublik,
       showSync: true,
       syncState: SyncState.online,
       leading: Padding(
@@ -262,35 +216,41 @@ class _PublicAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        TextButton(onPressed: () {}, child: const Text('Beranda')),
-        TextButton(onPressed: () {}, child: const Text('Peta')),
-        TextButton(onPressed: () {}, child: const Text('Statistik')),
+        TextButton(
+          onPressed: () => context.go('/dashboard'),
+          child: Text(l10n.beranda),
+        ),
+        TextButton(onPressed: () => context.go('/map'), child: Text(l10n.peta)),
+        TextButton(
+          onPressed: () => context.go('/stats'),
+          child: Text(l10n.statistik),
+        ),
         const SizedBox(width: SigapSpacing.sm),
         ElevatedButton(
-          onPressed: () => GoRouter.of(context).push('/create-anonymous'),
+          onPressed: () => context.push('/create-anonymous'),
           style: ElevatedButton.styleFrom(
             backgroundColor: SigapColors.primary,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Buat Laporan'),
+          child: Text(l10n.buatLaporan),
         ),
         const SizedBox(width: SigapSpacing.sm),
         OutlinedButton(
-          onPressed: () {},
+          onPressed: () => context.push('/login'),
           style: OutlinedButton.styleFrom(
             foregroundColor: SigapColors.primary,
             side: const BorderSide(color: SigapColors.primary),
           ),
-          child: const Text('Masuk'),
+          child: Text(l10n.masuk),
         ),
         const SizedBox(width: SigapSpacing.sm),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () => context.push('/register'),
           style: ElevatedButton.styleFrom(
             backgroundColor: SigapColors.primary,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Daftar'),
+          child: Text(l10n.daftar),
         ),
         const SizedBox(width: SigapSpacing.md),
       ],
@@ -319,6 +279,7 @@ class _FilterBar extends ConsumerWidget {
       data: (list) => list,
       orElse: () => <String>[],
     );
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -335,7 +296,7 @@ class _FilterBar extends ConsumerWidget {
         children: [
           // Category dropdown
           _FilterDropdown(
-            label: 'Kategori',
+            label: l10n.kategori,
             value: filters.categoryId,
             items: const ['road', 'bridge', 'drainage', 'public'],
             onChanged: (value) {
@@ -346,7 +307,7 @@ class _FilterBar extends ConsumerWidget {
           ),
           // Status dropdown
           _FilterDropdown(
-            label: 'Status',
+            label: l10n.status,
             value: filters.status?.value,
             items: ReportStatus.allValues.map((s) => s.value).toList(),
             onChanged: (value) {
@@ -359,7 +320,7 @@ class _FilterBar extends ConsumerWidget {
           // Wilayah dropdown
           if (wilayahList.isNotEmpty)
             _FilterDropdown(
-              label: 'Wilayah',
+              label: l10n.wilayah,
               value: filters.wilayahId,
               items: wilayahList,
               onChanged: (value) {
@@ -377,7 +338,7 @@ class _FilterBar extends ConsumerWidget {
           if (filters.isActive) ...[
             if (filters.categoryId != null)
               _FilterChip(
-                label: _formatDropdownItem(filters.categoryId!),
+                label: _formatDropdownItem(context, filters.categoryId!),
                 onRemove: () {
                   ref.read(publicFiltersProvider.notifier).state = filters
                       .copyWith(categoryId: null);
@@ -393,7 +354,11 @@ class _FilterBar extends ConsumerWidget {
               ),
             if (filters.startDate != null || filters.endDate != null)
               _FilterChip(
-                label: _formatDateRange(filters.startDate, filters.endDate),
+                label: _formatDateRange(
+                  context,
+                  filters.startDate,
+                  filters.endDate,
+                ),
                 onRemove: () {
                   ref.read(publicFiltersProvider.notifier).state = filters
                       .copyWith(clearDates: true);
@@ -404,7 +369,7 @@ class _FilterBar extends ConsumerWidget {
           Text(
             '$count laporan',
             style: const TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               color: SigapColors.textSecondary,
             ),
           ),
@@ -455,8 +420,14 @@ class _FilterBar extends ConsumerWidget {
     }
   }
 
-  String _formatDateRange(DateTime? start, DateTime? end) {
-    if (start == null && end == null) return 'Tanggal';
+  String _formatDateRange(
+    BuildContext context,
+    DateTime? start,
+    DateTime? end,
+  ) {
+    if (start == null && end == null) {
+      return AppLocalizations.of(context)!.tanggal;
+    }
     final startStr = start != null
         ? '${start.day}/${start.month}/${start.year}'
         : '-';
@@ -464,16 +435,17 @@ class _FilterBar extends ConsumerWidget {
     return '$startStr - $endStr';
   }
 
-  String _formatDropdownItem(String item) {
+  String _formatDropdownItem(BuildContext context, String item) {
+    final l10n = AppLocalizations.of(context)!;
     switch (item) {
       case 'road':
-        return 'Jalan Rusak';
+        return l10n.jalanRusak;
       case 'bridge':
-        return 'Jembatan';
+        return l10n.jembatan;
       case 'drainage':
-        return 'Drainase';
+        return l10n.drainase;
       case 'public':
-        return 'Fasilitas Umum';
+        return l10n.fasilitasUmum;
       default:
         return item;
     }
@@ -490,6 +462,7 @@ class _DateFilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasDateFilter = startDate != null || endDate != null;
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -514,9 +487,9 @@ class _DateFilterButton extends StatelessWidget {
             ),
             const SizedBox(width: SigapSpacing.x4),
             Text(
-              hasDateFilter ? _formatDateRange() : 'Tanggal',
+              hasDateFilter ? _formatDateRange(context) : l10n.tanggal,
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: hasDateFilter
                     ? SigapColors.primaryDark
                     : SigapColors.textSecondary,
@@ -528,8 +501,10 @@ class _DateFilterButton extends StatelessWidget {
     );
   }
 
-  String _formatDateRange() {
-    if (startDate == null && endDate == null) return 'Tanggal';
+  String _formatDateRange(BuildContext context) {
+    if (startDate == null && endDate == null) {
+      return AppLocalizations.of(context)!.tanggal;
+    }
     final startStr = startDate != null
         ? '${startDate!.day}/${startDate!.month}'
         : '-';
@@ -568,7 +543,7 @@ class _FilterDropdown extends StatelessWidget {
         hint: Text(
           label,
           style: const TextStyle(
-            fontSize: SigapTypography.size13,
+            fontSize: SigapTypography.bodyText,
             color: SigapColors.textSecondary,
           ),
         ),
@@ -579,15 +554,15 @@ class _FilterDropdown extends StatelessWidget {
             value: null,
             child: Text(
               'Semua $label',
-              style: const TextStyle(fontSize: SigapTypography.size13),
+              style: const TextStyle(fontSize: SigapTypography.bodyText),
             ),
           ),
           ...items.map(
             (item) => DropdownMenuItem<String>(
               value: item,
               child: Text(
-                _formatDropdownItem(item),
-                style: const TextStyle(fontSize: SigapTypography.size13),
+                _formatDropdownItem(context, item),
+                style: const TextStyle(fontSize: SigapTypography.bodyText),
               ),
             ),
           ),
@@ -597,16 +572,17 @@ class _FilterDropdown extends StatelessWidget {
     );
   }
 
-  String _formatDropdownItem(String item) {
+  String _formatDropdownItem(BuildContext context, String item) {
+    final l10n = AppLocalizations.of(context)!;
     switch (item) {
       case 'road':
-        return 'Jalan Rusak';
+        return l10n.jalanRusak;
       case 'bridge':
-        return 'Jembatan';
+        return l10n.jembatan;
       case 'drainage':
-        return 'Drainase';
+        return l10n.drainase;
       case 'public':
-        return 'Fasilitas Umum';
+        return l10n.fasilitasUmum;
       default:
         return item;
     }
@@ -636,7 +612,7 @@ class _FilterChip extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               color: SigapColors.primaryDark,
             ),
           ),
@@ -787,10 +763,13 @@ class _PublicMap extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => ErrorRetryView(
-        message: 'Gagal memuat peta',
-        onRetry: () => ref.invalidate(publicGeojsonProvider),
-      ),
+      error: (e, _) {
+        final l10n = AppLocalizations.of(context)!;
+        return ErrorRetryView(
+          message: l10n.gagalMemuatPeta,
+          onRetry: () => ref.invalidate(publicGeojsonProvider),
+        );
+      },
     );
   }
 }
@@ -810,10 +789,11 @@ class _ReportsList extends ConsumerWidget {
         final items = _filterReports(page.items, filters);
 
         if (items.isEmpty) {
+          final l10n = AppLocalizations.of(context)!;
           return EmptyState(
             icon: Icons.inbox_outlined,
-            title: 'Belum Ada Laporan',
-            subtitle: 'Tidak ada laporan yang sesuai dengan filter',
+            title: l10n.belumAdaLaporan,
+            subtitle: l10n.tidakAdaLaporanSesuaiFilter,
           );
         }
 
@@ -830,10 +810,13 @@ class _ReportsList extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => ErrorRetryView(
-        message: 'Gagal memuat laporan',
-        onRetry: () => ref.invalidate(publicReportsProvider),
-      ),
+      error: (e, _) {
+        final l10n = AppLocalizations.of(context)!;
+        return ErrorRetryView(
+          message: l10n.gagalMemuatLaporan,
+          onRetry: () => ref.invalidate(publicReportsProvider),
+        );
+      },
     );
   }
 
@@ -885,9 +868,10 @@ class _ReportCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final statusStr = item.status;
     final tone = _mapStatusToTone(statusStr);
-    final statusLabel = _formatStatus(statusStr);
+    final statusLabel = _formatStatus(context, statusStr);
 
     return GestureDetector(
       onTap: () => _showCaseDetailSheet(context, ref),
@@ -919,7 +903,7 @@ class _ReportCard extends ConsumerWidget {
                       Text(
                         item.category?.name ?? 'Unknown',
                         style: const TextStyle(
-                          fontSize: SigapTypography.size14,
+                          fontSize: SigapTypography.bodyMedium,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textPrimary,
                         ),
@@ -929,7 +913,7 @@ class _ReportCard extends ConsumerWidget {
                         Text(
                           '${item.wilayah?.desa ?? ''}, ${item.wilayah?.kecamatan ?? ''}',
                           style: const TextStyle(
-                            fontSize: SigapTypography.size11,
+                            fontSize: SigapTypography.captionMedium,
                             color: SigapColors.textSecondary,
                           ),
                         ),
@@ -960,7 +944,7 @@ class _ReportCard extends ConsumerWidget {
                 Text(
                   '${item.publicProgress}%',
                   style: const TextStyle(
-                    fontSize: SigapTypography.size11,
+                    fontSize: SigapTypography.captionMedium,
                     color: SigapColors.textSecondary,
                   ),
                 ),
@@ -977,18 +961,18 @@ class _ReportCard extends ConsumerWidget {
                 ),
                 const SizedBox(width: SigapSpacing.x4),
                 Text(
-                  '${item.supportingCount} mendukung',
+                  '${item.supportingCount} ${l10n.mendukung}',
                   style: const TextStyle(
-                    fontSize: SigapTypography.size11,
+                    fontSize: SigapTypography.captionMedium,
                     color: SigapColors.textMuted,
                   ),
                 ),
                 const Spacer(),
                 if (item.lastUpdated != null)
                   Text(
-                    _formatDate(item.lastUpdated!),
+                    _formatDate(context, item.lastUpdated!),
                     style: const TextStyle(
-                      fontSize: SigapTypography.size11,
+                      fontSize: SigapTypography.captionMedium,
                       color: SigapColors.textMuted,
                     ),
                   ),
@@ -1014,6 +998,7 @@ class _ReportCard extends ConsumerWidget {
     }
 
     if (!context.mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -1044,9 +1029,9 @@ class _ReportCard extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      item.category?.name ?? 'Detail Laporan',
+                      item.category?.name ?? l10n.detailLaporan,
                       style: const TextStyle(
-                        fontSize: SigapTypography.size19,
+                        fontSize: SigapTypography.sectionTitle,
                         fontWeight: FontWeight.w700,
                         color: SigapColors.textPrimary,
                       ),
@@ -1071,34 +1056,34 @@ class _ReportCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _DetailRow(
-                      label: 'Status',
-                      value: _formatStatus(item.status),
+                      label: l10n.status,
+                      value: _formatStatus(context, item.status),
                     ),
                     _DetailRow(
-                      label: 'Wilayah',
+                      label: l10n.wilayah,
                       value: item.wilayah != null
                           ? '${item.wilayah?.desa ?? ''}, ${item.wilayah?.kecamatan ?? ''}'
                           : '-',
                     ),
                     _DetailRow(
-                      label: 'Progres',
+                      label: l10n.labelProgres,
                       value: '${item.publicProgress}%',
                     ),
                     _DetailRow(
-                      label: 'Dukungan',
+                      label: l10n.labelDukungan,
                       value: '${item.supportingCount} orang',
                     ),
                     if (item.lastUpdated != null)
                       _DetailRow(
-                        label: 'Terakhir Diperbarui',
-                        value: _formatDate(item.lastUpdated!),
+                        label: l10n.labelTerakhirDiperbarui,
+                        value: _formatDate(context, item.lastUpdated!),
                       ),
                     if (shareMeta?.description != null) ...[
                       const SizedBox(height: SigapSpacing.md),
                       Text(
                         shareMeta!.description!,
                         style: const TextStyle(
-                          fontSize: SigapTypography.size13,
+                          fontSize: SigapTypography.bodyText,
                           color: SigapColors.textSecondary,
                         ),
                       ),
@@ -1156,7 +1141,8 @@ class _ReportCard extends ConsumerWidget {
     }
   }
 
-  String _formatDate(String dateStr) {
+  String _formatDate(BuildContext context, String dateStr) {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final date = DateTime.parse(dateStr);
       final now = DateTime.now();
@@ -1165,11 +1151,11 @@ class _ReportCard extends ConsumerWidget {
       if (diff.inDays > 30) {
         return '${date.day}/${date.month}/${date.year}';
       } else if (diff.inDays > 0) {
-        return '${diff.inDays} hari lalu';
+        return '${diff.inDays} ${l10n.hariLalu}';
       } else if (diff.inHours > 0) {
-        return '${diff.inHours} jam lalu';
+        return '${diff.inHours} ${l10n.jamLalu}';
       } else {
-        return 'Baru saja';
+        return l10n.baruSaja;
       }
     } catch (_) {
       return dateStr;
@@ -1195,7 +1181,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
               ),
             ),
@@ -1204,7 +1190,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.textPrimary,
               ),

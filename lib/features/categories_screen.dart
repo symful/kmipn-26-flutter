@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
-import '../../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
@@ -62,156 +62,162 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(SigapRadius.lg),
-        ),
-        backgroundColor: SigapColors.surface,
-        title: const Row(
-          children: [
-            Icon(Icons.category, color: SigapColors.primary),
-            SizedBox(width: SigapSpacing.sm),
-            Text(
-              'Tambah Kategori',
-              style: TextStyle(
-                fontSize: SigapTypography.size16,
-                fontWeight: FontWeight.bold,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SigapRadius.lg),
+          ),
+          backgroundColor: SigapColors.surface,
+          title: Row(
             children: [
-              const Text(
-                'Buat kategori laporan baru untuk memudahkan klasifikasi pengaduan masyarakat.',
-                style: TextStyle(
-                  fontSize: SigapTypography.size12,
-                  color: SigapColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: SigapSpacing.md),
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: Strings.namaWAJIB,
-                  hintText: 'Misal: Jalan Rusak, Sampah Liar',
-                  prefixIcon: const Icon(Icons.label_outline, size: 20),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(SigapRadius.md),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.md,
-                    vertical: SigapSpacing.sm,
-                  ),
-                ),
-              ),
-              const SizedBox(height: SigapSpacing.md),
-              TextField(
-                controller: slugController,
-                decoration: InputDecoration(
-                  labelText: 'Slug (opsional)',
-                  hintText: 'misal: jalan-rusak',
-                  prefixIcon: const Icon(Icons.link, size: 20),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(SigapRadius.md),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.md,
-                    vertical: SigapSpacing.sm,
-                  ),
-                ),
-              ),
-              const SizedBox(height: SigapSpacing.md),
-              TextField(
-                controller: iconController,
-                decoration: InputDecoration(
-                  labelText: 'Icon / Simbol (opsional)',
-                  hintText: 'misal: road, trash, lightbulb',
-                  prefixIcon: const Icon(Icons.emoji_symbols, size: 20),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(SigapRadius.md),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.md,
-                    vertical: SigapSpacing.sm,
-                  ),
+              const Icon(Icons.category, color: SigapColors.primary),
+              const SizedBox(width: SigapSpacing.sm),
+              Text(
+                dl10n.tambahKategori,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyLarge,
+                  fontWeight: FontWeight.bold,
+                  color: SigapColors.textPrimary,
                 ),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              Strings.batal,
-              style: TextStyle(color: SigapColors.textSecondary),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  dl10n.buatKategori,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
+                    color: SigapColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: SigapSpacing.md),
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: dl10n.namaWAJIB,
+                    hintText: dl10n.hintKategoriName,
+                    prefixIcon: const Icon(Icons.label_outline, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.sm,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: SigapSpacing.md),
+                TextField(
+                  controller: slugController,
+                  decoration: InputDecoration(
+                    labelText: dl10n.labelSlug,
+                    hintText: dl10n.hintKategoriSlug,
+                    prefixIcon: const Icon(Icons.link, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.sm,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: SigapSpacing.md),
+                TextField(
+                  controller: iconController,
+                  decoration: InputDecoration(
+                    labelText: dl10n.labelIcon,
+                    hintText: dl10n.hintKategoriIcon,
+                    prefixIcon: const Icon(Icons.emoji_symbols, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.md,
+                      vertical: SigapSpacing.sm,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: SigapColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(SigapRadius.sm),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                dl10n.batal,
+                style: TextStyle(color: SigapColors.textSecondary),
               ),
             ),
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(ctx).showSnackBar(
-                  const SnackBar(
-                    content: Text('Nama kategori wajib diisi'),
-                    backgroundColor: SigapColors.warning,
-                  ),
-                );
-                return;
-              }
-              try {
-                final client = ref.read(apiClientProvider);
-                await client.dio.post(
-                  '/api/categories',
-                  data: {
-                    'name': nameController.text.trim(),
-                    if (slugController.text.trim().isNotEmpty)
-                      'slug': slugController.text.trim(),
-                    if (iconController.text.trim().isNotEmpty)
-                      'icon': iconController.text.trim(),
-                  },
-                );
-                if (ctx.mounted) Navigator.pop(ctx, true);
-              } catch (e) {
-                if (ctx.mounted) {
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: SigapColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                ),
+              ),
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(ctx).showSnackBar(
                     SnackBar(
-                      content: Text('Error: ${extractErrorMessage(e)}'),
-                      backgroundColor: SigapColors.perluTindakan,
+                      content: Text(dl10n.namaKategoriWajibDiisi),
+                      backgroundColor: SigapColors.warning,
                     ),
                   );
+                  return;
                 }
-              }
-            },
-            child: const Text(Strings.simpan),
-          ),
-        ],
-      ),
+                try {
+                  final client = ref.read(apiClientProvider);
+                  await client.dio.post(
+                    '/api/categories',
+                    data: {
+                      'name': nameController.text.trim(),
+                      if (slugController.text.trim().isNotEmpty)
+                        'slug': slugController.text.trim(),
+                      if (iconController.text.trim().isNotEmpty)
+                        'icon': iconController.text.trim(),
+                    },
+                  );
+                  if (ctx.mounted) Navigator.pop(ctx, true);
+                } catch (e) {
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          dl10n.errorDenganPesan(extractErrorMessage(e)),
+                        ),
+                        backgroundColor: SigapColors.perluTindakan,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: Text(dl10n.simpan),
+            ),
+          ],
+        );
+      },
     );
     if (result == true) _load();
   }
 
   @override
   Widget build(BuildContext context) {
+    final dl10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Kelola Kategori'),
+        title: Text(dl10n.kelolaKategori),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Segarkan',
+            tooltip: dl10n.segarkan,
             onPressed: _load,
           ),
         ],
@@ -221,7 +227,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         backgroundColor: SigapColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text('Tambah Kategori'),
+        label: Text(dl10n.tambahKategori),
       ),
       body: Column(
         children: [
@@ -234,7 +240,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Cari kategori berdasarkan nama atau slug...',
+                hintText: dl10n.hintSearchKategori,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -275,14 +281,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                     padding: const EdgeInsets.all(SigapSpacing.lg),
                     child: EmptyState(
                       icon: Icons.category_outlined,
-                      title: 'Tidak Ada Kategori',
+                      title: dl10n.tidakAdaKategori,
                       subtitle: _searchQuery.isNotEmpty
-                          ? 'Tidak ada kategori yang cocok dengan pencarian "$_searchQuery".'
-                          : 'Belum ada kategori laporan yang terdaftar.',
+                          ? '${dl10n.tidakAdaWilayahCocok} "$_searchQuery".'
+                          : dl10n.belumAdaKategoriLaporanTerdaftar,
                       action: OutlinedButton.icon(
                         onPressed: _createItem,
                         icon: const Icon(Icons.add),
-                        label: const Text('Tambah Kategori Baru'),
+                        label: Text(dl10n.tambahKategoriBaru),
                       ),
                     ),
                   )
@@ -321,7 +327,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                                 name,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: SigapTypography.size14,
+                                  fontSize: SigapTypography.bodyMedium,
                                   color: SigapColors.textPrimary,
                                 ),
                               ),
@@ -330,7 +336,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                                 child: Text(
                                   'Slug: $slug',
                                   style: const TextStyle(
-                                    fontSize: SigapTypography.size12,
+                                    fontSize: SigapTypography.bodySmall,
                                     color: SigapColors.textSecondary,
                                   ),
                                 ),

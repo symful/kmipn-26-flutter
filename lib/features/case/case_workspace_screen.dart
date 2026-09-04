@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api/client.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
@@ -70,7 +70,7 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
     ),
   };
 
-  List<_CaseAction> _getAvailableActions() {
+  List<_CaseAction> _getAvailableActions(AppLocalizations l10n) {
     final status = _caseDetail?.report?.status?.value ?? '';
     final transition = _statusTransitions[status];
     if (transition == null) return [];
@@ -81,24 +81,21 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         case 'valid':
           actions.add(
             _CaseAction(
-              label: 'Valid',
+              label: l10n.valid,
               icon: Icons.check_circle,
-              onPressed: () => _showDecisionSheet(
-                'valid',
-                'Valid — Terima Laporan',
-                SigapColors.selesai,
-              ),
+              onPressed: () =>
+                  _showDecisionSheet('valid', l10n.valid, SigapColors.selesai),
             ),
           );
           break;
         case 'needs_completion':
           actions.add(
             _CaseAction(
-              label: 'Perlu Lengkapi',
+              label: l10n.perluLengkapi,
               icon: Icons.edit_note,
               onPressed: () => _showDecisionSheet(
                 'needs_completion',
-                'Perlu Lengkapi',
+                l10n.perluLengkapi,
                 SigapColors.diproses,
               ),
             ),
@@ -107,11 +104,11 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         case 'needs_survey':
           actions.add(
             _CaseAction(
-              label: 'Survei',
+              label: l10n.survei,
               icon: Icons.search,
               onPressed: () => _showDecisionSheet(
                 'needs_survey',
-                'Perlu Survei',
+                l10n.perluSurvei,
                 SigapColors.primary,
               ),
             ),
@@ -120,11 +117,11 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         case 'duplicate':
           actions.add(
             _CaseAction(
-              label: 'Duplikat',
+              label: l10n.duplikat,
               icon: Icons.link,
               onPressed: () => _showDecisionSheet(
                 'duplicate',
-                'Tandai Duplikat',
+                l10n.tandaiDuplikat,
                 SigapColors.offlineDot,
               ),
             ),
@@ -133,11 +130,11 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         case 'rejected':
           actions.add(
             _CaseAction(
-              label: 'Tolak',
+              label: l10n.tolak,
               icon: Icons.cancel,
               onPressed: () => _showDecisionSheet(
                 'rejected',
-                'Tolak Laporan',
+                l10n.ditolak,
                 SigapColors.perluTindakan,
               ),
             ),
@@ -146,7 +143,7 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         case 'dispatch':
           actions.add(
             _CaseAction(
-              label: 'Tugaskan Petugas',
+              label: l10n.tugaskanPetugas,
               icon: Icons.send,
               onPressed: () => _handleStatusChange('in_progress'),
             ),
@@ -155,7 +152,7 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         case 'combine':
           actions.add(
             _CaseAction(
-              label: 'Gabungkan',
+              label: l10n.gabungkan,
               icon: Icons.merge,
               onPressed: () => _showCombineDialog(),
             ),
@@ -164,7 +161,7 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         case 'resolve':
           actions.add(
             _CaseAction(
-              label: 'Tandai Selesai',
+              label: l10n.tandaiSelesai,
               icon: Icons.done_all,
               onPressed: () => _handleStatusChange('resolved'),
             ),
@@ -192,15 +189,16 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
   }
 
   void _showCombineDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Gabungkan Kasus'),
-        content: const Text('Fitur gabungkan kasus akan segera hadir.'),
+        title: Text(l10n.mergeKasus),
+        content: Text(l10n.fiturGabungkanSegeraHadir),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Tutup'),
+            child: Text(l10n.tutup),
           ),
         ],
       ),
@@ -224,9 +222,10 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         _loadData(); // Refresh data
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal ubah status: $e')));
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.gagalUbahStatus(e.toString()))),
+      );
     }
   }
 
@@ -304,9 +303,10 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Strings.detailKasus),
+        title: Text(l10n.detailKasus),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -370,7 +370,8 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
   }
 
   Widget _buildStickyActionBar() {
-    final actions = _getAvailableActions();
+    final l10n = AppLocalizations.of(context)!;
+    final actions = _getAvailableActions(l10n);
     if (actions.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -511,6 +512,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
   }
 
   void _showDecisionSheet(String decision, String label, Color color) {
+    final l10n = AppLocalizations.of(context)!;
     _reasonController.clear();
     _duplicateIdController.clear();
     _selectedSurveyorId = null;
@@ -570,10 +572,10 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
               if (decision == 'duplicate') ...[
                 TextField(
                   controller: _duplicateIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'ID Laporan Duplikat (WAJIB)',
-                    hintText: 'Masukkan ID laporan duplikat',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.labelIdLaporanDuplikatWajib,
+                    hintText: l10n.hintMasukkanIdLaporanDuplikat,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -585,11 +587,11 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
                 ] else ...[
                   DropdownButtonFormField<String>(
                     value: _selectedSurveyorId,
-                    decoration: const InputDecoration(
-                      labelText: 'Pilih Surveyor (WAJIB)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.labelPilihSurveyorWajib,
+                      border: const OutlineInputBorder(),
                     ),
-                    hint: const Text('Pilih surveyor'),
+                    hint: Text(l10n.pilihSurveyor),
                     items: _surveyors.map((s) {
                       return DropdownMenuItem<String>(
                         value: s.id,
@@ -605,10 +607,10 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
               ],
               TextField(
                 controller: _reasonController,
-                decoration: const InputDecoration(
-                  labelText: 'Alasan (WAJIB)',
-                  hintText: 'Berikan alasan keputusan ini',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.labelAlasanWajib,
+                  hintText: l10n.hintBerikanAlasanKeputusan,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -625,7 +627,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
                   foregroundColor: SigapColors.surface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text(Strings.kirimKeputusan),
+                child: Text(l10n.kirimKeputusan),
               ),
             ],
           ),
@@ -647,7 +649,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
     return Can(
       action: 'case.verify',
       resource: Resource(type: 'case', id: widget.caseId),
-      fallback: const _AccessDeniedPlaceholder(
+      fallback: const AccessDeniedCard(
         message: 'Anda tidak memiliki akses untuk memverifikasi kasus ini.',
       ),
       child: _buildVerificationContent(),
@@ -655,6 +657,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
   }
 
   Widget _buildVerificationContent() {
+    final l10n = AppLocalizations.of(context)!;
     if (_success) {
       return Center(
         child: Column(
@@ -673,7 +676,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => context.pop(),
-              child: const Text('Kembali'),
+              child: Text(l10n.kembali),
             ),
           ],
         ),
@@ -688,9 +691,9 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
           // AI Assessment section
           if (widget.assessmentData != null) ...[
             Text(
-              'Penilaian AI',
+              l10n.labelPenilaianAI,
               style: TextStyle(
-                fontSize: SigapTypography.size15,
+                fontSize: SigapTypography.subtitle,
                 fontWeight: FontWeight.bold,
                 color: SigapColors.textPrimary,
               ),
@@ -722,7 +725,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
                     'Assessment tidak tersedia',
                     style: TextStyle(
                       color: SigapColors.perluTindakan,
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -734,9 +737,9 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
 
           // Decision Actions Panel
           Text(
-            'Tindakan',
+            l10n.tindakan,
             style: TextStyle(
-              fontSize: SigapTypography.size15,
+              fontSize: SigapTypography.subtitle,
               fontWeight: FontWeight.bold,
               color: SigapColors.textPrimary,
             ),
@@ -745,73 +748,73 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
           StickyActionBar(
             actions: [
               SigapActionButton(
-                label: Strings.ditolak,
-                semanticsLabel: Strings.ditolak,
+                label: l10n.ditolak,
+                semanticsLabel: l10n.ditolak,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'rejected',
-                        Strings.ditolak,
+                        l10n.ditolak,
                         SigapColors.perluTindakan,
                       ),
                 icon: Icons.cancel,
               ),
               SigapOutlineButton(
-                label: Strings.duplikat,
-                semanticsLabel: Strings.duplikat,
+                label: l10n.duplikat,
+                semanticsLabel: l10n.duplikat,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'duplicate',
-                        Strings.tandaiDuplikat,
+                        l10n.tandaiDuplikat,
                         SigapColors.offlineDot,
                       ),
                 icon: Icons.link,
               ),
               SigapOutlineButton(
-                label: Strings.survei,
-                semanticsLabel: Strings.survei,
+                label: l10n.survei,
+                semanticsLabel: l10n.survei,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'needs_survey',
-                        Strings.perluSurvei,
+                        l10n.perluSurvei,
                         SigapColors.primary,
                       ),
                 icon: Icons.search,
               ),
               SigapOutlineButton(
-                label: Strings.dilute,
-                semanticsLabel: Strings.dilute,
+                label: l10n.dilute,
+                semanticsLabel: l10n.dilute,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'out_of_scope',
-                        Strings.diluteJangkauan,
+                        l10n.diluteJangkauan,
                         SigapColors.offlineDot,
                       ),
                 icon: Icons.block,
               ),
               SigapOutlineButton(
-                label: Strings.perluLengkapi,
-                semanticsLabel: Strings.perluLengkapi,
+                label: l10n.perluDilengkapi,
+                semanticsLabel: l10n.perluDilengkapi,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'needs_completion',
-                        Strings.perluLengkapi,
+                        l10n.perluDilengkapi,
                         SigapColors.diproses,
                       ),
                 icon: Icons.edit_note,
               ),
               SigapActionButton(
-                label: 'Valid',
-                semanticsLabel: 'Valid',
+                label: l10n.valid,
+                semanticsLabel: l10n.valid,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'valid',
-                        'Valid — Terima Laporan',
+                        l10n.valid,
                         SigapColors.selesai,
                       ),
                 icon: Icons.check_circle,
@@ -824,7 +827,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
               'Error: $_submitError',
               style: const TextStyle(
                 color: SigapColors.perluTindakan,
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
               ),
             ),
           ],
@@ -848,7 +851,7 @@ class _TugasProgresTab extends ConsumerWidget {
     return Can(
       action: 'task.view',
       resource: Resource(type: 'case', id: caseId),
-      fallback: const _AccessDeniedPlaceholder(
+      fallback: const AccessDeniedCard(
         message: 'Anda tidak memiliki akses untuk melihat tugas kasus ini.',
       ),
       child: _buildTugasProgresContent(context, ref),
@@ -881,7 +884,7 @@ class _TugasProgresTab extends ConsumerWidget {
                     Text(
                       'Status Kasus',
                       style: TextStyle(
-                        fontSize: SigapTypography.size14,
+                        fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.bold,
                         color: SigapColors.textPrimary,
                       ),
@@ -958,7 +961,7 @@ class _RiwayatAuditTab extends StatelessWidget {
     return Can(
       action: 'audit.view',
       resource: Resource(type: 'case', id: caseId),
-      fallback: const _AccessDeniedPlaceholder(
+      fallback: const AccessDeniedCard(
         message: 'Anda tidak memiliki akses untuk melihat riwayat audit.',
       ),
       child: _buildAuditContent(context),
@@ -976,7 +979,7 @@ class _RiwayatAuditTab extends StatelessWidget {
             Text(
               'Belum ada riwayat audit',
               style: TextStyle(
-                fontSize: SigapTypography.size16,
+                fontSize: SigapTypography.bodyLarge,
                 color: SigapColors.textSecondary,
               ),
             ),
@@ -993,7 +996,7 @@ class _RiwayatAuditTab extends StatelessWidget {
           Text(
             'Riwayat Audit',
             style: TextStyle(
-              fontSize: SigapTypography.size15,
+              fontSize: SigapTypography.subtitle,
               fontWeight: FontWeight.bold,
               color: SigapColors.textPrimary,
             ),
@@ -1068,7 +1071,7 @@ class _PlaceholderCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: SigapTypography.size16,
+              fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.bold,
               color: SigapColors.textPrimary,
             ),
@@ -1077,51 +1080,12 @@ class _PlaceholderCard extends StatelessWidget {
           Text(
             description,
             style: TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               color: SigapColors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _AccessDeniedPlaceholder extends StatelessWidget {
-  final String message;
-
-  const _AccessDeniedPlaceholder({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(SigapSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.lock_outline, size: 64, color: SigapColors.textMuted),
-            const SizedBox(height: 16),
-            Text(
-              'Akses Ditolak',
-              style: TextStyle(
-                fontSize: SigapTypography.size18,
-                fontWeight: FontWeight.bold,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: SigapTypography.size14,
-                color: SigapColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }

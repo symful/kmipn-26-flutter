@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api/client.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
@@ -73,18 +74,19 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
       await _loadTasks(); // Refresh list
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         final errorStr = e.toString().toLowerCase();
         if (errorStr.contains('409') || errorStr.contains('conflict')) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tugas sudah diproses oleh surveyor lain'),
+            SnackBar(
+              content: Text(l10n.tugasDiprosesSurveyorLain),
               backgroundColor: SigapColors.warning,
             ),
           );
         } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Gagal: $e')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.gagalDenganError(e.toString()))),
+          );
         }
       }
     }
@@ -99,26 +101,27 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
 
   Future<void> _rejectTask(String taskId) async {
     final reasonController = TextEditingController();
+    final l10n = AppLocalizations.of(context)!;
     final reason = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Tolak Tugas'),
+        title: Text(l10n.tolakTugas),
         content: TextField(
           controller: reasonController,
-          decoration: const InputDecoration(
-            labelText: 'Alasan penolakan',
-            hintText: 'Masukkan alasan...',
+          decoration: InputDecoration(
+            labelText: l10n.alasanPenolakan,
+            hintText: l10n.masukkanAlasanPenolakan,
           ),
           maxLines: 3,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: Text(l10n.batal),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, reasonController.text),
-            child: const Text('Tolak'),
+            child: Text(l10n.tolak),
           ),
         ],
       ),
@@ -131,6 +134,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_loading) {
       return const Center(
         child: CircularProgressIndicator(color: SigapColors.primary),
@@ -140,7 +144,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
     if (_error != null && _tasks.isEmpty) {
       return Center(
         child: ErrorRetryView(
-          message: 'Gagal memuat tugas',
+          message: l10n.gagalMemuatTugas,
           onRetry: _loadTasks,
         ),
       );
@@ -170,7 +174,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
                 Text(
                   '${_tasks.length} Tugas',
                   style: const TextStyle(
-                    fontSize: SigapTypography.size15,
+                    fontSize: SigapTypography.subtitle,
                     fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
                   ),
@@ -204,6 +208,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -228,7 +233,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
             const Text(
               'Tidak Ada Tugas',
               style: TextStyle(
-                fontSize: SigapTypography.size16,
+                fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textPrimary,
               ),
@@ -237,7 +242,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
             const Text(
               'Tugas penanganan untuk kasus ini akan muncul di sini.',
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
               ),
               textAlign: TextAlign.center,
@@ -246,7 +251,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
             OutlinedButton.icon(
               onPressed: _loadTasks,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Segarkan Data'),
+              label: Text(l10n.segarkanData),
             ),
           ],
         ),
@@ -348,6 +353,7 @@ class _CaseTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -376,7 +382,7 @@ class _CaseTaskCard extends StatelessWidget {
                             Text(
                               task.title,
                               style: const TextStyle(
-                                fontSize: SigapTypography.size13_5,
+                                fontSize: SigapTypography.bodyTextWide,
                                 fontWeight: FontWeight.w600,
                                 color: SigapColors.textPrimary,
                               ),
@@ -388,7 +394,7 @@ class _CaseTaskCard extends StatelessWidget {
                               'TGS-${task.id.length >= 4 ? task.id.substring(0, 4) : task.id}',
                               style: const TextStyle(
                                 fontFamily: SigapTypography.fontFamilyMono,
-                                fontSize: SigapTypography.size11,
+                                fontSize: SigapTypography.captionMedium,
                                 color: SigapColors.textTertiary,
                               ),
                             ),
@@ -409,7 +415,7 @@ class _CaseTaskCard extends StatelessWidget {
                         child: Text(
                           task.statusLabel,
                           style: TextStyle(
-                            fontSize: SigapTypography.size11,
+                            fontSize: SigapTypography.captionMedium,
                             fontWeight: FontWeight.w600,
                             color: task.statusColor,
                           ),
@@ -424,7 +430,7 @@ class _CaseTaskCard extends StatelessWidget {
                     Text(
                       'Ditugaskan: ${formatDate(task.assignedAt!)}',
                       style: const TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textTertiary,
                       ),
                     ),
@@ -448,9 +454,11 @@ class _CaseTaskCard extends StatelessWidget {
                             foregroundColor: SigapColors.danger,
                             side: const BorderSide(color: SigapColors.danger),
                           ),
-                          child: const Text(
-                            'Tolak',
-                            style: TextStyle(fontSize: SigapTypography.size12),
+                          child: Text(
+                            l10n.tolak,
+                            style: const TextStyle(
+                              fontSize: SigapTypography.bodySmall,
+                            ),
                           ),
                         ),
                       ),
@@ -464,9 +472,11 @@ class _CaseTaskCard extends StatelessWidget {
                             backgroundColor: SigapColors.primary,
                             foregroundColor: SigapColors.surface,
                           ),
-                          child: const Text(
-                            'Terima',
-                            style: TextStyle(fontSize: SigapTypography.size12),
+                          child: Text(
+                            l10n.terima,
+                            style: const TextStyle(
+                              fontSize: SigapTypography.bodySmall,
+                            ),
                           ),
                         ),
                       ),

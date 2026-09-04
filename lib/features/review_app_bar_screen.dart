@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/design_system.dart';
 import 'package:sigap/widgets/design_system/stepper_5.dart';
@@ -24,6 +25,7 @@ class ReviewAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: SigapColors.bgSurface,
@@ -32,8 +34,8 @@ class ReviewAppBar extends StatelessWidget {
         ),
       ),
       child: TitleAppBar(
-        title: 'Review laporan',
-        subtitle: 'Langkah $currentStep dari 5',
+        title: l10n.reviewLaporan,
+        subtitle: l10n.langkahDari(currentStep, 5),
         onBack: onBack,
         padding: const EdgeInsets.only(
           left: SigapSpacing.lg,

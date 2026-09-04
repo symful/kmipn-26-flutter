@@ -65,7 +65,7 @@ class _ChartHeader extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: SigapTypography.size13,
+            fontSize: SigapTypography.bodyText,
             fontWeight: FontWeight.w600,
             color: SigapColors.textPrimary,
           ),
@@ -88,7 +88,7 @@ class _ChartLegend extends StatelessWidget {
         const Text(
           'laporan',
           style: TextStyle(
-            fontSize: SigapTypography.size10,
+            fontSize: SigapTypography.captionSmall,
             color: SigapColors.textTertiary,
           ),
         ),
@@ -98,7 +98,7 @@ class _ChartLegend extends StatelessWidget {
         const Text(
           'kasus',
           style: TextStyle(
-            fontSize: SigapTypography.size10,
+            fontSize: SigapTypography.captionSmall,
             color: SigapColors.textTertiary,
           ),
         ),
@@ -135,7 +135,7 @@ class _EmptyState extends StatelessWidget {
         'Tidak ada data tren',
         style: TextStyle(
           color: SigapColors.textMuted,
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
         ),
       ),
     );
@@ -374,7 +374,7 @@ class _BacklogChartPainter extends CustomPainter {
   void _drawLabels(Canvas canvas) {
     final textStyle = const TextStyle(
       color: SigapColors.textTertiary,
-      fontSize: SigapTypography.size9,
+      fontSize: SigapTypography.captionMicro,
     );
 
     // Y-axis labels

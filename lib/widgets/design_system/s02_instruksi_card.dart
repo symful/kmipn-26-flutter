@@ -53,7 +53,7 @@ class S02InstruksiCard extends StatelessWidget {
             Text(
               title,
               style: const TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.textTertiary,
               ),
@@ -64,7 +64,7 @@ class S02InstruksiCard extends StatelessWidget {
             Text(
               body,
               style: const TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 height: 1.5,
                 color: SigapColors.textPrimary,
               ),

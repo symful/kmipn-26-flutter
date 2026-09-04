@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sigap/api/client.dart';
 
-const _apiBaseUrl = 'https://kmipn-26-deno.careday17.workers.dev';
+const _apiBaseUrl = 'https://sigap.live';
 
 /// Authenticates and returns tokens. Throws if login fails so setUpAll fails loudly.
 Future<({String accessToken, String refreshToken})> _login(

@@ -72,14 +72,14 @@ class S02OfflineBanner extends StatelessWidget {
         children: [
           Icon(
             Icons.cloud_off,
-            size: SigapTypography.size12,
+            size: SigapTypography.bodySmall,
             color: SigapColors.warning,
           ),
           const SizedBox(width: SigapSpacing.xs),
           Text(
             'Peta area + bukti diunduh$sizeStr',
             style: TextStyle(
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               fontWeight: FontWeight.w500,
               color: SigapColors.warningText,
             ),

@@ -119,7 +119,7 @@ class KasusTerdekatCard extends StatelessWidget {
                 initials,
                 style: const TextStyle(
                   fontFamily: SigapTypography.fontFamilyMono,
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.primaryDark,
                 ),
@@ -136,7 +136,7 @@ class KasusTerdekatCard extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: SigapTypography.size13_5,
+                      fontSize: SigapTypography.bodyTextWide,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.textPrimary,
                     ),
@@ -149,7 +149,7 @@ class KasusTerdekatCard extends StatelessWidget {
                   Text(
                     '$rw · $_distanceText · $laporanCount laporan pendukung',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size11_5,
+                      fontSize: SigapTypography.captionFine,
                       color: SigapColors.textTertiary,
                     ),
                   ),
@@ -205,7 +205,7 @@ class _StatusPill extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               fontWeight: FontWeight.w600,
               color: textColor,
             ),
@@ -252,7 +252,7 @@ class KasusTerdekatSection extends StatelessWidget {
             const Text(
               'Kasus terdekat',
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textPrimary,
               ),
@@ -262,7 +262,7 @@ class KasusTerdekatSection extends StatelessWidget {
               child: const Text(
                 'Lihat peta',
                 style: TextStyle(
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.primary,
                 ),

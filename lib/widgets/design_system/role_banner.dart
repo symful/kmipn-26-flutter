@@ -39,7 +39,7 @@ class RoleBanner extends ConsumerWidget {
             activeRole.replaceAll('_', ' '),
             style: TextStyle(
               color: color,
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),

@@ -35,7 +35,7 @@ class BackArrowButton extends StatelessWidget {
           child: Text(
             arrow,
             style: TextStyle(
-              fontSize: SigapTypography.size22,
+              fontSize: SigapTypography.headlineMedium,
               color: SigapColors.textSecondary,
             ),
           ),

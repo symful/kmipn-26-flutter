@@ -10,14 +10,13 @@ import 'package:exif/exif.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../api/client.dart';
 import '../../db/database.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../services/photo_service.dart';
 import '../../sync/sync_engine.dart';
 import '../../theme/tokens.dart';
+import '../../utils/platform_helper.dart';
 import '../../components/app_icons.dart';
-import '../../widgets/design_system/phone_frame.dart';
-import '../../widgets/design_system/status_bar.dart';
 import '../widgets/design_system/gps_capture_card.dart';
 import '../widgets/design_system/catatan_lapangan.dart';
 import '../widgets/design_system/rekomendasi_selector.dart';
@@ -282,7 +281,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               title: const Text('Kamera'),
               onTap: () {
                 Navigator.pop(ctx);
-                _pickImage(ImageSource.camera);
+                _pickImage(cameraSource());
               },
             ),
             ListTile(
@@ -451,257 +450,252 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_success) {
-      return PhoneFrame(
-        child: Column(
-          children: [
-            StatusBar(),
-            Expanded(
-              child: Scaffold(
-                appBar: AppBar(title: const Text('Form Survei')),
-                body: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(SigapSpacing.xl),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.check_circle,
-                          color: SigapColors.primary,
-                          size: 64,
+      return Column(
+        children: [
+          Expanded(
+            child: Scaffold(
+              appBar: AppBar(title: const Text('Form Survei')),
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(SigapSpacing.xl),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: SigapColors.primary,
+                        size: 64,
+                      ),
+                      const SizedBox(height: SigapSpacing.lg),
+                      Text(
+                        l10n.surveiBerhasilDikirim,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: SigapSpacing.lg),
-                        const Text(
-                          Strings.surveiBerhasilDikirim,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: SigapSpacing.sm),
+                      Text(
+                        _queuedOffline
+                            ? 'Data survei tersimpan lokal. Akan dikirim otomatis saat online.'
+                            : 'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
+                        style: TextStyle(
+                          color: SigapColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: SigapSpacing.xl),
+                      ElevatedButton(
+                        onPressed: () => context.go('/tasks'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: SigapColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SigapSpacing.xl,
+                            vertical: SigapSpacing.md,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: SigapSpacing.sm),
-                        Text(
-                          _queuedOffline
-                              ? 'Data survei tersimpan lokal. Akan dikirim otomatis saat online.'
-                              : 'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
-                          style: TextStyle(
-                            color: SigapColors.textSecondary,
-                            fontSize: 14,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: SigapSpacing.xl),
-                        ElevatedButton(
-                          onPressed: () => context.go('/tasks'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: SigapColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: SigapSpacing.xl,
-                              vertical: SigapSpacing.md,
-                            ),
-                          ),
-                          child: const Text('Kembali ke Daftar Tugas'),
-                        ),
-                      ],
-                    ),
+                        child: const Text('Kembali ke Daftar Tugas'),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
-    return PhoneFrame(
-      child: Column(
-        children: [
-          StatusBar(),
-          Expanded(
-            child: Scaffold(
-              backgroundColor: SigapColors.bgScreen,
-              body: Column(
-                children: [
-                  // S-04 Header: Form survei / TGS-3402 · offline + Tersimpan 10:02 + 66% progress
-                  _FormSurveiHeader(),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 14,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // 1. Foto per sudut Section — custom 3-slot row matching S-04
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: const [
-                                  Text(
-                                    'Foto per sudut',
-                                    style: TextStyle(
-                                      fontSize: SigapTypography.size13,
-                                      fontWeight: FontWeight.w700,
-                                      color: SigapColors.textPrimary,
-                                    ),
+    return Column(
+      children: [
+        Expanded(
+          child: Scaffold(
+            backgroundColor: SigapColors.bgScreen,
+            body: Column(
+              children: [
+                // S-04 Header: Form survei / TGS-3402 · offline + Tersimpan 10:02 + 66% progress
+                _FormSurveiHeader(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // 1. Foto per sudut Section — custom 3-slot row matching S-04
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: const [
+                                Text(
+                                  'Foto per sudut',
+                                  style: TextStyle(
+                                    fontSize: SigapTypography.bodyText,
+                                    fontWeight: FontWeight.w700,
+                                    color: SigapColors.textPrimary,
                                   ),
-                                  SizedBox(width: 2),
-                                  Text(
-                                    '*',
-                                    style: TextStyle(
-                                      fontSize: SigapTypography.size13,
-                                      fontWeight: FontWeight.w700,
-                                      color: SigapColors.danger,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              _buildPhotoCounter(),
-                            ],
-                          ),
-                          const SizedBox(height: SigapSpacing.sm),
-                          _FotoSudutRow(
-                            photos: _photos,
-                            onAddPhoto: _showPhotoSourceDialog,
-                            onRemovePhoto: _removePhoto,
-                          ),
-                          const SizedBox(height: SigapSpacing.x14),
-
-                          // 2. Kondisi Segmented Control — custom matching S-04 (Ringan/Berat/Kritis)
-                          Row(
-                            children: const [
-                              Text(
-                                'Kondisi aktual',
-                                style: TextStyle(
-                                  fontSize: SigapTypography.size13,
-                                  fontWeight: FontWeight.w700,
-                                  color: SigapColors.textPrimary,
                                 ),
-                              ),
-                              SizedBox(width: 2),
-                              Text(
-                                '*',
-                                style: TextStyle(
-                                  fontSize: SigapTypography.size13,
-                                  fontWeight: FontWeight.w700,
-                                  color: SigapColors.danger,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: SigapSpacing.sm),
-                          _buildKondisiSegmentedControl(),
-                          const SizedBox(height: SigapSpacing.x14),
-
-                          // 3. GPS Section — GpsCaptureCard
-                          _buildGpsCard(),
-                          const SizedBox(height: SigapSpacing.x14),
-
-                          // 4. Catatan Lapangan
-                          CatatanLapangan(
-                            controller: _notesController,
-                            hintText:
-                                'Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.',
-                            maxCharacters: 300,
-                          ),
-                          const SizedBox(height: SigapSpacing.x14),
-
-                          // 5. Rekomendasi Section
-                          Row(
-                            children: const [
-                              Text(
-                                'Rekomendasi hasil',
-                                style: TextStyle(
-                                  fontSize: SigapTypography.size13,
-                                  fontWeight: FontWeight.w700,
-                                  color: SigapColors.textPrimary,
-                                ),
-                              ),
-                              SizedBox(width: 2),
-                              Text(
-                                '*',
-                                style: TextStyle(
-                                  fontSize: SigapTypography.size13,
-                                  fontWeight: FontWeight.w700,
-                                  color: SigapColors.danger,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: SigapSpacing.sm),
-                          RekomendasiSelector(
-                            selectedValue: _selectedRekomendasi == 0
-                                ? 'Valid — perlu tindak lanjut'
-                                : 'Tidak ditemukan di lokasi',
-                            options: const [
-                              'Valid — perlu tindak lanjut',
-                              'Tidak ditemukan di lokasi',
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedRekomendasi = value.startsWith('Valid')
-                                    ? 0
-                                    : 1;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: SigapSpacing.x14),
-
-                          // Error message
-                          if (_submitError != null) ...[
-                            const SizedBox(height: SigapSpacing.lg),
-                            Container(
-                              padding: const EdgeInsets.all(SigapSpacing.md),
-                              decoration: BoxDecoration(
-                                color: SigapColors.dangerBg,
-                                borderRadius: BorderRadius.circular(
-                                  SigapRadius.sm,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.error_outline,
+                                SizedBox(width: 2),
+                                Text(
+                                  '*',
+                                  style: TextStyle(
+                                    fontSize: SigapTypography.bodyText,
+                                    fontWeight: FontWeight.w700,
                                     color: SigapColors.danger,
-                                    size: 18,
                                   ),
-                                  const SizedBox(width: SigapSpacing.sm),
-                                  Expanded(
-                                    child: Text(
-                                      _submitError!,
-                                      style: TextStyle(
-                                        color: SigapColors.danger,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
+                              ],
+                            ),
+                            _buildPhotoCounter(),
+                          ],
+                        ),
+                        const SizedBox(height: SigapSpacing.sm),
+                        _FotoSudutRow(
+                          photos: _photos,
+                          onAddPhoto: _showPhotoSourceDialog,
+                          onRemovePhoto: _removePhoto,
+                        ),
+                        const SizedBox(height: SigapSpacing.x14),
+
+                        // 2. Kondisi Segmented Control — custom matching S-04 (Ringan/Berat/Kritis)
+                        Row(
+                          children: const [
+                            Text(
+                              'Kondisi aktual',
+                              style: TextStyle(
+                                fontSize: SigapTypography.bodyText,
+                                fontWeight: FontWeight.w700,
+                                color: SigapColors.textPrimary,
+                              ),
+                            ),
+                            SizedBox(width: 2),
+                            Text(
+                              '*',
+                              style: TextStyle(
+                                fontSize: SigapTypography.bodyText,
+                                fontWeight: FontWeight.w700,
+                                color: SigapColors.danger,
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: SigapSpacing.sm),
+                        _buildKondisiSegmentedControl(),
+                        const SizedBox(height: SigapSpacing.x14),
 
-                          const SizedBox(height: 100),
+                        // 3. GPS Section — GpsCaptureCard
+                        _buildGpsCard(),
+                        const SizedBox(height: SigapSpacing.x14),
+
+                        // 4. Catatan Lapangan
+                        CatatanLapangan(
+                          controller: _notesController,
+                          hintText:
+                              'Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.',
+                          maxCharacters: 300,
+                        ),
+                        const SizedBox(height: SigapSpacing.x14),
+
+                        // 5. Rekomendasi Section
+                        Row(
+                          children: const [
+                            Text(
+                              'Rekomendasi hasil',
+                              style: TextStyle(
+                                fontSize: SigapTypography.bodyText,
+                                fontWeight: FontWeight.w700,
+                                color: SigapColors.textPrimary,
+                              ),
+                            ),
+                            SizedBox(width: 2),
+                            Text(
+                              '*',
+                              style: TextStyle(
+                                fontSize: SigapTypography.bodyText,
+                                fontWeight: FontWeight.w700,
+                                color: SigapColors.danger,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: SigapSpacing.sm),
+                        RekomendasiSelector(
+                          selectedValue: _selectedRekomendasi == 0
+                              ? 'Valid — perlu tindak lanjut'
+                              : 'Tidak ditemukan di lokasi',
+                          options: const [
+                            'Valid — perlu tindak lanjut',
+                            'Tidak ditemukan di lokasi',
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedRekomendasi = value.startsWith('Valid')
+                                  ? 0
+                                  : 1;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: SigapSpacing.x14),
+
+                        // Error message
+                        if (_submitError != null) ...[
+                          const SizedBox(height: SigapSpacing.lg),
+                          Container(
+                            padding: const EdgeInsets.all(SigapSpacing.md),
+                            decoration: BoxDecoration(
+                              color: SigapColors.dangerBg,
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.sm,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: SigapColors.danger,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: SigapSpacing.sm),
+                                Expanded(
+                                  child: Text(
+                                    _submitError!,
+                                    style: TextStyle(
+                                      color: SigapColors.danger,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
-                      ),
+
+                        const SizedBox(height: 100),
+                      ],
                     ),
                   ),
+                ),
 
-                  // Bottom Fixed Submit Button — S-02 SurveySubmitButton
-                  SurveySubmitButton(
-                    isLoading: _submitting,
-                    isEnabled: _canSubmit,
-                    onPressed: _submit,
-                  ),
-                ],
-              ),
+                // Bottom Fixed Submit Button — S-02 SurveySubmitButton
+                SurveySubmitButton(
+                  isLoading: _submitting,
+                  isEnabled: _canSubmit,
+                  onPressed: _submit,
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -758,7 +752,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               const Text(
                 'Form survei',
                 style: TextStyle(
-                  fontSize: SigapTypography.size20,
+                  fontSize: SigapTypography.headlineSmall,
                   fontWeight: FontWeight.w700,
                   color: SigapColors.textPrimary,
                 ),
@@ -767,7 +761,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               Text(
                 taskCode,
                 style: TextStyle(
-                  fontSize: SigapTypography.size11,
+                  fontSize: SigapTypography.captionMedium,
                   fontWeight: FontWeight.w600,
                   fontFamily: SigapTypography.fontFamilyMono,
                   color: SigapColors.textSecondary,
@@ -776,7 +770,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               Text(
                 ' · offline',
                 style: TextStyle(
-                  fontSize: SigapTypography.size11,
+                  fontSize: SigapTypography.captionMedium,
                   color: SigapColors.textTertiary,
                 ),
               ),
@@ -796,7 +790,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   Text(
                     'Tersimpan $formattedTime',
                     style: TextStyle(
-                      fontSize: SigapTypography.size11,
+                      fontSize: SigapTypography.captionMedium,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.primary,
                     ),
@@ -831,7 +825,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
               Text(
                 '$progressValue%',
                 style: TextStyle(
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.primary,
                 ),
@@ -879,7 +873,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         Text(
           '$filledCount dari 3',
           style: TextStyle(
-            fontSize: SigapTypography.size13,
+            fontSize: SigapTypography.bodyText,
             fontWeight: FontWeight.w600,
             color: SigapColors.textSecondary,
           ),
@@ -891,7 +885,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
             child: Text(
               'Tambah foto',
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.primary,
               ),
@@ -978,7 +972,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                       'Ambil GPS',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1020,7 +1014,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 child: Text(
                   kondisiOptions[index],
                   style: TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
                     color: isSelected
                         ? Colors.white
@@ -1047,10 +1041,7 @@ class _HatchPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..strokeWidth = _stripeWidth;
-    final colors = [
-      const Color(0xFFE4E7E2), // borderCard
-      const Color(0xFFEEF0EC), // lighter alternating
-    ];
+    final colors = [SigapColors.borderCard, SigapColors.bgSoft];
     final step = _stripeWidth * 1.414; // hypotenuse of 45° triangle
     final diag = size.width + size.height;
     final count = (diag / step).ceil();
@@ -1075,7 +1066,7 @@ class _DashedBorderPainter extends CustomPainter {
 
   static const _dash = 5.0;
   static const _gap = 3.0;
-  static const _color = Color(0xFFCFD3CC); // spec exact
+  static const _color = SigapColors.borderSoft;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1225,7 +1216,7 @@ class _FotoSudutRow extends StatelessWidget {
                     color: hasPhoto
                         ? SigapColors.textTertiary
                         : SigapColors.danger,
-                    fontSize: SigapTypography.size10,
+                    fontSize: SigapTypography.captionSmall,
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,

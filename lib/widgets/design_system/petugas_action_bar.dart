@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Action bar widget for petugas task detail screen.
@@ -47,6 +48,7 @@ class PetugasActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: SigapSpacing.md,
@@ -63,7 +65,7 @@ class PetugasActionBar extends StatelessWidget {
             // Tolak
             Expanded(
               child: ActionButton(
-                label: 'Tolak',
+                label: l10n.tolak,
                 onPressed: onTolak,
                 isDanger: true,
               ),
@@ -73,7 +75,7 @@ class PetugasActionBar extends StatelessWidget {
             // Clarifikasi
             Expanded(
               child: ActionButton(
-                label: 'Clarifikasi',
+                label: l10n.klarifikasi,
                 onPressed: onMintaClarifikasi,
                 isSecondary: true,
               ),
@@ -83,7 +85,7 @@ class PetugasActionBar extends StatelessWidget {
             // Kunjungi (primary)
             Expanded(
               child: ActionButton(
-                label: 'Kunjungi',
+                label: l10n.kunjungi,
                 onPressed: onKunjungi,
                 isPrimary: true,
               ),
@@ -93,7 +95,7 @@ class PetugasActionBar extends StatelessWidget {
             // Terima
             Expanded(
               child: ActionButton(
-                label: 'Terima',
+                label: l10n.terima,
                 onPressed: onTerima,
                 isPrimary: true,
               ),
@@ -148,7 +150,7 @@ class ActionButton extends StatelessWidget {
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: SigapTypography.size11,
+            fontSize: SigapTypography.captionMedium,
             fontWeight: FontWeight.w600,
           ),
           overflow: TextOverflow.ellipsis,
@@ -170,7 +172,7 @@ class ActionButton extends StatelessWidget {
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: SigapTypography.size11,
+            fontSize: SigapTypography.captionMedium,
             fontWeight: FontWeight.w600,
           ),
           overflow: TextOverflow.ellipsis,
@@ -192,7 +194,7 @@ class ActionButton extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: SigapTypography.size11,
+          fontSize: SigapTypography.captionMedium,
           fontWeight: FontWeight.w600,
         ),
         overflow: TextOverflow.ellipsis,

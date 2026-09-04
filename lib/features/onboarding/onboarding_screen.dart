@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../theme/tokens.dart';
 
@@ -27,12 +28,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _skipAndComplete() async {
     await ref.read(onboardingNotifierProvider.notifier).completeOnboarding();
     if (mounted) {
-      context.go('/warga');
+      context.go('/dashboard');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgSurface,
       body: SafeArea(
@@ -43,9 +45,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _skipAndComplete,
-                child: const Text(
-                  'Lewati',
-                  style: TextStyle(
+                child: Text(
+                  l10n.lewatI,
+                  style: const TextStyle(
                     color: SigapColors.textSecondary,
                     fontSize: 14,
                   ),
@@ -61,31 +63,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     _currentPage = index;
                   });
                 },
-                children: const [
+                children: [
                   _PermissionStep(
                     icon: Icons.location_on,
-                    title: 'Akses Lokasi',
-                    body:
-                        'Izinkan akses lokasi untuk membantu kami menemukan '
-                        'masalah di sekitar Anda dengan lebih akurat.',
+                    title: l10n.aksesLokasi,
+                    body: l10n.aksesLokasiBody,
                     permission: Permission.location,
                     stepIndex: 0,
                   ),
                   _PermissionStep(
                     icon: Icons.camera_alt,
-                    title: 'Akses Kamera',
-                    body:
-                        'Izinkan akses kamera untuk mengambil foto bukti masalah '
-                        'yang ingin Anda laporkan.',
+                    title: l10n.aksesKamera,
+                    body: l10n.aksesKameraBody,
                     permission: Permission.camera,
                     stepIndex: 1,
                   ),
                   _PermissionStep(
                     icon: Icons.notifications,
-                    title: 'Notifikasi',
-                    body:
-                        'Aktifkan notifikasi untuk mendapatkan pembaruan tentang '
-                        'status laporan Anda.',
+                    title: l10n.notifikasi,
+                    body: l10n.notifikasiBody,
                     permission: Permission.notification,
                     stepIndex: 2,
                   ),
@@ -136,6 +132,7 @@ class _PermissionStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.xl),
       child: Column(
@@ -188,8 +185,8 @@ class _PermissionStep extends ConsumerWidget {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Izinkan',
+              child: Text(
+                l10n.izinkan,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
@@ -221,7 +218,7 @@ class _PermissionStep extends ConsumerWidget {
             .read(onboardingNotifierProvider.notifier)
             .completeOnboarding();
         if (context.mounted) {
-          context.go('/warga');
+          context.go('/dashboard');
         }
       }
     } else if (status.isPermanentlyDenied) {
@@ -241,25 +238,23 @@ class _PermissionStep extends ConsumerWidget {
   }
 
   void _showSettingsDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Izin Diperlukan'),
-        content: Text(
-          'Izin $title diperlukan untuk melanjutkan. '
-          'Silakan aktifkan izin di Pengaturan.',
-        ),
+        title: Text(l10n.izinDiperlukan),
+        content: Text(l10n.izinDiperlukanPesan(title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+            child: Text(l10n.batal),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               openAppSettings();
             },
-            child: const Text('Buka Pengaturan'),
+            child: Text(l10n.bukaPengaturan),
           ),
         ],
       ),

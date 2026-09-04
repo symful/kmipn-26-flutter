@@ -190,15 +190,20 @@ class SigapShadows {
 
 // ----------------------------------------------------------------------------
 // Typography - IBM Plex Sans + Mono via google_fonts
+// Matches kmipn-26-deno/web/src/theme/tokens.ts
 // ----------------------------------------------------------------------------
 class SigapTypography {
   SigapTypography._();
 
-  // Font families (via google_fonts)
+  // ============================================================================
+  // Font Families (via google_fonts)
+  // ============================================================================
   static const String fontFamilySans = 'IBM Plex Sans';
   static const String fontFamilyMono = 'IBM Plex Mono';
 
-  // Type scale
+  // ============================================================================
+  // RAW SIZE SCALE - Complete integer + half-step scale from 8 to 36
+  // ============================================================================
   static const double size8 = 8;
   static const double size9 = 9;
   static const double size10 = 10;
@@ -215,14 +220,111 @@ class SigapTypography {
   static const double size18 = 18;
   static const double size19 = 19;
   static const double size20 = 20;
+  static const double size21 = 21;
   static const double size22 = 22;
+  static const double size23 = 23;
   static const double size24 = 24;
+  static const double size25 = 25;
   static const double size26 = 26;
-  static const double size30 = 30;
+  static const double size27 = 27;
   static const double size28 = 28;
+  static const double size29 = 29;
+  static const double size30 = 30;
+  static const double size31 = 31;
+  static const double size32 = 32;
+  static const double size33 = 33;
+  static const double size34 = 34;
+  static const double size35 = 35;
   static const double size36 = 36;
 
-  // Line heights
+  // ============================================================================
+  // SEMANTIC SCALE - Named by purpose, maps to Flutter TextTheme
+  // Use these for new code; raw size* constants remain for backward compat.
+  // ============================================================================
+
+  /// Hero / landing text (36pt)
+  static const double displayLarge = size36;
+
+  /// Large display (30pt)
+  static const double displayMedium = size30;
+
+  /// Small display (26pt)
+  static const double displaySmall = size26;
+
+  /// Section headers (24pt)
+  static const double headlineLarge = size24;
+
+  /// Sub-section headers (22pt)
+  static const double headlineMedium = size22;
+
+  /// Minor headers (20pt)
+  static const double headlineSmall = size20;
+
+  /// Card titles (18pt)
+  static const double titleLarge = size18;
+
+  /// List item titles (16pt)
+  static const double titleMedium = size16;
+
+  /// Supporting titles (14pt)
+  static const double titleSmall = size14;
+
+  /// Large body / lead paragraphs (16pt)
+  static const double bodyLarge = size16;
+
+  /// Default body text (14pt)
+  static const double bodyMedium = size14;
+
+  /// Small body / secondary text (12pt)
+  static const double bodySmall = size12;
+
+  /// Labels, badges, metadata (12pt)
+  static const double captionLarge = size12;
+
+  /// Fine print, timestamps (11pt)
+  static const double captionMedium = size11;
+
+  /// Smallest readable text (10pt)
+  static const double captionSmall = size10;
+
+  /// Micro text, tooltips (9pt)
+  static const double captionMicro = size9;
+
+  /// Nano text, absolute minimum (8pt)
+  static const double captionNano = size8;
+
+  // ============================================================================
+  // INTERMEDIATE SCALE - Fills gaps between standard semantic sizes
+  // Use when standard scale doesn't match design requirements.
+  // ============================================================================
+
+  /// Compact caption, between captionMedium(11) and captionSmall(10)
+  static const double captionFine = size11_5;
+
+  /// Compact body, between bodySmall(12) and captionMedium(11)
+  static const double bodySmallFine = size12_5;
+
+  /// Standard body text (13pt) - most common body size, between bodySmall(12) and bodyMedium(14)
+  static const double bodyText = size13;
+
+  /// Wide body text (13.5pt) - between bodySmall(12) and bodyMedium(14)
+  static const double bodyTextWide = size13_5;
+
+  /// Subtitle text (15pt) - between bodyMedium(14) and bodyLarge(16)
+  static const double subtitle = size15;
+
+  /// Subheading text (17pt) - between titleMedium(16) and titleLarge(18)
+  static const double subheading = size17;
+
+  /// Section title (19pt) - between titleLarge(18) and headlineSmall(20)
+  static const double sectionTitle = size19;
+
+  /// Hero text (28pt) - between displaySmall(26) and displayMedium(30)
+  static const double heroText = size28;
+
+  // ============================================================================
+  // LINE HEIGHTS - Multiplier applied to font size
+  // ============================================================================
   static const double lineHeight125 = 1.25;
   static const double lineHeight130 = 1.3;
   static const double lineHeight135 = 1.35;
@@ -231,7 +333,9 @@ class SigapTypography {
   static const double lineHeight150 = 1.5;
   static const double lineHeight155 = 1.55;
 
-  // Letter spacing
+  // ============================================================================
+  // LETTER SPACING
+  // ============================================================================
   static const double letterSpacingTight = -0.01;
   static const double letterSpacingLabel = 0.04;
 }

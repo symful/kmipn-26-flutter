@@ -127,9 +127,9 @@ final mapCategoriesProvider = FutureProvider<List<Map<String, String>>>((
 });
 
 /// Fetches warga statistics (submitted, verified, in_progress, resolved).
-final wargaStatsProvider = FutureProvider<StatsResponse>((ref) async {
+final wargaStatsProvider = FutureProvider<WargaStats>((ref) async {
   final api = ref.watch(apiClientProvider);
-  return await api.getStats();
+  return await api.getWargaStats();
 });
 
 /// Fetches nearby reports based on user location.

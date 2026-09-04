@@ -4,13 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../api/client.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
+import '../../l10n/status_label.dart';
 import '../../providers/providers.dart';
 import '../../providers/capability_provider.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/adaptive_nav.dart';
-import '../../widgets/design_system/phone_frame.dart';
-import '../../widgets/design_system/status_bar.dart';
 import '../../widgets/design_system/task_filter_chips.dart';
 import '../../widgets/design_system/sync_status_indicator.dart';
 import '../../widgets/design_system/photo_full_screen.dart';
@@ -56,10 +55,11 @@ class TaskWorkspace extends ConsumerStatefulWidget {
 class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
   // ─── List state ───────────────────────────────────────────────────────────
 
+  late AppLocalizations _l10n;
   bool _loading = true;
   String? _error;
   int? _filterIndex;
-  String _sortValue = Strings.slaTerdekat;
+  String _sortValue = '';
   int _selectedNavIndex = 0;
 
   List<_TaskItem> _tasks = [];
@@ -217,7 +217,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Berhasil mengunduh $downloaded tugas'),
+          content: Text(_l10n.berhasilMengunduhTugas(downloaded)),
           backgroundColor: SigapColors.selesai,
         ),
       );
@@ -256,23 +256,22 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
 
   List<_TaskItem> _applySort(List<_TaskItem> tasks, String sortValue) {
     final sorted = List<_TaskItem>.from(tasks);
-    switch (sortValue) {
-      case Strings.terbaru:
-        sorted.sort((a, b) {
-          if (a.createdAt == null && b.createdAt == null) return 0;
-          if (a.createdAt == null) return 1;
-          if (b.createdAt == null) return -1;
-          return b.createdAt!.compareTo(a.createdAt!);
-        });
-      case Strings.slaTerdekat:
-        sorted.sort((a, b) {
-          if (a.deadline == null && b.deadline == null) return 0;
-          if (a.deadline == null) return 1;
-          if (b.deadline == null) return -1;
-          return a.deadline!
-              .difference(now)
-              .compareTo(b.deadline!.difference(now));
-        });
+    if (sortValue == _l10n.terbaru) {
+      sorted.sort((a, b) {
+        if (a.createdAt == null && b.createdAt == null) return 0;
+        if (a.createdAt == null) return 1;
+        if (b.createdAt == null) return -1;
+        return b.createdAt!.compareTo(a.createdAt!);
+      });
+    } else if (sortValue == _l10n.slaTerdekat) {
+      sorted.sort((a, b) {
+        if (a.deadline == null && b.deadline == null) return 0;
+        if (a.deadline == null) return 1;
+        if (b.deadline == null) return -1;
+        return a.deadline!
+            .difference(now)
+            .compareTo(b.deadline!.difference(now));
+      });
     }
     return sorted;
   }
@@ -355,15 +354,15 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
         final errorStr = e.toString().toLowerCase();
         if (errorStr.contains('409') || errorStr.contains('conflict')) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tugas sudah dimulai oleh surveyor lain'),
+            SnackBar(
+              content: Text(_l10n.tugasDimulaiSurveyorLain),
               backgroundColor: SigapColors.warning,
             ),
           );
         } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Gagal: $e')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(_l10n.gagalDenganError(e.toString()))),
+          );
         }
       }
     }
@@ -388,23 +387,23 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
     final reason = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Tolak Tugas'),
+        title: Text(_l10n.tolakTugas),
         content: TextField(
           controller: reasonController,
-          decoration: const InputDecoration(
-            labelText: 'Alasan penolakan',
-            hintText: 'Masukkan alasan...',
+          decoration: InputDecoration(
+            labelText: _l10n.labelAlasanPenolakan,
+            hintText: _l10n.hintMasukkanAlasan,
           ),
           maxLines: 3,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: Text(_l10n.batal),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, reasonController.text),
-            child: const Text('Tolak'),
+            child: Text(_l10n.tolak),
           ),
         ],
       ),
@@ -420,23 +419,23 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
     final note = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Minta Clarifikasi'),
+        title: Text(_l10n.mintaClarifikasi),
         content: TextField(
           controller: noteController,
-          decoration: const InputDecoration(
-            labelText: 'Pertanyaan / klarifikasi',
-            hintText: 'Tulis pertanyaan Anda...',
+          decoration: InputDecoration(
+            labelText: _l10n.labelPertanyaanKlarifikasi,
+            hintText: _l10n.hintTulisPertanyaan,
           ),
           maxLines: 4,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
+            child: Text(_l10n.batal),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, noteController.text),
-            child: const Text('Kirim'),
+            child: Text(_l10n.kirim),
           ),
         ],
       ),
@@ -496,7 +495,8 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
   }
 
   String _getStatusLabel(String status) {
-    return Strings.statusLabel(status);
+    if (!mounted) return status;
+    return statusLabel(context, status);
   }
 
   String _formatDate(String? s) {
@@ -510,22 +510,22 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
 
   @override
   Widget build(BuildContext context) {
+    _l10n = AppLocalizations.of(context)!;
+    if (_sortValue.isEmpty) _sortValue = _l10n.slaTerdekat;
+
     final capabilityState = ref.watch(
       capabilityNotifierProvider.select((s) => s.valueOrNull),
     );
     final isSurveyor = _getIsSurveyor(capabilityState);
 
-    return PhoneFrame(
-      child: Column(
-        children: [
-          StatusBar(),
-          Expanded(
-            child: widget.taskId != null
-                ? _buildDetailView(isSurveyor)
-                : _buildListView(isSurveyor),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child: widget.taskId != null
+              ? _buildDetailView(isSurveyor)
+              : _buildListView(isSurveyor),
+        ),
+      ],
     );
   }
 
@@ -571,17 +571,17 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                   Text(
                     isSurveyor ? 'Tugas Survei' : 'Tugas Petugas',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size19,
+                      fontSize: SigapTypography.sectionTitle,
                       fontWeight: FontWeight.w700,
                       color: SigapColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '$taskCount tugas',
+                    '$taskCount ${_l10n.tugas}',
                     style: const TextStyle(
                       fontFamily: SigapTypography.fontFamilyMono,
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       color: SigapColors.textTertiary,
                     ),
                   ),
@@ -597,7 +597,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                       return IconButton(
                         icon: const Icon(Icons.download_rounded),
                         color: SigapColors.primary,
-                        tooltip: 'Unduh semua untuk offline',
+                        tooltip: _l10n.unduhSemuaOffline,
                         onPressed: _tasks.isEmpty
                             ? null
                             : () => _bulkDownload(_tasks),
@@ -657,20 +657,22 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                       Text(
                         'Urutkan: ',
                         style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                          fontSize: SigapTypography.bodySmall,
                           color: SigapColors.textTertiary,
                         ),
                       ),
                       DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _sortValue,
-                          items: ['Terbaru', 'Paling mendesak'].map((option) {
+                          items: [_l10n.terbaru, _l10n.slaTerdekat].map((
+                            option,
+                          ) {
                             return DropdownMenuItem<String>(
                               value: option,
                               child: Text(
                                 option,
                                 style: const TextStyle(
-                                  fontSize: SigapTypography.size12,
+                                  fontSize: SigapTypography.bodySmall,
                                   fontWeight: FontWeight.w700,
                                   color: SigapColors.textPrimary,
                                 ),
@@ -772,7 +774,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
             Text(
               isSurveyor ? 'Tidak Ada Tugas Survei' : 'Belum Ada Tugas',
               style: const TextStyle(
-                fontSize: SigapTypography.size16,
+                fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textPrimary,
               ),
@@ -783,7 +785,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                   ? 'Semua tugas survei lapangan yang ditugaskan akan tampil di sini.'
                   : 'Tugas penanganan dari operator akan muncul di sini saat ditugaskan.',
               style: const TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
               ),
               textAlign: TextAlign.center,
@@ -792,7 +794,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
             OutlinedButton.icon(
               onPressed: _load,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Segarkan Data'),
+              label: Text(_l10n.segarkanData),
             ),
           ],
         ),
@@ -836,7 +838,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                           ? 'Detail Tugas Survei'
                           : 'Detail Tugas Petugas',
                       style: const TextStyle(
-                        fontSize: SigapTypography.size16,
+                        fontSize: SigapTypography.bodyLarge,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
@@ -895,7 +897,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
             child: Text(
               _getStatusLabel(detail.status ?? ''),
               style: TextStyle(
-                fontSize: SigapTypography.size11,
+                fontSize: SigapTypography.captionMedium,
                 fontWeight: FontWeight.w600,
                 color: _getStatusColor(detail.status ?? ''),
               ),
@@ -907,7 +909,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
           Text(
             detail.reportTitle ?? '-',
             style: const TextStyle(
-              fontSize: SigapTypography.size17,
+              fontSize: SigapTypography.subheading,
               fontWeight: FontWeight.w700,
               color: SigapColors.textPrimary,
             ),
@@ -919,7 +921,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
             'TGS-${(detail.taskId ?? '').length >= 4 ? detail.taskId!.substring(0, 4) : detail.taskId ?? '-'}',
             style: const TextStyle(
               fontFamily: SigapTypography.fontFamilyMono,
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               color: SigapColors.textTertiary,
             ),
           ),
@@ -927,16 +929,16 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
 
           // Instruksi
           if (detail.description != null && detail.description!.isNotEmpty) ...[
-            S02InstruksiCard(title: 'Instruksi', body: detail.description!),
+            S02InstruksiCard(title: _l10n.instruksi, body: detail.description!),
             const SizedBox(height: SigapSpacing.lg),
           ],
 
           // Progress (for petugas only - surveyor uses checklist)
           if (!isSurveyor && detail.progress != null) ...[
-            const Text(
-              'Progress',
-              style: TextStyle(
-                fontSize: SigapTypography.size13,
+            Text(
+              _l10n.progress,
+              style: const TextStyle(
+                fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.textSecondary,
               ),
@@ -957,7 +959,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                 Text(
                   '${detail.progress}%',
                   style: const TextStyle(
-                    fontSize: SigapTypography.size12,
+                    fontSize: SigapTypography.bodySmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textSecondary,
                   ),
@@ -980,10 +982,10 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Clarification',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size12,
+                  Text(
+                    _l10n.clarification,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodySmall,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.warning,
                     ),
@@ -992,7 +994,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                   Text(
                     detail.clarification.toString(),
                     style: const TextStyle(
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       color: SigapColors.textSecondary,
                     ),
                   ),
@@ -1003,10 +1005,13 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
           ],
 
           // Timestamps
-          _InfoRow(label: 'Ditugaskan', value: _formatDate(detail.assignedAt)),
+          _InfoRow(
+            label: _l10n.ditugaskan,
+            value: _formatDate(detail.assignedAt),
+          ),
           if (detail.completedAt != null)
             _InfoRow(
-              label: 'Diselesaikan',
+              label: _l10n.diselesaikan,
               value: _formatDate(detail.completedAt),
             ),
 
@@ -1224,8 +1229,8 @@ class _TasksFlowCard extends StatelessWidget {
     }
   }
 
-  String get _statusLabel {
-    return Strings.statusLabel(task.status);
+  String _statusLabel(BuildContext context) {
+    return statusLabel(context, task.status);
   }
 
   Color get _priorityColor {
@@ -1315,7 +1320,7 @@ class _TasksFlowCard extends StatelessWidget {
                       Text(
                         task.title,
                         style: const TextStyle(
-                          fontSize: SigapTypography.size13_5,
+                          fontSize: SigapTypography.bodyTextWide,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textPrimary,
                         ),
@@ -1327,7 +1332,7 @@ class _TasksFlowCard extends StatelessWidget {
                         'TGS-${task.id.length >= 4 ? task.id.substring(0, 4) : task.id}',
                         style: const TextStyle(
                           fontFamily: SigapTypography.fontFamilyMono,
-                          fontSize: SigapTypography.size11,
+                          fontSize: SigapTypography.captionMedium,
                           color: SigapColors.textTertiary,
                         ),
                       ),
@@ -1336,7 +1341,7 @@ class _TasksFlowCard extends StatelessWidget {
                         Text(
                           'Menunggu klaim personel',
                           style: TextStyle(
-                            fontSize: SigapTypography.size11,
+                            fontSize: SigapTypography.captionMedium,
                             fontWeight: FontWeight.w600,
                             color: SigapColors.warning,
                           ),
@@ -1356,9 +1361,9 @@ class _TasksFlowCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    _statusLabel,
+                    _statusLabel(context),
                     style: TextStyle(
-                      fontSize: SigapTypography.size11,
+                      fontSize: SigapTypography.captionMedium,
                       fontWeight: FontWeight.w600,
                       color: _statusColor,
                     ),
@@ -1377,7 +1382,7 @@ class _TasksFlowCard extends StatelessWidget {
                 child: Text(
                   task.address!,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size11_5,
+                    fontSize: SigapTypography.captionFine,
                     color: SigapColors.textTertiary,
                   ),
                   maxLines: 1,
@@ -1401,7 +1406,7 @@ class _TasksFlowCard extends StatelessWidget {
                     child: Text(
                       _slaLabel,
                       style: TextStyle(
-                        fontSize: SigapTypography.size10,
+                        fontSize: SigapTypography.captionSmall,
                         fontWeight: FontWeight.w700,
                         color: _slaTextColor,
                       ),
@@ -1422,7 +1427,7 @@ class _TasksFlowCard extends StatelessWidget {
                     child: Text(
                       task.categoryName!.toUpperCase(),
                       style: const TextStyle(
-                        fontSize: SigapTypography.size10,
+                        fontSize: SigapTypography.captionSmall,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.primaryDark,
                       ),
@@ -1448,7 +1453,7 @@ class _TasksFlowCard extends StatelessWidget {
                         Text(
                           '${task.progressPercent}%',
                           style: const TextStyle(
-                            fontSize: SigapTypography.size11,
+                            fontSize: SigapTypography.captionMedium,
                             fontWeight: FontWeight.w600,
                             color: SigapColors.textSecondary,
                           ),
@@ -1469,7 +1474,7 @@ class _TasksFlowCard extends StatelessWidget {
                   Text(
                     distance!,
                     style: const TextStyle(
-                      fontSize: SigapTypography.size10,
+                      fontSize: SigapTypography.captionSmall,
                       color: SigapColors.textTertiary,
                     ),
                   ),
@@ -1523,7 +1528,7 @@ class _ErrorRetry extends StatelessWidget {
                     ? 'Gagal Memuat Detail Tugas'
                     : 'Gagal Memuat Tugas',
                 style: const TextStyle(
-                  fontSize: SigapTypography.size16,
+                  fontSize: SigapTypography.bodyLarge,
                   fontWeight: FontWeight.w700,
                   color: SigapColors.textPrimary,
                 ),
@@ -1532,7 +1537,7 @@ class _ErrorRetry extends StatelessWidget {
               Text(
                 error,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   color: SigapColors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
@@ -1543,7 +1548,7 @@ class _ErrorRetry extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Coba Lagi'),
+                label: Text(AppLocalizations.of(context)!.cobaLagi),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
                   foregroundColor: Colors.white,
@@ -1576,7 +1581,7 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textTertiary,
               ),
             ),
@@ -1585,7 +1590,7 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textSecondary,
               ),
             ),

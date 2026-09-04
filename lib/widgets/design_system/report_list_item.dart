@@ -162,7 +162,7 @@ class ReportListItem extends StatelessWidget {
                     child: Text(
                       category,
                       style: const TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
@@ -188,7 +188,7 @@ class ReportListItem extends StatelessWidget {
                   Text(
                     '#${id.length > 8 ? id.substring(0, 8) : id}',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size10,
+                      fontSize: SigapTypography.captionSmall,
                       color: SigapColors.textTertiary,
                       fontFamily: SigapTypography.fontFamilyMono,
                     ),
@@ -204,7 +204,7 @@ class ReportListItem extends StatelessWidget {
               Text(
                 description,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size13_5,
+                  fontSize: SigapTypography.bodyTextWide,
                   fontWeight: FontWeight.w500,
                   color: SigapColors.textPrimary,
                 ),

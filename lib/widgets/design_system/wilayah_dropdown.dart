@@ -23,7 +23,7 @@ class WilayahDropdown extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               color: SigapColors.textSecondary,
             ),
           ),

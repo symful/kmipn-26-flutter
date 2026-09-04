@@ -67,7 +67,7 @@ class PendingSyncBanner extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
-                fontSize: SigapTypography.size14,
+                fontSize: SigapTypography.bodyMedium,
               ),
             ),
           ),
@@ -82,7 +82,7 @@ class PendingSyncBanner extends StatelessWidget {
                   style: const TextStyle(
                     color: SigapColors.warningTextStrong,
                     fontWeight: FontWeight.w600,
-                    fontSize: SigapTypography.size13_5,
+                    fontSize: SigapTypography.bodyTextWide,
                   ),
                 ),
                 const SizedBox(height: SigapRadius.x1),
@@ -90,7 +90,7 @@ class PendingSyncBanner extends StatelessWidget {
                   'Aman tersimpan di perangkat. Akan terkirim otomatis saat ada koneksi.',
                   style: TextStyle(
                     color: SigapColors.offlineText,
-                    fontSize: SigapTypography.size12,
+                    fontSize: SigapTypography.bodySmall,
                     height: 1.4,
                   ),
                 ),
@@ -111,7 +111,7 @@ class PendingSyncBanner extends StatelessWidget {
                       style: TextStyle(
                         color: SigapColors.primaryDark,
                         fontWeight: FontWeight.w600,
-                        fontSize: SigapTypography.size12_5,
+                        fontSize: SigapTypography.bodySmallFine,
                       ),
                     ),
                   ),
@@ -157,7 +157,7 @@ class _SyncNowButton extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
-              fontSize: SigapTypography.size12_5,
+              fontSize: SigapTypography.bodySmallFine,
             ),
           ),
         ),

@@ -4,7 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../api/client.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
@@ -83,16 +83,16 @@ final dashboardMiniMapProvider = FutureProvider<List<MiniMapMarker>>((
 Color _getMarkerColor(String status) {
   switch (status) {
     case 'resolved':
-      return const Color(0xFF0F7A6B); // Green - SigapColors.selesai
+      return SigapColors.selesai;
     case 'verified':
     case 'in_progress':
-      return const Color(0xFF2563EB); // Blue - SigapColors.diproses
+      return SigapColors.diproses;
     case 'under_review':
     case 'needs_survey':
-      return const Color(0xFFB8730A); // Orange/Amber - SigapColors.warning
+      return SigapColors.warning;
     case 'submitted':
     default:
-      return const Color(0xFFC0392B); // Red - SigapColors.perluTindakan
+      return SigapColors.perluTindakan;
   }
 }
 
@@ -152,11 +152,11 @@ class _MiniMapContent extends StatelessWidget {
               color: _getMarkerColor(r.status),
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0x40000000),
+                  color: Colors.black.withValues(alpha: 0.25),
                   blurRadius: 4,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -196,11 +196,11 @@ class _MiniMapContent extends StatelessWidget {
                   color: SigapColors.primary.withValues(alpha: 0.85),
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Color(0x40000000),
+                      color: Colors.black.withValues(alpha: 0.25),
                       blurRadius: 6,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -209,7 +209,7 @@ class _MiniMapContent extends StatelessWidget {
                     clusterMarkers.length.toString(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: SigapTypography.size11,
+                      fontSize: SigapTypography.captionMedium,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -223,6 +223,7 @@ class _MiniMapContent extends StatelessWidget {
   }
 
   void _showMarkerPopup(BuildContext context, MiniMapMarker marker) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -233,7 +234,7 @@ class _MiniMapContent extends StatelessWidget {
             Text(
               marker.categoryName,
               style: const TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.textPrimary,
               ),
@@ -242,7 +243,7 @@ class _MiniMapContent extends StatelessWidget {
             Text(
               'Status: ${marker.status}',
               style: const TextStyle(
-                fontSize: SigapTypography.size11,
+                fontSize: SigapTypography.captionMedium,
                 color: SigapColors.textSecondary,
               ),
             ),
@@ -251,7 +252,7 @@ class _MiniMapContent extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tutup'),
+            child: Text(l10n.tutup),
           ),
         ],
       ),
@@ -293,7 +294,7 @@ class _MiniMapError extends StatelessWidget {
         child: Text(
           message,
           style: const TextStyle(
-            fontSize: SigapTypography.size11,
+            fontSize: SigapTypography.captionMedium,
             color: SigapColors.textMuted,
           ),
         ),

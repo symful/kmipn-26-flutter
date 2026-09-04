@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
-import '../../widgets/design_system/phone_frame.dart';
 import '../../widgets/design_system/section_label.dart';
-import '../../widgets/design_system/status_bar.dart';
 
 /// S-01 Sinkron Screen — role-aware unified sync center.
 ///
@@ -128,9 +127,10 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
     await queueRepo.retryDeadLetter(idempotencyKey);
 
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Item dikembalikan ke antrian'),
+        SnackBar(
+          content: Text(l10n.itemDikembalikanKeAntrian),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -186,80 +186,78 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final pendingCountAsync = ref.watch(pendingCountProvider);
 
-    return PhoneFrame(
-      child: Column(
-        children: [
-          StatusBar(),
-          Expanded(
-            child: Scaffold(
-              backgroundColor: SigapColors.bgSurface,
-              appBar: AppBar(
-                backgroundColor: SigapColors.bgCard,
-                elevation: 0,
-                automaticallyImplyLeading: false,
-                titleSpacing: 0,
-                title: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.lg,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        widget.isWargaSection ? 'Sinkronisasi' : 'Sinkron',
-                        style: const TextStyle(
-                          fontSize: SigapTypography.size19,
-                          fontWeight: FontWeight.w700,
-                          color: SigapColors.textPrimary,
-                        ),
-                      ),
-                      const Spacer(),
-                      pendingCountAsync.when(
-                        data: (count) => Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: count > 0
-                                ? SigapColors.warning.withValues(alpha: 0.1)
-                                : SigapColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '$count menunggu',
-                            style: TextStyle(
-                              fontFamily: SigapTypography.fontFamilyMono,
-                              fontSize: SigapTypography.size11,
-                              fontWeight: FontWeight.w600,
-                              color: count > 0
-                                  ? SigapColors.warning
-                                  : SigapColors.primary,
-                            ),
-                          ),
-                        ),
-                        loading: () => const SizedBox.shrink(),
-                        error: (_, __) => const SizedBox.shrink(),
-                      ),
-                    ],
-                  ),
+    return Column(
+      children: [
+        Expanded(
+          child: Scaffold(
+            backgroundColor: SigapColors.bgSurface,
+            appBar: AppBar(
+              backgroundColor: SigapColors.bgCard,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 0,
+              title: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SigapSpacing.lg,
                 ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.sync),
-                    onPressed: _syncAll,
-                    tooltip: 'Sync all',
-                  ),
-                ],
+                child: Row(
+                  children: [
+                    Text(
+                      widget.isWargaSection ? 'Sinkronisasi' : 'Sinkron',
+                      style: const TextStyle(
+                        fontSize: SigapTypography.sectionTitle,
+                        fontWeight: FontWeight.w700,
+                        color: SigapColors.textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    pendingCountAsync.when(
+                      data: (count) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: count > 0
+                              ? SigapColors.warning.withValues(alpha: 0.1)
+                              : SigapColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '$count menunggu',
+                          style: TextStyle(
+                            fontFamily: SigapTypography.fontFamilyMono,
+                            fontSize: SigapTypography.captionMedium,
+                            fontWeight: FontWeight.w600,
+                            color: count > 0
+                                ? SigapColors.warning
+                                : SigapColors.primary,
+                          ),
+                        ),
+                      ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
               ),
-              body: widget.isWargaSection
-                  ? _buildWargaBody()
-                  : _buildSurveyorBody(),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.sync),
+                  onPressed: _syncAll,
+                  tooltip: l10n.syncAll,
+                ),
+              ],
             ),
+            body: widget.isWargaSection
+                ? _buildWargaBody()
+                : _buildSurveyorBody(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -301,7 +299,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
           const Text(
             'Semua tersinkron',
             style: TextStyle(
-              fontSize: SigapTypography.size16,
+              fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
             ),
@@ -310,7 +308,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
           const Text(
             'Tidak ada data yang menunggu sinkron',
             style: TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               color: SigapColors.textTertiary,
             ),
           ),
@@ -398,7 +396,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
           const Text(
             'Semua tersinkron',
             style: TextStyle(
-              fontSize: SigapTypography.size16,
+              fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
             ),
@@ -407,7 +405,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
           Text(
             '$_downloadedTaskCount tugas tersimpan offline',
             style: const TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               color: SigapColors.textTertiary,
             ),
           ),
@@ -440,7 +438,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
                   Text(
                     '$_downloadedTaskCount tugas tersimpan offline',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.primaryDark,
                     ),
@@ -553,7 +551,7 @@ class _ReportSyncCard extends StatelessWidget {
                 Text(
                   item.description,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size13_5,
+                    fontSize: SigapTypography.bodyTextWide,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),
@@ -565,7 +563,7 @@ class _ReportSyncCard extends StatelessWidget {
                   '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
                   style: const TextStyle(
                     fontFamily: SigapTypography.fontFamilyMono,
-                    fontSize: SigapTypography.size11,
+                    fontSize: SigapTypography.captionMedium,
                     color: SigapColors.textTertiary,
                   ),
                 ),
@@ -581,7 +579,7 @@ class _ReportSyncCard extends StatelessWidget {
             child: const Text(
               'Menunggu',
               style: TextStyle(
-                fontSize: SigapTypography.size10,
+                fontSize: SigapTypography.captionSmall,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.warning,
               ),
@@ -601,6 +599,7 @@ class _DeadLetterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: SigapColors.dangerBg,
@@ -634,7 +633,7 @@ class _DeadLetterCard extends StatelessWidget {
                     Text(
                       item.description,
                       style: const TextStyle(
-                        fontSize: SigapTypography.size13_5,
+                        fontSize: SigapTypography.bodyTextWide,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
@@ -646,7 +645,7 @@ class _DeadLetterCard extends StatelessWidget {
                       Text(
                         item.lastError!,
                         style: const TextStyle(
-                          fontSize: SigapTypography.size11,
+                          fontSize: SigapTypography.captionMedium,
                           color: SigapColors.dangerTextStrong,
                         ),
                         maxLines: 1,
@@ -661,7 +660,7 @@ class _DeadLetterCard extends StatelessWidget {
                   Icons.refresh,
                   color: SigapColors.perluTindakan,
                 ),
-                tooltip: 'Coba lagi',
+                tooltip: l10n.cobaLagi,
                 onPressed: onRetry,
               ),
             ],
@@ -679,7 +678,7 @@ class _DeadLetterCard extends StatelessWidget {
                 child: const Text(
                   'Gagal',
                   style: TextStyle(
-                    fontSize: SigapTypography.size10,
+                    fontSize: SigapTypography.captionSmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.dangerTextStrong,
                   ),
@@ -689,7 +688,7 @@ class _DeadLetterCard extends StatelessWidget {
                 '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
                 style: const TextStyle(
                   fontFamily: SigapTypography.fontFamilyMono,
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   color: SigapColors.textTertiary,
                 ),
               ),
@@ -742,7 +741,7 @@ class _VisitPendingCard extends StatelessWidget {
                     Text(
                       item._title,
                       style: const TextStyle(
-                        fontSize: SigapTypography.size13_5,
+                        fontSize: SigapTypography.bodyTextWide,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
@@ -754,7 +753,7 @@ class _VisitPendingCard extends StatelessWidget {
                       item._taskIdDisplay,
                       style: const TextStyle(
                         fontFamily: SigapTypography.fontFamilyMono,
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textTertiary,
                       ),
                     ),
@@ -770,7 +769,7 @@ class _VisitPendingCard extends StatelessWidget {
                 child: const Text(
                   'Menunggu',
                   style: TextStyle(
-                    fontSize: SigapTypography.size10,
+                    fontSize: SigapTypography.captionSmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.warning,
                   ),
@@ -792,6 +791,7 @@ class _ErrorRetry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -807,7 +807,7 @@ class _ErrorRetry extends StatelessWidget {
             const Text(
               'Gagal memuat data',
               style: TextStyle(
-                fontSize: SigapTypography.size16,
+                fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.textPrimary,
               ),
@@ -816,7 +816,7 @@ class _ErrorRetry extends StatelessWidget {
             Text(
               error,
               style: const TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textTertiary,
               ),
               textAlign: TextAlign.center,
@@ -827,7 +827,7 @@ class _ErrorRetry extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Coba lagi'),
+              label: Text(l10n.cobaLagi),
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.primary,
                 foregroundColor: Colors.white,

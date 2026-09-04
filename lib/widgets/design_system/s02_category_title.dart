@@ -34,7 +34,7 @@ class S02CategoryTitle extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: SigapTypography.size16,
+            fontSize: SigapTypography.bodyLarge,
             fontWeight: FontWeight.w700,
             color: SigapColors.textPrimary,
             height: SigapTypography.lineHeight135,
@@ -65,7 +65,7 @@ class _CategoryChip extends StatelessWidget {
       child: Text(
         '$icon $name',
         style: const TextStyle(
-          fontSize: SigapTypography.size12,
+          fontSize: SigapTypography.bodySmall,
           fontWeight: FontWeight.w600,
           color: SigapColors.primaryDark,
         ),

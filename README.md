@@ -129,7 +129,7 @@ The API base URL is resolved at compile-time via `--dart-define=API_BASE_URL=...
 
 ### 1. Run Development (Connected to Cloudflare Remote)
 ```bash
-flutter run --dart-define=API_BASE_URL=https://kmipn-26-deno.careday17.workers.dev
+flutter run --dart-define=API_BASE_URL=https://sigap.live
 ```
 
 ### 2. Run Development (Local Emulator -> Host Machine)
@@ -144,7 +144,7 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8787
 To build optimized release APKs split by CPU architecture (reducing APK size to ~15MB):
 
 ```bash
-flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=https://kmipn-26-deno.careday17.workers.dev
+flutter build apk --release --split-per-abi --dart-define=API_BASE_URL=https://sigap.live
 ```
 
 ### Output APK Binaries:
@@ -155,7 +155,7 @@ After building, the release APK files are located at:
 
 To build a single universal fat APK:
 ```bash
-flutter build apk --release --dart-define=API_BASE_URL=https://kmipn-26-deno.careday17.workers.dev
+flutter build apk --release --dart-define=API_BASE_URL=https://sigap.live
 ```
 
 ---

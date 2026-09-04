@@ -162,7 +162,7 @@ class TaskCard extends StatelessWidget {
                     task.initials,
                     style: const TextStyle(
                       fontFamily: SigapTypography.fontFamilyMono,
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.primaryDark,
                     ),
@@ -176,7 +176,7 @@ class TaskCard extends StatelessWidget {
                       Text(
                         task.title,
                         style: const TextStyle(
-                          fontSize: SigapTypography.size13_5,
+                          fontSize: SigapTypography.bodyTextWide,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textPrimary,
                         ),
@@ -188,7 +188,7 @@ class TaskCard extends StatelessWidget {
                         task.id,
                         style: const TextStyle(
                           fontFamily: SigapTypography.fontFamilyMono,
-                          fontSize: SigapTypography.size11,
+                          fontSize: SigapTypography.captionMedium,
                           color: SigapColors.textTertiary,
                         ),
                       ),
@@ -208,7 +208,7 @@ class TaskCard extends StatelessWidget {
                     child: Text(
                       task.slaLabel!,
                       style: TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         fontWeight: FontWeight.w700,
                         color: _slaTextColor,
                       ),
@@ -223,7 +223,7 @@ class TaskCard extends StatelessWidget {
               child: Text(
                 '📍 ${task.location}',
                 style: const TextStyle(
-                  fontSize: SigapTypography.size11_5,
+                  fontSize: SigapTypography.captionFine,
                   color: SigapColors.textTertiary,
                 ),
               ),
@@ -265,7 +265,7 @@ class TaskCard extends StatelessWidget {
                         const Text(
                           'Siap offline',
                           style: TextStyle(
-                            fontSize: SigapTypography.size11,
+                            fontSize: SigapTypography.captionMedium,
                             fontWeight: FontWeight.w600,
                             color: SigapColors.primaryDark,
                           ),
@@ -276,7 +276,7 @@ class TaskCard extends StatelessWidget {
                     const Text(
                       'Unduh untuk offline',
                       style: TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         fontWeight: FontWeight.w700,
                         color: SigapColors.primary,
                       ),

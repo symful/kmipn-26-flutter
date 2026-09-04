@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
-import '../../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
@@ -73,165 +73,176 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(SigapRadius.lg),
-          ),
-          backgroundColor: SigapColors.surface,
-          title: const Row(
-            children: [
-              Icon(Icons.person_add, color: SigapColors.primary),
-              SizedBox(width: SigapSpacing.sm),
-              Text(
-                'Tambah Pengguna',
-                style: TextStyle(
-                  fontSize: SigapTypography.size16,
-                  fontWeight: FontWeight.bold,
-                  color: SigapColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        builder: (ctx, setSheetState) {
+          final dl10n = AppLocalizations.of(ctx)!;
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SigapRadius.lg),
+            ),
+            backgroundColor: SigapColors.surface,
+            title: Row(
               children: [
-                const Text(
-                  'Masukkan informasi akun pengguna baru untuk sistem SIGAP.',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size12,
-                    color: SigapColors.textSecondary,
+                const Icon(Icons.person_add, color: SigapColors.primary),
+                const SizedBox(width: SigapSpacing.sm),
+                Text(
+                  dl10n.tambahPengguna,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyLarge,
+                    fontWeight: FontWeight.bold,
+                    color: SigapColors.textPrimary,
                   ),
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email (Wajib)',
-                    hintText: 'contoh@daerah.go.id',
-                    prefixIcon: const Icon(Icons.email_outlined, size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(SigapRadius.md),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.md,
-                      vertical: SigapSpacing.sm,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: Strings.namaWAJIB,
-                    hintText: 'Nama lengkap pengguna',
-                    prefixIcon: const Icon(Icons.badge_outlined, size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(SigapRadius.md),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.md,
-                      vertical: SigapSpacing.sm,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                DropdownButtonFormField<String>(
-                  initialValue: selectedRole,
-                  decoration: InputDecoration(
-                    labelText: 'Peran / Role',
-                    prefixIcon: const Icon(
-                      Icons.admin_panel_settings_outlined,
-                      size: 20,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(SigapRadius.md),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.md,
-                      vertical: SigapSpacing.sm,
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'PETUGAS',
-                      child: Text('PETUGAS (Lapangan)'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'SURVEYOR',
-                      child: Text('SURVEYOR (Verifikasi Fisik)'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'VERIFIKATOR',
-                      child: Text('VERIFIKATOR (Validasi)'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'OPERATOR',
-                      child: Text('OPERATOR (Disposisi)'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'ADMIN_DAERAH',
-                      child: Text('ADMIN DAERAH'),
-                    ),
-                  ],
-                  onChanged: (v) => setSheetState(() => selectedRole = v),
                 ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text(
-                Strings.batal,
-                style: TextStyle(color: SigapColors.textSecondary),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    dl10n.masukkanInformasi,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodySmall,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: dl10n.labelEmailWajib,
+                      hintText: dl10n.hintEmail,
+                      prefixIcon: const Icon(
+                        Icons.email_outlined,
+                        size: SigapTypography.headlineSmall,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: dl10n.namaWAJIB,
+                      hintText: dl10n.hintNamaLengkap,
+                      prefixIcon: const Icon(
+                        Icons.badge_outlined,
+                        size: SigapTypography.headlineSmall,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedRole,
+                    decoration: InputDecoration(
+                      labelText: dl10n.labelPeranRole,
+                      prefixIcon: const Icon(
+                        Icons.admin_panel_settings_outlined,
+                        size: SigapTypography.headlineSmall,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
+                      ),
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'PETUGAS',
+                        child: Text(dl10n.petugasLapangan),
+                      ),
+                      DropdownMenuItem(
+                        value: 'SURVEYOR',
+                        child: Text(dl10n.surveyorVerifikasiFisik),
+                      ),
+                      DropdownMenuItem(
+                        value: 'VERIFIKATOR',
+                        child: Text(dl10n.verifikatorValidasi),
+                      ),
+                      DropdownMenuItem(
+                        value: 'OPERATOR',
+                        child: Text(dl10n.operatorDisposisi),
+                      ),
+                      DropdownMenuItem(
+                        value: 'ADMIN_DAERAH',
+                        child: Text(dl10n.adminDaerah),
+                      ),
+                    ],
+                    onChanged: (v) => setSheetState(() => selectedRole = v),
+                  ),
+                ],
               ),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(
+                  dl10n.batal,
+                  style: TextStyle(color: SigapColors.textSecondary),
                 ),
               ),
-              onPressed: () async {
-                if (emailController.text.trim().isEmpty ||
-                    nameController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(
-                      content: Text('Email dan nama wajib diisi'),
-                      backgroundColor: SigapColors.warning,
-                    ),
-                  );
-                  return;
-                }
-                try {
-                  final client = ref.read(apiClientProvider);
-                  await client.createUser(
-                    email: emailController.text.trim(),
-                    password: '',
-                    name: nameController.text.trim(),
-                    role: selectedRole!,
-                  );
-                  if (ctx.mounted) Navigator.pop(ctx, true);
-                } catch (e) {
-                  if (ctx.mounted) {
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SigapRadius.sm),
+                  ),
+                ),
+                onPressed: () async {
+                  if (emailController.text.trim().isEmpty ||
+                      nameController.text.trim().isEmpty) {
                     ScaffoldMessenger.of(ctx).showSnackBar(
                       SnackBar(
-                        content: Text('Error: ${extractErrorMessage(e)}'),
-                        backgroundColor: SigapColors.perluTindakan,
+                        content: Text(dl10n.emailNamaWajibDiisi),
+                        backgroundColor: SigapColors.warning,
                       ),
                     );
+                    return;
                   }
-                }
-              },
-              child: const Text(Strings.simpan),
-            ),
-          ],
-        ),
+                  try {
+                    final client = ref.read(apiClientProvider);
+                    await client.createUser(
+                      email: emailController.text.trim(),
+                      password: '',
+                      name: nameController.text.trim(),
+                      role: selectedRole!,
+                    );
+                    if (ctx.mounted) Navigator.pop(ctx, true);
+                  } catch (e) {
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            dl10n.errorDenganPesan(extractErrorMessage(e)),
+                          ),
+                          backgroundColor: SigapColors.perluTindakan,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: Text(dl10n.simpan),
+              ),
+            ],
+          );
+        },
       ),
     );
     if (result == true) _load();
@@ -255,14 +266,15 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final dl10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Kelola Akun'),
+        title: Text(dl10n.kelolaAkun),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Segarkan',
+            tooltip: dl10n.segarkan,
             onPressed: _load,
           ),
         ],
@@ -272,7 +284,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
         backgroundColor: SigapColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text('Tambah Akun'),
+        label: Text(dl10n.tambahAkun),
       ),
       body: Column(
         children: [
@@ -289,7 +301,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                 children: _roleOptions.map((role) {
                   final isSelected = _roleFilter == role;
                   final label = role == 'all'
-                      ? 'Semua Role (${_items.length})'
+                      ? '${dl10n.semuaRole} (${_items.length})'
                       : '${role.replaceAll('_', ' ').toUpperCase()} (${_items.where((u) => (u['role'] as String?)?.toLowerCase() == role).length})';
                   return Padding(
                     padding: const EdgeInsets.only(right: SigapSpacing.sm),
@@ -297,7 +309,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                       selected: isSelected,
                       label: Text(label),
                       labelStyle: TextStyle(
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.normal,
@@ -342,14 +354,14 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                     padding: const EdgeInsets.all(SigapSpacing.lg),
                     child: EmptyState(
                       icon: Icons.people_outline,
-                      title: 'Tidak Ada Akun',
+                      title: dl10n.tidakAdaAkun,
                       subtitle: _roleFilter == 'all'
-                          ? 'Belum ada akun pengguna yang terdaftar.'
-                          : 'Tidak ada pengguna dengan peran "${_roleFilter.toUpperCase()}".',
+                          ? dl10n.belumAdaAkunPenggunaTerdaftar
+                          : '${dl10n.tidakAdaPenggunaDenganPeran} "${_roleFilter.toUpperCase()}".',
                       action: OutlinedButton.icon(
                         onPressed: _createUser,
                         icon: const Icon(Icons.add),
-                        label: const Text('Tambah Akun Baru'),
+                        label: Text(dl10n.tambahAkunBaru),
                       ),
                     ),
                   )
@@ -393,7 +405,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                                 name,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: SigapTypography.size14,
+                                  fontSize: SigapTypography.bodyMedium,
                                   color: SigapColors.textPrimary,
                                 ),
                               ),
@@ -402,7 +414,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                                 child: Text(
                                   email,
                                   style: const TextStyle(
-                                    fontSize: SigapTypography.size12,
+                                    fontSize: SigapTypography.bodySmall,
                                     color: SigapColors.textSecondary,
                                   ),
                                 ),

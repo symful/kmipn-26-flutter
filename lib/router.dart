@@ -30,10 +30,12 @@ import 'features/dashboard/dashboard_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/role_switcher/role_switcher_screen.dart';
 import 'features/home_screen.dart';
+import 'features/laporan_screen.dart';
 import 'features/cases/case_queue_page.dart';
 import 'features/rt_rw/rt_rw_verification_screen.dart';
 import 'features/rt_rw/rt_rw_training_screen.dart';
 import 'features/sanggahan/sanggahan_screen.dart';
+import 'features/evidence/evidence_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/capability_provider.dart';
 import 'providers/providers.dart';
@@ -232,6 +234,7 @@ final appRouter = GoRouter(
         );
       },
     ),
+    GoRoute(path: '/laporan', builder: (c, s) => const LaporanScreen()),
     GoRoute(
       path: '/laporan/:reportId',
       builder: (c, s) => ReportDetailScreen(id: s.pathParameters['reportId']!),
@@ -242,6 +245,12 @@ final appRouter = GoRouter(
       path: '/sanggahan/:reportId',
       builder: (c, s) =>
           SanggahanScreen(reportId: s.pathParameters['reportId']!),
+    ),
+
+    // EVIDENCE (ADD PHOTOS TO EXISTING CASE)
+    GoRoute(
+      path: '/evidence/:caseId',
+      builder: (c, s) => EvidenceScreen(caseId: s.pathParameters['caseId']!),
     ),
 
     // FORM SURVEI

@@ -40,7 +40,7 @@ class PrimaryButton extends StatelessWidget {
             : Text(
                 label,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size15,
+                  fontSize: SigapTypography.subtitle,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -72,7 +72,7 @@ class SecondaryButton extends StatelessWidget {
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: SigapTypography.size15,
+            fontSize: SigapTypography.subtitle,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -142,7 +142,7 @@ class CtaButton extends StatelessWidget {
                         Text(
                           label,
                           style: const TextStyle(
-                            fontSize: SigapTypography.size16,
+                            fontSize: SigapTypography.bodyLarge,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
@@ -152,7 +152,7 @@ class CtaButton extends StatelessWidget {
                           Text(
                             subtitle!,
                             style: TextStyle(
-                              fontSize: SigapTypography.size12,
+                              fontSize: SigapTypography.bodySmall,
                               fontWeight: FontWeight.w400,
                               color: Colors.white.withValues(alpha: 0.85),
                             ),
@@ -191,7 +191,7 @@ class DangerButton extends StatelessWidget {
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: SigapTypography.size15,
+            fontSize: SigapTypography.subtitle,
             fontWeight: FontWeight.w600,
           ),
         ),

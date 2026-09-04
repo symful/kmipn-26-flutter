@@ -137,7 +137,7 @@ class _TitleColumnStandard extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: SigapTypography.size16,
+            fontSize: SigapTypography.bodyLarge,
             fontWeight: FontWeight.w700,
             color: SigapColors.textPrimary,
           ),
@@ -148,7 +148,7 @@ class _TitleColumnStandard extends StatelessWidget {
           Text(
             subtitle!,
             style: const TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               fontFamily: SigapTypography.fontFamilyMono,
               color: SigapColors.textTertiary,
             ),
@@ -176,7 +176,7 @@ class _TitleColumnReview extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: SigapTypography.size22,
+            fontSize: SigapTypography.headlineMedium,
             fontWeight: FontWeight.w700,
             color: SigapColors.textPrimary,
           ),
@@ -186,7 +186,7 @@ class _TitleColumnReview extends StatelessWidget {
           Text(
             subtitle!,
             style: const TextStyle(
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               color: SigapColors.textTertiary,
             ),
           ),
@@ -271,7 +271,7 @@ class SlaBadge extends StatelessWidget {
       child: Text(
         data.label,
         style: TextStyle(
-          fontSize: SigapTypography.size11,
+          fontSize: SigapTypography.captionMedium,
           fontWeight: FontWeight.w600,
           color: data.textColor,
         ),

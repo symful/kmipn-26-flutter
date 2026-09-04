@@ -63,7 +63,7 @@ class SigapAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? Text(
               title!,
               style: TextStyle(
-                fontSize: SigapTypography.size17,
+                fontSize: SigapTypography.subheading,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.textPrimary,
                 letterSpacing: SigapTypography.letterSpacingTight,

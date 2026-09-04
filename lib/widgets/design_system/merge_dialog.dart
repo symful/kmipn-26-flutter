@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../l10n/strings.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -52,26 +52,27 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Merge Kasus'),
+      title: Text(l10n.mergeKasus),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _targetIdController,
-              decoration: const InputDecoration(
-                labelText: 'ID Kasus Target (WAJIB)',
-                hintText: Strings.alasanMerge,
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.labelIdKasusTarget,
+                hintText: l10n.alasanMerge,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: SigapSpacing.md),
             TextField(
               controller: _reasonController,
-              decoration: const InputDecoration(
-                labelText: 'Alasan (opsional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.labelAlasanOpsional,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
@@ -91,7 +92,7 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.pop(context),
-          child: const Text(Strings.batal),
+          child: Text(l10n.batal),
         ),
         ElevatedButton(
           onPressed: _targetIdController.text.trim().isEmpty || _loading
@@ -103,7 +104,7 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Merge'),
+              : Text(l10n.merge),
         ),
       ],
     );

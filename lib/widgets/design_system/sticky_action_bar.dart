@@ -174,7 +174,7 @@ class _InlineBar extends StatelessWidget {
               child: Text(
                 label!,
                 style: TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w500,
                   color: SigapColors.textSecondary,
                 ),

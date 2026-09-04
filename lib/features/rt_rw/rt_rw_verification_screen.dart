@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../api/client.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/capability_provider.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
@@ -78,6 +78,7 @@ class _RtRwVerificationScreenState
   }
 
   Future<void> _verifyCase(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final client = ref.read(apiClientProvider);
       final activeRole = ref.read(authNotifierProvider).activeRole ?? '';
@@ -90,7 +91,7 @@ class _RtRwVerificationScreenState
       await _loadQueue();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Laporan berhasil diverifikasi')),
+          SnackBar(content: Text(l10n.laporanBerhasilDiverifikasi)),
         );
       }
     } catch (e) {
@@ -98,37 +99,41 @@ class _RtRwVerificationScreenState
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${Strings.gagal}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.gagal}: $e')));
       }
     }
   }
 
   Future<void> _rejectCase(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final reasonController = TextEditingController();
 
     final reason = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(Strings.tolakLaporan),
-        content: TextField(
-          controller: reasonController,
-          decoration: InputDecoration(
-            labelText: Strings.alasanPenolakan,
-            hintText: 'Masukkan alasan penolakan...',
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl10n.tolakLaporan),
+          content: TextField(
+            controller: reasonController,
+            decoration: InputDecoration(
+              labelText: dl10n.alasanPenolakan,
+              hintText: 'Masukkan alasan penolakan...',
+            ),
+            maxLines: 3,
           ),
-          maxLines: 3,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(Strings.batal),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, reasonController.text),
-            child: Text(Strings.tolak),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(dl10n.batal),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, reasonController.text),
+              child: Text(dl10n.tolak),
+            ),
+          ],
+        );
+      },
     );
 
     if (reason == null || reason.isEmpty) return;
@@ -140,44 +145,48 @@ class _RtRwVerificationScreenState
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Laporan ditolak')));
+        ).showSnackBar(SnackBar(content: Text(l10n.laporanDitolak)));
       }
     } catch (e) {
       _logger.warning('Error rejecting case', e);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${Strings.gagal}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.gagal}: $e')));
       }
     }
   }
 
   Future<void> _requestInfoCase(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final noteController = TextEditingController();
 
     final note = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Minta Informasi'),
-        content: TextField(
-          controller: noteController,
-          decoration: InputDecoration(
-            labelText: 'Informasi yang diperlukan',
-            hintText: 'Masukkan pertanyaan atau informasi yang diperlukan...',
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl10n.mintaInformasi),
+          content: TextField(
+            controller: noteController,
+            decoration: InputDecoration(
+              labelText: 'Informasi yang diperlukan',
+              hintText: 'Masukkan pertanyaan atau informasi yang diperlukan...',
+            ),
+            maxLines: 3,
           ),
-          maxLines: 3,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(Strings.batal),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, noteController.text),
-            child: Text('Kirim'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(dl10n.batal),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, noteController.text),
+              child: Text(dl10n.kirim),
+            ),
+          ],
+        );
+      },
     );
 
     if (note == null || note.isEmpty) return;
@@ -188,7 +197,7 @@ class _RtRwVerificationScreenState
       await _loadQueue();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permintaan informasi berhasil dikirim')),
+          SnackBar(content: Text(l10n.permintaanInformasiTerkirim)),
         );
       }
     } catch (e) {
@@ -196,7 +205,7 @@ class _RtRwVerificationScreenState
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('${Strings.gagal}: $e')));
+        ).showSnackBar(SnackBar(content: Text('${l10n.gagal}: $e')));
       }
     }
   }
@@ -204,18 +213,19 @@ class _RtRwVerificationScreenState
   @override
   Widget build(BuildContext context) {
     final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    final l10n = AppLocalizations.of(context)!;
 
     return AuthenticatedShell(
       activeRole: activeRole,
       useScaffold: true,
       appBar: AppBar(
-        title: const Text('Verifikasi RT_RW'),
+        title: Text(l10n.verifikasiRTRW),
         automaticallyImplyLeading: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadQueue,
-            tooltip: Strings.refresh,
+            tooltip: l10n.refresh,
           ),
         ],
       ),
@@ -228,7 +238,7 @@ class _RtRwVerificationScreenState
           ? Padding(
               padding: const EdgeInsets.all(SigapSpacing.xl),
               child: ErrorRetryView(
-                message: Strings.gagalMemuatTugas,
+                message: l10n.gagalMemuatTugas,
                 onRetry: _loadQueue,
               ),
             )
@@ -261,6 +271,7 @@ class _RtRwVerificationScreenState
   }
 
   List<Widget>? _buildTrailingActions(Report entry) {
+    final l10n = AppLocalizations.of(context)!;
     final actions = <Widget>[];
 
     // Verify action
@@ -270,7 +281,7 @@ class _RtRwVerificationScreenState
           icon: const Icon(Icons.check_circle_outline),
           color: SigapColors.selesai,
           onPressed: () => _verifyCase(entry.id!),
-          tooltip: 'Setuju',
+          tooltip: l10n.setuju,
         ),
       );
     }
@@ -282,7 +293,7 @@ class _RtRwVerificationScreenState
           icon: const Icon(Icons.highlight_off),
           color: SigapColors.perluTindakan,
           onPressed: () => _rejectCase(entry.id!),
-          tooltip: Strings.tolak,
+          tooltip: l10n.tolak,
         ),
       );
     }
@@ -294,7 +305,7 @@ class _RtRwVerificationScreenState
           icon: const Icon(Icons.help_outline),
           color: SigapColors.info,
           onPressed: () => _requestInfoCase(entry.id!),
-          tooltip: 'Minta Info',
+          tooltip: l10n.mintaInfo,
         ),
       );
     }
@@ -305,7 +316,7 @@ class _RtRwVerificationScreenState
         icon: const Icon(Icons.chevron_right),
         color: SigapColors.textTertiary,
         onPressed: () => context.push('/rt-rw-verification/${entry.id}'),
-        tooltip: Strings.detail,
+        tooltip: l10n.detail,
       ),
     );
 
@@ -313,12 +324,13 @@ class _RtRwVerificationScreenState
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(SigapSpacing.xl),
       child: EmptyState(
         icon: Icons.inbox_outlined,
-        title: 'Tidak Ada Kasus',
-        subtitle: 'Belum ada kasus yang perlu diverifikasi.',
+        title: l10n.tidakAdaKasus,
+        subtitle: l10n.belumAdaKasusVerifikasi,
       ),
     );
   }
@@ -453,77 +465,80 @@ class _RtRwVerificationDetailScreenState
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Container(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-          ),
-          decoration: const BoxDecoration(
-            color: SigapColors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx)!;
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) => Container(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            ),
+            decoration: const BoxDecoration(
+              color: SigapColors.surface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _reasonController,
-                decoration: const InputDecoration(
-                  labelText: 'Alasan (WAJIB)',
-                  hintText: 'Berikan alasan keputusan ini',
-                  border: OutlineInputBorder(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
                 ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _canSubmit
-                    ? () {
-                        Navigator.pop(ctx);
-                        _submit();
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: color,
-                  foregroundColor: SigapColors.surface,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _reasonController,
+                  decoration: InputDecoration(
+                    labelText: dl10n.labelAlasanWajib,
+                    hintText: dl10n.hintBerikanAlasanKeputusan,
+                    border: const OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
                 ),
-                child: const Text(Strings.kirimKeputusan),
-              ),
-            ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _canSubmit
+                      ? () {
+                          Navigator.pop(ctx);
+                          _submit();
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: color,
+                    foregroundColor: SigapColors.surface,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: Text(dl10n.kirimKeputusan),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -535,9 +550,10 @@ class _RtRwVerificationDetailScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_success) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Verifikasi')),
+        appBar: AppBar(title: Text(l10n.verifikasi)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -555,7 +571,7 @@ class _RtRwVerificationDetailScreenState
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => context.pop(),
-                child: const Text('Kembali'),
+                child: Text(l10n.kembali),
               ),
             ],
           ),
@@ -565,14 +581,14 @@ class _RtRwVerificationDetailScreenState
 
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text(Strings.detailKasus)),
+        appBar: AppBar(title: Text(l10n.detailKasus)),
         body: const VerifikatorCaseDetailSkeleton(),
       );
     }
 
     if (_error != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text(Strings.detailKasus)),
+        appBar: AppBar(title: Text(l10n.detailKasus)),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -585,10 +601,7 @@ class _RtRwVerificationDetailScreenState
               const SizedBox(height: 16),
               Text('Gagal memuat: $_error'),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadData,
-                child: const Text('Coba Lagi'),
-              ),
+              ElevatedButton(onPressed: _loadData, child: Text(l10n.cobaLagi)),
             ],
           ),
         ),
@@ -607,7 +620,7 @@ class _RtRwVerificationDetailScreenState
     final lng = report?.location?['lng'] as double?;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(Strings.detailKasusVerifikasi)),
+      appBar: AppBar(title: Text(l10n.detailKasusVerifikasi)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
@@ -636,7 +649,7 @@ class _RtRwVerificationDetailScreenState
                     children: [
                       StatusPill(
                         label: status == 'submitted'
-                            ? Strings.submitted
+                            ? l10n.submitted
                             : status == 'under_review'
                             ? 'Under Review'
                             : status == 'verified'
@@ -646,9 +659,9 @@ class _RtRwVerificationDetailScreenState
                             : status == 'resolved'
                             ? 'Resolved'
                             : status == 'rejected'
-                            ? Strings.ditolak
+                            ? l10n.ditolak
                             : status == 'pending'
-                            ? Strings.menunggu
+                            ? l10n.menunggu
                             : status,
                         tone: status == 'submitted'
                             ? StatusTone.danger
@@ -703,7 +716,7 @@ class _RtRwVerificationDetailScreenState
 
             // Location
             SectionLabel(
-              label: 'Lokasi',
+              label: l10n.lokasi,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -735,7 +748,7 @@ class _RtRwVerificationDetailScreenState
                   OutlinedButton.icon(
                     onPressed: () => context.push('/map'),
                     icon: const Icon(Icons.map, size: 16),
-                    label: const Text(Strings.lihatDiPeta),
+                    label: Text(l10n.lihatDiPeta),
                   ),
                 ],
               ),
@@ -745,7 +758,7 @@ class _RtRwVerificationDetailScreenState
             // Photos
             if (photos.isNotEmpty) ...[
               SectionLabel(
-                label: 'Foto',
+                label: l10n.foto,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -786,7 +799,7 @@ class _RtRwVerificationDetailScreenState
 
             // Description
             SectionLabel(
-              label: 'Deskripsi',
+              label: l10n.deskripsi,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -808,7 +821,7 @@ class _RtRwVerificationDetailScreenState
             if (_timelineData != null &&
                 (_timelineData!.events?.isNotEmpty ?? false)) ...[
               SectionLabel(
-                label: 'Timeline',
+                label: l10n.timeline,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -852,7 +865,7 @@ class _RtRwVerificationDetailScreenState
 
             // Action Buttons
             SectionLabel(
-              label: 'Tindakan',
+              label: l10n.tindakan,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -863,39 +876,39 @@ class _RtRwVerificationDetailScreenState
               actions: [
                 if (_canReject)
                   SigapActionButton(
-                    label: Strings.ditolak,
-                    semanticsLabel: Strings.ditolak,
+                    label: l10n.ditolak,
+                    semanticsLabel: l10n.ditolak,
                     onPressed: _submitting
                         ? null
                         : () => _showDecisionSheet(
                             'reject',
-                            Strings.ditolak,
+                            l10n.ditolak,
                             SigapColors.perluTindakan,
                           ),
                     icon: Icons.cancel,
                   ),
                 if (_canRequestInfo)
                   SigapOutlineButton(
-                    label: 'Minta Info',
-                    semanticsLabel: 'Minta Info',
+                    label: l10n.mintaInfo,
+                    semanticsLabel: l10n.mintaInfo,
                     onPressed: _submitting
                         ? null
                         : () => _showDecisionSheet(
                             'request_info',
-                            'Minta Informasi',
+                            l10n.mintaInformasi,
                             SigapColors.info,
                           ),
                     icon: Icons.help_outline,
                   ),
                 if (_canVerify)
                   SigapActionButton(
-                    label: 'Setuju',
-                    semanticsLabel: 'Setuju',
+                    label: l10n.setuju,
+                    semanticsLabel: l10n.setuju,
                     onPressed: _submitting
                         ? null
                         : () => _showDecisionSheet(
                             'verify',
-                            'Setuju — Verifikasi Laporan',
+                            l10n.setuju,
                             SigapColors.selesai,
                           ),
                     icon: Icons.check_circle,

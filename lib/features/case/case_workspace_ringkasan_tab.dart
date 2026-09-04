@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api/client.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
 
@@ -30,6 +31,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final report = caseDetail.report;
     final status = report?.status?.value ?? '';
     final title = report?.title ?? '';
@@ -56,7 +58,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size18,
+                    fontSize: SigapTypography.titleLarge,
                     fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
                   ),
@@ -84,7 +86,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                           categoryName,
                           style: const TextStyle(
                             color: SigapColors.primaryDark,
-                            fontSize: SigapTypography.size12,
+                            fontSize: SigapTypography.bodySmall,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -103,7 +105,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                           'Prioritas: ${priority.value}',
                           style: const TextStyle(
                             color: SigapColors.warningText,
-                            fontSize: SigapTypography.size12,
+                            fontSize: SigapTypography.bodySmall,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -117,21 +119,21 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
 
           // Photo Gallery
           if (photoUrls.isNotEmpty) ...[
-            _SectionLabel(label: 'Foto'),
+            _SectionLabel(label: l10n.foto),
             const SizedBox(height: SigapSpacing.sm),
             _buildPhotoGallery(context, photoUrls),
             const SizedBox(height: SigapSpacing.lg),
           ],
 
           // Description
-          _SectionLabel(label: 'Deskripsi'),
+          _SectionLabel(label: l10n.deskripsi),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
             child: Text(
               description.isNotEmpty ? description : 'Tidak ada deskripsi.',
               style: const TextStyle(
-                fontSize: SigapTypography.size14,
+                fontSize: SigapTypography.bodyMedium,
                 color: SigapColors.textPrimary,
               ),
             ),
@@ -139,7 +141,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
           const SizedBox(height: SigapSpacing.lg),
 
           // Location
-          _SectionLabel(label: 'Lokasi'),
+          _SectionLabel(label: l10n.lokasi),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
@@ -153,7 +155,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                           ? 'Koordinat: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
                           : 'Lokasi tidak tersedia'),
                   style: const TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     fontFamily: 'monospace',
                     color: SigapColors.textPrimary,
                   ),
@@ -162,7 +164,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () => context.push('/map'),
                   icon: const Icon(Icons.map, size: 16),
-                  label: const Text('Lihat di Peta'),
+                  label: Text(l10n.lihatDiPeta),
                 ),
               ],
             ),
@@ -170,14 +172,14 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
           const SizedBox(height: SigapSpacing.lg),
 
           // Created At
-          _SectionLabel(label: 'Dibuat'),
+          _SectionLabel(label: l10n.labelDibuat),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
             child: Text(
               createdAtStr != null ? _formatApiDate(createdAtStr) : '-',
               style: const TextStyle(
-                fontSize: SigapTypography.size14,
+                fontSize: SigapTypography.bodyMedium,
                 color: SigapColors.textPrimary,
               ),
             ),
@@ -186,11 +188,11 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
 
           // AI Assessment
           if (assessmentData != null) ...[
-            _SectionLabel(label: 'Penilaian AI'),
+            _SectionLabel(label: l10n.labelPenilaianAI),
             const SizedBox(height: SigapSpacing.sm),
             AiAssessmentCard(assessment: assessmentData!),
           ] else if (assessmentError) ...[
-            _SectionLabel(label: 'Penilaian AI'),
+            _SectionLabel(label: l10n.labelPenilaianAI),
             const SizedBox(height: SigapSpacing.sm),
             Container(
               padding: const EdgeInsets.symmetric(
@@ -215,7 +217,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                     'Assessment tidak tersedia',
                     style: TextStyle(
                       color: SigapColors.dangerTextStrong,
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -358,7 +360,7 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       label,
       style: const TextStyle(
-        fontSize: SigapTypography.size15,
+        fontSize: SigapTypography.subtitle,
         fontWeight: FontWeight.bold,
         color: SigapColors.textPrimary,
       ),

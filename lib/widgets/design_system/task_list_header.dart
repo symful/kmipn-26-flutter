@@ -36,7 +36,7 @@ class TaskListHeader extends StatelessWidget {
           Text(
             'Tugas hari ini',
             style: const TextStyle(
-              fontSize: SigapTypography.size22,
+              fontSize: SigapTypography.headlineMedium,
               fontWeight: FontWeight.w700,
               color: SigapColors.textPrimary,
             ),
@@ -49,7 +49,7 @@ class TaskListHeader extends StatelessWidget {
               Text(
                 _formatDate(displayDate),
                 style: const TextStyle(
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   color: SigapColors.textTertiary,
                 ),
               ),
@@ -69,7 +69,7 @@ class TaskListHeader extends StatelessWidget {
                 child: Text(
                   wilayahName,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size12,
+                    fontSize: SigapTypography.bodySmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textSecondary,
                   ),

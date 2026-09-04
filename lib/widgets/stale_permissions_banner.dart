@@ -27,7 +27,7 @@ class StalePermissionsBanner extends ConsumerWidget {
         'Permissions may be out of date — refresh',
         style: TextStyle(
           color: SigapColors.warningText,
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
         ),
       ),
       actions: [
@@ -39,7 +39,7 @@ class StalePermissionsBanner extends ConsumerWidget {
             'REFRESH',
             style: TextStyle(
               color: SigapColors.warningTextStrong,
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               fontWeight: FontWeight.bold,
             ),
           ),

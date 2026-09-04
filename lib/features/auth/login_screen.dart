@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
@@ -45,9 +46,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context.go(redirectPath);
     } else {
       final error = ref.read(authNotifierProvider).error;
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error ?? 'Login gagal'),
+          content: Text(error ?? l10n.loginGagal),
           backgroundColor: SigapColors.perluTindakan,
           behavior: SnackBarBehavior.floating,
         ),
@@ -57,6 +60,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       body: SafeArea(
@@ -89,17 +93,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const Text(
                         'SIGAP',
                         style: TextStyle(
-                          fontSize: SigapTypography.size28,
+                          fontSize: SigapTypography.heroText,
                           fontWeight: FontWeight.w800,
                           color: SigapColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: SigapSpacing.xs),
-                      const Text(
-                        'Sistem Informasi Geospasial\n& Penanganan Laporan',
+                      Text(
+                        l10n.sistemInformasiGeospasial,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: SigapTypography.size13,
+                          fontSize: SigapTypography.bodyText,
                           color: SigapColors.textSecondary,
                           height: 1.4,
                         ),
@@ -110,19 +114,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: SigapSpacing.xl * 2),
 
                 // Title
-                const Text(
-                  'Masuk',
+                Text(
+                  l10n.masuk,
                   style: TextStyle(
-                    fontSize: SigapTypography.size24,
+                    fontSize: SigapTypography.headlineLarge,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: SigapSpacing.xs),
-                const Text(
-                  'Gunakan akun您您 untuk mengakses laporan.',
+                Text(
+                  l10n.gunakanAkun,
                   style: TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     color: SigapColors.textSecondary,
                   ),
                 ),
@@ -133,10 +137,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Email',
+                      Text(
+                        l10n.emailLabel,
                         style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                          fontSize: SigapTypography.bodySmall,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textSecondary,
                         ),
@@ -146,8 +150,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
-                        decoration: const InputDecoration(
-                          hintText: 'email@contoh.com',
+                        decoration: InputDecoration(
+                          hintText: l10n.emailHint,
                           prefixIcon: Icon(Icons.email_outlined, size: 20),
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.symmetric(
@@ -157,10 +161,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         validator: (v) {
                           if (v == null || v.isEmpty) {
-                            return 'Email tidak boleh kosong';
+                            return l10n.emailKosong;
                           }
                           if (!v.contains('@')) {
-                            return 'Format email tidak valid';
+                            return l10n.emailTidakValid;
                           }
                           return null;
                         },
@@ -175,10 +179,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Kata Sandi',
+                      Text(
+                        l10n.kataSandi,
                         style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                          fontSize: SigapTypography.bodySmall,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textSecondary,
                         ),
@@ -213,10 +217,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         validator: (v) {
                           if (v == null || v.isEmpty) {
-                            return 'Kata sandi tidak boleh kosong';
+                            return l10n.kataSandiKosong;
                           }
                           if (v.length < 6) {
-                            return 'Kata sandi minimal 6 karakter';
+                            return l10n.kataSandiMinimal6;
                           }
                           return null;
                         },
@@ -248,10 +252,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text(
-                            'Masuk',
+                        : Text(
+                            l10n.masuk,
                             style: TextStyle(
-                              fontSize: SigapTypography.size15,
+                              fontSize: SigapTypography.headlineSmall,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -263,30 +267,155 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Belum punya akun? ',
+                    Text(
+                      '${l10n.belumPunyaAkun} ',
                       style: TextStyle(
                         color: SigapColors.textSecondary,
-                        fontSize: SigapTypography.size13,
+                        fontSize: SigapTypography.bodyText,
                       ),
                     ),
                     GestureDetector(
                       onTap: () => context.push('/register'),
                       child: MinTapTarget(
-                        semanticsLabel: 'Daftar',
-                        child: const Text(
-                          'Daftar',
+                        semanticsLabel: l10n.daftar,
+                        child: Text(
+                          l10n.daftar,
                           style: TextStyle(
                             color: SigapColors.primary,
                             fontWeight: FontWeight.w600,
-                            fontSize: SigapTypography.size13,
+                            fontSize: SigapTypography.bodySmallFine,
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: SigapSpacing.xl),
+
+                // Demo accounts
+                Text(
+                  l10n.akunDemo,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
+                    fontWeight: FontWeight.w600,
+                    color: SigapColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: SigapSpacing.sm),
+                Wrap(
+                  spacing: SigapSpacing.sm,
+                  runSpacing: SigapSpacing.sm,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    _DemoAccountChip(
+                      label: 'Warga',
+                      email: 'warga@sigap.id',
+                      password: 'warga123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'Surveyor',
+                      email: 'surveyor@sigap.id',
+                      password: 'surveyor123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'Petugas',
+                      email: 'petugas@sigap.id',
+                      password: 'petugas123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'Operator',
+                      email: 'operator@sigap.id',
+                      password: 'operator123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'Verifikator',
+                      email: 'verifikator@sigap.id',
+                      password: 'verifikator123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'Admin Daerah',
+                      email: 'admin.daerah@sigap.id',
+                      password: 'admin123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'Auditor',
+                      email: 'auditor@sigap.id',
+                      password: 'auditor123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'Eksekutif',
+                      email: 'eksekutif@sigap.id',
+                      password: 'exec123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                    _DemoAccountChip(
+                      label: 'RT/RW',
+                      email: 'rtrw@sigap.id',
+                      password: 'rtrw123',
+                      onTap: _fillDemoCredentials,
+                    ),
+                  ],
+                ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _fillDemoCredentials(String email, String password) {
+    setState(() {
+      _emailController.text = email;
+      _passwordController.text = password;
+    });
+  }
+}
+
+class _DemoAccountChip extends StatelessWidget {
+  final String label;
+  final String email;
+  final String password;
+  final void Function(String email, String password) onTap;
+
+  const _DemoAccountChip({
+    required this.label,
+    required this.email,
+    required this.password,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: SigapColors.surface,
+      borderRadius: BorderRadius.circular(SigapRadius.sm),
+      child: InkWell(
+        onTap: () => onTap(email, password),
+        borderRadius: BorderRadius.circular(SigapRadius.sm),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: SigapSpacing.md,
+            vertical: SigapSpacing.xs,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(color: SigapColors.border),
+            borderRadius: BorderRadius.circular(SigapRadius.sm),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: SigapTypography.bodySmall,
+              fontWeight: FontWeight.w500,
+              color: SigapColors.textSecondary,
             ),
           ),
         ),

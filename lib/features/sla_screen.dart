@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
 import '../../../api/client.dart';
-import '../../../l10n/strings.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
@@ -58,133 +58,142 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
 
     final saved = await showDialog<bool>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(SigapRadius.lg),
-          ),
-          backgroundColor: SigapColors.surface,
-          title: Row(
-            children: [
-              const Icon(Icons.timer, color: SigapColors.primary),
-              const SizedBox(width: SigapSpacing.sm),
-              Expanded(
-                child: Text(
-                  'Edit SLA: ${item.name ?? '-'}',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size16,
-                    fontWeight: FontWeight.bold,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx)!;
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SigapRadius.lg),
+            ),
+            backgroundColor: SigapColors.surface,
+            title: Row(
               children: [
-                const Text(
-                  'Tentukan batas waktu standar penanganan (SLA) untuk kategori laporan ini.',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size12,
-                    color: SigapColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                TextField(
-                  controller: slaHoursController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Target Batas Waktu SLA (jam)',
-                    hintText: 'Contoh: 24, 48, 72',
-                    suffixText: 'Jam',
-                    prefixIcon: const Icon(Icons.hourglass_bottom, size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                const Icon(Icons.timer, color: SigapColors.primary),
+                const SizedBox(width: SigapSpacing.sm),
+                Expanded(
+                  child: Text(
+                    '${AppLocalizations.of(context)!.editSLA}: ${item.name ?? '-'}',
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodyLarge,
+                      fontWeight: FontWeight.bold,
+                      color: SigapColors.textPrimary,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.md,
-                      vertical: SigapSpacing.sm,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                Container(
-                  decoration: BoxDecoration(
-                    color: SigapColors.bgSurface,
-                    borderRadius: BorderRadius.circular(SigapRadius.md),
-                    border: Border.all(color: SigapColors.border),
-                  ),
-                  child: SwitchListTile(
-                    title: const Text(
-                      'Status SLA Aktif',
-                      style: TextStyle(
-                        fontSize: SigapTypography.size13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Jika dinonaktifkan, peringatan keterlambatan tidak dihitung',
-                      style: TextStyle(fontSize: SigapTypography.size11),
-                    ),
-                    value: isActive,
-                    activeTrackColor: SigapColors.primary,
-                    onChanged: (val) => setDialogState(() => isActive = val),
                   ),
                 ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text(
-                Strings.batal,
-                style: TextStyle(color: SigapColors.textSecondary),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.tentukanBatasWaktuSLA,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodySmall,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  TextField(
+                    controller: slaHoursController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.labelTargetSLA,
+                      hintText: AppLocalizations.of(context)!.hintContohSLA,
+                      suffixText: 'Jam',
+                      prefixIcon: const Icon(Icons.hourglass_bottom, size: 20),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: SigapColors.bgSurface,
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
+                      border: Border.all(color: SigapColors.border),
+                    ),
+                    child: SwitchListTile(
+                      title: Text(
+                        AppLocalizations.of(context)!.statusSLAAktif,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.bodyText,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(context)!.slaDinonaktifkan,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.captionMedium,
+                        ),
+                      ),
+                      value: isActive,
+                      activeTrackColor: SigapColors.primary,
+                      onChanged: (val) => setDialogState(() => isActive = val),
+                    ),
+                  ),
+                ],
               ),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(
+                  dl10n.batal,
+                  style: const TextStyle(color: SigapColors.textSecondary),
                 ),
               ),
-              onPressed: () async {
-                if (slaHoursController.text.trim().isEmpty) return;
-                try {
-                  final client = ref.read(apiClientProvider);
-                  final id = item.id.toString();
-                  await client.updateSla(
-                    id,
-                    SlaConfig(
-                      name: item.name,
-                      slaDays:
-                          int.tryParse(slaHoursController.text.trim()) ?? 0,
-                      priority: item.priority,
-                      isActive: isActive,
-                    ).toJson(),
-                  );
-                  if (ctx.mounted) Navigator.pop(ctx, true);
-                } catch (e) {
-                  if (ctx.mounted) {
-                    ScaffoldMessenger.of(ctx).showSnackBar(
-                      SnackBar(
-                        content: Text('Error: ${extractErrorMessage(e)}'),
-                        backgroundColor: SigapColors.perluTindakan,
-                      ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SigapRadius.sm),
+                  ),
+                ),
+                onPressed: () async {
+                  if (slaHoursController.text.trim().isEmpty) return;
+                  try {
+                    final client = ref.read(apiClientProvider);
+                    final id = item.id.toString();
+                    await client.updateSla(
+                      id,
+                      SlaConfig(
+                        name: item.name,
+                        slaDays:
+                            int.tryParse(slaHoursController.text.trim()) ?? 0,
+                        priority: item.priority,
+                        isActive: isActive,
+                      ).toJson(),
                     );
+                    if (ctx.mounted) Navigator.pop(ctx, true);
+                  } catch (e) {
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.errorDenganPesan(extractErrorMessage(e)),
+                          ),
+                          backgroundColor: SigapColors.perluTindakan,
+                        ),
+                      );
+                    }
                   }
-                }
-              },
-              child: const Text(Strings.simpan),
-            ),
-          ],
-        ),
-      ),
+                },
+                child: Text(dl10n.simpan),
+              ),
+            ],
+          ),
+        );
+      },
     );
     if (saved == true) _load();
   }
@@ -194,7 +203,7 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Konfigurasi SLA'),
+        title: Text(AppLocalizations.of(context)!.konfigurasiSLA),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -217,9 +226,8 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
               padding: const EdgeInsets.all(SigapSpacing.lg),
               child: EmptyState(
                 icon: Icons.timer_outlined,
-                title: 'Tidak Ada Data SLA',
-                subtitle:
-                    'Belum ada konfigurasi batas waktu penanganan pengaduan.',
+                title: AppLocalizations.of(context)!.tidakAdaDataSLA,
+                subtitle: AppLocalizations.of(context)!.belumAdaKonfigurasiSLA,
               ),
             )
           : RefreshIndicator(
@@ -263,7 +271,7 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
                             child: Text(
                               '${slaHours}h',
                               style: TextStyle(
-                                fontSize: SigapTypography.size14,
+                                fontSize: SigapTypography.bodyMedium,
                                 fontWeight: FontWeight.bold,
                                 color: isActive
                                     ? SigapColors.primary
@@ -276,7 +284,7 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
                           categoryName,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: SigapTypography.size14,
+                            fontSize: SigapTypography.bodyMedium,
                             color: SigapColors.textPrimary,
                           ),
                         ),
@@ -294,7 +302,7 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
                               Text(
                                 'Target: $slaHours jam (${(slaHours / 24).toStringAsFixed(slaHours % 24 == 0 ? 0 : 1)} hari)',
                                 style: const TextStyle(
-                                  fontSize: SigapTypography.size12,
+                                  fontSize: SigapTypography.bodySmall,
                                   color: SigapColors.textSecondary,
                                 ),
                               ),

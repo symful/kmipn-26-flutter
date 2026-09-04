@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api/client.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
 
@@ -21,6 +22,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final report = caseDetail.report;
     final photoUrls = report?.photos ?? [];
     final description = report?.description ?? '';
@@ -34,21 +36,21 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
         children: [
           // Photo Gallery
           if (photoUrls.isNotEmpty) ...[
-            _SectionLabel(label: 'Foto Bukti'),
+            _SectionLabel(label: l10n.fotoBukti),
             const SizedBox(height: SigapSpacing.sm),
             _buildPhotoGallery(context, photoUrls),
             const SizedBox(height: SigapSpacing.lg),
           ],
 
           // Description
-          _SectionLabel(label: 'Deskripsi'),
+          _SectionLabel(label: l10n.deskripsi),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
             child: Text(
               description.isNotEmpty ? description : 'Tidak ada deskripsi.',
               style: const TextStyle(
-                fontSize: SigapTypography.size14,
+                fontSize: SigapTypography.bodyMedium,
                 color: SigapColors.textPrimary,
               ),
             ),
@@ -56,7 +58,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
           const SizedBox(height: SigapSpacing.lg),
 
           // Location
-          _SectionLabel(label: 'Lokasi'),
+          _SectionLabel(label: l10n.lokasi),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
@@ -70,7 +72,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
                           ? 'Koordinat: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
                           : 'Lokasi tidak tersedia'),
                   style: const TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     fontFamily: 'monospace',
                     color: SigapColors.textPrimary,
                   ),
@@ -79,7 +81,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () => context.push('/map'),
                   icon: const Icon(Icons.map, size: 16),
-                  label: const Text('Lihat di Peta'),
+                  label: Text(l10n.lihatDiPeta),
                 ),
               ],
             ),
@@ -88,7 +90,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
 
           // Documents placeholder (if report has documents)
           if (report != null) ...[
-            _SectionLabel(label: 'Dokumen'),
+            _SectionLabel(label: l10n.dokumen),
             const SizedBox(height: SigapSpacing.sm),
             SigapCard(
               padding: const EdgeInsets.all(SigapSpacing.lg),
@@ -103,7 +105,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
                   Text(
                     'Tidak ada dokumen',
                     style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textSecondary,
                     ),
                   ),
@@ -186,7 +188,7 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       label,
       style: const TextStyle(
-        fontSize: SigapTypography.size15,
+        fontSize: SigapTypography.subtitle,
         fontWeight: FontWeight.bold,
         color: SigapColors.textPrimary,
       ),

@@ -34,7 +34,7 @@ class OfflinePill extends StatelessWidget {
           Text(
             'Offline',
             style: TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               fontWeight: FontWeight.w600,
               color: SigapColors.warningText,
             ),

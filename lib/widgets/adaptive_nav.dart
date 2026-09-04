@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sigap/l10n/strings.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/capability_provider.dart';
 import 'package:sigap/theme/tokens.dart';
 
@@ -37,6 +37,7 @@ class AdaptiveNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final capabilityState = ref.watch(
       capabilityNotifierProvider.select((state) => state.valueOrNull),
     );
@@ -47,7 +48,7 @@ class AdaptiveNav extends ConsumerWidget {
     }
 
     final caps = capabilityState.capabilities;
-    final items = _buildNavItems(caps);
+    final items = _buildNavItems(caps, l10n);
 
     // Empty nav: nothing to show for this capability set.
     if (items.isEmpty) {
@@ -76,15 +77,18 @@ class AdaptiveNav extends ConsumerWidget {
   /// - Analitik — `analytics.read`.
   /// - Tugas — `task.accept`.
   /// - Laporan — `report.submit`.
-  List<_SigapBottomNavItem> _buildNavItems(Set<String> capabilities) {
+  List<_SigapBottomNavItem> _buildNavItems(
+    Set<String> capabilities,
+    AppLocalizations l10n,
+  ) {
     final items = <_SigapBottomNavItem>[];
 
     // Dashboard — always first; available to all authenticated users.
-    items.add(_dashboardItem());
+    items.add(_dashboardItem(l10n));
 
     // Peta — available if public.read is present.
     if (capabilities.contains('public.read')) {
-      items.add(_petaItem());
+      items.add(_petaItem(l10n));
     }
 
     // Antrean — available if case.read OR case.verify is present.
@@ -96,7 +100,7 @@ class AdaptiveNav extends ConsumerWidget {
     // AI Console — available if case.verify is present.
     // Shown alongside Antrean for verifikator role (same cap gates both).
     if (capabilities.contains('case.verify')) {
-      items.add(_aiConsoleItem());
+      items.add(_aiConsoleItem(l10n));
     }
 
     // Export — available if case.export is present.
@@ -106,7 +110,7 @@ class AdaptiveNav extends ConsumerWidget {
 
     // Audit — available only if audit.read is present.
     if (capabilities.contains('audit.read')) {
-      items.add(_auditItem());
+      items.add(_auditItem(l10n));
     }
 
     // Analitik — available only if analytics.read is present.
@@ -116,29 +120,30 @@ class AdaptiveNav extends ConsumerWidget {
 
     // Tugas / Sinkron — available if task.accept is present.
     if (capabilities.contains('task.accept')) {
-      items.add(_tugasItem());
+      items.add(_tugasItem(l10n));
     }
 
     // Laporan — available if report.submit is present (warga).
     if (capabilities.contains('report.submit')) {
-      items.add(_laporanItem());
+      items.add(_laporanItem(l10n));
     }
 
     return items;
   }
 
-  _SigapBottomNavItem _dashboardItem() => _SigapBottomNavItem(
-    icon: Icons.home_outlined,
-    activeIcon: Icons.home,
-    label: 'Dashboard',
-    semanticsLabel: 'Dashboard',
-  );
+  _SigapBottomNavItem _dashboardItem(AppLocalizations l10n) =>
+      _SigapBottomNavItem(
+        icon: Icons.home_outlined,
+        activeIcon: Icons.home,
+        label: l10n.dashboard,
+        semanticsLabel: l10n.dashboard,
+      );
 
-  _SigapBottomNavItem _petaItem() => _SigapBottomNavItem(
+  _SigapBottomNavItem _petaItem(AppLocalizations l10n) => _SigapBottomNavItem(
     icon: Icons.map_outlined,
     activeIcon: Icons.map,
-    label: Strings.peta,
-    semanticsLabel: 'Peta',
+    label: l10n.peta,
+    semanticsLabel: l10n.peta,
   );
 
   _SigapBottomNavItem _antreanItem() => _SigapBottomNavItem(
@@ -148,12 +153,13 @@ class AdaptiveNav extends ConsumerWidget {
     semanticsLabel: 'Antrean',
   );
 
-  _SigapBottomNavItem _aiConsoleItem() => _SigapBottomNavItem(
-    icon: Icons.psychology_outlined,
-    activeIcon: Icons.psychology,
-    label: 'AI Console',
-    semanticsLabel: 'AI Console',
-  );
+  _SigapBottomNavItem _aiConsoleItem(AppLocalizations l10n) =>
+      _SigapBottomNavItem(
+        icon: Icons.psychology_outlined,
+        activeIcon: Icons.psychology,
+        label: l10n.aiConsole,
+        semanticsLabel: l10n.aiConsole,
+      );
 
   _SigapBottomNavItem _exportItem() => _SigapBottomNavItem(
     icon: Icons.file_download_outlined,
@@ -162,11 +168,11 @@ class AdaptiveNav extends ConsumerWidget {
     semanticsLabel: 'Export',
   );
 
-  _SigapBottomNavItem _auditItem() => _SigapBottomNavItem(
+  _SigapBottomNavItem _auditItem(AppLocalizations l10n) => _SigapBottomNavItem(
     icon: Icons.fact_check_outlined,
     activeIcon: Icons.fact_check,
-    label: 'Audit',
-    semanticsLabel: 'Audit',
+    label: l10n.auditLog,
+    semanticsLabel: l10n.auditLog,
   );
 
   _SigapBottomNavItem _analitikItem() => _SigapBottomNavItem(
@@ -176,19 +182,20 @@ class AdaptiveNav extends ConsumerWidget {
     semanticsLabel: 'Analitik',
   );
 
-  _SigapBottomNavItem _tugasItem() => _SigapBottomNavItem(
+  _SigapBottomNavItem _tugasItem(AppLocalizations l10n) => _SigapBottomNavItem(
     icon: Icons.assignment_outlined,
     activeIcon: Icons.assignment,
-    label: Strings.tugas,
-    semanticsLabel: 'Tugas',
+    label: l10n.tugas,
+    semanticsLabel: l10n.tugas,
   );
 
-  _SigapBottomNavItem _laporanItem() => _SigapBottomNavItem(
-    icon: Icons.description_outlined,
-    activeIcon: Icons.description,
-    label: Strings.laporan,
-    semanticsLabel: 'Laporan',
-  );
+  _SigapBottomNavItem _laporanItem(AppLocalizations l10n) =>
+      _SigapBottomNavItem(
+        icon: Icons.description_outlined,
+        activeIcon: Icons.description,
+        label: l10n.laporan,
+        semanticsLabel: l10n.laporan,
+      );
 }
 
 /// Provides the nav item labels for a given set of capabilities.
@@ -414,7 +421,7 @@ class _SigapNavItem extends StatelessWidget {
               Text(
                 item.label,
                 style: TextStyle(
-                  fontSize: SigapTypography.size11,
+                  fontSize: SigapTypography.captionMedium,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   color: color,
                 ),
@@ -554,7 +561,7 @@ class _NavItem extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                   color: color,
                 ),
@@ -845,7 +852,7 @@ class _WargaNavItem extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   fontWeight: fontWeight,
                   color: color,
                 ),
@@ -875,10 +882,9 @@ class _WargaFabItem extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // FAB circle — 50x50, teal, raised shadow
               Container(
-                width: 50,
-                height: 50,
+                width: 30,
+                height: 30,
                 margin: const EdgeInsets.only(bottom: SigapSpacing.x4),
                 decoration: BoxDecoration(
                   color: SigapColors.primary,
@@ -929,7 +935,7 @@ class _WargaFabItem extends StatelessWidget {
               Text(
                 'Buat',
                 style: TextStyle(
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.primary,
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
 
@@ -68,10 +69,11 @@ class _AiConsoleScreenState extends ConsumerState<AiConsoleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('AI Console'),
+        title: Text(l10n.aiConsole),
         backgroundColor: SigapColors.surface,
         foregroundColor: SigapColors.textPrimary,
         elevation: 0,
@@ -79,7 +81,7 @@ class _AiConsoleScreenState extends ConsumerState<AiConsoleScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loading ? null : _loadAssessments,
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
           ),
         ],
       ),
@@ -101,9 +103,10 @@ class _AiConsoleScreenState extends ConsumerState<AiConsoleScreen> {
       final client = ref.read(apiClientProvider);
       await client.triggerAssessment(reportId);
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('AI re-scan triggered successfully'),
+          SnackBar(
+            content: Text(l10n.aiRescanBerhasil),
             backgroundColor: SigapColors.success,
           ),
         );
@@ -111,9 +114,10 @@ class _AiConsoleScreenState extends ConsumerState<AiConsoleScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to trigger re-scan: ${e.toString()}'),
+            content: Text(l10n.aiRescanGagal(e.toString())),
             backgroundColor: SigapColors.perluTindakan,
           ),
         );
@@ -130,6 +134,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -145,7 +150,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               'Gagal Memuat Assessment',
               style: TextStyle(
-                fontSize: SigapTypography.size16,
+                fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.bold,
                 color: SigapColors.textPrimary,
               ),
@@ -155,7 +160,7 @@ class _ErrorView extends StatelessWidget {
               error,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textSecondary,
               ),
             ),
@@ -163,7 +168,7 @@ class _ErrorView extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Coba Lagi'),
+              label: Text(l10n.cobaLagi),
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.primary,
                 foregroundColor: Colors.white,
@@ -183,6 +188,7 @@ class _EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -205,7 +211,7 @@ class _EmptyView extends StatelessWidget {
             Text(
               'Belum Ada Assessment AI',
               style: TextStyle(
-                fontSize: SigapTypography.size16,
+                fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.bold,
                 color: SigapColors.textPrimary,
               ),
@@ -215,7 +221,7 @@ class _EmptyView extends StatelessWidget {
               'Assessment AI akan muncul setelah laporan diajukan dan diproses.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
               ),
             ),
@@ -223,7 +229,7 @@ class _EmptyView extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onRefresh,
               icon: const Icon(Icons.refresh),
-              label: const Text('Refresh'),
+              label: Text(l10n.refresh),
             ),
           ],
         ),
@@ -243,6 +249,7 @@ class _AssessmentList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return RefreshIndicator(
       onRefresh: () async => {},
       color: SigapColors.primary,
@@ -294,7 +301,7 @@ class _AssessmentList extends StatelessWidget {
                             Text(
                               'Report: ${item['report_id']}',
                               style: TextStyle(
-                                fontSize: SigapTypography.size13,
+                                fontSize: SigapTypography.bodyText,
                                 fontWeight: FontWeight.w600,
                                 color: SigapColors.textPrimary,
                               ),
@@ -302,7 +309,7 @@ class _AssessmentList extends StatelessWidget {
                             Text(
                               item['description'] ?? '-',
                               style: TextStyle(
-                                fontSize: SigapTypography.size11,
+                                fontSize: SigapTypography.captionMedium,
                                 color: SigapColors.textSecondary,
                               ),
                               maxLines: 1,
@@ -323,17 +330,17 @@ class _AssessmentList extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _AssessmentRow(
-                          label: 'Status',
+                          label: l10n.labelStatus,
                           value: assessment['status']?.toString() ?? '-',
                         ),
                         _AssessmentRow(
-                          label: 'Confidence',
+                          label: l10n.labelConfidence,
                           value:
                               '${((assessment['confidence'] ?? 0) * 100).toStringAsFixed(1)}%',
                         ),
                         if (assessment['result'] != null)
                           _AssessmentRow(
-                            label: 'Result',
+                            label: l10n.labelResult,
                             value: assessment['result'].toString(),
                           ),
                       ],
@@ -352,7 +359,7 @@ class _AssessmentList extends StatelessWidget {
                     onPressed: () =>
                         onRetryAssessment(item['report_id'] as String),
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Retry Scan'),
+                    label: Text(l10n.retryScan),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: SigapColors.primary,
                     ),
@@ -385,7 +392,7 @@ class _AssessmentRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: SigapTypography.size11,
+                fontSize: SigapTypography.captionMedium,
                 color: SigapColors.textMuted,
               ),
             ),
@@ -394,7 +401,7 @@ class _AssessmentRow extends StatelessWidget {
             child: Text(
               value,
               style: TextStyle(
-                fontSize: SigapTypography.size11,
+                fontSize: SigapTypography.captionMedium,
                 color: SigapColors.textPrimary,
               ),
             ),

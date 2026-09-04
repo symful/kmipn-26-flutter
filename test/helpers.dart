@@ -17,7 +17,7 @@ import 'package:http/http.dart' as http;
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 /// Live backend base URL (Cloudflare Workers deployment)
-const LIVE_BASE_URL = 'https://kmipn-26-deno.careday17.workers.dev';
+const LIVE_BASE_URL = 'https://sigap.live';
 
 // ─── Seed Credentials ─────────────────────────────────────────────────────────
 // Source: README.md – "Manual QA Test Accounts"

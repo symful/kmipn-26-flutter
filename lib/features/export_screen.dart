@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
 
@@ -25,10 +26,11 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Export Data'),
+        title: Text(l10n.exportData),
         backgroundColor: SigapColors.surface,
         foregroundColor: SigapColors.textPrimary,
         elevation: 0,
@@ -60,7 +62,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                     child: Text(
                       'Export laporan dalam format CSV, GeoJSON, atau PDF. Data akan difilter sesuai opsi yang dipilih.',
                       style: TextStyle(
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         color: SigapColors.primaryDark,
                       ),
                     ),
@@ -74,7 +76,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             Text(
               'Format Export',
               style: TextStyle(
-                fontSize: SigapTypography.size14,
+                fontSize: SigapTypography.bodyMedium,
                 fontWeight: FontWeight.bold,
                 color: SigapColors.textPrimary,
               ),
@@ -84,7 +86,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             // CSV Export
             _ExportTile(
               icon: Icons.table_chart,
-              title: 'CSV (Spreadsheet)',
+              title: l10n.csvSpreadsheet,
               description:
                   'Export data laporan dalam format CSV untuk Excel atau Google Sheets.',
               isLoading: _loadingCsv,
@@ -95,7 +97,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             // GeoJSON Export
             _ExportTile(
               icon: Icons.map,
-              title: 'GeoJSON (Geospatial)',
+              title: l10n.geoJsonGeospatial,
               description:
                   'Export data laporan dengan koordinat geospasial untuk GIS.',
               isLoading: _loadingGeojson,
@@ -106,7 +108,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             // PDF Export
             _ExportTile(
               icon: Icons.picture_as_pdf,
-              title: 'PDF (Laporan)',
+              title: l10n.pdfLaporan,
               description: 'Export laporan lengkap dalam format PDF.',
               isLoading: _loadingPdf,
               onTap: _exportPdf,
@@ -133,7 +135,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                       child: Text(
                         _error!,
                         style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                          fontSize: SigapTypography.bodySmall,
                           color: SigapColors.perluTindakan,
                         ),
                       ),
@@ -252,7 +254,7 @@ class _ExportTile extends StatelessWidget {
         title: Text(
           title,
           style: TextStyle(
-            fontSize: SigapTypography.size13,
+            fontSize: SigapTypography.bodyText,
             fontWeight: FontWeight.w600,
             color: SigapColors.textPrimary,
           ),
@@ -262,7 +264,7 @@ class _ExportTile extends StatelessWidget {
           child: Text(
             description,
             style: TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               color: SigapColors.textSecondary,
             ),
           ),

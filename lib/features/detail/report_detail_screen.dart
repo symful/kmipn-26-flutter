@@ -3,23 +3,49 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/platform_helper.dart';
 import '../../api/client.dart' as api_client;
 import '../../capabilities/can.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 import '../../widgets/design_system/buttons.dart';
 import '../../widgets/design_system/design_system.dart';
 import '../../widgets/design_system/timeline_event.dart';
 
 /// Provider that fetches a single report from the API by ID.
+/// Resolves local idempotency keys to server IDs when possible.
 final apiReportProvider = FutureProvider.family<api_client.Report, String>((
   ref,
   id,
 ) async {
   final apiClient = ref.read(apiClientProvider);
+
+  // First, try to resolve local idempotency key to server ID
+  final reportRepo = ref.read(reportRepositoryProvider);
+  final localReport = await reportRepo.getByIdempotencyKey(id);
+  if (localReport != null) {
+    // If it has a server ID, use that for the API call
+    if (localReport.serverId != null && localReport.serverId!.isNotEmpty) {
+      return apiClient.getReportById(localReport.serverId!);
+    }
+    // Local-only draft — no server ID yet
+    // Throw a specific error so the UI can show local data
+    throw LocalDraftException(localReport);
+  }
+
+  // Not a local idempotency key — try as server ID
   return apiClient.getReportById(id);
 });
+
+/// Exception thrown when a report is a local-only draft (not yet synced).
+class LocalDraftException implements Exception {
+  final dynamic localReport;
+  const LocalDraftException(this.localReport);
+  @override
+  String toString() => 'LocalDraft: Report not yet synced to server';
+}
 
 /// Provider that fetches the timeline for a report.
 final reportTimelineProvider =
@@ -41,6 +67,7 @@ class ReportDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final reportAsync = ref.watch(apiReportProvider(id));
 
     return Scaffold(
@@ -51,10 +78,10 @@ class ReportDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Detail Laporan',
+              Text(
+                l10n.detailLaporan,
                 style: TextStyle(
-                  fontSize: SigapTypography.size19,
+                  fontSize: SigapTypography.sectionTitle,
                   fontWeight: FontWeight.w700,
                   color: SigapColors.textPrimary,
                 ),
@@ -67,7 +94,7 @@ class ReportDetailScreen extends ConsumerWidget {
                   return Text(
                     'Lokal ${localId ?? '-'} · Server ${report.id ?? '-'}',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       color: SigapColors.textSecondary,
                       fontWeight: FontWeight.w400,
                     ),
@@ -103,154 +130,73 @@ class ReportDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Status banner
-                _buildStatusBanner(context, report),
-                const SizedBox(height: SigapSpacing.lg),
+                // 1. Status banner (dynamic, with Lengkapi button inside)
+                _buildStatusBanner(context, ref, report),
 
-                // Parent-case card (when merged_into is present)
-                if (report.mergedInto != null && report.mergedInto!.isNotEmpty)
-                  _buildParentCaseCard(context, report),
-
-                // Photo gallery
-                if (photoUrls.isNotEmpty) ...[
-                  _buildPhotoGallery(context, photoUrls),
+                // 2. Parent-case card (when merged_into present)
+                if (report.mergedInto != null &&
+                    report.mergedInto!.isNotEmpty) ...[
                   const SizedBox(height: SigapSpacing.lg),
+                  _buildParentCaseCard(context, report),
                 ],
 
-                // Description
-                SectionLabel(
-                  label: 'Deskripsi',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.xs),
-                Text(
-                  report.description ?? '-',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size14,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.lg),
+                // 3. Photo gallery (compact)
+                if (photoUrls.isNotEmpty) ...[
+                  const SizedBox(height: SigapSpacing.lg),
+                  _buildPhotoGallery(context, photoUrls),
+                ],
 
-                // Location
-                SectionLabel(
-                  label: 'Lokasi',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.xs),
-                Text(
-                  report.addressArea ??
-                      report.address ??
-                      '${report.location?['lat']?.toStringAsFixed(6) ?? '-'}, ${report.location?['lng']?.toStringAsFixed(6) ?? '-'}',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size14,
-                    fontFamily: SigapTypography.fontFamilyMono,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
+                // 4. Compact info card (description + category, location,
+                //    priority, created at)
                 const SizedBox(height: SigapSpacing.lg),
+                _buildInfoCard(context, report),
 
-                // Category
-                SectionLabel(
-                  label: 'Kategori',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.xs),
-                Text(
-                  report.category ?? '-',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size14,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.lg),
-
-                // Severity / Priority
-                SectionLabel(
-                  label: 'Tingkat Prioritas',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.xs),
-                Text(
-                  report.priority?.value ?? '-',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size14,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.lg),
-
-                // Created at
-                SectionLabel(
-                  label: 'Dibuat',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.xs),
-                Text(
-                  createdAtStr != null ? _formatApiDate(createdAtStr) : '-',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size14,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
+                // 5. Timeline
                 const SizedBox(height: SigapSpacing.xl),
-
-                // Timeline section
                 _buildTimelineSection(context, ref),
-                const SizedBox(height: SigapSpacing.xl),
 
-                // Privacy info
-                _buildPrivacyInfo(),
+                // 6. Privacy info
                 const SizedBox(height: SigapSpacing.xl),
+                _buildPrivacyInfo(context),
 
-                // Action buttons
-                _buildActionButtons(context, ref, report, id),
+                // 7. Sanggahan button (only for rejected status)
                 _buildSanggahanButton(context, ref, report, id),
               ],
             ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 48,
-                color: SigapColors.perluTindakan,
-              ),
-              const SizedBox(height: SigapSpacing.md),
-              Text(
-                'Error: $e',
-                style: const TextStyle(
-                  fontSize: SigapTypography.size14,
-                  color: SigapColors.textSecondary,
+        error: (e, _) {
+          // Local-only draft — show offline detail
+          if (e is LocalDraftException) {
+            return _buildLocalDraftDetail(context, ref, e.localReport);
+          }
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: SigapColors.perluTindakan,
                 ),
-              ),
-              const SizedBox(height: SigapSpacing.md),
-              OutlinedButton(
-                onPressed: () => ref.invalidate(apiReportProvider(id)),
-                child: const Text('Coba Lagi'),
-              ),
-            ],
-          ),
-        ),
+                const SizedBox(height: SigapSpacing.md),
+                Text(
+                  l10n.errorDenganPesan(e.toString()),
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyMedium,
+                    color: SigapColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: SigapSpacing.md),
+                OutlinedButton(
+                  onPressed: () => ref.invalidate(apiReportProvider(id)),
+                  child: Text(l10n.cobaLagi),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -264,84 +210,103 @@ class ReportDetailScreen extends ConsumerWidget {
     await Share.share(shareText, subject: shareMeta.title);
   }
 
-  Widget _buildStatusBanner(BuildContext context, api_client.Report report) {
+  Widget _buildStatusBanner(
+    BuildContext context,
+    WidgetRef ref,
+    api_client.Report report,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
     final status = report.status?.value ?? '';
 
-    // Only show banner if needs_completion
-    if (status == 'needs_completion') {
-      // Format deadline if present
-      String deadlineText = '';
-      if (report.deadline != null && report.deadline!.isNotEmpty) {
-        try {
-          final dt = DateTime.parse(report.deadline!);
-          deadlineText = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
-        } catch (_) {
-          deadlineText = report.deadline!;
-        }
-      }
+    // Only show banner for statuses that require user action
+    if (status != 'needs_completion') return const SizedBox.shrink();
 
-      return SigapCard(
-        borderLeftColor: SigapColors.offlineDot,
-        padding: const EdgeInsets.all(SigapSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: SigapSpacing.x10,
-                vertical: SigapSpacing.x4,
-              ),
-              decoration: BoxDecoration(
-                color: SigapColors.offlineDot,
-                borderRadius: BorderRadius.circular(SigapRadius.x7),
-              ),
-              child: const Text(
-                'Perlu tindakan Anda',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: SigapTypography.size12,
-                  fontWeight: FontWeight.w700,
-                ),
+    // Format deadline if present
+    String deadlineText = '';
+    if (report.deadline != null && report.deadline!.isNotEmpty) {
+      try {
+        final dt = DateTime.parse(report.deadline!);
+        deadlineText = '${dt.day} ${_monthName(dt.month)} ${dt.year}';
+      } catch (_) {
+        deadlineText = report.deadline!;
+      }
+    }
+
+    return SigapCard(
+      borderLeftColor: SigapColors.offlineDot,
+      padding: const EdgeInsets.all(SigapSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // "Perlu tindakan Anda" badge
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SigapSpacing.x10,
+              vertical: SigapSpacing.x4,
+            ),
+            decoration: BoxDecoration(
+              color: SigapColors.offlineDot,
+              borderRadius: BorderRadius.circular(SigapRadius.x7),
+            ),
+            child: Text(
+              l10n.perluTindakanAnda,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: SigapTypography.bodySmall,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: SigapSpacing.x9),
-            if (deadlineText.isNotEmpty)
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12_5,
-                    color: SigapColors.warningTextStrong,
-                    height: SigapTypography.lineHeight145,
-                  ),
-                  children: [
-                    const TextSpan(
-                      text:
-                          'Verifikator meminta 1 foto tambahan dari sisi yang '
-                          'berbeda agar lubang terlihat jelas. ',
-                    ),
-                    TextSpan(
-                      text: 'Tenggat $deadlineText.',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-              )
-            else
-              const Text(
-                'Verifikator meminta 1 foto tambahan dari sisi yang berbeda '
-                'agar lubang terlihat jelas.',
-                style: TextStyle(
-                  fontSize: SigapTypography.size12_5,
+          ),
+          const SizedBox(height: SigapSpacing.x9),
+          // Description text with optional deadline
+          if (deadlineText.isNotEmpty)
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodySmallFine,
                   color: SigapColors.warningTextStrong,
                   height: SigapTypography.lineHeight145,
                 ),
+                children: [
+                  const TextSpan(
+                    text:
+                        'Verifikator meminta informasi tambahan untuk '
+                        'melengkapi laporan ini. ',
+                  ),
+                  TextSpan(
+                    text: 'Tenggat $deadlineText.',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
               ),
-            const SizedBox(height: SigapSpacing.x11),
-          ],
-        ),
-      );
-    }
-    return const SizedBox.shrink();
+            )
+          else
+            const Text(
+              'Verifikator meminta informasi tambahan untuk '
+              'melengkapi laporan ini.',
+              style: TextStyle(
+                fontSize: SigapTypography.bodySmallFine,
+                color: SigapColors.warningTextStrong,
+                height: SigapTypography.lineHeight145,
+              ),
+            ),
+          const SizedBox(height: SigapSpacing.md),
+          // "Lengkapi laporan" button — inline with the banner
+          SizedBox(
+            width: double.infinity,
+            child: Can(
+              action: 'report.lengkapi',
+              resource: Resource(type: 'report', id: id),
+              child: PrimaryButton(
+                label: l10n.lengkapiLaporan,
+                onPressed: () =>
+                    _showLengkapiBottomSheet(context, ref, report, id),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _monthName(int month) {
@@ -363,6 +328,7 @@ class ReportDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildParentCaseCard(BuildContext context, api_client.Report report) {
+    final l10n = AppLocalizations.of(context)!;
     final categoryTag = report.category != null && report.category!.length >= 2
         ? report.category!.substring(0, 2).toUpperCase()
         : 'CS';
@@ -384,7 +350,7 @@ class ReportDetailScreen extends ConsumerWidget {
               child: Text(
                 categoryTag,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w700,
                   color: SigapColors.textSecondary,
                 ),
@@ -395,10 +361,10 @@ class ReportDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Bagian dari kasus',
+                  Text(
+                    l10n.bagianDariKasus,
                     style: TextStyle(
-                      fontSize: SigapTypography.size11,
+                      fontSize: SigapTypography.captionMedium,
                       color: SigapColors.textMuted,
                       fontWeight: FontWeight.w500,
                     ),
@@ -407,7 +373,7 @@ class ReportDetailScreen extends ConsumerWidget {
                   Text(
                     caseTitle,
                     style: const TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textPrimary,
                       fontWeight: FontWeight.w500,
                     ),
@@ -417,10 +383,10 @@ class ReportDetailScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const Text(
-              'Lihat ',
+            Text(
+              '${l10n.lihatLabel} ',
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.primary,
                 fontWeight: FontWeight.w500,
               ),
@@ -445,10 +411,10 @@ class ReportDetailScreen extends ConsumerWidget {
           child: Image.network(
             photoUrls.first,
             width: double.infinity,
-            height: 200,
+            height: 160,
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => Container(
-              height: 200,
+              height: 160,
               color: SigapColors.bgSoft,
               child: const Center(child: Icon(Icons.image_not_supported)),
             ),
@@ -458,7 +424,7 @@ class ReportDetailScreen extends ConsumerWidget {
     }
 
     return SizedBox(
-      height: 120,
+      height: 100,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: photoUrls.length,
@@ -467,18 +433,18 @@ class ReportDetailScreen extends ConsumerWidget {
           return GestureDetector(
             onTap: () => _showPhotoFullScreen(context, photoUrls, index),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(SigapRadius.md),
+              borderRadius: BorderRadius.circular(SigapRadius.sm),
               child: Image.network(
                 photoUrls[index],
-                width: 120,
-                height: 120,
+                width: 100,
+                height: 100,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                   color: SigapColors.bgSoft,
                   child: const Center(
-                    child: Icon(Icons.image_not_supported, size: 32),
+                    child: Icon(Icons.image_not_supported, size: 28),
                   ),
                 ),
               ),
@@ -494,15 +460,16 @@ class ReportDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildTimelineSection(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final timelineAsync = ref.watch(reportTimelineProvider(id));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'PERJALANAN LAPORAN',
+        Text(
+          l10n.perjalananLaporanHeader,
           style: TextStyle(
-            fontSize: SigapTypography.size11,
+            fontSize: SigapTypography.captionMedium,
             fontWeight: FontWeight.w600,
             color: SigapColors.textMuted,
             letterSpacing: SigapTypography.letterSpacingLabel,
@@ -513,10 +480,10 @@ class ReportDetailScreen extends ConsumerWidget {
           data: (timelineData) {
             final events = timelineData.events;
             if (events?.isEmpty ?? true) {
-              return const EmptyState(
+              return EmptyState(
                 icon: Icons.timeline,
-                title: 'Belum ada riwayat',
-                subtitle: 'Perjalanan laporan akan ditampilkan di sini.',
+                title: l10n.belumAdaRiwayat,
+                subtitle: l10n.perjalananLaporanDitampilkan,
               );
             }
             return _TimelineWidget(events: events ?? []);
@@ -524,7 +491,7 @@ class ReportDetailScreen extends ConsumerWidget {
           loading: () =>
               const SkeletonBox(height: 100, borderRadius: SigapRadius.md),
           error: (_, __) => ErrorRetryView(
-            message: 'Gagal memuat timeline',
+            message: l10n.gagalMemuatRiwayat,
             onRetry: () => ref.invalidate(reportTimelineProvider(id)),
           ),
         ),
@@ -532,7 +499,8 @@ class ReportDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPrivacyInfo() {
+  Widget _buildPrivacyInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(SigapSpacing.md),
       decoration: BoxDecoration(
@@ -553,52 +521,24 @@ class ReportDetailScreen extends ConsumerWidget {
             child: const Text(
               'i',
               style: TextStyle(
-                fontSize: SigapTypography.size11,
+                fontSize: SigapTypography.captionMedium,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textTertiary,
               ),
             ),
           ),
           const SizedBox(width: SigapSpacing.sm),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Identitas & lokasi presisi Anda hanya terlihat oleh petugas terkait. '
-              'Publik melihat lokasi yang digeneralisasi.',
-              style: TextStyle(
-                fontSize: SigapTypography.size11_5,
+              l10n.privasiInfo,
+              style: const TextStyle(
+                fontSize: SigapTypography.captionFine,
                 color: SigapColors.textSecondary,
                 height: SigapTypography.lineHeight140,
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(
-    BuildContext context,
-    WidgetRef ref,
-    api_client.Report report,
-    String reportId,
-  ) {
-    final status = report.status?.value ?? '';
-
-    // Only show when report needs completion (status gate — capability is checked by Can widget)
-    if (status != 'needs_completion') {
-      return const SizedBox.shrink();
-    }
-
-    return Can(
-      action: 'report.lengkapi',
-      resource: Resource(type: 'report', id: reportId),
-      child: Padding(
-        padding: const EdgeInsets.only(top: SigapSpacing.md),
-        child: SecondaryButton(
-          label: 'Lengkapi laporan',
-          onPressed: () =>
-              _showLengkapiBottomSheet(context, ref, report, reportId),
-        ),
       ),
     );
   }
@@ -610,6 +550,7 @@ class ReportDetailScreen extends ConsumerWidget {
     api_client.Report report,
     String reportId,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final status = report.status?.value ?? '';
 
     // Only show for rejected status (DITOLAK = rejected by verifier)
@@ -623,7 +564,7 @@ class ReportDetailScreen extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: SigapSpacing.md),
         child: DangerButton(
-          label: 'Sanggah Keputusan',
+          label: l10n.sanggahKeputusan,
           onPressed: () => _showSanggahanBottomSheet(context, ref, reportId),
         ),
       ),
@@ -671,6 +612,105 @@ class ReportDetailScreen extends ConsumerWidget {
     );
   }
 
+  /// Compact info card grouping description, category, location, priority,
+  /// and created at — replaces separate labeled sections from the design.
+  Widget _buildInfoCard(BuildContext context, api_client.Report report) {
+    final l10n = AppLocalizations.of(context)!;
+    final createdAtStr = report.createdAt;
+    final locationText =
+        report.addressArea ??
+        report.address ??
+        '${report.location?['lat']?.toStringAsFixed(6) ?? '-'}, ${report.location?['lng']?.toStringAsFixed(6) ?? '-'}';
+
+    return SigapCard(
+      padding: const EdgeInsets.all(SigapSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Description (if present)
+          if (report.description != null && report.description!.isNotEmpty) ...[
+            Text(
+              report.description!,
+              style: const TextStyle(
+                fontSize: SigapTypography.bodyMedium,
+                color: SigapColors.textPrimary,
+                height: SigapTypography.lineHeight150,
+              ),
+            ),
+            const SizedBox(height: SigapSpacing.md),
+            const Divider(height: 1, color: SigapColors.border),
+            const SizedBox(height: SigapSpacing.md),
+          ],
+          // Compact field rows
+          _buildInfoRow(
+            Icons.category_outlined,
+            l10n.kategori,
+            report.category ?? '-',
+          ),
+          const SizedBox(height: SigapSpacing.xs),
+          _buildInfoRow(
+            Icons.location_on_outlined,
+            l10n.lokasi,
+            locationText,
+            isMono: true,
+          ),
+          const SizedBox(height: SigapSpacing.xs),
+          _buildInfoRow(
+            Icons.flag_outlined,
+            l10n.labelTingkatPrioritas,
+            report.priority?.value ?? '-',
+          ),
+          const SizedBox(height: SigapSpacing.xs),
+          _buildInfoRow(
+            Icons.schedule_outlined,
+            l10n.labelDibuat,
+            createdAtStr != null ? _formatApiDate(createdAtStr) : '-',
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Single row in the info card: icon + label/value column.
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isMono = false,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: SigapColors.textMuted),
+        const SizedBox(width: SigapSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: SigapTypography.captionMedium,
+                  color: SigapColors.textMuted,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: SigapTypography.bodySmall,
+                  fontFamily: isMono ? SigapTypography.fontFamilyMono : null,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   String _formatApiDate(String isoString) {
     try {
       final dt = DateTime.parse(isoString);
@@ -678,6 +718,95 @@ class ReportDetailScreen extends ConsumerWidget {
     } catch (_) {
       return isoString;
     }
+  }
+
+  Widget _buildLocalDraftDetail(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic localReport,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(SigapSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SigapSpacing.md,
+              vertical: SigapSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: SigapColors.warning.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(SigapRadius.sm),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off, size: 16, color: SigapColors.warning),
+                const SizedBox(width: SigapSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.belumDisinkronkan,
+                    style: TextStyle(
+                      fontSize: SigapTypography.bodySmall,
+                      color: SigapColors.warning,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: SigapSpacing.lg),
+          Text(
+            l10n.deskripsi,
+            style: TextStyle(
+              fontSize: SigapTypography.bodySmall,
+              fontWeight: FontWeight.w600,
+              color: SigapColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: SigapSpacing.xs),
+          Text(
+            localReport.description ?? '-',
+            style: const TextStyle(
+              fontSize: SigapTypography.bodyMedium,
+              color: SigapColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: SigapSpacing.lg),
+          Text(
+            l10n.lokasi,
+            style: TextStyle(
+              fontSize: SigapTypography.bodySmall,
+              fontWeight: FontWeight.w600,
+              color: SigapColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: SigapSpacing.xs),
+          Text(
+            '${localReport.lat?.toStringAsFixed(6) ?? '-'}, ${localReport.lng?.toStringAsFixed(6) ?? '-'}',
+            style: const TextStyle(
+              fontSize: SigapTypography.bodyMedium,
+              fontFamily: SigapTypography.fontFamilyMono,
+              color: SigapColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: SigapSpacing.xl),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => context.pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: SigapColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(l10n.kembali),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Returns the local idempotency key for this report if the route [reportId]
@@ -759,7 +888,7 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
 
   Future<void> _pickPhoto() async {
     final photo = await _imagePicker.pickImage(
-      source: ImageSource.camera,
+      source: cameraSource(),
       imageQuality: 85,
     );
     if (photo != null) {
@@ -780,8 +909,8 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
   Future<void> _submit() async {
     if (_selectedPhoto == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Silakan tambahkan foto terlebih dahulu'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.silakanTambahFotoDahulu),
           backgroundColor: SigapColors.danger,
         ),
       );
@@ -801,7 +930,7 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
 
       final putUrl = uploadResult.putUrl;
       if (putUrl == null) {
-        throw Exception('Gagal mendapatkan URL upload foto');
+        throw Exception(AppLocalizations.of(context)!.gagalUrlUpload);
       }
 
       final bytes = await _selectedPhoto!.readAsBytes();
@@ -825,8 +954,10 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Laporan berhasil dilengkapi'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.laporanBerhasilDilengkapi,
+          ),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -838,7 +969,9 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal melengkapi laporan: $e'),
+          content: Text(
+            AppLocalizations.of(context)!.gagalMelengkapiLaporan(e.toString()),
+          ),
           backgroundColor: SigapColors.danger,
         ),
       );
@@ -847,6 +980,7 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
@@ -873,19 +1007,19 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Lengkapi Laporan',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size20,
+                  Text(
+                    l10n.lengkapiLaporan,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.headlineSmall,
                       fontWeight: FontWeight.w700,
                       color: SigapColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: SigapSpacing.xs),
-                  const Text(
-                    'Tambahkan foto dan deskripsi untuk melengkapi laporan Anda.',
+                  Text(
+                    l10n.tambahkanFotoDeskripsi,
                     style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textSecondary,
                     ),
                   ),
@@ -904,7 +1038,7 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
                     const Text(
                       'Foto',
                       style: TextStyle(
-                        fontSize: SigapTypography.size14,
+                        fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
@@ -957,7 +1091,7 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
                           Expanded(
                             child: _PhotoOptionButton(
                               icon: Icons.camera_alt,
-                              label: 'Kamera',
+                              label: l10n.kamera,
                               onTap: _pickPhoto,
                             ),
                           ),
@@ -965,7 +1099,7 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
                           Expanded(
                             child: _PhotoOptionButton(
                               icon: Icons.photo_library,
-                              label: 'Galeri',
+                              label: l10n.galeri,
                               onTap: _pickFromGallery,
                             ),
                           ),
@@ -974,10 +1108,10 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
                     const SizedBox(height: SigapSpacing.xl),
 
                     // Description
-                    const Text(
-                      'Deskripsi (opsional)',
+                    Text(
+                      l10n.deskripsiOpsional,
                       style: TextStyle(
-                        fontSize: SigapTypography.size14,
+                        fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
@@ -987,11 +1121,10 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
                       controller: _descriptionController,
                       maxLines: 4,
                       decoration: InputDecoration(
-                        hintText:
-                            'Jelaskan informasi tambahan yang ingin Anda berikan...',
+                        hintText: l10n.jelaskanInfoTambahan,
                         hintStyle: const TextStyle(
                           color: SigapColors.textMuted,
-                          fontSize: SigapTypography.size14,
+                          fontSize: SigapTypography.bodyMedium,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -1027,7 +1160,7 @@ class _LengkapiBottomSheetState extends ConsumerState<_LengkapiBottomSheet> {
                     MediaQuery.of(context).viewInsets.bottom + SigapSpacing.lg,
               ),
               child: PrimaryButton(
-                label: 'Kirim',
+                label: l10n.kirimLabel,
                 isLoading: _isSubmitting,
                 onPressed: _isSubmitting ? null : _submit,
               ),
@@ -1068,7 +1201,7 @@ class _PhotoOptionButton extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
@@ -1112,7 +1245,7 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
 
   Future<void> _pickPhoto() async {
     final photo = await _imagePicker.pickImage(
-      source: ImageSource.camera,
+      source: cameraSource(),
       imageQuality: 85,
     );
     if (photo != null) {
@@ -1133,7 +1266,9 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
   Future<void> _submit() async {
     if (!_isReasonValid) {
       setState(() {
-        _errorMessage = 'Alasan harus minimal $_minReasonLength karakter';
+        _errorMessage = AppLocalizations.of(
+          context,
+        )!.alasanMinimalKarakter(_minReasonLength);
       });
       return;
     }
@@ -1155,7 +1290,7 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
 
         final putUrl = uploadResult.putUrl;
         if (putUrl == null) {
-          throw Exception('Gagal mendapatkan URL upload foto');
+          throw Exception(AppLocalizations.of(context)!.gagalUrlUpload);
         }
 
         final bytes = await _selectedPhoto!.readAsBytes();
@@ -1178,8 +1313,10 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sanggahan berhasil diajukan'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.sanggahanBerhasilDiajukan,
+          ),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -1190,13 +1327,16 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Gagal mengajukan sanggahan: $e';
+        _errorMessage = AppLocalizations.of(
+          context,
+        )!.gagalAjukanSanggahan(e.toString());
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final reasonLength = _reasonController.text.trim().length;
     final isValid = _isReasonValid;
 
@@ -1226,19 +1366,19 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Sanggahan',
+                  Text(
+                    l10n.sanggahan,
                     style: TextStyle(
-                      fontSize: SigapTypography.size20,
+                      fontSize: SigapTypography.headlineSmall,
                       fontWeight: FontWeight.w700,
                       color: SigapColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: SigapSpacing.xs),
-                  const Text(
-                    'Ajukan keberatan atas keputusan penolakan laporan Anda.',
+                  Text(
+                    l10n.ajukanKeberatan,
                     style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textSecondary,
                     ),
                   ),
@@ -1254,19 +1394,19 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Reason textarea with validation
-                    const Text(
-                      'Alasan Sanggahan',
+                    Text(
+                      l10n.alasanSanggahan,
                       style: TextStyle(
-                        fontSize: SigapTypography.size14,
+                        fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: SigapSpacing.xs),
                     Text(
-                      'Minimal $_minReasonLength karakter',
+                      l10n.minimalKarakter(_minReasonLength),
                       style: const TextStyle(
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         color: SigapColors.textMuted,
                       ),
                     ),
@@ -1276,11 +1416,10 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
                       maxLines: 6,
                       onChanged: (_) => setState(() {}),
                       decoration: InputDecoration(
-                        hintText:
-                            'Jelaskan alasan keberatan Anda secara detail...',
+                        hintText: l10n.jelaskanAlasanKeberatan,
                         hintStyle: const TextStyle(
                           color: SigapColors.textMuted,
-                          fontSize: SigapTypography.size14,
+                          fontSize: SigapTypography.bodyMedium,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -1310,19 +1449,19 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
                     const SizedBox(height: SigapSpacing.xl),
 
                     // Photo evidence (optional)
-                    const Text(
-                      'Bukti Foto (opsional)',
+                    Text(
+                      l10n.buktiFotoOpsional,
                       style: TextStyle(
-                        fontSize: SigapTypography.size14,
+                        fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: SigapSpacing.xs),
-                    const Text(
-                      'Tambahkan foto sebagai bukti pendukung sanggahan Anda',
+                    Text(
+                      l10n.tambahkanFotoBukti,
                       style: TextStyle(
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         color: SigapColors.textMuted,
                       ),
                     ),
@@ -1374,7 +1513,7 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
                           Expanded(
                             child: _PhotoOptionButton(
                               icon: Icons.camera_alt,
-                              label: 'Kamera',
+                              label: l10n.kamera,
                               onTap: _pickPhoto,
                             ),
                           ),
@@ -1382,7 +1521,7 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
                           Expanded(
                             child: _PhotoOptionButton(
                               icon: Icons.photo_library,
-                              label: 'Galeri',
+                              label: l10n.galeri,
                               onTap: _pickFromGallery,
                             ),
                           ),
@@ -1393,7 +1532,7 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
                       Text(
                         _errorMessage!,
                         style: const TextStyle(
-                          fontSize: SigapTypography.size12,
+                          fontSize: SigapTypography.bodySmall,
                           color: SigapColors.perluTindakan,
                         ),
                       ),
@@ -1411,7 +1550,7 @@ class _SanggahanBottomSheetState extends ConsumerState<_SanggahanBottomSheet> {
                     MediaQuery.of(context).viewInsets.bottom + SigapSpacing.lg,
               ),
               child: PrimaryButton(
-                label: 'Ajukan Sanggahan',
+                label: l10n.ajukanSanggahanLabel,
                 isLoading: _isSubmitting,
                 onPressed: _isSubmitting || !isValid ? null : _submit,
               ),

@@ -75,7 +75,7 @@ class PrivacyToggleCard extends StatelessWidget {
                 Text(
                   'Identitas saya di publik',
                   style: TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),
@@ -84,7 +84,7 @@ class PrivacyToggleCard extends StatelessWidget {
                 Text(
                   'Default: privat · hanya petugas melihat',
                   style: TextStyle(
-                    fontSize: SigapTypography.size11,
+                    fontSize: SigapTypography.captionMedium,
                     color: SigapColors.textTertiary,
                   ),
                 ),
@@ -111,7 +111,7 @@ class PrivacyToggleCard extends StatelessWidget {
                 child: Text(
                   'i',
                   style: TextStyle(
-                    fontSize: SigapTypography.size11,
+                    fontSize: SigapTypography.captionMedium,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textTertiary,
                     height: 1,
@@ -137,7 +137,7 @@ class PrivacyToggleCard extends StatelessWidget {
         title: Text(
           'Tentang Privasi',
           style: TextStyle(
-            fontSize: SigapTypography.size14,
+            fontSize: SigapTypography.bodyMedium,
             fontWeight: FontWeight.w600,
             color: SigapColors.textPrimary,
           ),
@@ -146,7 +146,7 @@ class PrivacyToggleCard extends StatelessWidget {
           'Identitas dan lokasi presisi Anda hanya terlihat oleh petugas terkait. '
           'Publik hanya melihat lokasi yang digeneralisasi.',
           style: TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textSecondary,
             height: 1.4,
           ),

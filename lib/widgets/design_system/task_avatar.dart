@@ -118,7 +118,7 @@ class TaskAvatar extends StatelessWidget {
               child: Text(
                 _badgeText,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size9,
+                  fontSize: SigapTypography.captionMicro,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),

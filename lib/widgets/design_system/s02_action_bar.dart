@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sigap/l10n/strings.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Action bar widget for S-02 surveyor task detail screen.
@@ -107,9 +107,9 @@ class _TolakButton extends StatelessWidget {
         ),
       ),
       child: Text(
-        Strings.tolak,
+        AppLocalizations.of(context)!.tolak,
         style: const TextStyle(
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -138,7 +138,7 @@ class _MintaClarifikasiButton extends StatelessWidget {
       child: Text(
         'Minta Clarifikasi',
         style: const TextStyle(
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
           fontWeight: FontWeight.w600,
         ),
         overflow: TextOverflow.ellipsis,
@@ -169,7 +169,7 @@ class _TerimaTugasButton extends StatelessWidget {
       child: Text(
         'Terima Tugas',
         style: const TextStyle(
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -199,7 +199,7 @@ class _KunjungiButton extends StatelessWidget {
       child: Text(
         'Kunjungi',
         style: const TextStyle(
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
           fontWeight: FontWeight.w600,
         ),
       ),

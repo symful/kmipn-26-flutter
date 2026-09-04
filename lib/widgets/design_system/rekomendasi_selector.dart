@@ -86,7 +86,7 @@ class _RadioOption extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 height: SigapTypography.lineHeight140,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: SigapColors.textPrimary,

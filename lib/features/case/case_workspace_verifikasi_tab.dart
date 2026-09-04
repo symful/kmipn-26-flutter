@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../api/client.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
@@ -122,6 +122,7 @@ class _CaseWorkspaceVerifikasiTabState
   }
 
   void _showDecisionSheet(String decision, String label, Color color) {
+    final l10n = AppLocalizations.of(context)!;
     _reasonController.clear();
     _duplicateIdController.clear();
     _selectedSurveyorId = null;
@@ -181,10 +182,10 @@ class _CaseWorkspaceVerifikasiTabState
               if (decision == 'duplicate') ...[
                 TextField(
                   controller: _duplicateIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'ID Laporan Duplikat (WAJIB)',
-                    hintText: 'Masukkan ID laporan duplikat',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.labelIdLaporanDuplikatWajib,
+                    hintText: l10n.hintMasukkanIdLaporanDuplikat,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -196,11 +197,11 @@ class _CaseWorkspaceVerifikasiTabState
                 ] else ...[
                   DropdownButtonFormField<String>(
                     initialValue: _selectedSurveyorId,
-                    decoration: const InputDecoration(
-                      labelText: 'Pilih Surveyor (WAJIB)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.labelPilihSurveyorWajib,
+                      border: const OutlineInputBorder(),
                     ),
-                    hint: const Text('Pilih surveyor'),
+                    hint: Text(l10n.pilihSurveyor),
                     items: _surveyors.map((s) {
                       return DropdownMenuItem<String>(
                         value: s.id,
@@ -216,10 +217,10 @@ class _CaseWorkspaceVerifikasiTabState
               ],
               TextField(
                 controller: _reasonController,
-                decoration: const InputDecoration(
-                  labelText: 'Alasan (WAJIB)',
-                  hintText: 'Berikan alasan keputusan ini',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.labelAlasanWajib,
+                  hintText: l10n.hintBerikanAlasanKeputusan,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -236,7 +237,7 @@ class _CaseWorkspaceVerifikasiTabState
                   foregroundColor: SigapColors.surface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text(Strings.kirimKeputusan),
+                child: Text(l10n.kirimKeputusan),
               ),
             ],
           ),
@@ -254,18 +255,19 @@ class _CaseWorkspaceVerifikasiTabState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Role-gated: Only show for VERIFIKATOR/RT_RW roles (has case.verify/reject/request_info capabilities)
     return Can(
       action: 'case.verify',
       resource: Resource(type: 'case', id: widget.caseId),
-      fallback: const _AccessDeniedPlaceholder(
+      fallback: const AccessDeniedCard(
         message: 'Anda tidak memiliki akses untuk memverifikasi kasus ini.',
       ),
-      child: _buildVerificationContent(),
+      child: _buildVerificationContent(l10n),
     );
   }
 
-  Widget _buildVerificationContent() {
+  Widget _buildVerificationContent(AppLocalizations l10n) {
     if (_success) {
       return Center(
         child: Column(
@@ -284,7 +286,7 @@ class _CaseWorkspaceVerifikasiTabState
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => context.pop(),
-              child: const Text(Strings.kembali),
+              child: Text(l10n.kembali),
             ),
           ],
         ),
@@ -298,12 +300,12 @@ class _CaseWorkspaceVerifikasiTabState
         children: [
           // AI Assessment section
           if (widget.assessmentData != null) ...[
-            _SectionLabel(label: 'Penilaian AI'),
+            _SectionLabel(label: l10n.labelPenilaianAI),
             const SizedBox(height: SigapSpacing.sm),
             AiAssessmentCard(assessment: widget.assessmentData!),
             const SizedBox(height: SigapSpacing.lg),
           ] else if (widget.assessmentError) ...[
-            _SectionLabel(label: 'Penilaian AI'),
+            _SectionLabel(label: l10n.labelPenilaianAI),
             const SizedBox(height: SigapSpacing.sm),
             Container(
               padding: const EdgeInsets.symmetric(
@@ -328,7 +330,7 @@ class _CaseWorkspaceVerifikasiTabState
                     'Assessment tidak tersedia',
                     style: TextStyle(
                       color: SigapColors.perluTindakan,
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -339,84 +341,84 @@ class _CaseWorkspaceVerifikasiTabState
           ],
 
           // Decision Actions Panel
-          _SectionLabel(label: 'Tindakan'),
+          _SectionLabel(label: l10n.tindakan),
           const SizedBox(height: SigapSpacing.md),
           StickyActionBar(
             actions: [
               // Tolak (Reject) - case.reject capability
               SigapActionButton(
-                label: Strings.ditolak,
-                semanticsLabel: Strings.ditolak,
+                label: l10n.ditolak,
+                semanticsLabel: l10n.ditolak,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'rejected',
-                        Strings.ditolak,
+                        l10n.ditolak,
                         SigapColors.perluTindakan,
                       ),
                 icon: Icons.cancel,
               ),
               // Duplikat (Duplicate)
               SigapOutlineButton(
-                label: Strings.duplikat,
-                semanticsLabel: Strings.duplikat,
+                label: l10n.duplikat,
+                semanticsLabel: l10n.duplikat,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'duplicate',
-                        Strings.tandaiDuplikat,
+                        l10n.tandaiDuplikat,
                         SigapColors.offlineDot,
                       ),
                 icon: Icons.link,
               ),
               // Survei (Survey)
               SigapOutlineButton(
-                label: Strings.survei,
-                semanticsLabel: Strings.survei,
+                label: l10n.survei,
+                semanticsLabel: l10n.survei,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'needs_survey',
-                        Strings.perluSurvei,
+                        l10n.perluSurvei,
                         SigapColors.primary,
                       ),
                 icon: Icons.search,
               ),
               // Diluar Jangkauan (Out of Scope)
               SigapOutlineButton(
-                label: Strings.dilute,
-                semanticsLabel: Strings.dilute,
+                label: l10n.dilute,
+                semanticsLabel: l10n.dilute,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'out_of_scope',
-                        Strings.diluteJangkauan,
+                        l10n.diluteJangkauan,
                         SigapColors.offlineDot,
                       ),
                 icon: Icons.block,
               ),
               // Perlu Lengkapi (Needs Completion)
               SigapOutlineButton(
-                label: Strings.perluLengkapi,
-                semanticsLabel: Strings.perluLengkapi,
+                label: l10n.perluDilengkapi,
+                semanticsLabel: l10n.perluDilengkapi,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'needs_completion',
-                        Strings.perluLengkapi,
+                        l10n.perluDilengkapi,
                         SigapColors.diproses,
                       ),
                 icon: Icons.edit_note,
               ),
               // Setuju/Valid (Verify/Approve) - case.verify capability
               SigapActionButton(
-                label: Strings.valid,
-                semanticsLabel: Strings.valid,
+                label: l10n.valid,
+                semanticsLabel: l10n.valid,
                 onPressed: _submitting
                     ? null
                     : () => _showDecisionSheet(
                         'valid',
-                        'Valid — Terima Laporan',
+                        l10n.valid,
                         SigapColors.selesai,
                       ),
                 icon: Icons.check_circle,
@@ -429,7 +431,7 @@ class _CaseWorkspaceVerifikasiTabState
               'Error: $_submitError',
               style: const TextStyle(
                 color: SigapColors.perluTindakan,
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
               ),
             ),
           ],
@@ -450,53 +452,9 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       label,
       style: const TextStyle(
-        fontSize: SigapTypography.size15,
+        fontSize: SigapTypography.subtitle,
         fontWeight: FontWeight.bold,
         color: SigapColors.textPrimary,
-      ),
-    );
-  }
-}
-
-/// Access denied placeholder shown when user lacks verification capabilities.
-class _AccessDeniedPlaceholder extends StatelessWidget {
-  final String message;
-
-  const _AccessDeniedPlaceholder({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(SigapSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.lock_outline,
-              size: 64,
-              color: SigapColors.textMuted,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Akses Ditolak',
-              style: TextStyle(
-                fontSize: SigapTypography.size18,
-                fontWeight: FontWeight.bold,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-            Text(
-              message,
-              style: const TextStyle(
-                fontSize: SigapTypography.size14,
-                color: SigapColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }

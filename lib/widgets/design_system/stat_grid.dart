@@ -104,7 +104,7 @@ class StatCell extends StatelessWidget {
                 child: Text(
                   item.label,
                   style: TextStyle(
-                    fontSize: SigapTypography.size11,
+                    fontSize: SigapTypography.captionMedium,
                     fontWeight: FontWeight.w500,
                     color: SigapColors.textMuted,
                     letterSpacing: SigapTypography.letterSpacingLabel,
@@ -124,7 +124,7 @@ class StatCell extends StatelessWidget {
           Text(
             item.value,
             style: TextStyle(
-              fontSize: SigapTypography.size28,
+              fontSize: SigapTypography.heroText,
               fontWeight: FontWeight.w700,
               color: SigapColors.textPrimary,
               height: SigapTypography.lineHeight130,
@@ -166,7 +166,7 @@ class _DeltaWidget extends StatelessWidget {
         Text(
           '${isPositive ? '+' : ''}${delta.value}${delta.suffix ?? ''}',
           style: TextStyle(
-            fontSize: SigapTypography.size11,
+            fontSize: SigapTypography.captionMedium,
             fontWeight: FontWeight.w600,
             color: color,
           ),
@@ -176,7 +176,7 @@ class _DeltaWidget extends StatelessWidget {
           Text(
             delta.label!,
             style: TextStyle(
-              fontSize: SigapTypography.size10,
+              fontSize: SigapTypography.captionSmall,
               color: SigapColors.textMuted,
             ),
           ),

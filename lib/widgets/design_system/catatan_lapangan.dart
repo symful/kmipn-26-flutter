@@ -16,9 +16,9 @@ import 'package:sigap/theme/tokens.dart';
 /// - Character count text: SigapColors.textTertiary (#616770)
 /// - Focus border: SigapColors.primary (#0F7A6B)
 /// - Border radius: SigapRadius.md (10px)
-/// - Label font: SigapTypography.size12, fontWeight 600
-/// - Input font: SigapTypography.size13
-/// - Character count font: SigapTypography.size11
+/// - Label font: SigapTypography.bodySmall, fontWeight 600
+/// - Input font: SigapTypography.bodyText
+/// - Character count font: SigapTypography.captionMedium
 ///
 /// Example:
 /// ```dart
@@ -91,7 +91,7 @@ class CatatanLapangan extends StatelessWidget {
         const Text(
           'Catatan lapangan',
           style: TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             fontWeight: FontWeight.w600,
             color: SigapColors.textPrimary,
           ),
@@ -154,7 +154,7 @@ class _CatatanTextField extends StatelessWidget {
         maxLength: maxCharacters,
         decoration: _inputDecoration(hintText),
         style: const TextStyle(
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
           color: SigapColors.textPrimary,
           height: SigapTypography.lineHeight140,
         ),
@@ -171,7 +171,7 @@ class _CatatanTextField extends StatelessWidget {
         maxLength: maxCharacters,
         decoration: _inputDecoration(hintText),
         style: const TextStyle(
-          fontSize: SigapTypography.size13,
+          fontSize: SigapTypography.bodyText,
           color: SigapColors.textPrimary,
           height: SigapTypography.lineHeight140,
         ),
@@ -187,7 +187,7 @@ class _CatatanTextField extends StatelessWidget {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(
-        fontSize: SigapTypography.size13,
+        fontSize: SigapTypography.bodyText,
         color: SigapColors.textTertiary,
         height: SigapTypography.lineHeight140,
       ),
@@ -260,7 +260,7 @@ class _CharacterCountState extends State<_CharacterCount> {
         Text(
           '$_currentLength/${widget.maxCharacters}',
           style: TextStyle(
-            fontSize: SigapTypography.size11,
+            fontSize: SigapTypography.captionMedium,
             color: isOverLimit
                 ? SigapColors.danger
                 : isNearLimit

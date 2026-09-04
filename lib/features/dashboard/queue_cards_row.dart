@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
 
@@ -47,10 +48,11 @@ class QueueCardsRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final queueAsync = ref.watch(queueCountsProvider);
 
     return queueAsync.when(
-      data: (queue) => _QueueCardsRowContent(queue: queue),
+      data: (queue) => _QueueCardsRowContent(queue: queue, l10n: l10n),
       loading: () => const _QueueCardsLoading(),
       error: (_, __) => const _QueueCardsError(),
     );
@@ -59,8 +61,9 @@ class QueueCardsRow extends ConsumerWidget {
 
 class _QueueCardsRowContent extends StatelessWidget {
   final QueueCounts queue;
+  final AppLocalizations l10n;
 
-  const _QueueCardsRowContent({required this.queue});
+  const _QueueCardsRowContent({required this.queue, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +72,7 @@ class _QueueCardsRowContent extends StatelessWidget {
         Expanded(
           child: _QueueCard(
             value: queue.newReports.toString(),
-            label: 'Kasus baru',
+            label: l10n.labelKasusBaru,
             color: SigapColors.info,
           ),
         ),
@@ -77,7 +80,7 @@ class _QueueCardsRowContent extends StatelessWidget {
         Expanded(
           child: _QueueCard(
             value: queue.needsVerification.toString(),
-            label: 'Perlu verifikasi',
+            label: l10n.labelPerluVerifikasi,
             color: SigapColors.warning,
           ),
         ),
@@ -85,7 +88,7 @@ class _QueueCardsRowContent extends StatelessWidget {
         Expanded(
           child: _QueueCard(
             value: queue.slaBreached.toString(),
-            label: 'SLA terlewat',
+            label: l10n.labelSlaTerlewat,
             color: SigapColors.danger,
           ),
         ),
@@ -93,7 +96,7 @@ class _QueueCardsRowContent extends StatelessWidget {
         Expanded(
           child: _QueueCard(
             value: queue.highPriority.toString(),
-            label: 'Prioritas tinggi',
+            label: l10n.labelPrioritasTinggi,
             color: SigapColors.primary,
           ),
         ),
@@ -136,7 +139,7 @@ class _QueueCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: SigapTypography.size22,
+              fontSize: SigapTypography.headlineMedium,
               fontWeight: FontWeight.w700,
               color: color,
             ),
@@ -145,7 +148,7 @@ class _QueueCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: SigapTypography.size10,
+              fontSize: SigapTypography.captionSmall,
               color: SigapColors.textTertiary,
             ),
           ),
@@ -224,7 +227,7 @@ class _QueueCardsError extends StatelessWidget {
             'Gagal memuat antrean',
             style: TextStyle(
               color: SigapColors.textSecondary,
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
             ),
           ),
         ],

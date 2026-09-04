@@ -23,7 +23,7 @@ class SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color effectiveColor = color ?? SigapColors.textSecondary;
-    final double effectiveFontSize = style?.fontSize ?? SigapTypography.size13;
+    final double effectiveFontSize = style?.fontSize ?? SigapTypography.bodyText;
     final FontWeight effectiveFontWeight = style?.fontWeight ?? FontWeight.bold;
 
     if (color != null) {

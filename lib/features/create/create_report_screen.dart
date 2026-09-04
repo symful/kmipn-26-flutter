@@ -14,7 +14,7 @@ import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../db/database.dart';
 import '../../api/client.dart';
@@ -22,6 +22,7 @@ import '../../widgets/design_system/similar_cases_banner.dart';
 import '../../providers/providers.dart';
 import '../../services/photo_service.dart';
 import '../../utils/logger.dart';
+import '../../utils/platform_helper.dart';
 import '../../widgets/design_system/design_system.dart';
 
 class CreateReportScreen extends ConsumerStatefulWidget {
@@ -135,18 +136,19 @@ class _CategoryDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      decoration: const InputDecoration(
-        labelText: 'Pilih Kategori',
-        labelStyle: TextStyle(color: SigapColors.textSecondary),
-        hintText: 'Tap untuk memilih kategori',
-        hintStyle: TextStyle(color: SigapColors.textTertiary),
+      decoration: InputDecoration(
+        labelText: AppLocalizations.of(context)!.labelPilihKategori,
+        labelStyle: const TextStyle(color: SigapColors.textSecondary),
+        hintText: AppLocalizations.of(context)!.tapUntukMemilihKategori,
+        hintStyle: const TextStyle(color: SigapColors.textTertiary),
       ),
       initialValue: selectedCategoryId,
       items: categories.map((cat) {
         return DropdownMenuItem(value: cat.id, child: Text(cat.name ?? ""));
       }).toList(),
       onChanged: onChanged,
-      validator: (v) => v == null ? 'Pilih kategori' : null,
+      validator: (v) =>
+          v == null ? AppLocalizations.of(context)!.labelPilihKategori : null,
     );
   }
 }
@@ -162,8 +164,8 @@ class _CategoryErrorWidget extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Kategori',
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.kategori,
             errorText: null,
           ),
           child: Row(
@@ -185,7 +187,7 @@ class _CategoryErrorWidget extends ConsumerWidget {
         const SizedBox(height: SigapSpacing.md),
         ElevatedButton.icon(
           icon: const Icon(Icons.refresh, size: 18),
-          label: const Text('Coba Lagi'),
+          label: Text(AppLocalizations.of(context)!.cobaLagi),
           onPressed: () => ref.invalidate(categoriesProvider),
         ),
       ],
@@ -196,71 +198,168 @@ class _CategoryErrorWidget extends ConsumerWidget {
 // ─── Photo Section ────────────────────────────────────────────────────────────
 
 class _PhotoSection extends StatelessWidget {
-  final String? photoPath;
-  final VoidCallback onCapture;
+  final List<_PhotoEntry> photos;
+  final VoidCallback onAdd;
+  final void Function(int) onRemove;
 
-  const _PhotoSection({required this.photoPath, required this.onCapture});
+  const _PhotoSection({
+    required this.photos,
+    required this.onAdd,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (photoPath != null) {
-      return Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(SigapRadius.md),
-            child: Image.file(
-              File(photoPath!),
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Thumbnail grid
+        if (photos.isNotEmpty) ...[
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
             ),
+            itemCount: photos.length,
+            itemBuilder: (context, index) {
+              final photo = photos[index];
+              final hasGps = _hasGpsInExif(photo.exifJson);
+              return AspectRatio(
+                aspectRatio: 1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(SigapRadius.md),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Photo thumbnail
+                      Image.file(File(photo.path), fit: BoxFit.cover),
+                      // GPS badge
+                      if (hasGps)
+                        Positioned(
+                          bottom: 4,
+                          left: 4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: SigapColors.selesai.withValues(
+                                alpha: 0.85,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'GPS',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      // Remove button
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () => onRemove(index),
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: const BoxDecoration(
+                              color: SigapColors.danger,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: SigapSpacing.md),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.camera_alt, size: 18),
-            label: const Text('Ambil Ulang Foto'),
-            onPressed: onCapture,
-          ),
         ],
-      );
-    }
-
-    return InkWell(
-      onTap: onCapture,
-      borderRadius: BorderRadius.circular(SigapRadius.md),
-      child: Container(
-        height: 140,
-        decoration: BoxDecoration(
-          color: SigapColors.primaryLight,
+        // Upload button
+        InkWell(
+          onTap: photos.length >= 5 ? null : onAdd,
           borderRadius: BorderRadius.circular(SigapRadius.md),
-          border: Border.all(color: SigapColors.primary.withValues(alpha: 0.3)),
-        ),
-        child: const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.add_a_photo, color: SigapColors.primary, size: 40),
-              SizedBox(height: SigapSpacing.sm),
-              Text(
-                'Ambil Foto',
-                style: TextStyle(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
+            decoration: BoxDecoration(
+              color: photos.isEmpty
+                  ? SigapColors.primaryLight
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(SigapRadius.md),
+              border: Border.all(
+                color: SigapColors.primary.withValues(alpha: 0.3),
+                style: photos.isEmpty ? BorderStyle.solid : BorderStyle.solid,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  photos.isEmpty
+                      ? Icons.add_a_photo
+                      : Icons.add_photo_alternate,
                   color: SigapColors.primary,
-                  fontWeight: FontWeight.w600,
+                  size: photos.isEmpty ? 40 : 24,
                 ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                'Tap untuk membuka kamera',
-                style: TextStyle(
-                  color: SigapColors.textSecondary,
-                  fontSize: 12,
+                const SizedBox(width: SigapSpacing.sm),
+                Text(
+                  photos.isEmpty
+                      ? l10n.sectionAmbilFoto
+                      : 'Tambah foto (${photos.length}/5)',
+                  style: const TextStyle(
+                    color: SigapColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: SigapSpacing.sm),
+        Text(
+          'Maks 5 foto, format JPG/PNG. GPS dari EXIF akan digunakan jika tersedia.',
+          style: TextStyle(color: SigapColors.textTertiary, fontSize: 11),
+        ),
+      ],
     );
+  }
+
+  /// Checks if the EXIF JSON string contains GPS-related keys.
+  bool _hasGpsInExif(String? exifJson) {
+    if (exifJson == null || exifJson.isEmpty) return false;
+    try {
+      final map = Map<String, dynamic>.from(
+        Map<String, dynamic>.from(const JsonDecoder().convert(exifJson) as Map),
+      );
+      return map.keys.any(
+        (k) =>
+            k.contains('GPSLatitude') ||
+            k.contains('GPSLongitude') ||
+            k.contains('latitude') ||
+            k.contains('longitude') ||
+            k.contains('GPS'),
+      );
+    } catch (_) {
+      return false;
+    }
   }
 }
 
@@ -281,6 +380,7 @@ class _LocationSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasLocation = lat != null && lng != null;
 
     return Column(
@@ -316,7 +416,9 @@ class _LocationSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        hasLocation ? 'Lokasi Terdeteksi' : 'Ambil Lokasi GPS',
+                        hasLocation
+                            ? l10n.lokasiTerdeteksi
+                            : l10n.ambilLokasiGps,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: hasLocation
@@ -335,8 +437,8 @@ class _LocationSection extends StatelessWidget {
                         ),
                       ] else ...[
                         const SizedBox(height: 2),
-                        const Text(
-                          'Tap untuk mendapatkan lokasi saat ini',
+                        Text(
+                          l10n.tapUntukMendapatkanLokasi,
                           style: TextStyle(
                             fontSize: 12,
                             color: SigapColors.textTertiary,
@@ -364,7 +466,7 @@ class _LocationSection extends StatelessWidget {
         const SizedBox(height: SigapSpacing.sm),
         TextButton.icon(
           icon: const Icon(Icons.map, size: 16),
-          label: const Text('Pilih di Peta'),
+          label: Text(AppLocalizations.of(context)!.pilihDiPeta),
           onPressed: onPickFromMap,
         ),
       ],
@@ -468,6 +570,7 @@ class _DuplicateCasesSection extends ConsumerWidget {
     BuildContext context,
     List<SimilarCase> cases,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -496,7 +599,7 @@ class _DuplicateCasesSection extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  '${cases.length} Kasus Serupa',
+                  l10n.kasusSerupa(cases.length),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -579,11 +682,17 @@ class _DuplicateCasesSection extends ConsumerWidget {
 
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 
+class _PhotoEntry {
+  final String path;
+  final String? exifJson;
+  _PhotoEntry({required this.path, this.exifJson});
+}
+
 class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   static final _logger = Logger('CreateReportScreen');
   final _formKey = GlobalKey<FormState>();
-  String? _photoPath;
-  String? _exifDataJson;
+  final List<_PhotoEntry> _photos = [];
+  final ImagePicker _picker = ImagePicker();
   double? _lat;
   double? _lng;
   String? _categoryId;
@@ -596,6 +705,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   bool _isDirty = false;
   DateTime? _autosaveTimestamp;
   Timer? _autosaveTimer;
+  late final String _draftId = const Uuid().v4();
 
   /// Strips EXIF data from JPEG bytes using the image package.
   /// Throws [Exception] if stripping fails — never returns original bytes.
@@ -609,11 +719,52 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     return strippedBytes;
   }
 
-  Future<void> _capturePhoto() async {
-    final picker = ImagePicker();
-    final photo = await picker.pickImage(
-      source: ImageSource.camera,
+  void _showPhotoSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: SigapColors.primary),
+              title: const Text('Kamera'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickPhoto(cameraSource());
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.photo_library,
+                color: SigapColors.primary,
+              ),
+              title: const Text('Galeri'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickPhoto(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickPhoto(ImageSource source) async {
+    if (_photos.length >= 5) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Maksimal 5 foto')));
+      }
+      return;
+    }
+
+    final photo = await _picker.pickImage(
+      source: source,
       maxWidth: 1920,
+      maxHeight: 1920,
       imageQuality: 85,
     );
     if (photo != null) {
@@ -635,8 +786,9 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
         await strippedFile.writeAsBytes(strippedBytes);
         if (mounted) {
           setState(() {
-            _photoPath = strippedFile.path;
-            _exifDataJson = exifJson;
+            _photos.add(
+              _PhotoEntry(path: strippedFile.path, exifJson: exifJson),
+            );
           });
           _onFormChanged();
         }
@@ -646,7 +798,11 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal menghapus metadata foto: $e'),
+              content: Text(
+                AppLocalizations.of(
+                  context,
+                )!.gagalHapusMetadataFoto(e.toString()),
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -693,25 +849,26 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   void _showLocationPickerDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lokasi Tidak Tersedia'),
-        content: const Text(
-          'Tidak dapat mengakses GPS. Pilih lokasi manual di peta.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(Strings.batal),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _openMapPicker();
-            },
-            child: const Text('Pilih di Peta'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl10n.lokasiTidakTersedia),
+          content: Text(dl10n.tidakDapatAksesGps),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(dl10n.batal),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _openMapPicker();
+              },
+              child: Text(dl10n.pilihDiPeta),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -746,16 +903,20 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_photoPath == null) {
+    if (_photos.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ambil foto terlebih dahulu')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.ambilFotoTerlebihDahulu),
+        ),
       );
       return;
     }
     if (_lat == null || _lng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aktifkan lokasi untuk melapor'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.aktifkanLokasiUntukMelapor,
+          ),
           backgroundColor: SigapColors.danger,
         ),
       );
@@ -763,7 +924,11 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     }
     if (_categoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih kategori terlebih dahulu')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.pilihKategoriTerlebihDahulu,
+          ),
+        ),
       );
       return;
     }
@@ -781,13 +946,31 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       final client = ref.read(apiClientProvider);
       final idempotencyKey = const Uuid().v4();
 
-      // Submit report first to get server reportId and uploadToken
+      // Step 1: Upload photos FIRST (matching web SPA canonical flow)
+      final uploadedUrls = <String>[];
+      for (var i = 0; i < _photos.length; i++) {
+        try {
+          final url = await client.uploadReportPhotoAnon(
+            _photos[i].path,
+            idempotencyKey,
+            slot: i,
+          );
+          uploadedUrls.add(url);
+          _logger.info('Photo $i uploaded: $url');
+        } catch (e) {
+          _logger.warning('Photo $i upload failed: $e');
+          uploadedUrls.add(_photos[i].path); // fallback to local
+        }
+      }
+
+      // Step 2: Create report with photo URLs in body
       final result = await client.submitReport(
         idempotencyKey: idempotencyKey,
         categoryId: _categoryId!,
         description: _descriptionController.text,
         lat: _lat!,
         lng: _lng!,
+        photoUrls: uploadedUrls,
         populationAffected: _populationAffected,
         vulnerabilityIndex: _vulnerabilityIndex,
         impactDampak: _selectedDampak.isNotEmpty
@@ -795,28 +978,23 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
             : null,
       );
 
-      final serverReportId = result.id ?? idempotencyKey;
-      _logger.info(
-        'Authenticated report submitted: id=$serverReportId, uploadToken=${result.uploadToken}',
-      );
-
-      // Upload photo using uploadToken from create response
-      String r2Url = _photoPath ?? '';
-      if (_photoPath != null && result.uploadToken != null) {
-        try {
-          final photoService = PhotoService(client);
-          r2Url = await photoService.uploadPhotoAndGetUrl(
-            _photoPath!,
-            serverReportId,
-            result.uploadToken!,
-          );
-          _logger.info(
-            'Photo uploaded for report: $serverReportId, url: $r2Url',
-          );
-        } catch (e) {
-          _logger.warning('Photo upload failed, using local path: $e');
-        }
+      if (result.duplicate) {
+        _logger.info('Report detected as duplicate: ${result.id}');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.laporanTersimpanTerkirim,
+            ),
+            backgroundColor: SigapColors.warning,
+          ),
+        );
+        context.pop();
+        return;
       }
+
+      final serverReportId = result.id ?? idempotencyKey;
+      _logger.info('Authenticated report submitted: id=$serverReportId');
 
       // Save locally for offline support
       final reportRepo = ref.read(reportRepositoryProvider);
@@ -827,42 +1005,39 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           description: _descriptionController.text,
           lat: _lat!,
           lng: _lng!,
-          photoPath: Value(r2Url),
-          exifDataJson: Value(_exifDataJson),
+          photoPath: Value(uploadedUrls.isNotEmpty ? uploadedUrls.first : ''),
+          exifDataJson: Value(
+            _photos.isNotEmpty ? _photos.first.exifJson : null,
+          ),
           populationAffected: Value(_populationAffected),
           vulnerabilityIndex: Value(_vulnerabilityIndex),
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
-          addressArea: Value(result.addressArea),
         ),
       );
 
-      // Insert photo record with R2 URL (or local path if upload failed)
+      // Insert photo records for ALL photos
       final db = ref.read(databaseProvider);
-      await db.insertPhoto(
-        reportIdempotencyKey: idempotencyKey,
-        filePath: r2Url,
-        exifDataJson: _exifDataJson,
-        capturedAt: DateTime.now().millisecondsSinceEpoch,
-      );
+      for (var i = 0; i < uploadedUrls.length; i++) {
+        await db.insertPhoto(
+          reportIdempotencyKey: idempotencyKey,
+          filePath: uploadedUrls[i],
+          exifDataJson: _photos[i].exifJson,
+          capturedAt: DateTime.now().millisecondsSinceEpoch,
+        );
+      }
 
-      // No need to enqueue for creation since report is already created
-      // Enqueue is still useful for future status updates if needed
+      // Enqueue for sync (status updates, photo uploads, etc.)
       final queueRepo = ref.read(syncQueueRepositoryProvider);
-      await queueRepo.enqueue(idempotencyKey);
+      await queueRepo.enqueue(idempotencyKey, kind: 'report');
 
       ref.invalidate(localReportsProvider);
       ref.invalidate(pendingCountProvider);
 
       if (!mounted) return;
-      final addressText = result.addressArea ?? result.address;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            addressText != null
-                ? 'Laporan tersimpan di $addressText'
-                : 'Laporan tersimpan dan terkirim.',
-          ),
+          content: Text(AppLocalizations.of(context)!.laporanTersimpanTerkirim),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -873,7 +1048,9 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       setState(() => _submitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menyimpan: $e'),
+          content: Text(
+            AppLocalizations.of(context)!.gagalMenyimpan(e.toString()),
+          ),
           backgroundColor: SigapColors.danger,
         ),
       );
@@ -889,7 +1066,24 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       final client = ref.read(apiClientProvider);
       final idempotencyKey = const Uuid().v4();
 
-      // Submit report first to get server reportId and uploadToken
+      // Step 1: Upload photos FIRST (matching web SPA canonical flow)
+      final uploadedUrls = <String>[];
+      for (var i = 0; i < _photos.length; i++) {
+        try {
+          final url = await client.uploadReportPhotoAnon(
+            _photos[i].path,
+            idempotencyKey,
+            slot: i,
+          );
+          uploadedUrls.add(url);
+          _logger.info('Anonymous photo $i uploaded: $url');
+        } catch (e) {
+          _logger.warning('Anonymous photo $i upload failed: $e');
+          uploadedUrls.add(_photos[i].path); // fallback to local
+        }
+      }
+
+      // Step 2: Create report with photo URLs in body
       final result = await client.submitReport(
         idempotencyKey: idempotencyKey,
         deviceId: deviceId,
@@ -897,49 +1091,43 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
         description: _descriptionController.text,
         lat: _lat!,
         lng: _lng!,
+        photoUrls: uploadedUrls,
         populationAffected: _populationAffected,
         vulnerabilityIndex: _vulnerabilityIndex,
         impactDampak: _selectedDampak.isNotEmpty
             ? _selectedDampak.toList()
             : null,
+        anonymous: true,
       );
 
-      _logger.info(
-        'Anonymous report submitted: id=${result.id}, status=${result.status}, uploadToken=${result.uploadToken}',
-      );
-
-      // Upload photo using uploadToken from create response
-      String? r2Url;
-      if (_photoPath != null &&
-          result.uploadToken != null &&
-          result.id != null) {
-        try {
-          final photoService = PhotoService(client);
-          r2Url = await photoService.uploadPhotoAndGetUrl(
-            _photoPath!,
-            result.id!,
-            result.uploadToken!,
-          );
-          _logger.info('Anonymous photo uploaded: $r2Url');
-        } catch (e) {
-          _logger.warning(
-            'Anonymous photo upload failed, continuing without photo: $e',
-          );
-        }
+      if (result.duplicate) {
+        _logger.info('Anonymous report detected as duplicate: ${result.id}');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.laporanAnonimTersimpanId(result.id ?? ''),
+            ),
+            backgroundColor: SigapColors.warning,
+          ),
+        );
+        context.pop();
+        return;
       }
 
       _logger.info(
-        'Anonymous report completed: id=${result.id}, photoUrl=$r2Url',
+        'Anonymous report submitted: id=${result.id}, photos=${uploadedUrls.length}',
       );
 
       if (!mounted) return;
-      final addressText = result.addressArea ?? result.address;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            addressText != null
-                ? 'Laporan anonim tersimpan di $addressText'
-                : 'Laporan anonim tersimpan: ${result.id}',
+            AppLocalizations.of(
+              context,
+            )!.laporanAnonimTersimpanId(result.id ?? ''),
           ),
           backgroundColor: SigapColors.primary,
         ),
@@ -951,7 +1139,9 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       setState(() => _submitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menyimpan: $e'),
+          content: Text(
+            AppLocalizations.of(context)!.gagalMenyimpan(e.toString()),
+          ),
           backgroundColor: SigapColors.danger,
         ),
       );
@@ -981,13 +1171,15 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
       final now = DateTime.now();
       await reportRepo.saveLocal(
         LocalReportsCompanion.insert(
-          idempotencyKey: 'draft',
+          idempotencyKey: _draftId,
           categoryId: _categoryId ?? '',
           description: _descriptionController.text,
           lat: _lat!,
           lng: _lng!,
-          photoPath: Value(_photoPath),
-          exifDataJson: Value(_exifDataJson),
+          photoPath: Value(_photos.isNotEmpty ? _photos.first.path : null),
+          exifDataJson: Value(
+            _photos.isNotEmpty ? _photos.first.exifJson : null,
+          ),
           populationAffected: Value(_populationAffected),
           vulnerabilityIndex: Value(_vulnerabilityIndex),
           createdAt: now,
@@ -1006,16 +1198,19 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgSurface,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Buat Laporan'),
+            Text(l10n.buatLaporan),
             if (_autosaveTimestamp != null)
               Text(
-                'Tersimpan ${_TimeOfDayFormatter.format(_autosaveTimestamp!)}',
+                l10n.tersimpanPada(
+                  _TimeOfDayFormatter.format(_autosaveTimestamp!),
+                ),
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w400,
@@ -1039,18 +1234,20 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                 children: [
                   // Photo Section
                   _SectionCard(
-                    title: 'Ambil Foto',
+                    title: l10n.sectionAmbilFoto,
                     icon: Icons.add_a_photo,
                     child: _PhotoSection(
-                      photoPath: _photoPath,
-                      onCapture: _capturePhoto,
+                      photos: _photos,
+                      onAdd: _showPhotoSourceDialog,
+                      onRemove: (index) =>
+                          setState(() => _photos.removeAt(index)),
                     ),
                   ),
                   const SizedBox(height: SigapSpacing.lg),
 
                   // Location Section
                   _SectionCard(
-                    title: 'Lokasi',
+                    title: l10n.sectionLokasi,
                     icon: Icons.location_on,
                     child: _LocationSection(
                       lat: _lat,
@@ -1063,7 +1260,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
                   // Category Section
                   _SectionCard(
-                    title: 'Kategori',
+                    title: l10n.kategori,
                     icon: Icons.category,
                     child: _CategorySection(
                       selectedCategoryId: _categoryId,
@@ -1087,15 +1284,17 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
                   // Description Section
                   _SectionCard(
-                    title: 'Deskripsi',
+                    title: l10n.sectionDeskripsi,
                     icon: Icons.description,
                     child: TextFormField(
                       controller: _descriptionController,
                       onChanged: (_) => _onFormChanged(),
-                      decoration: const InputDecoration(
-                        labelText: 'Jelaskan laporan Anda',
-                        labelStyle: TextStyle(color: SigapColors.textSecondary),
-                        hintText: 'Minimal 10 karakter...',
+                      decoration: InputDecoration(
+                        labelText: l10n.labelJelaskanLaporan,
+                        labelStyle: const TextStyle(
+                          color: SigapColors.textSecondary,
+                        ),
+                        hintText: l10n.minimal10Karakter,
                         hintStyle: TextStyle(color: SigapColors.textTertiary),
                         alignLabelWithHint: true,
                       ),
@@ -1110,7 +1309,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
                   // Population Affected Section
                   _SectionCard(
-                    title: 'Perkiraan Jumlah Terdampak',
+                    title: l10n.sectionPerkiraanTerdampak,
                     icon: Icons.people,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1124,8 +1323,8 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                               _onFormChanged();
                             }
                           },
-                          decoration: const InputDecoration(
-                            labelText: 'Perkiraan jumlah warga terdampak',
+                          decoration: InputDecoration(
+                            labelText: l10n.labelPerkiraanTerdampak,
                             labelStyle: TextStyle(
                               color: SigapColors.textSecondary,
                             ),
@@ -1133,13 +1332,13 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                             hintStyle: TextStyle(
                               color: SigapColors.textTertiary,
                             ),
-                            suffixText: 'orang',
+                            suffixText: l10n.orang,
                           ),
                           keyboardType: TextInputType.number,
                         ),
                         const SizedBox(height: SigapSpacing.sm),
                         Text(
-                          'Jumlah perkiraan warga yang terdampak insiden ini',
+                          l10n.jumlahPerkiraanTerdampak,
                           style: TextStyle(
                             fontSize: 12,
                             color: SigapColors.textTertiary,
@@ -1152,13 +1351,13 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
                   // Vulnerability Index Section
                   _SectionCard(
-                    title: 'Tingkat Kerentanan',
+                    title: l10n.sectionTingkatKerentanan,
                     icon: Icons.warning,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Seberapa rentan kelompok masyarakat setempat?',
+                        Text(
+                          l10n.seberapaRentan,
                           style: TextStyle(
                             fontSize: 12,
                             color: SigapColors.textSecondary,
@@ -1168,7 +1367,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                         Row(
                           children: [
                             _VulnerabilitySegment(
-                              label: 'Rendah',
+                              label: l10n.rendah,
                               value: 0.25,
                               groupValue: _vulnerabilityIndex,
                               onChanged: (v) {
@@ -1178,7 +1377,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                             ),
                             const SizedBox(width: SigapSpacing.sm),
                             _VulnerabilitySegment(
-                              label: 'Sedang',
+                              label: l10n.sedang,
                               value: 0.5,
                               groupValue: _vulnerabilityIndex,
                               onChanged: (v) {
@@ -1188,7 +1387,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                             ),
                             const SizedBox(width: SigapSpacing.sm),
                             _VulnerabilitySegment(
-                              label: 'Tinggi',
+                              label: l10n.tinggi,
                               value: 0.75,
                               groupValue: _vulnerabilityIndex,
                               onChanged: (v) {
@@ -1205,13 +1404,13 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
 
                   // Dampak Section
                   _SectionCard(
-                    title: 'Dampak',
+                    title: l10n.sectionDampak,
                     icon: Icons.warning,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Pilih jenis dampak yang terjadi:',
+                        Text(
+                          l10n.pilihJenisDampak,
                           style: TextStyle(
                             fontSize: 12,
                             color: SigapColors.textSecondary,
@@ -1223,11 +1422,11 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                           runSpacing: SigapSpacing.sm,
                           children:
                               [
-                                'Keselamatan',
-                                'Akses wilayah',
-                                'Layanan sekolah',
-                                'Ekonomi',
-                                'Lingkungan',
+                                l10n.keselamatan,
+                                l10n.aksesWilayah,
+                                l10n.layananSekolah,
+                                l10n.ekonomi,
+                                l10n.lingkungan,
                               ].map((dampak) {
                                 final isSelected = _selectedDampak.contains(
                                   dampak,
@@ -1298,9 +1497,9 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                           ),
                         ),
                       )
-                    : const Text(
-                        Strings.kirimLaporan,
-                        style: TextStyle(
+                    : Text(
+                        l10n.kirimLaporan,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),

@@ -88,7 +88,7 @@ class ReportSummaryCard extends StatelessWidget {
         const Text(
           'RINGKASAN LAPORAN',
           style: TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             fontWeight: FontWeight.w700,
             color: SigapColors.textTertiary,
             letterSpacing: SigapTypography.letterSpacingLabel,
@@ -129,7 +129,7 @@ class ReportSummaryCard extends StatelessWidget {
                               Text(
                                 'Kondisi: ${report.condition}',
                                 style: const TextStyle(
-                                  fontSize: SigapTypography.size11,
+                                  fontSize: SigapTypography.captionMedium,
                                   color: SigapColors.textTertiary,
                                 ),
                               ),
@@ -141,7 +141,7 @@ class ReportSummaryCard extends StatelessWidget {
                           Text(
                             report.title,
                             style: const TextStyle(
-                              fontSize: SigapTypography.size13,
+                              fontSize: SigapTypography.bodyText,
                               fontWeight: FontWeight.w600,
                               color: SigapColors.textPrimary,
                               height: SigapTypography.lineHeight135,
@@ -222,7 +222,7 @@ class _PhotoPlaceholder extends StatelessWidget {
         'foto $photoIndex',
         style: const TextStyle(
           fontFamily: SigapTypography.fontFamilyMono,
-          fontSize: SigapTypography.size8,
+          fontSize: SigapTypography.captionNano,
           color: SigapColors.textDisabled,
         ),
       ),
@@ -248,7 +248,7 @@ class _CategoryBadge extends StatelessWidget {
         initials,
         style: const TextStyle(
           fontFamily: SigapTypography.fontFamilyMono,
-          fontSize: SigapTypography.size10,
+          fontSize: SigapTypography.captionSmall,
           fontWeight: FontWeight.w600,
           color: SigapColors.primaryDark,
         ),
@@ -305,7 +305,7 @@ class _InfoRow extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               color: SigapColors.textTertiary,
             ),
           ),
@@ -315,7 +315,7 @@ class _InfoRow extends StatelessWidget {
                 value,
                 textAlign: TextAlign.right,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.textPrimary,
                 ),
@@ -328,7 +328,7 @@ class _InfoRow extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size12,
+                    fontSize: SigapTypography.bodySmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),
@@ -340,7 +340,7 @@ class _InfoRow extends StatelessWidget {
                     child: const Text(
                       '✎',
                       style: TextStyle(
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         color: SigapColors.primary,
                       ),
                     ),
@@ -356,7 +356,7 @@ class _InfoRow extends StatelessWidget {
                   child: Text(
                     accuracy != null ? '$value · $accuracy' : value,
                     style: const TextStyle(
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.textPrimary,
                     ),
@@ -369,7 +369,7 @@ class _InfoRow extends StatelessWidget {
                     child: const Text(
                       '✎',
                       style: TextStyle(
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         color: SigapColors.primary,
                       ),
                     ),

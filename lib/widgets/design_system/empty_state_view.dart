@@ -61,7 +61,7 @@ class EmptyState extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                fontSize: SigapTypography.size17,
+                fontSize: SigapTypography.subheading,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textPrimary,
                 height: SigapTypography.lineHeight130,
@@ -74,7 +74,7 @@ class EmptyState extends StatelessWidget {
               Text(
                 subtitle!,
                 style: TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w400,
                   color: SigapColors.textSecondary,
                   height: SigapTypography.lineHeight145,

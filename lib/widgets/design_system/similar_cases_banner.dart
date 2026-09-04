@@ -90,7 +90,7 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
                 child: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size12_5,
+                    fontSize: SigapTypography.bodySmallFine,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.info,
                   ),
@@ -106,7 +106,7 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
                   child: Text(
                     _isExpanded ? 'Tutup' : 'Lihat Semua',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size12_5,
+                      fontSize: SigapTypography.bodySmallFine,
                       fontWeight: FontWeight.w600,
                       color: SigapColors.info,
                     ),
@@ -205,7 +205,7 @@ class _CaseCard extends StatelessWidget {
                     Text(
                       caseItem.title,
                       style: const TextStyle(
-                        fontSize: SigapTypography.size13,
+                        fontSize: SigapTypography.bodyText,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
@@ -214,7 +214,7 @@ class _CaseCard extends StatelessWidget {
                     Text(
                       '${caseItem.distance} · kemiripan ${caseItem.similarityPercent}% · ${caseItem.reportCount} laporan',
                       style: const TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textTertiary,
                       ),
                     ),
@@ -242,7 +242,7 @@ class _CaseCard extends StatelessWidget {
                     child: const Text(
                       'Tambahkan bukti ke kasus ini',
                       style: TextStyle(
-                        fontSize: SigapTypography.size12_5,
+                        fontSize: SigapTypography.bodySmallFine,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
@@ -269,7 +269,7 @@ class _CaseCard extends StatelessWidget {
                     child: const Text(
                       'Buat terpisah',
                       style: TextStyle(
-                        fontSize: SigapTypography.size12_5,
+                        fontSize: SigapTypography.bodySmallFine,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.info,
                       ),

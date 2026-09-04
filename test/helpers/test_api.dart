@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sigap_mobile/api/client.dart';
+import 'package:sigap/api/client.dart';
 import 'test_env.dart';
 
-export 'package:sigap_mobile/api/client.dart' show ApiClient;
+export 'package:sigap/api/client.dart' show ApiClient;
 
 /// Extended test API client that injects TEST_ prefix identifiers
 /// into API requests to avoid collisions with production data.

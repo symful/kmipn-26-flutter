@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../api/client.dart' as new_api;
 import '../../../api/exceptions.dart' show ApiException;
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
@@ -66,11 +67,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       }
     } on ApiException catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = e.userMessage ?? 'Registrasi gagal');
+        final l10n = AppLocalizations.of(context)!;
+        setState(() => _errorMessage = e.userMessage ?? l10n.registrasiGagal);
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = 'Tidak dapat terhubung ke server');
+        final l10n = AppLocalizations.of(context)!;
+        setState(() => _errorMessage = l10n.tidakDapatTerhubung);
       }
     } finally {
       if (mounted) {
@@ -81,6 +84,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
@@ -99,19 +104,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Daftar Akun',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size24,
+                Text(
+                  l10n.daftarAkun,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.headlineLarge,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: SigapSpacing.xs),
-                const Text(
-                  'Buat akun baru untuk memulai.',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size13,
+                Text(
+                  l10n.buatAkunBaru,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyText,
                     color: SigapColors.textSecondary,
                   ),
                 ),
@@ -139,7 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             _errorMessage!,
                             style: const TextStyle(
                               color: SigapColors.perluTindakan,
-                              fontSize: SigapTypography.size13,
+                              fontSize: SigapTypography.bodyText,
                             ),
                           ),
                         ),
@@ -154,10 +159,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Nama Lengkap',
-                        style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                      Text(
+                        l10n.namaLengkap,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.bodySmall,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textSecondary,
                         ),
@@ -167,21 +172,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         controller: _nameController,
                         textInputAction: TextInputAction.next,
                         textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          hintText: 'Nama lengkap Anda',
-                          prefixIcon: Icon(Icons.person_outline, size: 20),
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
+                        decoration: InputDecoration(
+                          hintText: l10n.namaLengkapHint,
+                          prefixIcon: const Icon(
+                            Icons.person_outline,
+                            size: 20,
+                          ),
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(
                             horizontal: SigapSpacing.md,
                             vertical: SigapSpacing.sm,
                           ),
                         ),
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return 'Nama tidak boleh kosong';
+                            return l10n.namaKosong;
                           }
                           if (v.trim().length < 2) {
-                            return 'Nama minimal 2 karakter';
+                            return l10n.namaMinimal2;
                           }
                           return null;
                         },
@@ -196,10 +204,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Email',
-                        style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                      Text(
+                        l10n.emailLabel,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.bodySmall,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textSecondary,
                         ),
@@ -209,21 +217,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
-                        decoration: const InputDecoration(
-                          hintText: 'email@contoh.com',
-                          prefixIcon: Icon(Icons.email_outlined, size: 20),
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
+                        decoration: InputDecoration(
+                          hintText: l10n.emailHint,
+                          prefixIcon: const Icon(
+                            Icons.email_outlined,
+                            size: 20,
+                          ),
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(
                             horizontal: SigapSpacing.md,
                             vertical: SigapSpacing.sm,
                           ),
                         ),
                         validator: (v) {
                           if (v == null || v.isEmpty) {
-                            return 'Email tidak boleh kosong';
+                            return l10n.emailKosong;
                           }
                           if (!v.contains('@') || !v.contains('.')) {
-                            return 'Format email tidak valid';
+                            return l10n.emailTidakValid;
                           }
                           return null;
                         },
@@ -238,10 +249,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Kata Sandi',
-                        style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                      Text(
+                        l10n.kataSandi,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.bodySmall,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textSecondary,
                         ),
@@ -252,7 +263,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         obscureText: _obscurePassword,
                         textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
-                          hintText: 'Minimal 8 karakter',
+                          hintText: l10n.minimal8Karakter,
                           prefixIcon: const Icon(Icons.lock_outline, size: 20),
                           border: const OutlineInputBorder(),
                           contentPadding: const EdgeInsets.symmetric(
@@ -275,10 +286,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         validator: (v) {
                           if (v == null || v.isEmpty) {
-                            return 'Kata sandi tidak boleh kosong';
+                            return l10n.kataSandiKosong;
                           }
                           if (v.length < 8) {
-                            return 'Kata sandi minimal 8 karakter';
+                            return l10n.kataSandiMinimal8;
                           }
                           return null;
                         },
@@ -293,10 +304,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Konfirmasi Kata Sandi',
-                        style: TextStyle(
-                          fontSize: SigapTypography.size12,
+                      Text(
+                        l10n.konfirmasiKataSandi,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.bodySmall,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textSecondary,
                         ),
@@ -308,7 +319,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => _handleRegister(),
                         decoration: InputDecoration(
-                          hintText: 'Ulangi kata sandi',
+                          hintText: l10n.ulangiKataSandi,
                           prefixIcon: const Icon(Icons.lock_outline, size: 20),
                           border: const OutlineInputBorder(),
                           contentPadding: const EdgeInsets.symmetric(
@@ -331,7 +342,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         validator: (v) {
                           if (v != _passwordController.text) {
-                            return 'Kata sandi tidak cocok';
+                            return l10n.kataSandiTidakCocok;
                           }
                           return null;
                         },
@@ -363,10 +374,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text(
-                            'Daftar',
-                            style: TextStyle(
-                              fontSize: SigapTypography.size15,
+                        : Text(
+                            l10n.daftar,
+                            style: const TextStyle(
+                              fontSize: SigapTypography.subtitle,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -378,23 +389,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Sudah punya akun? ',
-                      style: TextStyle(
+                    Text(
+                      '${l10n.sudahPunyaAkun} ',
+                      style: const TextStyle(
                         color: SigapColors.textSecondary,
-                        fontSize: SigapTypography.size13,
+                        fontSize: SigapTypography.bodyText,
                       ),
                     ),
                     GestureDetector(
                       onTap: () => context.pop(),
                       child: MinTapTarget(
-                        semanticsLabel: 'Masuk',
-                        child: const Text(
-                          'Masuk',
-                          style: TextStyle(
+                        semanticsLabel: l10n.masuk,
+                        child: Text(
+                          l10n.masuk,
+                          style: const TextStyle(
                             color: SigapColors.primary,
                             fontWeight: FontWeight.w600,
-                            fontSize: SigapTypography.size13,
+                            fontSize: SigapTypography.bodyText,
                           ),
                         ),
                       ),

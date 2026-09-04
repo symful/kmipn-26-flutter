@@ -95,7 +95,7 @@ class _OfflineNoticeRow extends StatelessWidget {
         Text(
           'Tidak ada koneksi — laporan akan masuk antrean.',
           style: const TextStyle(
-            fontSize: SigapTypography.size11_5,
+            fontSize: SigapTypography.captionFine,
             color: SigapColors.warningText,
             fontWeight: FontWeight.w400,
           ),
@@ -143,7 +143,7 @@ class _SubmitButton extends StatelessWidget {
             : Text(
                 label,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size15,
+                  fontSize: SigapTypography.subtitle,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),

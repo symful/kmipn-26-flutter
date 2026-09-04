@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 
 /// Full-screen photo viewer with swipe navigation and pinch-to-zoom.
@@ -51,12 +52,13 @@ class _PhotoFullScreenState extends State<PhotoFullScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.textPrimary,
       appBar: AppBar(
         backgroundColor: SigapColors.textPrimary,
         foregroundColor: SigapColors.surface,
-        title: Text('${_currentIndex + 1} / ${widget.photos.length}'),
+        title: Text(l10n.photoCounter(_currentIndex + 1, widget.photos.length)),
       ),
       body: PageView.builder(
         controller: _pageController,

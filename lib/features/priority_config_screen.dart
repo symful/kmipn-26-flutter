@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../l10n/strings.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
@@ -58,8 +58,10 @@ class _PriorityConfigScreenState extends ConsumerState<PriorityConfigScreen> {
       await client.savePriorityConfig(weights: weights);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Konfigurasi bobot prioritas berhasil disimpan'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.konfigurasiBobotTersimpan,
+            ),
             backgroundColor: SigapColors.primary,
           ),
         );
@@ -69,7 +71,9 @@ class _PriorityConfigScreenState extends ConsumerState<PriorityConfigScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menyimpan: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.gagalMenyimpan(e.toString()),
+            ),
             backgroundColor: SigapColors.perluTindakan,
           ),
         );
@@ -84,7 +88,7 @@ class _PriorityConfigScreenState extends ConsumerState<PriorityConfigScreen> {
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Konfigurasi Prioritas'),
+        title: Text(AppLocalizations.of(context)!.konfigurasiPrioritas),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -110,7 +114,7 @@ class _PriorityConfigScreenState extends ConsumerState<PriorityConfigScreen> {
                   // Info banner
                   SigapCard(
                     borderTopColor: SigapColors.diproses,
-                    child: const Row(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.tune, color: SigapColors.diproses, size: 22),
@@ -120,18 +124,22 @@ class _PriorityConfigScreenState extends ConsumerState<PriorityConfigScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Algoritma Penilaian Prioritas',
+                                AppLocalizations.of(
+                                  context,
+                                )!.algoritmaPenilaianPrioritas,
                                 style: TextStyle(
-                                  fontSize: SigapTypography.size13,
+                                  fontSize: SigapTypography.bodyText,
                                   fontWeight: FontWeight.bold,
                                   color: SigapColors.diproses,
                                 ),
                               ),
                               SizedBox(height: 2),
                               Text(
-                                'Atur persentase bobot setiap faktor untuk menghitung skor prioritas otomatis pada setiap laporan yang masuk.',
+                                AppLocalizations.of(
+                                  context,
+                                )!.aturPersentaseBobot,
                                 style: TextStyle(
-                                  fontSize: SigapTypography.size12,
+                                  fontSize: SigapTypography.bodySmall,
                                   color: SigapColors.textSecondary,
                                 ),
                               ),
@@ -229,6 +237,7 @@ class _PriorityFormState extends State<_PriorityForm> {
   Widget build(BuildContext context) {
     final total = (_totalPercentage * 100).round();
     final isExact100 = total == 100;
+    final dl10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -252,7 +261,7 @@ class _PriorityFormState extends State<_PriorityForm> {
                       ? 'Total bobot: 100% (Sesuai)'
                       : 'Total bobot: $total% (Disarankan total 100%)',
                   style: TextStyle(
-                    fontSize: SigapTypography.size12,
+                    fontSize: SigapTypography.bodySmall,
                     fontWeight: FontWeight.w600,
                     color: isExact100
                         ? SigapColors.selesai
@@ -303,10 +312,10 @@ class _PriorityFormState extends State<_PriorityForm> {
                     color: Colors.white,
                   ),
                 )
-              : const Text(
-                  Strings.simpanKonfigurasi,
-                  style: TextStyle(
-                    fontSize: SigapTypography.size14,
+              : Text(
+                  dl10n.simpanKonfigurasi,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyMedium,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -351,7 +360,7 @@ class _WeightSlider extends StatelessWidget {
                 child: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),

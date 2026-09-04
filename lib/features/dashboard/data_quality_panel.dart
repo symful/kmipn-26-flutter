@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
 import 'package:sigap/widgets/design_system/skeleton_loaders.dart';
@@ -63,7 +64,7 @@ class DataQualityPanel extends StatelessWidget {
               const Text(
                 'Kualitas Data',
                 style: TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.textPrimary,
                 ),
@@ -112,7 +113,7 @@ class DataQualityPanel extends StatelessWidget {
             Text(
               message,
               style: const TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textTertiary,
               ),
               textAlign: TextAlign.center,
@@ -130,7 +131,7 @@ class DataQualityPanel extends StatelessWidget {
         child: Text(
           'Data tidak tersedia',
           style: TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textTertiary,
           ),
         ),
@@ -166,6 +167,7 @@ class _SinkronisasiItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final color = _getColorForPercent(percent);
 
     return Column(
@@ -178,10 +180,10 @@ class _SinkronisasiItem extends StatelessWidget {
               children: [
                 Icon(Icons.cloud_sync_outlined, size: 14, color: color),
                 const SizedBox(width: SigapSpacing.xs),
-                const Text(
-                  'Tingkat Sinkronisasi',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size11,
+                Text(
+                  l10n.tingkatSinkronisasi,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.captionMedium,
                     color: SigapColors.textMuted,
                   ),
                 ),
@@ -190,7 +192,7 @@ class _SinkronisasiItem extends StatelessWidget {
             Text(
               '$percent%',
               style: TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -226,6 +228,7 @@ class _SurveyorMenungguItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasWaiting = count > 0;
 
     return Row(
@@ -251,10 +254,10 @@ class _SurveyorMenungguItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Surveyor Menunggu',
-                style: TextStyle(
-                  fontSize: SigapTypography.size11,
+              Text(
+                l10n.surveyorMenunggu,
+                style: const TextStyle(
+                  fontSize: SigapTypography.captionMedium,
                   color: SigapColors.textMuted,
                 ),
               ),
@@ -263,7 +266,7 @@ class _SurveyorMenungguItem extends StatelessWidget {
                     ? '$count surveyor perlu ditugaskan'
                     : 'Semua surveyor aktif',
                 style: TextStyle(
-                  fontSize: SigapTypography.size11,
+                  fontSize: SigapTypography.captionMedium,
                   fontWeight: FontWeight.w500,
                   color: hasWaiting
                       ? SigapColors.warningTextStrong
@@ -314,7 +317,7 @@ class _SlaAtRiskItem extends StatelessWidget {
               const Text(
                 'Risiko SLA',
                 style: TextStyle(
-                  fontSize: SigapTypography.size11,
+                  fontSize: SigapTypography.captionMedium,
                   color: SigapColors.textMuted,
                 ),
               ),
@@ -323,7 +326,7 @@ class _SlaAtRiskItem extends StatelessWidget {
                     ? '$count kasus berisiko terlambat'
                     : 'Semua kasus on track',
                 style: TextStyle(
-                  fontSize: SigapTypography.size11,
+                  fontSize: SigapTypography.captionMedium,
                   fontWeight: FontWeight.w500,
                   color: hasAtRisk
                       ? SigapColors.dangerTextStrong

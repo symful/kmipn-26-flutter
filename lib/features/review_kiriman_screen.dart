@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../../db/database.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../services/photo_service.dart';
 import '../../theme/tokens.dart';
@@ -108,9 +109,10 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
 
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bukti berhasil ditambahkan ke kasus'),
+        SnackBar(
+          content: Text(l10n.buktiDitambahkanKeKasus),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -119,10 +121,11 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       context.push('/evidence/${selectedCase.id}');
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menambahkan bukti: $e'),
+          content: Text(l10n.gagalMenambahkanBukti(e.toString())),
           backgroundColor: SigapColors.danger,
         ),
       );
@@ -132,9 +135,10 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
   /// Handle user choosing to create a separate report
   Future<void> _handleCreateSeparate() async {
     if (widget.categoryId == null) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Kategori laporan tidak tersedia'),
+        SnackBar(
+          content: Text(l10n.kategoriLaporanTidakTersedia),
           backgroundColor: SigapColors.danger,
         ),
       );
@@ -149,38 +153,51 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       final reportRepo = ref.read(reportRepositoryProvider);
       final db = ref.read(databaseProvider);
 
-      // Submit report first to get server reportId and uploadToken
+      // Step 1: Upload photo FIRST (matching web SPA canonical flow)
+      String r2Url = widget.photoPath ?? '';
+      final photoUrls = <String>[];
+      if (widget.photoPath != null) {
+        try {
+          r2Url = await client.uploadReportPhotoAnon(
+            widget.photoPath!,
+            idempotencyKey,
+          );
+          photoUrls.add(r2Url);
+          _logger.info('Photo uploaded for reviewkiriman: $r2Url');
+        } catch (photoError) {
+          _logger.warning('Photo upload failed, using local path: $photoError');
+          // r2Url stays as local path
+        }
+      }
+
+      // Step 2: Create report with photo URLs in body
       final result = await client.submitReport(
         idempotencyKey: idempotencyKey,
         categoryId: widget.categoryId!,
         description: widget.description,
         lat: widget.lat,
         lng: widget.lng,
+        photoUrls: photoUrls,
       );
+
+      if (result.duplicate) {
+        _logger.info(
+          'Reviewkiriman report detected as duplicate: ${result.id}',
+        );
+        if (!mounted) return;
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.laporanTersimpanAutoSync),
+            backgroundColor: SigapColors.warning,
+          ),
+        );
+        context.go('/dashboard');
+        return;
+      }
 
       final serverReportId = result.id ?? idempotencyKey;
-      _logger.info(
-        'Reviewkiriman report submitted: id=$serverReportId, uploadToken=${result.uploadToken}',
-      );
-
-      // Upload photo if available and we have an uploadToken
-      String r2Url = widget.photoPath ?? '';
-      if (widget.photoPath != null && result.uploadToken != null) {
-        try {
-          final photoService = PhotoService(client);
-          r2Url = await photoService.uploadPhotoAndGetUrl(
-            widget.photoPath!,
-            serverReportId,
-            result.uploadToken!,
-          );
-          _logger.info(
-            'Photo uploaded for reviewkiriman report: $serverReportId, url: $r2Url',
-          );
-        } catch (photoError) {
-          _logger.warning('Photo upload failed, using local path: $photoError');
-          // r2Url stays as local path
-        }
-      }
+      _logger.info('Reviewkiriman report submitted: id=$serverReportId');
 
       // Save report locally
       await reportRepo.saveLocal(
@@ -207,7 +224,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
 
       // Enqueue for sync
       final queueRepo = ref.read(syncQueueRepositoryProvider);
-      await queueRepo.enqueue(idempotencyKey);
+      await queueRepo.enqueue(idempotencyKey, kind: 'report');
 
       // Invalidate providers to refresh data
       ref.invalidate(localReportsProvider);
@@ -215,9 +232,10 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
 
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Laporan tersimpan. Akan sinkron otomatis.'),
+        SnackBar(
+          content: Text(l10n.laporanTersimpanAutoSync),
           backgroundColor: SigapColors.primary,
         ),
       );
@@ -226,10 +244,11 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
       context.go('/dashboard');
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menyimpan: $e'),
+          content: Text(l10n.gagalMenyimpan(e.toString())),
           backgroundColor: SigapColors.danger,
         ),
       );

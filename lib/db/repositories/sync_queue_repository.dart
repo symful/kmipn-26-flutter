@@ -5,15 +5,43 @@ class SyncQueueRepository {
   final AppDatabase _db;
   SyncQueueRepository(this._db);
 
-  Future<void> enqueue(String idempotencyKey, {DateTime? nextRetryAt}) async {
+  Future<void> enqueue(
+    String idempotencyKey, {
+    DateTime? nextRetryAt,
+    String? kind,
+    String? payloadJson,
+  }) async {
     await _db
         .into(_db.syncQueue)
         .insertOnConflictUpdate(
           SyncQueueCompanion.insert(
             idempotencyKey: idempotencyKey,
             nextRetryAt: nextRetryAt ?? DateTime.now(),
+            kind: Value(kind),
+            payloadJson: Value(payloadJson),
           ),
         );
+  }
+
+  Future<List<SyncQueueData>> getDueItemsByKind(String kind) async {
+    final query = _db.select(_db.syncQueue)
+      ..where(
+        (t) =>
+            t.nextRetryAt.isSmallerThanValue(DateTime.now()) &
+            t.kind.equals(kind),
+      );
+    return query.get();
+  }
+
+  Future<void> markSynced(String idempotencyKey) async {
+    final updateQuery = _db.update(_db.syncQueue)
+      ..where((t) => t.idempotencyKey.equals(idempotencyKey));
+    await updateQuery.write(
+      SyncQueueCompanion(
+        syncStatus: const Value(1),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
   }
 
   Future<List<SyncQueueData>> getDueItems() async {

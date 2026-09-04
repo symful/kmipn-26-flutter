@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
-import '../../widgets/design_system/phone_frame.dart';
-import '../../widgets/design_system/status_bar.dart';
 
 /// S-01 Riwayat Screen
 ///
@@ -73,69 +71,67 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PhoneFrame(
-      child: Column(
-        children: [
-          StatusBar(),
-          Expanded(
-            child: Scaffold(
-              backgroundColor: SigapColors.bgSurface,
-              appBar: AppBar(
-                backgroundColor: SigapColors.bgCard,
-                elevation: 0,
-                automaticallyImplyLeading: false,
-                titleSpacing: 0,
-                title: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.lg,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        Strings.riwayat,
-                        style: const TextStyle(
-                          fontSize: SigapTypography.size19,
-                          fontWeight: FontWeight.w700,
-                          color: SigapColors.textPrimary,
-                        ),
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        Expanded(
+          child: Scaffold(
+            backgroundColor: SigapColors.bgSurface,
+            appBar: AppBar(
+              backgroundColor: SigapColors.bgCard,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              titleSpacing: 0,
+              title: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SigapSpacing.lg,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      l10n.riwayat,
+                      style: const TextStyle(
+                        fontSize: SigapTypography.sectionTitle,
+                        fontWeight: FontWeight.w700,
+                        color: SigapColors.textPrimary,
                       ),
-                      const Spacer(),
-                      Text(
-                        '${_visits.length} visit',
-                        style: const TextStyle(
-                          fontFamily: SigapTypography.fontFamilyMono,
-                          fontSize: SigapTypography.size12,
-                          color: SigapColors.textTertiary,
-                        ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${_visits.length} visit',
+                      style: const TextStyle(
+                        fontFamily: SigapTypography.fontFamilyMono,
+                        fontSize: SigapTypography.bodySmall,
+                        color: SigapColors.textTertiary,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              body: _loading
-                  ? Padding(
-                      padding: const EdgeInsets.all(SigapSpacing.lg),
-                      child: SkeletonLoader.list(),
-                    )
-                  : _error != null && _visits.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(SigapSpacing.xl),
-                      child: ErrorRetryView(
-                        message: Strings.gagalMemuatRiwayat,
-                        onRetry: _load,
-                      ),
-                    )
-                  : _visits.isEmpty
-                  ? _buildEmpty()
-                  : _buildVisitList(),
             ),
+            body: _loading
+                ? Padding(
+                    padding: const EdgeInsets.all(SigapSpacing.lg),
+                    child: SkeletonLoader.list(),
+                  )
+                : _error != null && _visits.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(SigapSpacing.xl),
+                    child: ErrorRetryView(
+                      message: l10n.gagalMemuatRiwayat,
+                      onRetry: _load,
+                    ),
+                  )
+                : _visits.isEmpty
+                ? _buildEmpty(l10n)
+                : _buildVisitList(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -156,18 +152,18 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
           ),
           const SizedBox(height: SigapSpacing.lg),
           Text(
-            Strings.belumAdaRiwayat,
+            l10n.belumAdaRiwayat,
             style: const TextStyle(
-              fontSize: SigapTypography.size16,
+              fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
             ),
           ),
           const SizedBox(height: SigapSpacing.xs),
           Text(
-            Strings.visitYangDikirimAkanMuncul,
+            l10n.visitYangDikirimAkanMuncul,
             style: const TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               color: SigapColors.textTertiary,
             ),
           ),
@@ -222,16 +218,16 @@ class _VisitCard extends StatelessWidget {
 
   const _VisitCard({required this.visit, required this.onTap});
 
-  String get _syncStatusLabel {
+  String _syncStatusLabel(AppLocalizations l10n) {
     switch (visit.syncStatus) {
       case 0:
-        return Strings.menunggu;
+        return l10n.menunggu;
       case 1:
-        return Strings.terkirim;
+        return l10n.terkirim;
       case 2:
-        return Strings.gagal;
+        return l10n.gagal;
       default:
-        return Strings.unknown;
+        return l10n.unknown;
     }
   }
 
@@ -276,6 +272,7 @@ class _VisitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -307,7 +304,7 @@ class _VisitCard extends StatelessWidget {
                     Text(
                       _title,
                       style: const TextStyle(
-                        fontSize: SigapTypography.size13_5,
+                        fontSize: SigapTypography.bodyTextWide,
                         fontWeight: FontWeight.w600,
                         color: SigapColors.textPrimary,
                       ),
@@ -319,7 +316,7 @@ class _VisitCard extends StatelessWidget {
                       _taskIdDisplay,
                       style: const TextStyle(
                         fontFamily: SigapTypography.fontFamilyMono,
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textTertiary,
                       ),
                     ),
@@ -334,9 +331,9 @@ class _VisitCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  _syncStatusLabel,
+                  _syncStatusLabel(l10n),
                   style: TextStyle(
-                    fontSize: SigapTypography.size10,
+                    fontSize: SigapTypography.captionSmall,
                     fontWeight: FontWeight.w600,
                     color: _syncStatusColor,
                   ),

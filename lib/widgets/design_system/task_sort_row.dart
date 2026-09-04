@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sigap/l10n/strings.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// S-01 Sort Row widget for surveyor home screen.
@@ -22,14 +22,14 @@ class TaskSortRow extends StatelessWidget {
     required this.onUnduhBatchTap,
   });
 
-  static const _sortOptions = [
-    Strings.terbaru,
-    Strings.slaTerdekat,
-    'Prioritas',
-  ];
+  // Using localization keys; labels computed in build()
+  static const _sortKeys = ['terbaru', 'slaTerdekat', 'prioritas'];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final sortOptions = [l10n.terbaru, l10n.slaTerdekat, 'Prioritas'];
+
     return Row(
       children: [
         // Sort dropdown
@@ -44,21 +44,21 @@ class TaskSortRow extends StatelessWidget {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: _sortOptions.contains(selectedValue)
+              value: _sortKeys.contains(selectedValue)
                   ? selectedValue
-                  : _sortOptions.first,
-              items: _sortOptions.map((option) {
+                  : _sortKeys.first,
+              items: List.generate(_sortKeys.length, (i) {
                 return DropdownMenuItem<String>(
-                  value: option,
+                  value: _sortKeys[i],
                   child: Text(
-                    option,
+                    sortOptions[i],
                     style: const TextStyle(
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       color: SigapColors.textPrimary,
                     ),
                   ),
                 );
-              }).toList(),
+              }),
               onChanged: (value) {
                 if (value != null) {
                   onSortChanged(value);
@@ -103,7 +103,7 @@ class _UnduhBatchLinkState extends State<_UnduhBatchLink> {
           child: Text(
             'Unduh batch',
             style: TextStyle(
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               fontWeight: FontWeight.w600,
               color: SigapColors.primary,
               decoration: _isHovered

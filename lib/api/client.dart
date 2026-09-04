@@ -397,7 +397,19 @@ class Notification {
   final String? body;
   final bool? read;
   final String? createdAt;
-  Notification({this.id, this.title, this.body, this.read, this.createdAt});
+  final String? kind;
+  final String? relatedCaseId;
+  final String? readAt;
+  Notification({
+    this.id,
+    this.title,
+    this.body,
+    this.read,
+    this.createdAt,
+    this.kind,
+    this.relatedCaseId,
+    this.readAt,
+  });
 
   factory Notification.fromJson(Map<String, dynamic> json) {
     return Notification(
@@ -406,6 +418,9 @@ class Notification {
       body: json['body']?.toString(),
       read: json['read'] ?? (json['read_at'] != null),
       createdAt: json['created_at']?.toString(),
+      kind: (json['type'] ?? json['kind'])?.toString(),
+      relatedCaseId: json['related_case_id']?.toString(),
+      readAt: json['read_at']?.toString(),
     );
   }
 
@@ -415,6 +430,9 @@ class Notification {
     'body': body,
     'read': read,
     'created_at': createdAt,
+    'kind': kind,
+    'related_case_id': relatedCaseId,
+    'read_at': readAt,
   };
 }
 
@@ -464,8 +482,16 @@ class Category {
   final String? name;
   final String? slug;
   final String? icon;
+  final String? description;
   final int? reportCount;
-  Category({this.id, this.name, this.slug, this.icon, this.reportCount});
+  Category({
+    this.id,
+    this.name,
+    this.slug,
+    this.icon,
+    this.description,
+    this.reportCount,
+  });
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
@@ -473,6 +499,7 @@ class Category {
       name: json['name']?.toString(),
       slug: json['slug']?.toString(),
       icon: json['icon']?.toString(),
+      description: json['description']?.toString(),
       reportCount: json['report_count'] as int?,
     );
   }
@@ -482,6 +509,7 @@ class Category {
     'name': name,
     'slug': slug,
     'icon': icon,
+    'description': description,
     'report_count': reportCount,
   };
 }
@@ -823,11 +851,20 @@ class Report {
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
+    // category may be a string or an object { id, name, icon }
+    final catField = json['category'];
+    String? categoryStr;
+    if (catField is Map) {
+      categoryStr = catField['name']?.toString();
+    } else if (catField != null) {
+      categoryStr = catField.toString();
+    }
+
     return Report(
       id: json['id']?.toString(),
       title: json['title']?.toString(),
       description: json['description']?.toString(),
-      category: json['category']?.toString(),
+      category: categoryStr,
       status: json['status'] != null
           ? ReportStatus.fromJson(json['status'] as String)
           : null,
@@ -920,11 +957,20 @@ class ReportDetail {
   });
 
   factory ReportDetail.fromJson(Map<String, dynamic> json) {
+    // category may be a string or an object { id, name, icon }
+    final catField = json['category'];
+    String? categoryStr;
+    if (catField is Map) {
+      categoryStr = catField['name']?.toString();
+    } else if (catField != null) {
+      categoryStr = catField.toString();
+    }
+
     return ReportDetail(
       id: json['id']?.toString(),
       title: json['title']?.toString(),
       description: json['description']?.toString(),
-      category: json['category']?.toString(),
+      category: categoryStr,
       status: json['status'] != null
           ? ReportStatus.fromJson(json['status'] as String)
           : null,
@@ -1180,6 +1226,8 @@ class SurveyorTask {
   final double? reportLng;
   final String? address;
   final String? categoryName;
+  final String? surveyorId;
+  final String? instructions;
   SurveyorTask({
     this.taskId,
     this.reportId,
@@ -1195,6 +1243,8 @@ class SurveyorTask {
     this.reportLng,
     this.address,
     this.categoryName,
+    this.surveyorId,
+    this.instructions,
   });
 
   factory SurveyorTask.fromJson(Map<String, dynamic> json) {
@@ -1213,6 +1263,8 @@ class SurveyorTask {
       reportLng: (json['lng'] as num?)?.toDouble(),
       address: json['address']?.toString(),
       categoryName: json['category_name']?.toString(),
+      surveyorId: json['surveyor_id']?.toString(),
+      instructions: json['instructions']?.toString(),
     );
   }
 
@@ -1231,6 +1283,8 @@ class SurveyorTask {
     'lng': reportLng,
     'address': address,
     'category_name': categoryName,
+    'surveyor_id': surveyorId,
+    'instructions': instructions,
   };
 }
 
@@ -1829,25 +1883,13 @@ class ReportStatusResult {
 
 class SubmitReportResult {
   final String? id;
-  final String? status;
-  final String? uploadToken;
-  final String? address;
-  final String? addressArea;
-  SubmitReportResult({
-    this.id,
-    this.status,
-    this.uploadToken,
-    this.address,
-    this.addressArea,
-  });
+  final bool duplicate;
+  SubmitReportResult({this.id, this.duplicate = false});
 
   factory SubmitReportResult.fromJson(Map<String, dynamic> json) {
     return SubmitReportResult(
       id: json['id'] as String?,
-      status: json['status'] as String?,
-      uploadToken: json['upload_token'] as String?,
-      address: json['address'] as String?,
-      addressArea: json['address_area'] as String?,
+      duplicate: json['duplicate'] as bool? ?? false,
     );
   }
 }
@@ -3339,6 +3381,9 @@ class ApiClient {
   /// Unified report submission for both authenticated (warga) and anonymous reporters.
   /// Uses _dio (optional-auth client) — token is attached only if user is logged in;
   /// otherwise the request is sent without auth and backend treats it as anonymous.
+  ///
+  /// Photos must be uploaded BEFORE calling this method via [uploadReportPhotoAnon]
+  /// or [uploadReportPhoto]. Pass the returned public URLs in [photoUrls].
   Future<SubmitReportResult> submitReport({
     required String idempotencyKey,
     required String categoryId,
@@ -3346,36 +3391,105 @@ class ApiClient {
     required double lat,
     required double lng,
     String? deviceId,
-    // Accepted by backend but ignored (Zod strips unknown keys):
     String? title,
-    List<String>? photoPaths,
-    List<String>? photos,
+    List<String>? photoUrls,
     String? captchaToken,
     int? populationAffected,
     double? vulnerabilityIndex,
     List<String>? impactDampak,
+    bool anonymous = false,
   }) async {
-    return await _execute<SubmitReportResult>(
-      dioCall: () => _dio.post(
-        '/api/reports',
-        data: {
-          'idempotency_key': idempotencyKey,
-          'category_id': categoryId,
-          'description': description,
-          'lat': lat,
-          'lng': lng,
-          if (deviceId != null) 'device_id': deviceId,
-          if (populationAffected != null)
-            'population_affected': populationAffected,
-          if (vulnerabilityIndex != null)
-            'vulnerability_index': vulnerabilityIndex,
-          if (impactDampak != null) 'impact_dampak': impactDampak,
-        },
-      ),
-      endpoint: '/api/reports',
-      parse: (data) =>
-          SubmitReportResult.fromJson((data as Map).cast<String, dynamic>()),
+    if (anonymous) {
+      // Anonymous: POST /api/public/anonymous-reports
+      return await _execute<SubmitReportResult>(
+        dioCall: () => _dio.post(
+          '/api/public/anonymous-reports',
+          data: {
+            'idempotency_key': idempotencyKey,
+            'category_id': categoryId,
+            'description': description,
+            'lat': lat,
+            'lng': lng,
+            if (deviceId != null) 'device_id': deviceId,
+            if (title != null) 'title': title,
+            if (photoUrls != null && photoUrls.isNotEmpty) 'photos': photoUrls,
+            if (populationAffected != null)
+              'population_affected': populationAffected,
+            if (vulnerabilityIndex != null)
+              'vulnerability_index': vulnerabilityIndex,
+            if (captchaToken != null) 'captcha_token': captchaToken,
+          },
+        ),
+        endpoint: '/api/public/anonymous-reports',
+        parse: (data) =>
+            SubmitReportResult.fromJson((data as Map).cast<String, dynamic>()),
+      );
+    } else {
+      // Authenticated: POST /api/reports
+      return await _execute<SubmitReportResult>(
+        dioCall: () => _dio.post(
+          '/api/reports',
+          data: {
+            'idempotency_key': idempotencyKey,
+            'category_id': categoryId,
+            'description': description,
+            'lat': lat,
+            'lng': lng,
+            if (title != null) 'title': title,
+            if (photoUrls != null && photoUrls.isNotEmpty)
+              'photo_urls': photoUrls,
+            if (populationAffected != null)
+              'population_affected': populationAffected,
+            if (vulnerabilityIndex != null)
+              'vulnerability_index': vulnerabilityIndex,
+            if (impactDampak != null) 'impact_dampak': impactDampak,
+          },
+        ),
+        endpoint: '/api/reports',
+        parse: (data) =>
+            SubmitReportResult.fromJson((data as Map).cast<String, dynamic>()),
+      );
+    }
+  }
+
+  /// Uploads a photo for anonymous report creation via FormData.
+  /// Calls POST /api/reports/photos/upload-url-anon with multipart form data.
+  /// Returns the public R2 URL of the uploaded photo.
+  Future<String> uploadReportPhotoAnon(
+    String filePath,
+    String idempotencyKey, {
+    int slot = 0,
+  }) async {
+    final file = File(filePath);
+    if (!await file.exists()) {
+      throw ApiException(
+        statusCode: 404,
+        endpoint: filePath,
+        userMessage: 'Photo file not found: $filePath',
+      );
+    }
+
+    final fileName = filePath.split(Platform.pathSeparator).last;
+    final formData = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(filePath, filename: fileName),
+      'idempotency_key': idempotencyKey,
+    });
+
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/api/reports/photos/upload-url-anon',
+      data: formData,
     );
+
+    final data = res.data;
+    if (data == null || data['public_url'] == null) {
+      throw ApiException(
+        statusCode: 500,
+        endpoint: '/api/reports/photos/upload-url-anon',
+        userMessage: 'Photo upload failed: no URL returned',
+      );
+    }
+
+    return data['public_url'] as String;
   }
 
   Future<ReportActionResponse> reportAction({
@@ -3925,6 +4039,17 @@ class ApiClient {
     );
   }
 
+  /// Fetches warga-specific statistics (submitted, verified, in_progress, resolved).
+  /// Returns a [WargaStats] object from GET /api/warga/stats.
+  Future<WargaStats> getWargaStats() async {
+    return await _execute<WargaStats>(
+      dioCall: () => _dio.get('/api/warga/stats'),
+      endpoint: '/api/warga/stats',
+      parse: (data) =>
+          WargaStats.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
   // ─── Notifications ─────────────────────────────────────────────────────
 
   Future<NotificationPage> getNotifications({
@@ -3939,12 +4064,14 @@ class ApiClient {
       endpoint: '/api/notifications',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
-    if (!response.containsKey('entries')) {
-      throw FormatException('Unexpected response shape: expected entries key');
+    final entriesData = response['data'] ?? response['entries'];
+    if (entriesData is! List) {
+      throw FormatException(
+        'Unexpected response shape: expected "data" or "entries" key to be a list',
+      );
     }
-    final entriesData = response['entries'];
     return NotificationPage(
-      entries: (entriesData as List)
+      entries: entriesData
           .map((e) => Notification.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
     );
@@ -4516,6 +4643,53 @@ class ApiClient {
           ProgressResult.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
+
+  // ─── Sync Batch ──────────────────────────────────────────────────────────
+
+  Future<SyncBatchResult> syncBatch({
+    required List<Map<String, dynamic>> reports,
+  }) async {
+    return await _execute<SyncBatchResult>(
+      dioCall: () => _dio.post(
+        '/api/sync/batch',
+        data: {'reports': reports},
+        options: Options(contentType: 'application/json'),
+      ),
+      endpoint: '/api/sync/batch',
+      parse: (data) =>
+          SyncBatchResult.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
+  // ─── Role Switch ─────────────────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> switchRole(String role) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/auth/switch-role',
+        data: {'activeRole': role},
+        options: Options(contentType: 'application/json'),
+      ),
+      endpoint: '/api/auth/switch-role',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
+
+  // ─── Test Reset ──────────────────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> testReset(String runId, {String? secret}) async {
+    return await _execute<Map<String, dynamic>>(
+      dioCall: () => _dio.post(
+        '/api/test/reset',
+        options: Options(
+          contentType: 'application/json',
+          headers: {if (secret != null) 'X-Test-Secret': secret},
+        ),
+      ),
+      endpoint: '/api/test/reset',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
+    );
+  }
 }
 
 // ─── Supporting classes needed by client.dart ────────────────────────────────
@@ -4620,4 +4794,36 @@ class Wilayah {
     'level': level,
     'parent_id': parentId,
   };
+}
+
+class SyncBatchResult {
+  final List<SyncBatchItemResult> results;
+  SyncBatchResult({required this.results});
+
+  factory SyncBatchResult.fromJson(Map<String, dynamic> json) {
+    return SyncBatchResult(
+      results:
+          (json['results'] as List?)
+              ?.map(
+                (e) => SyncBatchItemResult.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+    );
+  }
+}
+
+class SyncBatchItemResult {
+  final int? index;
+  final String? id;
+  final String? error;
+  SyncBatchItemResult({this.index, this.id, this.error});
+
+  factory SyncBatchItemResult.fromJson(Map<String, dynamic> json) {
+    return SyncBatchItemResult(
+      index: json['index'] as int?,
+      id: json['id']?.toString(),
+      error: json['error']?.toString(),
+    );
+  }
 }

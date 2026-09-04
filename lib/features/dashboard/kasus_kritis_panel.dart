@@ -67,7 +67,7 @@ class KasusKritisPanel extends StatelessWidget {
               const Text(
                 'Kasus Kritis',
                 style: TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.textPrimary,
                 ),
@@ -86,7 +86,7 @@ class KasusKritisPanel extends StatelessWidget {
                   child: Text(
                     '${cases.length}',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size10,
+                      fontSize: SigapTypography.captionSmall,
                       fontWeight: FontWeight.w700,
                       color: SigapColors.dangerTextStrong,
                     ),
@@ -138,7 +138,7 @@ class KasusKritisPanel extends StatelessWidget {
             Text(
               message,
               style: const TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textTertiary,
               ),
               textAlign: TextAlign.center,
@@ -165,7 +165,7 @@ class KasusKritisPanel extends StatelessWidget {
             Text(
               'Tidak ada kasus kritis',
               style: TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textTertiary,
               ),
             ),
@@ -236,7 +236,7 @@ class _KasusKritisItem extends StatelessWidget {
                   Text(
                     caseItem.title,
                     style: const TextStyle(
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       fontWeight: FontWeight.w500,
                       color: SigapColors.textPrimary,
                     ),
@@ -247,7 +247,7 @@ class _KasusKritisItem extends StatelessWidget {
                   Text(
                     '${caseItem.caseCode} · ${caseItem.village}',
                     style: const TextStyle(
-                      fontSize: SigapTypography.size10,
+                      fontSize: SigapTypography.captionSmall,
                       color: SigapColors.textTertiary,
                     ),
                     maxLines: 1,
@@ -282,7 +282,7 @@ class _KasusKritisItem extends StatelessWidget {
                   Text(
                     slaText,
                     style: TextStyle(
-                      fontSize: SigapTypography.size10,
+                      fontSize: SigapTypography.captionSmall,
                       fontWeight: FontWeight.w600,
                       color: urgencyColor,
                     ),

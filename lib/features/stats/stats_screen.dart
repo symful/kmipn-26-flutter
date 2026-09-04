@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../api/client.dart' as new_api;
+import '../../../l10n/generated/app_localizations.dart';
+import '../../../l10n/status_label.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
 
@@ -67,7 +69,7 @@ class StatsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Statistik'),
+        title: Text(AppLocalizations.of(context)!.statistik),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -86,8 +88,8 @@ class StatsScreen extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(
-                    child: _StatCard(
-                      title: 'Total Laporan',
+                    child: KPICard(
+                      label: AppLocalizations.of(context)!.totalLaporan,
                       value: '${stats.reports}',
                       icon: Icons.assignment,
                       color: SigapColors.primary,
@@ -95,8 +97,8 @@ class StatsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(width: SigapSpacing.md),
                   Expanded(
-                    child: _StatCard(
-                      title: 'Total Kasus',
+                    child: KPICard(
+                      label: AppLocalizations.of(context)!.totalKasus,
                       value: '${stats.cases}',
                       icon: Icons.folder_open,
                       color: SigapColors.info,
@@ -130,17 +132,17 @@ class StatsScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Melewati SLA',
-                              style: TextStyle(
-                                fontSize: SigapTypography.size12,
+                            Text(
+                              AppLocalizations.of(context)!.labelSlaTerlewat,
+                              style: const TextStyle(
+                                fontSize: SigapTypography.bodySmall,
                                 color: SigapColors.textSecondary,
                               ),
                             ),
                             Text(
                               '${stats.slaOverdue} laporan',
                               style: const TextStyle(
-                                fontSize: SigapTypography.size16,
+                                fontSize: SigapTypography.bodyLarge,
                                 fontWeight: FontWeight.w700,
                                 color: SigapColors.perluTindakan,
                               ),
@@ -156,10 +158,10 @@ class StatsScreen extends ConsumerWidget {
 
               // By status
               if (stats.byStatus.isNotEmpty) ...[
-                const Text(
-                  'Berdasarkan Status',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size16,
+                Text(
+                  AppLocalizations.of(context)!.berdasarkanStatus,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyLarge,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textPrimary,
                   ),
@@ -176,8 +178,8 @@ class StatsScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                           vertical: SigapSpacing.xs,
                         ),
-                        child: _StatusRow(
-                          label: _statusLabel(e.key),
+                        child: ProgressRow(
+                          label: _statusLabel(context, e.key),
                           count: e.value,
                           percentage: pct,
                           color: _statusColor(e.key),
@@ -191,10 +193,10 @@ class StatsScreen extends ConsumerWidget {
 
               // By category
               if (stats.byCategory.isNotEmpty) ...[
-                const Text(
-                  'Berdasarkan Kategori',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size16,
+                Text(
+                  AppLocalizations.of(context)!.berdasarkanKategori,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyLarge,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textPrimary,
                   ),
@@ -211,7 +213,7 @@ class StatsScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                           vertical: SigapSpacing.xs,
                         ),
-                        child: _StatusRow(
+                        child: ProgressRow(
                           label: e.key,
                           count: e.value,
                           percentage: pct,
@@ -240,10 +242,10 @@ class StatsScreen extends ConsumerWidget {
                   color: SigapColors.perluTindakan,
                 ),
                 const SizedBox(height: SigapSpacing.md),
-                const Text(
-                  'Gagal memuat statistik',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size16,
+                Text(
+                  AppLocalizations.of(context)!.gagalMemuatStatistik,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyLarge,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),
@@ -253,14 +255,14 @@ class StatsScreen extends ConsumerWidget {
                   e.toString(),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size12,
+                    fontSize: SigapTypography.bodySmall,
                     color: SigapColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: SigapSpacing.lg),
                 ElevatedButton(
                   onPressed: () => ref.invalidate(_statsProvider),
-                  child: const Text('Coba Lagi'),
+                  child: Text(AppLocalizations.of(context)!.cobaLagi),
                 ),
               ],
             ),
@@ -270,20 +272,21 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  String _statusLabel(String key) {
+  String _statusLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
     switch (key.toLowerCase()) {
       case 'pending':
-        return 'Pending';
+        return l10n.menunggu;
       case 'in_progress':
       case 'inprogress':
       case 'diproses':
-        return 'Diproses';
+        return l10n.diproses;
       case 'resolved':
       case 'selesai':
-        return 'Selesai';
+        return l10n.selesai;
       case 'rejected':
       case 'ditolak':
-        return 'Ditolak';
+        return l10n.ditolak;
       default:
         return key;
     }
@@ -306,114 +309,6 @@ class StatsScreen extends ConsumerWidget {
       default:
         return SigapColors.textSecondary;
     }
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(SigapSpacing.sm),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(SigapRadius.sm),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: SigapSpacing.md),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: SigapTypography.size28,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: SigapSpacing.xs),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: SigapTypography.size12,
-              color: SigapColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusRow extends StatelessWidget {
-  final String label;
-  final int count;
-  final int percentage;
-  final Color color;
-
-  const _StatusRow({
-    required this.label,
-    required this.count,
-    required this.percentage,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: SigapTypography.size13,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-            Text(
-              '$count ($percentage%)',
-              style: TextStyle(
-                fontSize: SigapTypography.size13,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: SigapSpacing.xs),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: percentage / 100,
-            backgroundColor: color.withValues(alpha: 0.15),
-            valueColor: AlwaysStoppedAnimation(color),
-            minHeight: 6,
-          ),
-        ),
-        const SizedBox(height: SigapSpacing.sm),
-      ],
-    );
   }
 }
 

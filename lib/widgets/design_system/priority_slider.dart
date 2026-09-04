@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../l10n/strings.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -57,15 +57,16 @@ class _OperatorPriorityDialogState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Atur Prioritas'),
+      title: Text(l10n.aturPrioritas),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                const Text('Skor Prioritas: '),
+                Text(l10n.skorPrioritas),
                 Text(
                   '${_priority.round()}',
                   style: TextStyle(
@@ -104,9 +105,9 @@ class _OperatorPriorityDialogState
             const SizedBox(height: SigapSpacing.md),
             TextField(
               controller: _reasonController,
-              decoration: const InputDecoration(
-                labelText: 'Alasan perubahan',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.labelAlasanPerubahan,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
@@ -126,7 +127,7 @@ class _OperatorPriorityDialogState
       actions: [
         TextButton(
           onPressed: _loading ? null : () => Navigator.pop(context),
-          child: const Text(Strings.batal),
+          child: Text(l10n.batal),
         ),
         ElevatedButton(
           onPressed: _loading ? null : _submit,
@@ -136,7 +137,7 @@ class _OperatorPriorityDialogState
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text(Strings.simpan),
+              : Text(l10n.simpan),
         ),
       ],
     );

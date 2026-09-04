@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:sigap_mobile/api/client.dart';
 import 'test_env.dart';
 
 /// Generates a test-unique ID string.

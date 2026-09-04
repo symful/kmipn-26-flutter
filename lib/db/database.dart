@@ -34,6 +34,8 @@ class SyncQueue extends Table {
   TextColumn get lastError => text().nullable()();
   IntColumn get syncStatus => integer().withDefault(const Constant(0))();
   DateTimeColumn get updatedAt => dateTime().nullable()();
+  TextColumn get kind => text().nullable()();
+  TextColumn get payloadJson => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {idempotencyKey};
@@ -173,7 +175,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -197,6 +199,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 7) {
         await m.createTable(capabilitiesCache);
+      }
+      if (from < 8) {
+        await m.addColumn(syncQueue, syncQueue.kind);
+        await m.addColumn(syncQueue, syncQueue.payloadJson);
       }
     },
   );

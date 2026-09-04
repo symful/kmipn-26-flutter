@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/section_label.dart';
 import '../../providers/settings_provider.dart';
@@ -12,19 +12,25 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(title: const Text('Pengaturan')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.pengaturan)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(SigapSpacing.lg),
-          children: const [
-            SectionLabel(label: 'Tampilan & Tema'),
-            _ThemeToggle(),
-            SizedBox(height: SigapSpacing.lg),
-            SectionLabel(label: 'Bahasa & Lokalisasi'),
-            _LanguageSelector(),
-            SizedBox(height: SigapSpacing.xl),
-            SectionLabel(label: 'Informasi Aplikasi'),
-            _AppInfoCard(),
+          children: [
+            SectionLabel(
+              label: AppLocalizations.of(context)!.sectionTampilanTema,
+            ),
+            const _ThemeToggle(),
+            const SizedBox(height: SigapSpacing.lg),
+            SectionLabel(
+              label: AppLocalizations.of(context)!.sectionBahasaLokalisasi,
+            ),
+            const _LanguageSelector(),
+            const SizedBox(height: SigapSpacing.xl),
+            SectionLabel(
+              label: AppLocalizations.of(context)!.sectionInformasiAplikasi,
+            ),
+            const _AppInfoCard(),
           ],
         ),
       ),
@@ -60,18 +66,18 @@ class _ThemeToggle extends ConsumerWidget {
             color: SigapColors.primary,
           ),
         ),
-        title: const Text(
-          'Mode Gelap',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.modeGelap,
+          style: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: SigapTypography.size14,
+            fontSize: SigapTypography.bodyMedium,
             color: SigapColors.textPrimary,
           ),
         ),
-        subtitle: const Text(
-          'Aktifkan tema gelap untuk kenyamanan mata di malam hari',
-          style: TextStyle(
-            fontSize: SigapTypography.size12,
+        subtitle: Text(
+          AppLocalizations.of(context)!.modeGelapSubtitle,
+          style: const TextStyle(
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textSecondary,
           ),
         ),
@@ -116,18 +122,18 @@ class _LanguageSelector extends ConsumerWidget {
             color: SigapColors.primary,
           ),
         ),
-        title: const Text(
-          'Bahasa Aplikasi',
+        title: Text(
+          AppLocalizations.of(context)!.bahasaAplikasi,
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: SigapTypography.size14,
+            fontSize: SigapTypography.bodyMedium,
             color: SigapColors.textPrimary,
           ),
         ),
         subtitle: Text(
           displayName,
           style: const TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textSecondary,
           ),
         ),
@@ -152,14 +158,14 @@ class _LanguageSelector extends ConsumerWidget {
               borderRadius: BorderRadius.circular(SigapRadius.lg),
             ),
             backgroundColor: SigapColors.surface,
-            title: const Row(
+            title: Row(
               children: [
                 Icon(Icons.language, color: SigapColors.primary),
                 SizedBox(width: SigapSpacing.sm),
                 Text(
-                  'Pilih Bahasa',
+                  AppLocalizations.of(context)!.pilihBahasa,
                   style: TextStyle(
-                    fontSize: SigapTypography.size16,
+                    fontSize: SigapTypography.bodyLarge,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -184,7 +190,7 @@ class _LanguageSelector extends ConsumerWidget {
                         title: const Text(
                           'Bahasa Indonesia',
                           style: TextStyle(
-                            fontSize: SigapTypography.size14,
+                            fontSize: SigapTypography.bodyMedium,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -203,7 +209,7 @@ class _LanguageSelector extends ConsumerWidget {
                         title: const Text(
                           'English',
                           style: TextStyle(
-                            fontSize: SigapTypography.size14,
+                            fontSize: SigapTypography.bodyMedium,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -223,9 +229,9 @@ class _LanguageSelector extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text(
-                  Strings.batal,
-                  style: TextStyle(color: SigapColors.textSecondary),
+                child: Text(
+                  AppLocalizations.of(context)!.batal,
+                  style: const TextStyle(color: SigapColors.textSecondary),
                 ),
               ),
               ElevatedButton(
@@ -243,7 +249,7 @@ class _LanguageSelector extends ConsumerWidget {
                   ref.read(settingsProvider.notifier).setLocale(locale);
                   Navigator.pop(dialogContext);
                 },
-                child: const Text('Simpan'),
+                child: Text(AppLocalizations.of(context)!.simpan),
               ),
             ],
           );
@@ -290,7 +296,7 @@ class _AppInfoCard extends StatelessWidget {
                     Text(
                       'SIGAP Mobile',
                       style: TextStyle(
-                        fontSize: SigapTypography.size14,
+                        fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.bold,
                         color: SigapColors.textPrimary,
                       ),
@@ -298,7 +304,7 @@ class _AppInfoCard extends StatelessWidget {
                     Text(
                       'Sistem Informasi & Gerak Aduan Publik',
                       style: TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textSecondary,
                       ),
                     ),
@@ -318,7 +324,7 @@ class _AppInfoCard extends StatelessWidget {
                 child: const Text(
                   'v1.0.0',
                   style: TextStyle(
-                    fontSize: SigapTypography.size11,
+                    fontSize: SigapTypography.captionMedium,
                     fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
                   ),
@@ -335,7 +341,7 @@ class _AppInfoCard extends StatelessWidget {
               Text(
                 'Status Server',
                 style: TextStyle(
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   color: SigapColors.textSecondary,
                 ),
               ),
@@ -346,7 +352,7 @@ class _AppInfoCard extends StatelessWidget {
                   Text(
                     'Online (Tersambung)',
                     style: TextStyle(
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       fontWeight: FontWeight.w500,
                       color: SigapColors.selesai,
                     ),

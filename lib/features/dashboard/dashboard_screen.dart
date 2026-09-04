@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sigap/api/client.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
-import 'package:sigap/widgets/design_system/phone_frame.dart';
 import 'package:sigap/widgets/design_system/skeleton_loaders.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
-import 'package:sigap/widgets/design_system/status_bar.dart';
 import 'package:sigap/providers/capability_provider.dart';
+import 'package:sigap/widgets/design_system/metric_card.dart';
+import 'package:sigap/widgets/design_system/progress_metric_card.dart';
+import 'package:sigap/widgets/design_system/trend_chart.dart';
+import 'package:sigap/widgets/design_system/urgent_case_list.dart';
+import 'package:sigap/widgets/design_system/error_card.dart';
 
 // ─── Dashboard Data Models ────────────────────────────────────────────────────
 
@@ -307,19 +311,19 @@ class _AdminDaerahSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Header
-        const Text(
-          'Ringkasan Operasional Daerah',
-          style: TextStyle(
-            fontSize: SigapTypography.size18,
+        Text(
+          AppLocalizations.of(context)!.ringkasanOperasionalDaerah,
+          style: const TextStyle(
+            fontSize: SigapTypography.titleLarge,
             fontWeight: FontWeight.w700,
             color: SigapColors.textPrimary,
           ),
         ),
         const SizedBox(height: SigapSpacing.xs),
-        const Text(
-          'Data penanganan kasus daerah',
-          style: TextStyle(
-            fontSize: SigapTypography.size12,
+        Text(
+          AppLocalizations.of(context)!.dataPenangananKasusDaerah,
+          style: const TextStyle(
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textTertiary,
           ),
         ),
@@ -344,17 +348,21 @@ class _AdminDaerahSection extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: _StatCard(
-                        label: 'Total Kasus',
+                      child: MetricCard(
+                        label: AppLocalizations.of(context)!.totalKasus,
                         value: totalCases.toString(),
+                        color: SigapColors.textPrimary,
                         severityColor: SigapColors.primary,
                       ),
                     ),
                     const SizedBox(width: SigapSpacing.sm),
                     Expanded(
-                      child: _StatCard(
-                        label: 'SLA Terlewat',
+                      child: MetricCard(
+                        label: AppLocalizations.of(
+                          context,
+                        )!.labelSLATerlewatDashboard,
                         value: slaBreached.toString(),
+                        color: SigapColors.textPrimary,
                         severityColor: SigapColors.danger,
                       ),
                     ),
@@ -364,9 +372,12 @@ class _AdminDaerahSection extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: _StatCard(
-                        label: 'Sedang Diproses',
+                      child: MetricCard(
+                        label: AppLocalizations.of(
+                          context,
+                        )!.labelSedangDiproses,
                         value: inProgress.toString(),
+                        color: SigapColors.textPrimary,
                         severityColor: SigapColors.info,
                       ),
                     ),
@@ -378,51 +389,11 @@ class _AdminDaerahSection extends ConsumerWidget {
             );
           },
           loading: () => const DashboardSkeleton(),
-          error: (_, __) => const _ErrorCard(message: 'Gagal memuat statistik'),
+          error: (_, __) => ErrorCard(
+            message: AppLocalizations.of(context)!.gagalMemuatStatistik,
+          ),
         ),
       ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color severityColor;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.severityColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      borderLeftColor: severityColor,
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: SigapTypography.size11,
-              fontWeight: FontWeight.w500,
-              color: SigapColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: SigapSpacing.xs),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: SigapTypography.size24,
-              fontWeight: FontWeight.w700,
-              color: SigapColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -442,10 +413,10 @@ class _OperatorQueueSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Header
-        const Text(
-          'Apa yang harus ditangani hari ini?',
-          style: TextStyle(
-            fontSize: SigapTypography.size18,
+        Text(
+          AppLocalizations.of(context)!.apaYangHarusDitanganiHariIni,
+          style: const TextStyle(
+            fontSize: SigapTypography.titleLarge,
             fontWeight: FontWeight.w700,
             color: SigapColors.textPrimary,
           ),
@@ -456,7 +427,9 @@ class _OperatorQueueSection extends ConsumerWidget {
         queueAsync.when(
           data: (queue) => _QueueCardsRow(queue: queue),
           loading: () => const _QueueCardsLoading(),
-          error: (_, __) => const _ErrorCard(message: 'Gagal memuat antrean'),
+          error: (_, __) => ErrorCard(
+            message: AppLocalizations.of(context)!.gagalMemuatAntrean,
+          ),
         ),
         const SizedBox(height: SigapSpacing.lg),
 
@@ -468,10 +441,28 @@ class _OperatorQueueSection extends ConsumerWidget {
             Expanded(
               flex: 3,
               child: backlogAsync.when(
-                data: (backlog) => _BacklogChart(backlog: backlog),
-                loading: () => const _BacklogChartLoading(),
-                error: (_, __) =>
-                    const _ErrorCard(message: 'Gagal memuat tren'),
+                data: (backlog) {
+                  final List<ChartDataPoint> trendData = backlog
+                      .map(
+                        (b) => ChartDataPoint(
+                          label: b.day,
+                          primaryValue: b.laporanCount,
+                          secondaryValue: b.kasusCount,
+                        ),
+                      )
+                      .toList();
+                  return TrendChart(
+                    data: trendData,
+                    primaryLabel: 'laporan',
+                    secondaryLabel: 'kasus',
+                    primaryColor: SigapColors.info,
+                    secondaryColor: SigapColors.primary,
+                  );
+                },
+                loading: () => const TrendChartLoading(),
+                error: (_, __) => ErrorCard(
+                  message: AppLocalizations.of(context)!.gagalMemuatTren,
+                ),
               ),
             ),
             const SizedBox(width: SigapSpacing.md),
@@ -484,9 +475,10 @@ class _OperatorQueueSection extends ConsumerWidget {
         // Critical cases
         criticalAsync.when(
           data: (cases) => _CriticalCasesList(cases: cases),
-          loading: () => const _CriticalCasesLoading(),
-          error: (_, __) =>
-              const _ErrorCard(message: 'Gagal memuat kasus kritis'),
+          loading: () => const UrgentCaseListLoading(),
+          error: (_, __) => ErrorCard(
+            message: AppLocalizations.of(context)!.gagalMemuatKasusKritis,
+          ),
         ),
       ],
     );
@@ -503,90 +495,45 @@ class _QueueCardsRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _QueueCard(
+          child: QueueCard(
             value: queue.newReports.toString(),
-            label: 'Kasus baru',
+            label: AppLocalizations.of(context)!.labelKasusBaru,
             color: SigapColors.info,
           ),
         ),
         const SizedBox(width: SigapSpacing.sm),
         Expanded(
-          child: _QueueCard(
+          child: QueueCard(
             value: queue.needsVerification.toString(),
-            label: 'Perlu verifikasi',
+            label: AppLocalizations.of(context)!.labelPerluVerifikasi,
             color: SigapColors.warning,
           ),
         ),
         const SizedBox(width: SigapSpacing.sm),
         Expanded(
-          child: _QueueCard(
+          child: QueueCard(
             value: queue.slaBreached.toString(),
-            label: 'SLA terlewat',
+            label: AppLocalizations.of(context)!.labelSlaTerlewat,
             color: SigapColors.danger,
           ),
         ),
         const SizedBox(width: SigapSpacing.sm),
         Expanded(
-          child: _QueueCard(
+          child: QueueCard(
             value: queue.highPriority.toString(),
-            label: 'Prioritas tinggi',
+            label: AppLocalizations.of(context)!.labelPrioritasTinggi,
             color: SigapColors.primary,
           ),
         ),
         const SizedBox(width: SigapSpacing.sm),
         Expanded(
-          child: _QueueCard(
+          child: QueueCard(
             value: queue.needsCompletion.toString(),
-            label: 'Perlu kelengkapan',
+            label: AppLocalizations.of(context)!.labelPerluKelengkapan,
             color: SigapColors.textMuted,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _QueueCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color color;
-
-  const _QueueCard({
-    required this.value,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: SigapColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: SigapTypography.size22,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          SizedBox(height: SigapSpacing.xxs),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: SigapTypography.size10,
-              color: SigapColors.textTertiary,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -626,182 +573,6 @@ class _QueueCardsLoading extends StatelessWidget {
   }
 }
 
-class _BacklogChart extends StatelessWidget {
-  final List<BacklogPoint> backlog;
-
-  const _BacklogChart({required this.backlog});
-
-  @override
-  Widget build(BuildContext context) {
-    if (backlog.isEmpty) {
-      return SigapCard(
-        padding: const EdgeInsets.all(SigapSpacing.md),
-        child: const Center(
-          child: Text(
-            'Tidak ada data tren',
-            style: TextStyle(
-              color: SigapColors.textMuted,
-              fontSize: SigapTypography.size13,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final maxValue = backlog.fold<int>(
-      1,
-      (max, p) =>
-          [max, p.laporanCount, p.kasusCount].reduce((a, b) => a > b ? a : b),
-    );
-
-    return SigapCard(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Umur backlog kasus',
-                style: TextStyle(
-                  fontSize: SigapTypography.size13,
-                  fontWeight: FontWeight.w600,
-                  color: SigapColors.textPrimary,
-                ),
-              ),
-              Row(
-                children: [
-                  const _LegendDot(color: SigapColors.info),
-                  const SizedBox(width: SigapSpacing.xs),
-                  const Text(
-                    'laporan',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size10,
-                      color: SigapColors.textTertiary,
-                    ),
-                  ),
-                  const SizedBox(width: SigapSpacing.sm),
-                  const _LegendDot(color: SigapColors.primary),
-                  const SizedBox(width: SigapSpacing.xs),
-                  const Text(
-                    'kasus',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size10,
-                      color: SigapColors.textTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: SigapSpacing.md),
-          SizedBox(
-            height: 110,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: backlog.map((point) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: FractionallySizedBox(
-                            heightFactor: maxValue > 0
-                                ? point.laporanCount / maxValue
-                                : 0,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: SigapColors.info,
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(2),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Flexible(
-                          child: FractionallySizedBox(
-                            heightFactor: maxValue > 0
-                                ? point.kasusCount / maxValue
-                                : 0,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: SigapColors.primary,
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(2),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LegendDot extends StatelessWidget {
-  final Color color;
-
-  const _LegendDot({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(2),
-      ),
-    );
-  }
-}
-
-class _BacklogChartLoading extends StatelessWidget {
-  const _BacklogChartLoading();
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SkeletonBox(width: 120, height: 14, borderRadius: 4),
-          const SizedBox(height: SigapSpacing.md),
-          SizedBox(
-            height: 110,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: List.generate(
-                10,
-                (_) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: SkeletonBox(height: 80, borderRadius: 2),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _MiniMapCard extends StatelessWidget {
   const _MiniMapCard();
 
@@ -815,20 +586,20 @@ class _MiniMapCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Peta ringkas kasus',
-                style: TextStyle(
-                  fontSize: SigapTypography.size13,
+              Text(
+                AppLocalizations.of(context)!.petaRingkasKasus,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.textPrimary,
                 ),
               ),
               GestureDetector(
                 onTap: () => context.push('/map'),
-                child: const Text(
-                  'Buka Peta →',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size11,
+                child: Text(
+                  AppLocalizations.of(context)!.bukaPeta,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.captionMedium,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.primary,
                   ),
@@ -843,7 +614,7 @@ class _MiniMapCard extends StatelessWidget {
                 color: SigapColors.bgSurface,
                 borderRadius: BorderRadius.circular(SigapRadius.sm),
               ),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -854,9 +625,9 @@ class _MiniMapCard extends StatelessWidget {
                     ),
                     SizedBox(height: SigapSpacing.xs),
                     Text(
-                      'Lihat semua kasus di peta',
+                      AppLocalizations.of(context)!.lihatSemuaKasusDiPeta,
                       style: TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textMuted,
                       ),
                     ),
@@ -878,146 +649,18 @@ class _CriticalCasesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SigapCard(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Kasus kritis',
-            style: TextStyle(
-              fontSize: SigapTypography.size13,
-              fontWeight: FontWeight.w600,
-              color: SigapColors.textPrimary,
-            ),
+    final urgentCases = cases
+        .map(
+          (c) => UrgentCaseItem(
+            id: c.id,
+            title: c.title,
+            subtitle: '${c.caseCode} · ${c.village}',
+            slaHoursRemaining: c.slaHoursRemaining,
+            isOverdue: c.isOverdue,
           ),
-          const SizedBox(height: SigapSpacing.md),
-          if (cases.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(SigapSpacing.lg),
-                child: Text(
-                  'Tidak ada kasus kritis',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size12,
-                    color: SigapColors.textTertiary,
-                  ),
-                ),
-              ),
-            )
-          else
-            ...cases.map((c) => _CriticalCaseItem(caseItem: c)),
-        ],
-      ),
-    );
-  }
-}
-
-class _CriticalCaseItem extends StatelessWidget {
-  final CriticalCaseItem caseItem;
-
-  const _CriticalCaseItem({required this.caseItem});
-
-  @override
-  Widget build(BuildContext context) {
-    final urgencyColor = caseItem.isOverdue
-        ? SigapColors.danger
-        : SigapColors.warning;
-    final slaText = caseItem.isOverdue
-        ? 'Overdue'
-        : '${caseItem.slaHoursRemaining}h';
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: urgencyColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  caseItem.title,
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size12,
-                    fontWeight: FontWeight.w500,
-                    color: SigapColors.textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  '${caseItem.caseCode} · ${caseItem.village}',
-                  style: const TextStyle(
-                    fontSize: SigapTypography.size10,
-                    color: SigapColors.textTertiary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            slaText,
-            style: TextStyle(
-              fontSize: SigapTypography.size11,
-              fontWeight: FontWeight.w600,
-              color: urgencyColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CriticalCasesLoading extends StatelessWidget {
-  const _CriticalCasesLoading();
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SkeletonBox(width: 100, height: 14, borderRadius: 4),
-          const SizedBox(height: SigapSpacing.md),
-          for (int i = 0; i < 3; i++) ...[
-            Row(
-              children: [
-                SkeletonBox(width: 8, height: 8, borderRadius: 4),
-                const SizedBox(width: SigapSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SkeletonBox(
-                        width: double.infinity,
-                        height: 12,
-                        borderRadius: 4,
-                      ),
-                      const SizedBox(height: SigapSpacing.xxs),
-                      SkeletonBox(width: 100, height: 10, borderRadius: 4),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: SigapSpacing.sm),
-                SkeletonBox(width: 40, height: 12, borderRadius: 4),
-              ],
-            ),
-            if (i < 2) const SizedBox(height: SigapSpacing.sm),
-          ],
-        ],
-      ),
-    );
+        )
+        .toList();
+    return UrgentCaseList(cases: urgentCases);
   }
 }
 
@@ -1052,21 +695,21 @@ class _AuditorSection extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: SigapSpacing.sm),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Dashboard Auditor',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size16,
+                    AppLocalizations.of(context)!.dashboardAuditor,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodyLarge,
                       fontWeight: FontWeight.w700,
                       color: SigapColors.textPrimary,
                     ),
                   ),
                   Text(
-                    'Audit & Integrity Monitoring',
-                    style: TextStyle(
-                      fontSize: SigapTypography.size11,
+                    AppLocalizations.of(context)!.auditIntegrityMonitoring,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.captionMedium,
                       color: SigapColors.textMuted,
                     ),
                   ),
@@ -1080,10 +723,10 @@ class _AuditorSection extends ConsumerWidget {
             children: [
               GestureDetector(
                 onTap: () => context.push('/audit'),
-                child: const Text(
-                  'Lihat Log Aktivitas →',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size12,
+                child: Text(
+                  AppLocalizations.of(context)!.lihatLogAktivitas,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.primary,
                   ),
@@ -1123,16 +766,16 @@ class _AnalyticsSection extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: _KPICard(
-                    label: 'Total Antrean',
+                  child: KPICard(
+                    label: AppLocalizations.of(context)!.labelTotalAntrean,
                     value: total.toString(),
                     color: SigapColors.textPrimary,
                   ),
                 ),
                 const SizedBox(width: SigapSpacing.sm),
                 Expanded(
-                  child: _KPICard(
-                    label: 'Selesai',
+                  child: KPICard(
+                    label: AppLocalizations.of(context)!.selesai,
                     value: resolved.toString(),
                     color: SigapColors.selesai,
                   ),
@@ -1142,165 +785,22 @@ class _AnalyticsSection extends ConsumerWidget {
             const SizedBox(height: SigapSpacing.lg),
 
             // Data quality panel
-            _DataQualityPanel(
-              qualityPercent: total > 0
+            ProgressMetricCard(
+              label: AppLocalizations.of(context)!.labelTepatWaktu,
+              percentage: total > 0
                   ? ((total - slaBreached) / total * 100).round()
                   : 0,
-              waitingCount: stats.slaAtRisk ?? 0,
+              color: SigapColors.selesai,
+              subtitle: AppLocalizations.of(
+                context,
+              )!.kasusBerisikoSLA(stats.slaAtRisk ?? 0),
             ),
           ],
         );
       },
       loading: () => const DashboardSkeleton(),
-      error: (_, __) => const _ErrorCard(message: 'Gagal memuat analitik'),
-    );
-  }
-}
-
-class _KPICard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _KPICard({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: SigapTypography.size11,
-              color: SigapColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: SigapSpacing.xs),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: SigapTypography.size28,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DataQualityPanel extends StatelessWidget {
-  final int qualityPercent;
-  final int waitingCount;
-
-  const _DataQualityPanel({
-    required this.qualityPercent,
-    required this.waitingCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Kepatuhan SLA',
-            style: TextStyle(
-              fontSize: SigapTypography.size13,
-              fontWeight: FontWeight.w600,
-              color: SigapColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: SigapSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Tepat Waktu',
-                          style: TextStyle(
-                            fontSize: SigapTypography.size11,
-                            color: SigapColors.textMuted,
-                          ),
-                        ),
-                        Text(
-                          '$qualityPercent%',
-                          style: const TextStyle(
-                            fontSize: SigapTypography.size12,
-                            fontWeight: FontWeight.w600,
-                            color: SigapColors.selesai,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: SigapSpacing.xs),
-                    LinearProgressIndicator(
-                      value: qualityPercent / 100,
-                      backgroundColor: SigapColors.surface,
-                      valueColor: const AlwaysStoppedAnimation(
-                        SigapColors.selesai,
-                      ),
-                      minHeight: 8,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: SigapSpacing.sm),
-          Text(
-            '$waitingCount kasus berisiko SLA',
-            style: const TextStyle(
-              fontSize: SigapTypography.size11,
-              color: SigapColors.textTertiary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Error Card ───────────────────────────────────────────────────────────────
-
-class _ErrorCard extends StatelessWidget {
-  final String message;
-
-  const _ErrorCard({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      padding: const EdgeInsets.all(SigapSpacing.lg),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: SigapColors.danger, size: 24),
-          const SizedBox(width: SigapSpacing.sm),
-          Text(
-            message,
-            style: const TextStyle(
-              color: SigapColors.textSecondary,
-              fontSize: SigapTypography.size13,
-            ),
-          ),
-        ],
-      ),
+      error: (_, __) =>
+          ErrorCard(message: AppLocalizations.of(context)!.gagalMemuatAnalitik),
     );
   }
 }
@@ -1319,24 +819,21 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return PhoneFrame(
-      child: Column(
-        children: [
-          const StatusBar(),
-          Expanded(
-            child: Scaffold(
-              backgroundColor: SigapColors.bgSurface,
-              appBar: AppBar(
-                title: const Text('Dashboard'),
-                backgroundColor: SigapColors.surface,
-                foregroundColor: SigapColors.textPrimary,
-                elevation: 0,
-              ),
-              body: const _DashboardBody(),
+    return Column(
+      children: [
+        Expanded(
+          child: Scaffold(
+            backgroundColor: SigapColors.bgSurface,
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.dashboard),
+              backgroundColor: SigapColors.surface,
+              foregroundColor: SigapColors.textPrimary,
+              elevation: 0,
             ),
+            body: const _DashboardBody(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

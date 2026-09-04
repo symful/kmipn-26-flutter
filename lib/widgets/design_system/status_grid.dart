@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../theme/tokens.dart';
 
 /// A single status card in the StatusGrid.
@@ -31,7 +32,7 @@ class _StatusCard extends StatelessWidget {
           Text(
             '$count',
             style: TextStyle(
-              fontSize: SigapTypography.size22,
+              fontSize: SigapTypography.headlineMedium,
               fontWeight: FontWeight.w700,
               color: countColor,
             ),
@@ -40,7 +41,7 @@ class _StatusCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               color: SigapColors.textTertiary,
               height: SigapTypography.lineHeight125,
             ),
@@ -76,12 +77,13 @@ class StatusGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
           child: _StatusCard(
             count: perluTindakan,
-            label: 'Perlu tindakan',
+            label: l10n.perluTindakan,
             countColor: SigapColors.danger,
           ),
         ),
@@ -89,7 +91,7 @@ class StatusGrid extends StatelessWidget {
         Expanded(
           child: _StatusCard(
             count: diproses,
-            label: 'Diproses',
+            label: l10n.diproses,
             countColor: SigapColors.info,
           ),
         ),
@@ -97,7 +99,7 @@ class StatusGrid extends StatelessWidget {
         Expanded(
           child: _StatusCard(
             count: selesai,
-            label: 'Selesai',
+            label: l10n.selesai,
             countColor: SigapColors.primary,
           ),
         ),

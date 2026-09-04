@@ -6,7 +6,7 @@ import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../../db/database.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 import '../../providers/providers.dart';
 import '../../api/client.dart';
@@ -114,6 +114,32 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   final bool _tileErrorOccurred = false;
+  late final MapOptions _mapOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    _mapOptions = MapOptions(
+      initialCenter: _indonesiaCenter,
+      initialZoom: 5.0,
+      minZoom: 3.5,
+      maxZoom: 18.0,
+      cameraConstraint: CameraConstraint.contain(bounds: _indonesiaMaxBounds),
+      onTap: _onMapTap,
+      onMapReady: _onMapReady,
+    );
+  }
+
+  bool _mapReadyFired = false;
+
+  void _onMapReady() {
+    if (_mapReadyFired) return;
+    _mapReadyFired = true;
+    final reports = ref.read(localReportsProvider).valueOrNull ?? [];
+    final currentFilters = ref.read(mapFiltersProvider);
+    final filteredReports = _filterReports(reports, currentFilters);
+    _fitIndonesiaOrReports(filteredReports);
+  }
 
   void _fitIndonesiaOrReports(List<LocalReport> reports) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -148,9 +174,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   void _onMapTap(TapPosition tapPosition, LatLng point) {
-    final pickMode = ref.read(pickLocationModeProvider);
     final callback = ref.read(pickLocationCallbackProvider);
-    if (pickMode && callback != null) {
+    if (callback != null) {
       callback(point);
       ref.read(pickLocationModeProvider.notifier).state = false;
       ref.read(pickLocationCallbackProvider.notifier).state = null;
@@ -167,6 +192,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final reportsAsync = ref.watch(localReportsProvider);
     final filters = ref.watch(mapFiltersProvider);
     final heatmapEnabled = ref.watch(heatmapEnabledProvider);
@@ -180,13 +206,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Peta Laporan'),
+        title: Text(l10n.petaLaporan),
         actions: [
           MinTapTarget(
-            semanticsLabel: 'Heatmap',
+            semanticsLabel: l10n.heatmap,
             child: IconButton(
               icon: Icon(heatmapEnabled ? Icons.layers : Icons.layers_outlined),
-              tooltip: 'Heatmap',
+              tooltip: l10n.heatmap,
               onPressed: () {
                 ref.read(heatmapEnabledProvider.notifier).state =
                     !heatmapEnabled;
@@ -200,25 +226,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 isLabelVisible: filters.isActive,
                 child: const Icon(Icons.filter_list),
               ),
-              tooltip: Strings.filter,
+              tooltip: l10n.filter,
               onPressed: _showFilterSheet,
             ),
           ),
           MinTapTarget(
-            semanticsLabel: 'Pilih Lokasi',
+            semanticsLabel: l10n.pilihLokasi,
             child: IconButton(
               icon: Icon(
                 pickMode ? Icons.location_on : Icons.location_on_outlined,
                 color: pickMode ? SigapColors.primary : null,
               ),
-              tooltip: 'Pilih Lokasi',
+              tooltip: l10n.pilihLokasi,
               onPressed: () {
                 final newPickMode = !pickMode;
                 ref.read(pickLocationModeProvider.notifier).state = newPickMode;
                 if (newPickMode) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Ketuk peta untuk memilih lokasi'),
+                    SnackBar(
+                      content: Text(l10n.ketukPetaUntukMemilihLokasi),
                       duration: Duration(seconds: 2),
                     ),
                   );
@@ -230,79 +256,76 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       ),
       body: Stack(
         children: [
-          reportsAsync.when(
-            data: (reports) {
-              final filteredReports = _filterReports(reports, filters);
-              final markers = _buildMarkers(filteredReports);
-              final heatmapData = _buildHeatmapData(filteredReports);
+          FlutterMap(
+            mapController: _mapController,
+            options: _mapOptions,
+            children: [
+              TileLayer(
+                urlTemplate: _tileErrorOccurred
+                    ? _fallbackTileUrl
+                    : _primaryTileUrl,
+                userAgentPackageName: 'id.kmipn.sigap',
+              ),
+              reportsAsync.when(
+                data: (reports) {
+                  final filteredReports = _filterReports(reports, filters);
+                  final markers = _buildMarkers(filteredReports);
+                  final heatmapData = _buildHeatmapData(filteredReports);
 
-              return FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  initialCenter: _indonesiaCenter,
-                  initialZoom: 5.0,
-                  minZoom: 3.5,
-                  maxZoom: 18.0,
-                  cameraConstraint: CameraConstraint.contain(
-                    bounds: _indonesiaMaxBounds,
-                  ),
-                  onTap: pickMode ? _onMapTap : null,
-                  onMapReady: () {
-                    _fitIndonesiaOrReports(filteredReports);
-                  },
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: _tileErrorOccurred
-                        ? _fallbackTileUrl
-                        : _primaryTileUrl,
-                    userAgentPackageName: 'id.kmipn.sigap',
-                  ),
-                  if (heatmapEnabled && heatmapData.isNotEmpty)
-                    HeatMapLayer(
-                      heatMapDataSource: InMemoryHeatMapDataSource(
-                        data: heatmapData,
-                      ),
-                      heatMapOptions: HeatMapOptions(
-                        radius: 40,
-                        blurFactor: 0.5,
-                        gradient: {
-                          0.0: Colors.green,
-                          0.5: Colors.yellow,
-                          0.9: Colors.red,
-                        },
-                      ),
-                    ),
-                  MarkerClusterLayerWidget(
-                    options: MarkerClusterLayerOptions(
-                      maxClusterRadius: 80,
-                      size: const Size(50, 50),
-                      markers: markers,
-                      builder: (context, markers) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: SigapColors.primary.withValues(alpha: 0.8),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                  return Stack(
+                    children: [
+                      if (heatmapEnabled && heatmapData.isNotEmpty)
+                        HeatMapLayer(
+                          heatMapDataSource: InMemoryHeatMapDataSource(
+                            data: heatmapData,
                           ),
-                          child: Center(
-                            child: Text(
-                              markers.length.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                          heatMapOptions: HeatMapOptions(
+                            radius: 40,
+                            blurFactor: 0.5,
+                            gradient: {
+                              0.0: Colors.green,
+                              0.5: Colors.yellow,
+                              0.9: Colors.red,
+                            },
+                          ),
+                        ),
+                      MarkerClusterLayerWidget(
+                        options: MarkerClusterLayerOptions(
+                          maxClusterRadius: 80,
+                          size: const Size(50, 50),
+                          markers: markers,
+                          builder: (context, markers) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: SigapColors.primary.withValues(
+                                  alpha: 0.8,
+                                ),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
+                              child: Center(
+                                child: Text(
+                                  markers.length.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (e, _) => Center(child: Text('Error: $e')),
+              ),
+            ],
           ),
 
           if (pickMode)
@@ -320,9 +343,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     color: SigapColors.primary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    'Ketuk untuk memilih lokasi',
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    l10n.ketukPetaUntukMemilihLokasi,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ),
@@ -360,7 +383,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         children: [
           FloatingActionButton.small(
             heroTag: 'recenter_indonesia',
-            tooltip: 'Pusat Indonesia',
+            tooltip: l10n.pusatIndonesia,
             backgroundColor: Colors.white,
             foregroundColor: SigapColors.primary,
             onPressed: () {
@@ -373,7 +396,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           const SizedBox(height: 10),
           FloatingActionButton(
             heroTag: 'my_location',
-            tooltip: 'Lokasi Saya',
+            tooltip: l10n.lokasiSaya,
             backgroundColor: SigapColors.primary,
             foregroundColor: Colors.white,
             onPressed: () async {
@@ -583,6 +606,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final categoriesAsync = ref.watch(mapCategoriesProvider);
 
     return DraggableScrollableSheet(
@@ -600,12 +624,12 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    Strings.filter,
+                    l10n.filter,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   TextButton(
                     onPressed: _clearFilters,
-                    child: const Text('Hapus Semua'),
+                    child: Text(l10n.hapusSemua),
                   ),
                 ],
               ),
@@ -690,7 +714,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
               const SizedBox(height: SigapSpacing.xl),
               ElevatedButton(
                 onPressed: _applyFilters,
-                child: const Text('Terapkan Filter'),
+                child: Text(l10n.terapkanFilter),
               ),
             ],
           ),

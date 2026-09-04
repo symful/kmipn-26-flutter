@@ -52,7 +52,7 @@ class TruthStatementCheckbox extends StatelessWidget {
             child: Text(
               'Saya menyatakan informasi ini benar sesuai kondisi yang saya lihat.',
               style: TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w400,
                 color: SigapColors.textPrimary,
                 height: 1.4,

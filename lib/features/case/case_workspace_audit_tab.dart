@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/client.dart';
 import '../../capabilities/can.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
@@ -65,7 +66,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
     return Can(
       action: 'audit.view',
       resource: Resource(type: 'case', id: widget.caseId),
-      fallback: const _AccessDeniedPlaceholder(
+      fallback: const AccessDeniedCard(
         message: 'Anda tidak memiliki akses untuk melihat riwayat audit.',
       ),
       child: _buildAuditContent(),
@@ -73,6 +74,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
   }
 
   Widget _buildAuditContent() {
+    final l10n = AppLocalizations.of(context)!;
     if (_loading) {
       return const Center(
         child: CircularProgressIndicator(color: SigapColors.primary),
@@ -82,7 +84,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
     if (_error != null && _entries.isEmpty) {
       return Center(
         child: ErrorRetryView(
-          message: 'Gagal memuat riwayat audit',
+          message: l10n.gagalMemuatRiwayat,
           onRetry: _loadAuditEntries,
         ),
       );
@@ -108,7 +110,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
                 Text(
                   '${_entries.length} Entri Audit',
                   style: const TextStyle(
-                    fontSize: SigapTypography.size15,
+                    fontSize: SigapTypography.subtitle,
                     fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
                   ),
@@ -156,7 +158,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
                       'Riwayat audit bersifat immutable dan tidak dapat diubah. '
                       'Semua tindakan pada kasus ini dicatat untuk keperluan audit.',
                       style: TextStyle(
-                        fontSize: SigapTypography.size12,
+                        fontSize: SigapTypography.bodySmall,
                         color: SigapColors.textTertiary,
                       ),
                     ),
@@ -171,6 +173,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -195,7 +198,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
             const Text(
               'Belum Ada Riwayat Audit',
               style: TextStyle(
-                fontSize: SigapTypography.size16,
+                fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textPrimary,
               ),
@@ -204,7 +207,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
             const Text(
               'Semua tindakan pada kasus ini akan dicatat di sini.',
               style: TextStyle(
-                fontSize: SigapTypography.size13,
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
               ),
               textAlign: TextAlign.center,
@@ -213,7 +216,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
             OutlinedButton.icon(
               onPressed: _loadAuditEntries,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Segarkan Data'),
+              label: Text(l10n.segarkanData),
             ),
           ],
         ),
@@ -326,58 +329,5 @@ class _AuditEntryTile extends StatelessWidget {
     } catch (_) {
       return isoString;
     }
-  }
-}
-
-/// Access denied placeholder widget.
-class _AccessDeniedPlaceholder extends StatelessWidget {
-  final String message;
-
-  const _AccessDeniedPlaceholder({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(SigapSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: SigapColors.bgSurface,
-                shape: BoxShape.circle,
-                border: Border.all(color: SigapColors.borderCard, width: 2),
-              ),
-              child: const Icon(
-                Icons.lock_outline,
-                size: 36,
-                color: SigapColors.textTertiary,
-              ),
-            ),
-            const SizedBox(height: SigapSpacing.md),
-            const Text(
-              'Akses Ditolak',
-              style: TextStyle(
-                fontSize: SigapTypography.size18,
-                fontWeight: FontWeight.bold,
-                color: SigapColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: SigapTypography.size14,
-                color: SigapColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

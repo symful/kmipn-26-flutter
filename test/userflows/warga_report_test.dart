@@ -6,7 +6,7 @@ import 'package:sigap/api/client.dart';
 import '../helpers/api_expect.dart';
 import '../helpers/test_env.dart';
 
-const _apiBaseUrl = 'https://kmipn-26-deno.careday17.workers.dev';
+const _apiBaseUrl = 'https://sigap.live';
 
 /// HTTP client helper using dart:io HttpClient (works in Flutter test on Windows).
 Future<Map<String, dynamic>> _httpJson(

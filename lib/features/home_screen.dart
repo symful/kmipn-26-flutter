@@ -6,15 +6,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:sigap/api/client.dart';
 import '../db/database.dart';
-import '../l10n/strings.dart';
+import '../l10n/generated/app_localizations.dart';
+import '../l10n/status_label.dart';
 import '../providers/providers.dart';
-import '../providers/auth_provider.dart';
 import '../theme/tokens.dart';
 import '../providers/capability_provider.dart';
 import '../widgets/adaptive_nav.dart';
-import '../widgets/design_system/buttons.dart';
-import '../widgets/design_system/phone_frame.dart';
-import '../widgets/design_system/status_bar.dart';
 import '../widgets/design_system/skeleton_loaders.dart';
 import '../widgets/design_system/status_grid.dart';
 import '../widgets/design_system/kasus_terdekat_cards.dart';
@@ -97,7 +94,7 @@ class ReportItem {
     return DateTime.tryParse(value.toString()) ?? DateTime.now();
   }
 
-  String get navKey => idempotencyKey ?? serverId ?? key;
+  String get navKey => serverId ?? idempotencyKey ?? key;
 }
 
 /// Merges local Drift reports with server reports.
@@ -145,8 +142,8 @@ Color _syncDotColor(int syncStatus) {
   }
 }
 
-String _serverStatusLabel(String? status) {
-  return Strings.statusLabel(status);
+String _serverStatusLabel(BuildContext context, String? status) {
+  return statusLabel(context, status);
 }
 
 Color _serverStatusColor(String? status) {
@@ -218,10 +215,10 @@ class _ReportListItem extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              _serverStatusLabel(report.status),
+                              _serverStatusLabel(context, report.status),
                               style: TextStyle(
                                 color: _serverStatusColor(report.status),
-                                fontSize: SigapTypography.size11,
+                                fontSize: SigapTypography.captionMedium,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -234,7 +231,7 @@ class _ReportListItem extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: SigapTypography.size13_5,
+                              fontSize: SigapTypography.bodyTextWide,
                               fontWeight: FontWeight.w500,
                               color: SigapColors.textPrimary,
                             ),
@@ -248,7 +245,7 @@ class _ReportListItem extends StatelessWidget {
                       style: const TextStyle(
                         color: SigapColors.textTertiary,
                         fontFamily: SigapTypography.fontFamilyMono,
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                       ),
                     ),
                   ],
@@ -271,7 +268,12 @@ class _ReportListItem extends StatelessWidget {
 
 Widget _buildStatsLoading() => const SkeletonStatsRow();
 
-Widget _buildStatsError(Object error, VoidCallback onRetry) {
+Widget _buildStatsError(
+  BuildContext context,
+  Object error,
+  VoidCallback onRetry,
+) {
+  final l10n = AppLocalizations.of(context)!;
   return Container(
     height: 70,
     padding: const EdgeInsets.all(SigapSpacing.md),
@@ -290,18 +292,18 @@ Widget _buildStatsError(Object error, VoidCallback onRetry) {
         const SizedBox(width: SigapSpacing.sm),
         Expanded(
           child: Text(
-            'Gagal memuat statistik',
+            l10n.gagalMemuatStatistik,
             style: TextStyle(
               color: SigapColors.textSecondary,
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
             ),
           ),
         ),
         TextButton(
           onPressed: onRetry,
-          child: const Text(
-            'Coba lagi',
-            style: TextStyle(fontSize: SigapTypography.size13),
+          child: Text(
+            l10n.cobaLagi,
+            style: const TextStyle(fontSize: SigapTypography.bodyText),
           ),
         ),
       ],
@@ -311,7 +313,12 @@ Widget _buildStatsError(Object error, VoidCallback onRetry) {
 
 Widget _buildNearbyLoading() => const SkeletonNearbyCard();
 
-Widget _buildNearbyError(Object error, VoidCallback onRetry) {
+Widget _buildNearbyError(
+  BuildContext context,
+  Object error,
+  VoidCallback onRetry,
+) {
+  final l10n = AppLocalizations.of(context)!;
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -333,19 +340,19 @@ Widget _buildNearbyError(Object error, VoidCallback onRetry) {
             const SizedBox(width: SigapSpacing.x11),
             Expanded(
               child: Text(
-                'Gagal memuat kasus terdekat',
+                l10n.gagalMemuatKasusTerdekat,
                 style: TextStyle(
                   color: SigapColors.textSecondary,
-                  fontSize: SigapTypography.size13_5,
+                  fontSize: SigapTypography.bodyTextWide,
                 ),
               ),
             ),
             TextButton(
               onPressed: onRetry,
-              child: const Text(
-                'Coba lagi',
-                style: TextStyle(
-                  fontSize: SigapTypography.size12,
+              child: Text(
+                l10n.cobaLagi,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodySmall,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.primary,
                 ),
@@ -367,7 +374,12 @@ Widget _buildListLoading() {
   );
 }
 
-Widget _buildListError(Object error, VoidCallback onRetry) {
+Widget _buildListError(
+  BuildContext context,
+  Object error,
+  VoidCallback onRetry,
+) {
+  final l10n = AppLocalizations.of(context)!;
   return Center(
     child: Padding(
       padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -381,10 +393,10 @@ Widget _buildListError(Object error, VoidCallback onRetry) {
           ),
           const SizedBox(height: SigapSpacing.md),
           Text(
-            'Gagal memuat laporan',
+            l10n.gagalMemuatLaporan,
             style: TextStyle(
               color: SigapColors.textSecondary,
-              fontSize: SigapTypography.size16,
+              fontSize: SigapTypography.bodyLarge,
             ),
           ),
           const SizedBox(height: SigapSpacing.sm),
@@ -392,7 +404,7 @@ Widget _buildListError(Object error, VoidCallback onRetry) {
             error.toString(),
             style: TextStyle(
               color: SigapColors.textMuted,
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -402,7 +414,7 @@ Widget _buildListError(Object error, VoidCallback onRetry) {
           OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Coba lagi'),
+            label: Text(l10n.cobaLagi),
           ),
         ],
       ),
@@ -410,7 +422,8 @@ Widget _buildListError(Object error, VoidCallback onRetry) {
   );
 }
 
-Widget _buildWargaEmpty() {
+Widget _buildWargaEmpty(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
   return Center(
     child: Padding(
       padding: const EdgeInsets.symmetric(
@@ -435,11 +448,11 @@ Widget _buildWargaEmpty() {
             ),
           ),
           const SizedBox(height: SigapSpacing.md),
-          const Text(
-            Strings.belumAdaAktivitas,
-            style: TextStyle(
+          Text(
+            l10n.belumAdaAktivitas,
+            style: const TextStyle(
               color: SigapColors.textPrimary,
-              fontSize: SigapTypography.size16,
+              fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -448,7 +461,7 @@ Widget _buildWargaEmpty() {
             'Laporan yang Anda kirimkan akan dicatat di sini.',
             style: TextStyle(
               color: SigapColors.textSecondary,
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
             ),
             textAlign: TextAlign.center,
           ),
@@ -492,7 +505,7 @@ Widget _buildSurveyorEmpty() {
         const Text(
           'Tidak ada tugas',
           style: TextStyle(
-            fontSize: SigapTypography.size16,
+            fontSize: SigapTypography.bodyLarge,
             fontWeight: FontWeight.w600,
             color: SigapColors.textPrimary,
           ),
@@ -501,7 +514,7 @@ Widget _buildSurveyorEmpty() {
         const Text(
           'Tugas akan muncul di sini',
           style: TextStyle(
-            fontSize: SigapTypography.size13,
+            fontSize: SigapTypography.bodyText,
             color: SigapColors.textTertiary,
           ),
         ),
@@ -510,7 +523,12 @@ Widget _buildSurveyorEmpty() {
   );
 }
 
-Widget _buildSurveyorError(Object error, VoidCallback onRetry) {
+Widget _buildSurveyorError(
+  BuildContext context,
+  Object error,
+  VoidCallback onRetry,
+) {
+  final l10n = AppLocalizations.of(context)!;
   return Center(
     child: Padding(
       padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -519,10 +537,10 @@ Widget _buildSurveyorError(Object error, VoidCallback onRetry) {
         children: [
           const Icon(Icons.error_outline, size: 64, color: SigapColors.danger),
           const SizedBox(height: SigapSpacing.lg),
-          const Text(
-            'Gagal memuat tugas',
-            style: TextStyle(
-              fontSize: SigapTypography.size16,
+          Text(
+            l10n.gagalMemuatTugas,
+            style: const TextStyle(
+              fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
             ),
@@ -531,7 +549,7 @@ Widget _buildSurveyorError(Object error, VoidCallback onRetry) {
           Text(
             error.toString(),
             style: const TextStyle(
-              fontSize: SigapTypography.size12,
+              fontSize: SigapTypography.bodySmall,
               color: SigapColors.textTertiary,
             ),
             textAlign: TextAlign.center,
@@ -542,7 +560,7 @@ Widget _buildSurveyorError(Object error, VoidCallback onRetry) {
           ElevatedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('Coba lagi'),
+            label: Text(l10n.cobaLagi),
             style: ElevatedButton.styleFrom(
               backgroundColor: SigapColors.primary,
               foregroundColor: Colors.white,
@@ -660,68 +678,65 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ) ??
         false;
 
-    return PhoneFrame(
-      child: Column(
-        children: [
-          StatusBar(),
-          Expanded(
-            child: Scaffold(
-              backgroundColor: SigapColors.bgSurface,
-              body: _buildBody(isOffline),
-              bottomNavigationBar: activeRole == 'WARGA'
-                  ? FixedWargaBottomNav(
-                      activeIndex: _selectedNavIndex,
-                      onTabTap: (index) {
-                        setState(() => _selectedNavIndex = index);
-                        final route = FixedWargaBottomNav.fixedRoutes[index];
-                        if (index == 0) {
-                          context.go(route);
-                        } else {
-                          context.push(route);
-                        }
-                      },
-                      onFabTap: () => context.push('/create'),
-                    )
-                  : activeRole == 'SURVEYOR'
-                  ? SurveyorBottomNav(
-                      activeIndex: _selectedNavIndex,
-                      onTap: (index) {
-                        setState(() => _selectedNavIndex = index);
-                        final route = surveyorNavRoutes[index];
-                        if (index == 0) {
-                          context.go(route);
-                        } else {
-                          context.push(route);
-                        }
-                      },
-                    )
-                  : AdaptiveNav(
-                      activeIndex: _selectedNavIndex,
-                      onTap: (index) {
-                        setState(() => _selectedNavIndex = index);
-                        // Derive route from capabilities — same order as AdaptiveNav._buildNavItems.
-                        final capabilityState = ref.read(
-                          capabilityNotifierProvider.select(
-                            (state) => state.valueOrNull,
-                          ),
-                        );
-                        final routes = navRoutesForCapabilities(
-                          capabilityState?.capabilities ?? {},
-                        );
-                        final route = index < routes.length
-                            ? routes[index]
-                            : '/dashboard';
-                        if (index == 0) {
-                          context.go(route);
-                        } else {
-                          context.push(route);
-                        }
-                      },
-                    ),
-            ),
+    return Column(
+      children: [
+        Expanded(
+          child: Scaffold(
+            backgroundColor: SigapColors.bgSurface,
+            body: _buildBody(isOffline),
+            bottomNavigationBar: activeRole == 'WARGA'
+                ? FixedWargaBottomNav(
+                    activeIndex: _selectedNavIndex,
+                    onTabTap: (index) {
+                      setState(() => _selectedNavIndex = index);
+                      final route = FixedWargaBottomNav.fixedRoutes[index];
+                      if (index == 0) {
+                        context.go(route);
+                      } else {
+                        context.push(route);
+                      }
+                    },
+                    onFabTap: () => context.push('/create'),
+                  )
+                : activeRole == 'SURVEYOR'
+                ? SurveyorBottomNav(
+                    activeIndex: _selectedNavIndex,
+                    onTap: (index) {
+                      setState(() => _selectedNavIndex = index);
+                      final route = surveyorNavRoutes[index];
+                      if (index == 0) {
+                        context.go(route);
+                      } else {
+                        context.push(route);
+                      }
+                    },
+                  )
+                : AdaptiveNav(
+                    activeIndex: _selectedNavIndex,
+                    onTap: (index) {
+                      setState(() => _selectedNavIndex = index);
+                      // Derive route from capabilities — same order as AdaptiveNav._buildNavItems.
+                      final capabilityState = ref.read(
+                        capabilityNotifierProvider.select(
+                          (state) => state.valueOrNull,
+                        ),
+                      );
+                      final routes = navRoutesForCapabilities(
+                        capabilityState?.capabilities ?? {},
+                      );
+                      final route = index < routes.length
+                          ? routes[index]
+                          : '/dashboard';
+                      if (index == 0) {
+                        context.go(route);
+                      } else {
+                        context.push(route);
+                      }
+                    },
+                  ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -741,6 +756,7 @@ class HomeShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final userWilayahAsync = ref.watch(userWilayahProvider);
     final unreadCount = ref.watch(unreadCountProvider);
 
@@ -763,10 +779,10 @@ class HomeShell extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Wilayah aktif',
-                        style: TextStyle(
-                          fontSize: SigapTypography.size11,
+                      Text(
+                        l10n.wilayahAktif,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.captionMedium,
                           color: SigapColors.textMuted,
                         ),
                       ),
@@ -775,15 +791,15 @@ class HomeShell extends ConsumerWidget {
                         data: (wilayahName) => Text(
                           '$wilayahName ▾',
                           style: const TextStyle(
-                            fontSize: SigapTypography.size17,
+                            fontSize: SigapTypography.subheading,
                             fontWeight: FontWeight.w700,
                             color: SigapColors.textPrimary,
                           ),
                         ),
-                        loading: () => const Text(
-                          'Memuat...',
-                          style: TextStyle(
-                            fontSize: SigapTypography.size17,
+                        loading: () => Text(
+                          l10n.memuat,
+                          style: const TextStyle(
+                            fontSize: SigapTypography.subheading,
                             fontWeight: FontWeight.w700,
                             color: SigapColors.textMuted,
                           ),
@@ -791,7 +807,7 @@ class HomeShell extends ConsumerWidget {
                         error: (_, __) => const Text(
                           '-',
                           style: TextStyle(
-                            fontSize: SigapTypography.size17,
+                            fontSize: SigapTypography.subheading,
                             fontWeight: FontWeight.w700,
                             color: SigapColors.textMuted,
                           ),
@@ -808,16 +824,6 @@ class HomeShell extends ConsumerWidget {
                   child: NotificationBell(unreadCount: unreadCount),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: SigapSpacing.lg),
-          // ── Warga CTA (report.submit) ─────────────────────────────────
-          Can(
-            action: 'report.submit',
-            child: CtaButton(
-              label: 'Buat laporan',
-              subtitle: 'Foto, lokasi, dan kondisi lapangan',
-              onPressed: () => context.push('/create'),
             ),
           ),
           const SizedBox(height: SigapSpacing.md),
@@ -873,6 +879,7 @@ class _WargaReportsModule extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final localAsync = ref.watch(localReportsProvider);
     final serverAsync = ref.watch(wargaReportsProvider);
     final statsAsync = ref.watch(wargaStatsProvider);
@@ -888,8 +895,11 @@ class _WargaReportsModule extends ConsumerWidget {
             selesai: stats.resolved ?? 0,
           ),
           loading: () => _buildStatsLoading(),
-          error: (error, _) =>
-              _buildStatsError(error, () => ref.invalidate(wargaStatsProvider)),
+          error: (error, _) => _buildStatsError(
+            context,
+            error,
+            () => ref.invalidate(wargaStatsProvider),
+          ),
         ),
         // List header
         Padding(
@@ -897,20 +907,20 @@ class _WargaReportsModule extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                Strings.laporanSaya,
-                style: TextStyle(
-                  fontSize: SigapTypography.size13,
+              Text(
+                l10n.laporanSaya,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w700,
                   color: SigapColors.textPrimary,
                 ),
               ),
               GestureDetector(
                 onTap: () => context.push('/laporan'),
-                child: const Text(
-                  Strings.lihatSemua,
-                  style: TextStyle(
-                    fontSize: SigapTypography.size12,
+                child: Text(
+                  l10n.lihatSemua,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.primary,
                   ),
@@ -923,22 +933,35 @@ class _WargaReportsModule extends ConsumerWidget {
         // List
         localAsync.when(
           loading: () => _buildListLoading(),
-          error: (e, _) =>
-              _buildListError(e, () => ref.invalidate(localReportsProvider)),
+          error: (e, _) => _buildListError(
+            context,
+            e,
+            () => ref.invalidate(localReportsProvider),
+          ),
           data: (localReports) => serverAsync.when(
             loading: () => _buildListLoading(),
-            error: (e, _) =>
-                _buildListError(e, () => ref.invalidate(wargaReportsProvider)),
-            data: (serverReports) =>
-                _buildWargaList(ref, mergeReports(localReports, serverReports)),
+            error: (e, _) => _buildListError(
+              context,
+              e,
+              () => ref.invalidate(wargaReportsProvider),
+            ),
+            data: (serverReports) => _buildWargaList(
+              context,
+              ref,
+              mergeReports(localReports, serverReports),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildWargaList(WidgetRef ref, List<ReportItem> reports) {
-    if (reports.isEmpty) return _buildWargaEmpty();
+  Widget _buildWargaList(
+    BuildContext context,
+    WidgetRef ref,
+    List<ReportItem> reports,
+  ) {
+    if (reports.isEmpty) return _buildWargaEmpty(context);
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(localReportsProvider);
@@ -949,6 +972,8 @@ class _WargaReportsModule extends ConsumerWidget {
         ]);
       },
       child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: reports.length,
         itemBuilder: (context, index) => _ReportListItem(
           report: reports[index],
@@ -967,6 +992,7 @@ class _NearestCasesModule extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (currentPosition == null) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     final nearbyAsync = ref.watch(
       nearbyReportsProvider((
@@ -990,7 +1016,7 @@ class _NearestCasesModule extends ConsumerWidget {
               0,
               2.clamp(0, (r['short_code'] ?? 'XX').toString().length),
             ),
-            title: r['title']?.toString() ?? 'Tanpa judul',
+            title: r['title']?.toString() ?? l10n.tanpaJudul,
             rw: r['village_name']?.toString() ?? 'RW -',
             distanceMeters: (r['distance_meters'] ?? 0).toInt(),
             laporanCount: (r['supporting_count'] ?? 0).toInt(),
@@ -1019,6 +1045,7 @@ class _NearestCasesModule extends ConsumerWidget {
       },
       loading: () => _buildNearbyLoading(),
       error: (error, _) => _buildNearbyError(
+        context,
         error,
         () => ref.invalidate(
           nearbyReportsProvider((
@@ -1038,6 +1065,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final tasksAsync = ref.watch(surveyorTasksProvider);
     final filterIndex = ref.watch(surveyorFilterProvider);
     final sortValue = ref.watch(surveyorSortProvider);
@@ -1056,9 +1084,9 @@ class _SurveyorTasksModule extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${_hariIni()}, ${_tanggalIni()}',
+                '${_hariIni(context)}, ${_tanggalIni(context)}',
                 style: const TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   color: SigapColors.textSecondary,
                 ),
               ),
@@ -1067,15 +1095,15 @@ class _SurveyorTasksModule extends ConsumerWidget {
                 data: (wilayahName) => Text(
                   wilayahName,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size22,
+                    fontSize: SigapTypography.headlineMedium,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textPrimary,
                   ),
                 ),
-                loading: () => const Text(
-                  'Memuat...',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size22,
+                loading: () => Text(
+                  l10n.memuat,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.headlineMedium,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textPrimary,
                   ),
@@ -1083,7 +1111,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
                 error: (_, __) => const Text(
                   '-',
                   style: TextStyle(
-                    fontSize: SigapTypography.size22,
+                    fontSize: SigapTypography.headlineMedium,
                     fontWeight: FontWeight.w700,
                     color: SigapColors.textMuted,
                   ),
@@ -1130,10 +1158,10 @@ class _SurveyorTasksModule extends ConsumerWidget {
             vertical: SigapSpacing.sm,
           ),
           child: TaskSortRow(
-            selectedValue: _mapSortToDisplay(sortValue),
+            selectedValue: _mapSortToDisplay(context, sortValue),
             onSortChanged: (value) =>
                 ref.read(surveyorSortProvider.notifier).state =
-                    _mapDisplayToSort(value),
+                    _mapDisplayToSort(context, value),
             onUnduhBatchTap: () => _batchDownloadTasks(ref),
           ),
         ),
@@ -1143,6 +1171,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
               _buildSurveyorTaskList(ref, tasks, filterIndex, sortValue),
           loading: () => _buildSurveyorLoading(),
           error: (error, _) => _buildSurveyorError(
+            context,
             error,
             () => ref.invalidate(surveyorTasksProvider),
           ),
@@ -1174,7 +1203,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: SigapSpacing.md),
             child: TaskCard(
-              task: _mapToTaskData(task),
+              task: _mapToTaskData(context, task),
               onTap: () {
                 final taskId = task.taskId;
                 if (taskId != null) context.push('/tasks/$taskId');
@@ -1192,10 +1221,11 @@ class _SurveyorTasksModule extends ConsumerWidget {
     final tasks = tasksAsync.valueOrNull;
     if (tasks == null || tasks.isEmpty) {
       if (ref.context.mounted) {
+        final l10n = AppLocalizations.of(ref.context)!;
         ScaffoldMessenger.of(ref.context).showSnackBar(
-          const SnackBar(
-            content: Text('Tidak ada tugas untuk diunduh'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(l10n.tidakAdaTugasUntukDiunduh),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -1222,12 +1252,13 @@ class _SurveyorTasksModule extends ConsumerWidget {
     }
 
     if (ref.context.mounted) {
+      final l10n = AppLocalizations.of(ref.context)!;
       ScaffoldMessenger.of(ref.context).showSnackBar(
         SnackBar(
           content: Text(
             downloaded > 0
-                ? 'Berhasil mengunduh $downloaded tugas'
-                : 'Semua tugas sudah diunduh',
+                ? l10n.berhasilMengunduhTugas(downloaded)
+                : l10n.semuaTugasSudahDiunduh,
           ),
           backgroundColor: downloaded > 0 ? SigapColors.selesai : null,
         ),
@@ -1307,10 +1338,10 @@ class _SurveyorTasksModule extends ConsumerWidget {
     return sorted;
   }
 
-  TaskData _mapToTaskData(SurveyorTask task) {
+  TaskData _mapToTaskData(BuildContext context, SurveyorTask task) {
     // Derive priority from actual task data (S-01)
     final priority = _mapTaskPriority(task.priority);
-    final timeAgo = _formatTimeAgo(_parseDate(task.assignedAt));
+    final timeAgo = _formatTimeAgo(context, _parseDate(task.assignedAt));
     return TaskData(
       id: task.taskId ?? '',
       title: task.reportTitle ?? 'Tanpa judul',
@@ -1335,54 +1366,57 @@ class _SurveyorTasksModule extends ConsumerWidget {
     }
   }
 
-  String _mapSortToDisplay(String sort) {
+  String _mapSortToDisplay(BuildContext context, String sort) {
+    final l10n = AppLocalizations.of(context)!;
     switch (sort) {
       case 'terbaru':
-        return 'Terbaru';
+        return l10n.terbaru;
       case 'sla':
-        return 'SLA terdekat';
+        return l10n.slaTerdekat;
       case 'prioritas':
-        return 'Prioritas';
+        return l10n.prioritas;
       default:
-        return 'Terbaru';
+        return l10n.terbaru;
     }
   }
 
-  String _mapDisplayToSort(String display) {
-    switch (display) {
-      case 'Terbaru':
-        return 'terbaru';
-      case 'SLA terdekat':
-        return 'sla';
-      case 'Prioritas':
-        return 'prioritas';
-      default:
-        return 'terbaru';
-    }
+  String _mapDisplayToSort(BuildContext context, String display) {
+    final l10n = AppLocalizations.of(context)!;
+    if (display == l10n.terbaru) return 'terbaru';
+    if (display == l10n.slaTerdekat) return 'sla';
+    if (display == l10n.prioritas) return 'prioritas';
+    return 'terbaru';
   }
 
   DateTime? _parseDate(String? s) => s == null ? null : DateTime.tryParse(s);
 
-  String _formatTimeAgo(DateTime? date) {
+  String _formatTimeAgo(BuildContext context, DateTime? date) {
     if (date == null) return '-';
+    final l10n = AppLocalizations.of(context)!;
     final diff = DateTime.now().difference(date);
     if (diff.inDays > 0) {
-      if (diff.inDays == 1) return 'Kemarin';
-      if (diff.inDays < 7) return '${diff.inDays} hari lalu';
-      return '${(diff.inDays / 7).floor()} minggu lalu';
+      if (diff.inDays == 1) return l10n.kemarin;
+      if (diff.inDays < 7) return '${diff.inDays} ${l10n.hariLalu}';
+      return '${(diff.inDays / 7).floor()} ${l10n.mingguLalu}';
     } else if (diff.inHours > 0) {
-      return '${diff.inHours} jam yang lalu';
+      return '${diff.inHours} ${l10n.jamYangLalu}';
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes} menit yang lalu';
+      return '${diff.inMinutes} ${l10n.menitYangLalu}';
     }
-    return 'Baru saja';
+    return l10n.baruSaja;
   }
 
-  String _hariIni() {
-    return DateFormat('EEEE', 'id_ID').format(DateTime.now());
+  String _hariIni(BuildContext context) {
+    return DateFormat(
+      'EEEE',
+      Localizations.localeOf(context).toString(),
+    ).format(DateTime.now());
   }
 
-  String _tanggalIni() {
-    return DateFormat('d MMMM yyyy', 'id_ID').format(DateTime.now());
+  String _tanggalIni(BuildContext context) {
+    return DateFormat(
+      'd MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    ).format(DateTime.now());
   }
 }

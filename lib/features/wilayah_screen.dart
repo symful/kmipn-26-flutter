@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../api/exceptions.dart';
 import '../../../api/client.dart';
-import '../../../l10n/strings.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 
@@ -63,165 +63,170 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(SigapRadius.lg),
-          ),
-          backgroundColor: SigapColors.surface,
-          title: const Row(
-            children: [
-              Icon(Icons.location_city, color: SigapColors.primary),
-              SizedBox(width: SigapSpacing.sm),
-              Text(
-                'Tambah Wilayah',
-                style: TextStyle(
-                  fontSize: SigapTypography.size16,
-                  fontWeight: FontWeight.bold,
-                  color: SigapColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        builder: (ctx, setDialogState) {
+          final dl10n = AppLocalizations.of(ctx)!;
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SigapRadius.lg),
+            ),
+            backgroundColor: SigapColors.surface,
+            title: Row(
               children: [
-                const Text(
-                  'Daftarkan wilayah administratif (Kelurahan / Kecamatan / Kota) untuk penugasan dan filter laporan.',
-                  style: TextStyle(
-                    fontSize: SigapTypography.size12,
-                    color: SigapColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: Strings.namaWilayahWAJIB,
-                    hintText: 'Misal: Kelurahan Cibadak',
-                    prefixIcon: const Icon(Icons.pin_drop_outlined, size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(SigapRadius.md),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.md,
-                      vertical: SigapSpacing.sm,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                DropdownButtonFormField<String>(
-                  initialValue: selectedLevel,
-                  decoration: InputDecoration(
-                    labelText: 'Tingkat / Level Administratif',
-                    prefixIcon: const Icon(Icons.layers_outlined, size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(SigapRadius.md),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.md,
-                      vertical: SigapSpacing.sm,
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'rt_rw', child: Text('RT / RW')),
-                    DropdownMenuItem(
-                      value: 'kelurahan',
-                      child: Text('Kelurahan / Desa'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'kecamatan',
-                      child: Text('Kecamatan'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'kota',
-                      child: Text('Kota / Kabupaten'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'provinsi',
-                      child: Text('Provinsi'),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) setDialogState(() => selectedLevel = v);
-                  },
-                ),
-                const SizedBox(height: SigapSpacing.md),
-                TextField(
-                  controller: parentController,
-                  decoration: InputDecoration(
-                    labelText: 'Parent ID Wilayah (opsional)',
-                    hintText: 'ID Wilayah Induk',
-                    prefixIcon: const Icon(
-                      Icons.account_tree_outlined,
-                      size: 20,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(SigapRadius.md),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.md,
-                      vertical: SigapSpacing.sm,
-                    ),
+                const Icon(Icons.location_city, color: SigapColors.primary),
+                const SizedBox(width: SigapSpacing.sm),
+                Text(
+                  dl10n.tambahWilayah,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyLarge,
+                    fontWeight: FontWeight.bold,
+                    color: SigapColors.textPrimary,
                   ),
                 ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text(
-                Strings.batal,
-                style: TextStyle(color: SigapColors.textSecondary),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    dl10n.daftarkanWilayah,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodySmall,
+                      color: SigapColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: dl10n.namaWilayahWAJIB,
+                      hintText: dl10n.hintWilayahName,
+                      prefixIcon: const Icon(Icons.pin_drop_outlined, size: 20),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedLevel,
+                    decoration: InputDecoration(
+                      labelText: dl10n.labelTingkatAdministratif,
+                      prefixIcon: const Icon(Icons.layers_outlined, size: 20),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
+                      ),
+                    ),
+                    items: [
+                      DropdownMenuItem(value: 'rt_rw', child: Text(dl10n.rtRw)),
+                      DropdownMenuItem(
+                        value: 'kelurahan',
+                        child: Text(dl10n.kelurahanDesa),
+                      ),
+                      DropdownMenuItem(
+                        value: 'kecamatan',
+                        child: Text(dl10n.kecamatan),
+                      ),
+                      DropdownMenuItem(
+                        value: 'kota',
+                        child: Text(dl10n.kotaKabupaten),
+                      ),
+                      DropdownMenuItem(
+                        value: 'provinsi',
+                        child: Text(dl10n.provinsi),
+                      ),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) setDialogState(() => selectedLevel = v);
+                    },
+                  ),
+                  const SizedBox(height: SigapSpacing.md),
+                  TextField(
+                    controller: parentController,
+                    decoration: InputDecoration(
+                      labelText: dl10n.labelParentIdWilayah,
+                      hintText: dl10n.hintParentWilayahId,
+                      prefixIcon: const Icon(
+                        Icons.account_tree_outlined,
+                        size: 20,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(SigapRadius.md),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.md,
+                        vertical: SigapSpacing.sm,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(
+                  dl10n.batal,
+                  style: TextStyle(color: SigapColors.textSecondary),
                 ),
               ),
-              onPressed: () async {
-                if (nameController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(
-                      content: Text('Nama wilayah wajib diisi'),
-                      backgroundColor: SigapColors.warning,
-                    ),
-                  );
-                  return;
-                }
-                try {
-                  final client = ref.read(apiClientProvider);
-                  await client.dio.post(
-                    '/api/admin/wilayah',
-                    data: {
-                      'name': nameController.text.trim(),
-                      if (parentController.text.trim().isNotEmpty)
-                        'parent_id': parentController.text.trim(),
-                      'level': selectedLevel.trim(),
-                    },
-                  );
-                  if (ctx.mounted) Navigator.pop(ctx, true);
-                } catch (e) {
-                  if (ctx.mounted) {
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SigapRadius.sm),
+                  ),
+                ),
+                onPressed: () async {
+                  if (nameController.text.trim().isEmpty) {
                     ScaffoldMessenger.of(ctx).showSnackBar(
                       SnackBar(
-                        content: Text('Error: ${extractErrorMessage(e)}'),
-                        backgroundColor: SigapColors.perluTindakan,
+                        content: Text(dl10n.namaWilayahWajibDiisi),
+                        backgroundColor: SigapColors.warning,
                       ),
                     );
+                    return;
                   }
-                }
-              },
-              child: const Text(Strings.simpan),
-            ),
-          ],
-        ),
+                  try {
+                    final client = ref.read(apiClientProvider);
+                    await client.dio.post(
+                      '/api/admin/wilayah',
+                      data: {
+                        'name': nameController.text.trim(),
+                        if (parentController.text.trim().isNotEmpty)
+                          'parent_id': parentController.text.trim(),
+                        'level': selectedLevel.trim(),
+                      },
+                    );
+                    if (ctx.mounted) Navigator.pop(ctx, true);
+                  } catch (e) {
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            dl10n.errorDenganPesan(extractErrorMessage(e)),
+                          ),
+                          backgroundColor: SigapColors.perluTindakan,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: Text(dl10n.simpan),
+              ),
+            ],
+          );
+        },
       ),
     );
     if (result == true) _load();
@@ -229,14 +234,15 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Kelola Wilayah'),
+        title: Text(l10n.kelolaWilayah),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Segarkan',
+            tooltip: l10n.segarkan,
             onPressed: _load,
           ),
         ],
@@ -246,7 +252,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
         backgroundColor: SigapColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text('Tambah Wilayah'),
+        label: Text(l10n.tambahWilayah),
       ),
       body: Column(
         children: [
@@ -259,7 +265,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Cari wilayah atau tingkat administratif...',
+                hintText: l10n.hintSearchWilayah,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -310,10 +316,10 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                               color: SigapColors.perluTindakan,
                             ),
                             const SizedBox(height: SigapSpacing.md),
-                            const Text(
-                              'Gagal Memuat Wilayah',
-                              style: TextStyle(
-                                fontSize: SigapTypography.size16,
+                            Text(
+                              l10n.gagalMemuatWilayah,
+                              style: const TextStyle(
+                                fontSize: SigapTypography.bodyLarge,
                                 fontWeight: FontWeight.bold,
                                 color: SigapColors.textPrimary,
                               ),
@@ -323,7 +329,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                               _error!,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                fontSize: SigapTypography.size12,
+                                fontSize: SigapTypography.bodySmall,
                                 color: SigapColors.textSecondary,
                               ),
                             ),
@@ -331,7 +337,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                             ElevatedButton.icon(
                               onPressed: _load,
                               icon: const Icon(Icons.refresh, size: 18),
-                              label: const Text('Coba Lagi'),
+                              label: Text(l10n.cobaLagi),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: SigapColors.primary,
                                 foregroundColor: Colors.white,
@@ -362,10 +368,10 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                             ),
                           ),
                           const SizedBox(height: SigapSpacing.md),
-                          const Text(
-                            'Tidak Ada Wilayah',
-                            style: TextStyle(
-                              fontSize: SigapTypography.size16,
+                          Text(
+                            l10n.tidakAdaWilayah,
+                            style: const TextStyle(
+                              fontSize: SigapTypography.bodyLarge,
                               fontWeight: FontWeight.bold,
                               color: SigapColors.textPrimary,
                             ),
@@ -373,11 +379,11 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                           const SizedBox(height: SigapSpacing.xs),
                           Text(
                             _searchQuery.isNotEmpty
-                                ? 'Tidak ada wilayah yang cocok dengan pencarian "$_searchQuery".'
-                                : 'Belum ada wilayah administratif yang terdaftar.',
+                                ? '${l10n.tidakAdaWilayahCocok} "$_searchQuery".'
+                                : l10n.belumAdaWilayahTerdaftar,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: SigapTypography.size13,
+                              fontSize: SigapTypography.bodyText,
                               color: SigapColors.textSecondary,
                             ),
                           ),
@@ -385,7 +391,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                           OutlinedButton.icon(
                             onPressed: _createItem,
                             icon: const Icon(Icons.add),
-                            label: const Text('Tambah Wilayah Baru'),
+                            label: Text(l10n.tambahWilayahBaru),
                           ),
                         ],
                       ),
@@ -431,7 +437,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                               name,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: SigapTypography.size14,
+                                fontSize: SigapTypography.bodyMedium,
                                 color: SigapColors.textPrimary,
                               ),
                             ),
@@ -440,7 +446,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                               child: Text(
                                 'ID: ${id.length > 8 ? id.substring(0, 8) : id}',
                                 style: const TextStyle(
-                                  fontSize: SigapTypography.size11,
+                                  fontSize: SigapTypography.captionMedium,
                                   fontFamily: 'monospace',
                                   color: SigapColors.textTertiary,
                                 ),
@@ -463,7 +469,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                               child: Text(
                                 levelStr.toUpperCase(),
                                 style: TextStyle(
-                                  fontSize: SigapTypography.size10,
+                                  fontSize: SigapTypography.captionSmall,
                                   color: levelCol,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing:

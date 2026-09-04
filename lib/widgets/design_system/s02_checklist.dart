@@ -51,7 +51,7 @@ class S02Checklist extends StatelessWidget {
         const Text(
           'CHECKLIST WAJIB',
           style: TextStyle(
-            fontSize: SigapTypography.size11,
+            fontSize: SigapTypography.captionMedium,
             fontWeight: FontWeight.w700,
             color: SigapColors.textTertiary,
             letterSpacing: 0.04 * 11,
@@ -136,7 +136,7 @@ class _ChecklistItem extends StatelessWidget {
               child: Text(
                 text,
                 style: TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   color: isChecked
                       ? SigapColors.textDisabled
                       : SigapColors.textPrimary,

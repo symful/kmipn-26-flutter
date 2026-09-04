@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 
@@ -25,8 +26,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       ref.invalidate(notificationsProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Semua notifikasi ditandai sudah dibaca'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.semuaNotifikasiDibaca),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -35,7 +36,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menandai semua: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.gagalMenandaiSemua(e.toString()),
+            ),
             behavior: SnackBarBehavior.floating,
             backgroundColor: SigapColors.perluTindakan,
           ),
@@ -55,7 +58,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menandai: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.gagalMenandai(e.toString()),
+            ),
             behavior: SnackBarBehavior.floating,
             backgroundColor: SigapColors.perluTindakan,
           ),
@@ -71,7 +76,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text('Notifikasi'),
+        title: Text(AppLocalizations.of(context)!.notifikasi),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -88,7 +93,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       color: SigapColors.primary,
                     ),
                   )
-                : const Text('Baca semua'),
+                : Text(AppLocalizations.of(context)!.bacaSemua),
           ),
         ],
       ),
@@ -152,20 +157,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               ),
             ),
             const SizedBox(height: SigapSpacing.lg),
-            const Text(
-              'Tidak Ada Notifikasi',
-              style: TextStyle(
-                fontSize: SigapTypography.size16,
+            Text(
+              AppLocalizations.of(context)!.tidakAdaNotifikasi,
+              style: const TextStyle(
+                fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.bold,
                 color: SigapColors.textPrimary,
               ),
             ),
             const SizedBox(height: SigapSpacing.xs),
-            const Text(
-              'Pemberitahuan terkait laporan atau penugasan akan muncul di sini.',
+            Text(
+              AppLocalizations.of(context)!.pemberitahuanTerkait,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: SigapTypography.size13,
+              style: const TextStyle(
+                fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
               ),
             ),
@@ -195,10 +200,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 color: SigapColors.perluTindakan,
               ),
               const SizedBox(height: SigapSpacing.md),
-              const Text(
-                'Gagal Memuat Notifikasi',
-                style: TextStyle(
-                  fontSize: SigapTypography.size16,
+              Text(
+                AppLocalizations.of(context)!.gagalMemuatNotifikasi,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyLarge,
                   fontWeight: FontWeight.bold,
                   color: SigapColors.textPrimary,
                 ),
@@ -208,7 +213,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 error.toString(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   color: SigapColors.textSecondary,
                 ),
               ),
@@ -216,7 +221,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               ElevatedButton.icon(
                 onPressed: () => ref.invalidate(notificationsProvider),
                 icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Coba Lagi'),
+                label: Text(AppLocalizations.of(context)!.cobaLagi),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
                   foregroundColor: Colors.white,
@@ -290,7 +295,7 @@ class _NotificationTile extends StatelessWidget {
                           child: Text(
                             title,
                             style: TextStyle(
-                              fontSize: SigapTypography.size14,
+                              fontSize: SigapTypography.bodyMedium,
                               fontWeight: isRead
                                   ? FontWeight.w500
                                   : FontWeight.bold,
@@ -317,7 +322,7 @@ class _NotificationTile extends StatelessWidget {
                       Text(
                         body,
                         style: const TextStyle(
-                          fontSize: SigapTypography.size12,
+                          fontSize: SigapTypography.bodySmall,
                           color: SigapColors.textSecondary,
                         ),
                         maxLines: 2,
@@ -326,9 +331,9 @@ class _NotificationTile extends StatelessWidget {
                     ],
                     const SizedBox(height: 4),
                     Text(
-                      createdAt != null ? _formatDate(createdAt) : '-',
+                      createdAt != null ? _formatDate(context, createdAt) : '-',
                       style: const TextStyle(
-                        fontSize: SigapTypography.size11,
+                        fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textTertiary,
                       ),
                     ),
@@ -342,14 +347,17 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
 
-    if (diff.inMinutes < 1) return 'Baru saja';
-    if (diff.inHours < 1) return '${diff.inMinutes} menit lalu';
-    if (diff.inDays < 1) return '${diff.inHours} jam lalu';
-    if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+    if (diff.inMinutes < 1) return AppLocalizations.of(context)!.baruSaja;
+    if (diff.inHours < 1)
+      return '${diff.inMinutes} ${AppLocalizations.of(context)!.menitYangLalu}';
+    if (diff.inDays < 1)
+      return '${diff.inHours} ${AppLocalizations.of(context)!.jamYangLalu}';
+    if (diff.inDays < 7)
+      return '${diff.inDays} ${AppLocalizations.of(context)!.hariYangLalu}';
 
     return '${date.day}/${date.month}/${date.year}';
   }
@@ -412,15 +420,11 @@ final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((
   final client = ref.read(apiClientProvider);
   final response = await client.getNotifications();
   return response.entries.map((n) {
-    // Add isRead derived from read_at, and keep kind/related_case_id from backend
     final map = n.toJson();
     map['is_read'] = n.read == true;
-    // Include read_at so the screen can derive isRead from it
-    map['read_at'] = n.read == true
-        ? (map['created_at'] ?? DateTime.now().toIso8601String())
-        : null;
-    map['kind'] = map['kind'] ?? 'general';
-    map['related_case_id'] = map['related_case_id'];
+    map['read_at'] = n.readAt;
+    map['kind'] = n.kind ?? 'general';
+    map['related_case_id'] = n.relatedCaseId;
     return map;
   }).toList();
 });

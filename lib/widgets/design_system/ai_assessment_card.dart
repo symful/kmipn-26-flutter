@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Displays AI-generated assessment results for a case.
@@ -15,6 +16,7 @@ class AiAssessmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final confidence = (assessment['confidence'] as num?)?.toDouble() ?? 0.0;
     final factors = assessment['factors'] as Map<String, dynamic>? ?? {};
     final supporting = (factors['supporting'] as List?)?.cast<String>() ?? [];
@@ -58,7 +60,7 @@ class AiAssessmentCard extends StatelessWidget {
                 Text(
                   'Confidence',
                   style: TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),
@@ -76,7 +78,7 @@ class AiAssessmentCard extends StatelessWidget {
                   child: Text(
                     '$confidencePct%',
                     style: TextStyle(
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       fontWeight: FontWeight.w700,
                       color: confidenceColor,
                     ),
@@ -93,7 +95,7 @@ class AiAssessmentCard extends StatelessWidget {
               children: [
                 if (supporting.isNotEmpty) ...[
                   _FactorList(
-                    title: 'Supporting Factors',
+                    title: l10n.supportingFactors,
                     icon: Icons.thumb_up_outlined,
                     color: SigapColors.success,
                     items: supporting,
@@ -102,7 +104,7 @@ class AiAssessmentCard extends StatelessWidget {
                 ],
                 if (risks.isNotEmpty) ...[
                   _FactorList(
-                    title: 'Risk Factors',
+                    title: l10n.riskFactors,
                     icon: Icons.warning_amber_outlined,
                     color: SigapColors.danger,
                     items: risks,
@@ -118,7 +120,7 @@ class AiAssessmentCard extends StatelessWidget {
                   Text(
                     'No assessment factors available.',
                     style: TextStyle(
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       color: SigapColors.textMuted,
                     ),
                   ),
@@ -156,7 +158,7 @@ class _FactorList extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -177,14 +179,14 @@ class _FactorList extends StatelessWidget {
                   '• ',
                   style: TextStyle(
                     color: color,
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                   ),
                 ),
                 Expanded(
                   child: Text(
                     item,
                     style: TextStyle(
-                      fontSize: SigapTypography.size13,
+                      fontSize: SigapTypography.bodyText,
                       color: SigapColors.textSecondary,
                     ),
                   ),
@@ -215,7 +217,7 @@ class _CorrelationIds extends StatelessWidget {
             Text(
               'Duplicate Candidates',
               style: TextStyle(
-                fontSize: SigapTypography.size12,
+                fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w600,
                 color: SigapColors.info,
               ),
@@ -240,7 +242,7 @@ class _CorrelationIds extends StatelessWidget {
                   child: Text(
                     id,
                     style: TextStyle(
-                      fontSize: SigapTypography.size11,
+                      fontSize: SigapTypography.captionMedium,
                       color: SigapColors.info,
                       fontFamily: SigapTypography.fontFamilyMono,
                     ),

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-const _apiBaseUrl = 'https://kmipn-26-deno.careday17.workers.dev';
+const _apiBaseUrl = 'https://sigap.live';
 
 final _qaAccounts = {
   'warga': {'email': 'warga@sigap.id', 'password': 'warga123'},

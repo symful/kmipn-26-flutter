@@ -114,7 +114,7 @@ class ConnectivityIndicator extends StatelessWidget {
           Text(
             _label,
             style: TextStyle(
-              fontSize: SigapTypography.size11,
+              fontSize: SigapTypography.captionMedium,
               fontWeight: FontWeight.w600,
               color: _textColor,
             ),

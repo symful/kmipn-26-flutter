@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../l10n/strings.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/section_label.dart';
@@ -12,11 +12,12 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: SigapColors.bgScreen,
       appBar: AppBar(
-        title: const Text(Strings.profil),
+        title: Text(l10n.profil),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -36,7 +37,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: SigapSpacing.lg),
             SectionLabel(
-              label: 'Peran & Akses',
+              label: l10n.labelPeranAkses,
               padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
             ),
             const SizedBox(height: SigapSpacing.sm),
@@ -54,25 +55,25 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               icon: const Icon(Icons.swap_horiz, size: 20),
-              label: const Text('Ganti Peran Aktif'),
+              label: Text(l10n.gantiPeranAktif),
               onPressed: () => context.push('/switch-role'),
             ),
             const SizedBox(height: SigapSpacing.xl),
             SectionLabel(
-              label: 'Pengaturan & Preferensi',
+              label: l10n.labelPengaturanPreferensi,
               padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
             ),
             const SizedBox(height: SigapSpacing.sm),
             _ActionCard(
               icon: Icons.tune,
-              title: 'Pengaturan Aplikasi',
-              subtitle: 'Tema tampilan, pilihan bahasa, dan preferensi',
+              title: l10n.pengaturanAplikasi,
+              subtitle: l10n.subtitlePengaturan,
               onTap: () => context.push('/settings'),
             ),
             const SizedBox(height: SigapSpacing.lg),
             ElevatedButton.icon(
               icon: const Icon(Icons.logout, size: 20),
-              label: const Text(Strings.keluar),
+              label: Text(l10n.keluar),
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.perluTindakan,
                 foregroundColor: Colors.white,
@@ -92,56 +93,59 @@ class ProfileScreen extends ConsumerWidget {
   void _handleLogout(BuildContext context, WidgetRef ref) {
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(SigapRadius.lg),
-        ),
-        backgroundColor: SigapColors.surface,
-        title: const Row(
-          children: [
-            Icon(Icons.logout, color: SigapColors.perluTindakan),
-            SizedBox(width: SigapSpacing.sm),
-            Text(
-              Strings.keluar,
-              style: TextStyle(
-                fontSize: SigapTypography.size16,
-                fontWeight: FontWeight.bold,
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(SigapRadius.lg),
+          ),
+          backgroundColor: SigapColors.surface,
+          title: Row(
+            children: [
+              Icon(Icons.logout, color: SigapColors.perluTindakan),
+              SizedBox(width: SigapSpacing.sm),
+              Text(
+                dl10n.keluar,
+                style: TextStyle(
+                  fontSize: SigapTypography.bodyLarge,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+            ],
+          ),
+          content: const Text(
+            'Apakah Anda yakin ingin keluar dari sesi akun ini?',
+            style: TextStyle(
+              fontSize: SigapTypography.bodyText,
+              color: SigapColors.textSecondary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                dl10n.batal,
+                style: TextStyle(color: SigapColors.textSecondary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ref.read(authNotifierProvider.notifier).logout();
+                context.go('/');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: SigapColors.perluTindakan,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                ),
+              ),
+              child: Text(dl10n.keluar),
             ),
           ],
-        ),
-        content: const Text(
-          'Apakah Anda yakin ingin keluar dari sesi akun ini?',
-          style: TextStyle(
-            fontSize: SigapTypography.size13,
-            color: SigapColors.textSecondary,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              Strings.batal,
-              style: TextStyle(color: SigapColors.textSecondary),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(authNotifierProvider.notifier).logout();
-              context.go('/');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: SigapColors.perluTindakan,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(SigapRadius.sm),
-              ),
-            ),
-            child: const Text(Strings.keluar),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -184,7 +188,7 @@ class _UserInfoCard extends StatelessWidget {
                 Text(
                   name,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size16,
+                    fontSize: SigapTypography.bodyLarge,
                     fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
                   ),
@@ -194,7 +198,7 @@ class _UserInfoCard extends StatelessWidget {
                   Text(
                     email,
                     style: const TextStyle(
-                      fontSize: SigapTypography.size12,
+                      fontSize: SigapTypography.bodySmall,
                       color: SigapColors.textSecondary,
                     ),
                   ),
@@ -215,7 +219,7 @@ class _UserInfoCard extends StatelessWidget {
                   child: Text(
                     role.toUpperCase(),
                     style: const TextStyle(
-                      fontSize: SigapTypography.size10,
+                      fontSize: SigapTypography.captionSmall,
                       fontWeight: FontWeight.bold,
                       color: SigapColors.primary,
                       letterSpacing: SigapTypography.letterSpacingLabel,
@@ -260,14 +264,14 @@ class _RoleCard extends StatelessWidget {
           role.replaceAll('_', ' ').toUpperCase(),
           style: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: SigapTypography.size14,
+            fontSize: SigapTypography.bodyMedium,
             color: SigapColors.textPrimary,
           ),
         ),
         subtitle: Text(
           isActive ? 'Peran aktif saat ini' : 'Tap untuk mengaktifkan',
           style: const TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textSecondary,
           ),
         ),
@@ -312,14 +316,14 @@ class _ActionCard extends StatelessWidget {
           title,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: SigapTypography.size14,
+            fontSize: SigapTypography.bodyMedium,
             color: SigapColors.textPrimary,
           ),
         ),
         subtitle: Text(
           subtitle,
           style: const TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textSecondary,
           ),
         ),

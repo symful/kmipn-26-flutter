@@ -122,7 +122,7 @@ class SyncStatusIndicator extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: SigapTypography.size11,
+                fontSize: SigapTypography.captionMedium,
                 fontWeight: FontWeight.w600,
                 color: foregroundColor,
               ),

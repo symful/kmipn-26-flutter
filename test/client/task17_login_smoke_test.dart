@@ -15,7 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sigap/api/client.dart';
 
-const _apiBaseUrl = 'https://kmipn-26-deno.careday17.workers.dev';
+const _apiBaseUrl = 'https://sigap.live';
 
 Future<Map<String, dynamic>> _rawLogin(String email, String password) async {
   final uri = Uri.parse('$_apiBaseUrl/api/auth/login');

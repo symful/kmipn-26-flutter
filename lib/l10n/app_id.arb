@@ -1,0 +1,821 @@
+{
+  "@@locale": "id",
+  "appTitle": "SIGAP",
+  "batal": "Batal",
+  "simpan": "Simpan",
+  "kirim": "Kirim",
+  "tolak": "Tolak",
+  "alasanPenolakan": "Alasan Penolakan",
+  "selesai": "Selesai",
+  "submitted": "Submitted",
+  "rejected": "Rejected",
+  "lihatSemua": "Lihat semua",
+  "cobaLagi": "Coba Lagi",
+  "gagal": "Gagal",
+  "tutup": "Tutup",
+  "lihatDiPeta": "Lihat di Peta",
+  "detail": "Detail",
+  "hapusSemua": "Hapus Semua",
+  "kirimBukti": "Kirim Bukti",
+  "beranda": "Beranda",
+  "tugas": "Tugas",
+  "buat": "Buat",
+  "notifikasi": "Notifikasi",
+  "profil": "Profil",
+  "laporan": "Laporan",
+  "peta": "Peta",
+  "akun": "Akun",
+  "terima": "Terima",
+  "menunggu": "Menunggu",
+  "proses": "Proses",
+  "diterima": "Diterima",
+  "perluTindakan": "Perlu tindakan",
+  "diproses": "Diproses",
+  "status": "Status",
+  "kategori": "Kategori",
+  "nama": "Nama",
+  "deskripsi": "Deskripsi",
+  "lokasi": "Lokasi",
+  "tanggal": "Tanggal",
+  "jumlah": "Jumlah",
+  "prioritas": "Prioritas",
+  "dashboardOperator": "Dashboard Operator",
+  "dashboardPengambilKeputusan": "Dashboard Pengambil Keputusan",
+  "daftarKasus": "Daftar Kasus",
+  "detailKasus": "Detail Kasus",
+  "detailKasusOperator": "Detail Kasus Operator",
+  "detailKasusVerifikasi": "Detail Kasus Verifikasi",
+  "detailLaporan": "Detail Laporan",
+  "detailTugas": "Detail Tugas",
+  "laporanSaya": "Laporan saya",
+  "belumAdaAktivitas": "Belum ada aktivitas",
+  "kirimBuktiTambahan": "Kirim Bukti Tambahan",
+  "belumAdaFoto": "Belum ada foto",
+  "survei": "Survei",
+  "kirimSurveyor": "Kirim surveyor",
+  "tolakLaporan": "Tolak laporan",
+  "kirimKeputusan": "Kirim Keputusan",
+  "masukkanIdLaporanDuplikat": "Masukkan ID laporan duplikat",
+  "masukkanIdSurveyor": "Masukkan ID surveyor",
+  "petugasAktif": "Petugas Aktif",
+  "namaWilayahWAJIB": "Nama Wilayah (WAJIB)",
+  "namaUnitWAJIB": "Nama Unit (WAJIB)",
+  "namaWAJIB": "Nama (WAJIB)",
+  "simpanKonfigurasi": "Simpan Konfigurasi",
+  "tolakTugas": "Tolak Tugas",
+  "masukkanAlasanPenolakan": "Masukkan alasan penolakan...",
+  "masukkanPertanyaanAnda": "Masukkan pertanyaan Anda...",
+  "alasanPemisahan": "Masukkan alasan mengapa kasus ini perlu dipisahkan",
+  "idUnitTugas": "Masukkan ID unit tugas",
+  "alasanMerge": "Masukkan ID kasus untuk merge",
+  "laporanTersimpan": "Laporan tersimpan. Akan sinkron otomatis.",
+  "surveiBerhasilDikirim": "Survei berhasil dikirim!",
+  "simpanDanSinkronkanNanti": "Simpan dan sinkronkan nanti",
+  "submitFailed": "Submit failed",
+  "kirimLaporan": "Kirim Laporan",
+  "simpanProgress": "Simpan Progress",
+  "kirimVerifikasi": "Kirim Verifikasi",
+  "mengirirmuatan": "Mengirim...",
+  "rw": "RW",
+  "rwMinus": "RW -",
+  "prioritasSlider": "Prioritas",
+  "lanjutKeReviewHasil": "Lanjut ke review hasil",
+  "hariIni": "Hari ini",
+  "terlambat": "Terlambat",
+  "belumDiunduh": "Belum diunduh",
+  "sinkron": "Sinkron",
+  "riwayat": "Riwayat",
+  "kasusTerdekat": "Kasus terdekat",
+  "lihatPeta": "Lihat peta",
+  "lihatArrow": "Lihat \u2192",
+  "hapusUnduhanOffline": "Hapus unduhan offline",
+  "detailPerubahan": "Detail: {action}",
+  "@detailPerubahan": {
+    "placeholders": {
+      "action": {"type": "String"}
+    }
+  },
+  "lihatDetailPerubahan": "Lihat detail perubahan",
+  "laporanIdDuplikat": "Laporan: {reportId}",
+  "@laporanIdDuplikat": {
+    "placeholders": {
+      "reportId": {"type": "String"}
+    }
+  },
+  "idLaporanDuplikat": "Masukkan ID laporan yang duplikat",
+  "keluar": "Keluar",
+  "detailLaporanVerifikasi": "Detail Laporan Verifikasi",
+  "laporanDuplicate": "Laporan duplicate",
+  "perluTindakanCapital": "Perlu Tindakan",
+  "ditolak": "Ditolak",
+  "duplikat": "Duplikat",
+  "perluSurvei": "Perlu Survei",
+  "unknown": "Unknown",
+  "mergeDuplikat": "Merge duplikat",
+  "tandaiDuplikat": "Tandai Duplikat",
+  "diluteJangkauan": "Diluar Jangkauan",
+  "dilute": "Diluar",
+  "perluKelengkapan": "Perlu kelengkapan",
+  "perluDilengkapi": "Perlu dilengkapi",
+  "underReview": "Under Review",
+  "verified": "Verified",
+  "inProgress": "In Progress",
+  "resolved": "Resolved",
+  "konfirmasi": "Konfirmasi",
+  "filter": "Filter",
+  "reset": "Reset",
+  "tersimpan": "Tersimpan",
+  "tersimpanDiPerangkat": "Tersimpan di perangkat",
+  "perluTindakanAnda": "Perlu tindakan Anda",
+  "idLaporanDuplikatHint": "Masukkan ID laporan yang duplikat",
+  "mengirim": "Mengirim...",
+  "tanpaJudul": "Tanpa judul",
+  "baruSaja": "Baru saja",
+  "tidakAdaTugas": "Tidak ada tugas",
+  "tugasSurveiAkanMuncul": "Tugas survei akan muncul di sini",
+  "gagalMemuatTugas": "Gagal memuat tugas",
+  "belumAdaRiwayat": "Belum ada riwayat",
+  "visitYangDikirimAkanMuncul": "Visit yang dikirim akan muncul di sini",
+  "gagalMemuatRiwayat": "Gagal memuat riwayat",
+  "terbaru": "Terbaru",
+  "slaTerdekat": "SLA terdekat",
+  "sinkronkan": "Sinkronkan",
+  "kemarin": "Kemarin",
+  "hariYangLalu": "hari yang lalu",
+  "mingguYangLalu": "minggu yang lalu",
+  "jamYangLalu": "jam yang lalu",
+  "menitYangLalu": "menit yang lalu",
+  "filterAntrean": "Filter Antrean",
+  "terapkan": "Terapkan",
+  "sortir": "Sortir",
+  "filterStatus": "Filter Status",
+  "prioritasTertinggi": "Prioritas Tertinggi",
+  "semua": "Semua",
+  "dalamProses": "Dalam Proses",
+  "diverifikasi": "Diverifikasi",
+  "laporanDiterima": "Laporan diterima",
+  "laporanTidakJelas": "Laporan tidak jelas",
+  "refresh": "Refresh",
+  "tidakAdaKasus": "Tidak Ada Kasus",
+  "tidakAdaKasusDenganFilter": "Tidak ada kasus dengan filter",
+  "belumAdaKasusMasuk": "Belum ada kasus yang masuk.",
+  "resetFilter": "Reset Filter",
+  "tidakAdaLaporanDiAntrean": "Tidak Ada Laporan di Antrean",
+  "tidakAdaLaporanSesuaiFilter": "Tidak ada laporan yang sesuai dengan filter yang aktif.",
+  "semuaLaporanSelesaiDiverifikasi": "Semua laporan masuk telah selesai diverifikasi.",
+  "hapusFilter": "Hapus Filter",
+  "verifikatorAntrian": "Verifikator - Antrian",
+  "labelWilayahAktif": "Wilayah aktif",
+  "buatLaporan": "Buat laporan",
+  "fotoLokasiKondisi": "Foto, lokasi, dan kondisi lapangan",
+  "laporanYangAndaKirimkan": "Laporan yang Anda kirimkan akan dicatat di sini.",
+  "tanpaDeskripsi": "-",
+  "exportPdf": "Ekspor PDF",
+  "pdfSaved": "PDF saved",
+  "error": "Error",
+  "terkirim": "Terkirim",
+  "verifikasi": "Verifikasi",
+  "kembali": "Kembali",
+  "belumDisinkronkan": "Belum disinkronkan ke server",
+  "foto": "Foto",
+  "timeline": "Timeline",
+  "tindakan": "Tindakan",
+  "valid": "Valid",
+  "rendah": "Rendah",
+  "tinggi": "Tinggi",
+  "merge": "Merge",
+  "eskalasi": "Eskalasi",
+  "baru": "Baru",
+  "ditugaskan": "Ditugaskan",
+  "mengerjakan": "Dikerjakan",
+  "unduh": "Unduh",
+  "instruksi": "Instruksi",
+  "progress": "Progress",
+  "clarification": "Clarification",
+  "diselesaikan": "Diselesaikan",
+  "item": "Item",
+  "klarifikasi": "Clarifikasi",
+  "kunjungi": "Kunjungi",
+  "akurasiBaik": "Akurasi baik",
+  "berat": "Berat",
+  "siapOffline": "Siap offline",
+  "semuaTersinkron": "Semua tersinkron",
+  "gagalDikirim": "Gagal dikirim",
+  "sedangDiperiksa": "Sedang diperiksa",
+  "lengkapiLaporan": "Lengkapi laporan",
+  "reviewLaporan": "Review laporan",
+  "unduhBatch": "Unduh batch",
+  "beralihPeran": "Ganti Peran",
+  "sinkronLabel": "Sinkron",
+  "pengaturan": "Pengaturan",
+  "english": "English",
+  "tinggal": "Tinggal",
+  "kasusDilaporkan": "kasus dilaporkan",
+  "recentActivity": "Baru saja",
+  "darkMode": "Mode Gelap",
+  "darkModeSubtitle": "Aktifkan tema gelap untuk kenyamanan mata di malam hari",
+  "selectLanguage": "Pilih Bahasa",
+  "bahasaIndonesia": "Bahasa Indonesia",
+  "englishUs": "English (US)",
+
+  "sedang": "Sedang",
+  "masuk": "Masuk",
+  "daftar": "Daftar",
+  "dashboard": "Dashboard",
+  "statistik": "Statistik",
+  "exportData": "Ekspor Data",
+  "aiConsole": "AI Console",
+  "auditLog": "Audit Log",
+  "sanggahan": "Sanggahan",
+  "kamera": "Kamera",
+  "galeri": "Galeri",
+  "setuju": "Setuju",
+  "mintaInfo": "Minta Info",
+  "assign": "Assign",
+
+  "petaLaporan": "Peta Laporan",
+  "ketukPetaUntukMemilihLokasi": "Ketuk peta untuk memilih lokasi",
+  "terapkanFilter": "Terapkan Filter",
+  "segarkan": "Segarkan",
+  "segarkanData": "Segarkan Data",
+  "heatmap": "Heatmap",
+  "pilihLokasi": "Pilih Lokasi",
+  "pusatIndonesia": "Pusat Indonesia",
+  "lokasiSaya": "Lokasi Saya",
+  "tidakAdaTugasUntukDiunduh": "Tidak ada tugas untuk diunduh",
+
+  "kelolaWilayah": "Kelola Wilayah",
+  "tambahWilayah": "Tambah Wilayah",
+  "tambahWilayahBaru": "Tambah Wilayah Baru",
+  "namaWilayahWajibDiisi": "Nama wilayah wajib diisi",
+  "rtRw": "RT / RW",
+  "kelurahanDesa": "Kelurahan / Desa",
+  "kecamatan": "Kecamatan",
+  "kotaKabupaten": "Kota / Kabupaten",
+  "provinsi": "Provinsi",
+  "hintWilayahName": "Misal: Kelurahan Cibadak",
+  "hintParentWilayahId": "ID Wilayah Induk",
+  "hintSearchWilayah": "Cari wilayah atau tingkat administratif...",
+  "labelTingkatAdministratif": "Tingkat / Level Administratif",
+  "labelParentIdWilayah": "Parent ID Wilayah (opsional)",
+
+  "kelolaUnit": "Kelola Unit",
+  "tambahUnit": "Tambah Unit",
+  "tambahUnitBaru": "Tambah Unit Baru",
+  "namaUnitWilayahWajibDiisi": "Nama unit dan wilayah wajib diisi",
+  "tidakAdaUnit": "Tidak Ada Unit",
+  "hintUnitName": "Misal: Dinas Bina Marga, Satpol PP",
+  "hintWilayahSearch": "Misal: WIL-001 atau nama wilayah",
+  "hintSearchUnit": "Cari unit atau wilayah...",
+  "labelKodeWilayah": "Kode / ID Wilayah (Wajib)",
+
+  "kelolaKategori": "Kelola Kategori",
+  "tambahKategori": "Tambah Kategori",
+  "tambahKategoriBaru": "Tambah Kategori Baru",
+  "namaKategoriWajibDiisi": "Nama kategori wajib diisi",
+  "tidakAdaKategori": "Tidak Ada Kategori",
+  "hintKategoriName": "Misal: Jalan Rusak, Sampah Liar",
+  "hintKategoriSlug": "misal: jalan-rusak",
+  "hintKategoriIcon": "misal: road, trash, lightbulb",
+  "hintSearchKategori": "Cari kategori berdasarkan nama atau slug...",
+  "labelSlug": "Slug (opsional)",
+  "labelIcon": "Icon / Simbol (opsional)",
+
+  "kelolaAkun": "Kelola Akun",
+  "tambahAkun": "Tambah Akun",
+  "tambahAkunBaru": "Tambah Akun Baru",
+  "emailNamaWajibDiisi": "Email dan nama wajib diisi",
+  "tidakAdaAkun": "Tidak Ada Akun",
+  "petugasLapangan": "PETUGAS (Lapangan)",
+  "surveyorVerifikasiFisik": "SURVEYOR (Verifikasi Fisik)",
+  "verifikatorValidasi": "VERIFIKATOR (Validasi)",
+  "operatorDisposisi": "OPERATOR (Disposisi)",
+  "adminDaerah": "ADMIN DAERAH",
+  "hintEmail": "contoh@daerah.go.id",
+  "hintNamaLengkap": "Nama lengkap pengguna",
+  "labelEmailWajib": "Email (Wajib)",
+  "labelPeranRole": "Peran / Role",
+
+  "gagalMemuatWilayah": "Gagal Memuat Wilayah",
+  "tidakAdaWilayah": "Tidak Ada Wilayah",
+  "belumAdaWilayahTerdaftar": "Belum ada wilayah administratif yang terdaftar.",
+  "tidakAdaWilayahCocok": "Tidak ada wilayah yang cocok dengan pencarian",
+  "daftarkanWilayah": "Daftarkan wilayah administratif (Kelurahan / Kecamatan / Kota) untuk penugasan dan filter laporan.",
+  "tambahPengguna": "Tambah Pengguna",
+  "masukkanInformasi": "Masukkan informasi akun pengguna baru untuk sistem SIGAP.",
+  "belumAdaUnitKerjaTerdaftar": "Belum ada unit kerja yang terdaftar.",
+  "daftarkanUnit": "Daftarkan Unit Pelaksana Teknis (UPT / SKPD / Dinas) yang bertanggung jawab atas penanganan laporan.",
+  "tambahUnitKerja": "Tambah Unit Kerja",
+  "belumAdaKategoriLaporanTerdaftar": "Belum ada kategori laporan yang terdaftar.",
+  "buatKategori": "Buat kategori laporan baru untuk memudahkan klasifikasi pengaduan masyarakat.",
+  "belumAdaAkunPenggunaTerdaftar": "Belum ada akun pengguna yang terdaftar.",
+  "tidakAdaPenggunaDenganPeran": "Tidak ada pengguna dengan peran",
+  "semuaRole": "Semua Role",
+
+  "konfigurasiSLA": "Konfigurasi SLA",
+  "tidakAdaDataSLA": "Tidak Ada Data SLA",
+  "editSLA": "Edit SLA",
+  "labelTargetSLA": "Target Batas Waktu SLA (jam)",
+  "hintContohSLA": "Contoh: 24, 48, 72",
+
+  "izinkanLokasiDitolak": "Izin lokasi ditolak",
+  "gagalCaptureGps": "Gagal capture GPS: {error}",
+  "@gagalCaptureGps": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "formSurvei": "Form Survei",
+  "kembaliKeDaftarTugas": "Kembali ke Daftar Tugas",
+
+  "berhasilMengunduhTugas": "Berhasil mengunduh {count} tugas",
+  "@berhasilMengunduhTugas": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "tugasDimulaiSurveyorLain": "Tugas sudah dimulai oleh surveyor lain",
+  "tugasDiprosesSurveyorLain": "Tugas sudah diproses oleh surveyor lain",
+  "gagalDenganError": "Gagal: {error}",
+  "@gagalDenganError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "mintaClarifikasi": "Minta Clarifikasi",
+  "unduhSemuaOffline": "Unduh semua untuk offline",
+  "hintMasukkanAlasan": "Masukkan alasan...",
+  "hintTulisPertanyaan": "Tulis pertanyaan Anda...",
+  "labelAlasanPenolakan": "Alasan penolakan",
+  "labelPertanyaanKlarifikasi": "Pertanyaan / klarifikasi",
+
+  "ambilUlangFoto": "Ambil Ulang Foto",
+  "pilihDiPeta": "Pilih di Peta",
+  "gagalHapusMetadataFoto": "Gagal menghapus metadata foto: {error}",
+  "@gagalHapusMetadataFoto": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "lokasiTidakTersedia": "Lokasi Tidak Tersedia",
+  "ambilFotoTerlebihDahulu": "Ambil foto terlebih dahulu",
+  "aktifkanLokasiUntukMelapor": "Aktifkan lokasi untuk melapor",
+  "pilihKategoriTerlebihDahulu": "Pilih kategori terlebih dahulu",
+  "gagalMenyimpan": "Gagal menyimpan: {error}",
+  "@gagalMenyimpan": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "tapUntukMemilihKategori": "Tap untuk memilih kategori",
+  "minimal10Karakter": "Minimal 10 karakter...",
+  "labelPilihKategori": "Pilih Kategori",
+  "labelJelaskanLaporan": "Jelaskan laporan Anda",
+  "labelPerkiraanTerdampak": "Perkiraan jumlah warga terdampak",
+  "sectionAmbilFoto": "Ambil Foto",
+  "sectionLokasi": "Lokasi",
+  "sectionDeskripsi": "Deskripsi",
+  "sectionPerkiraanTerdampak": "Perkiraan Jumlah Terdampak",
+  "sectionTingkatKerentanan": "Tingkat Kerentanan",
+  "sectionDampak": "Dampak",
+  "rendah": "Rendah",
+
+  "csvSpreadsheet": "CSV (Spreadsheet)",
+  "geoJsonGeospatial": "GeoJSON (Geospatial)",
+  "pdfLaporan": "PDF (Laporan)",
+
+  "itemDikembalikanKeAntrian": "Item dikembalikan ke antrian",
+  "syncAll": "Sync all",
+
+  "totalLaporan": "Total Laporan",
+  "totalKasus": "Total Kasus",
+
+  "silakanTambahFotoDahulu": "Silakan tambahkan foto terlebih dahulu",
+  "laporanBerhasilDilengkapi": "Laporan berhasil dilengkapi",
+  "gagalMelengkapiLaporan": "Gagal melengkapi laporan: {error}",
+  "@gagalMelengkapiLaporan": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "sanggahanBerhasilDiajukan": "Sanggahan berhasil diajukan",
+  "perjalananLaporanDitampilkan": "Perjalanan laporan akan ditampilkan di sini.",
+  "labelTingkatPrioritas": "Tingkat Prioritas",
+  "labelDibuat": "Dibuat",
+  "lengkapiLaporanLabel": "Lengkapi laporan",
+  "sanggahKeputusan": "Sanggah Keputusan",
+  "kirimLabel": "Kirim",
+  "ajukanSanggahanLabel": "Ajukan Sanggahan",
+
+  "portalPublik": "Portal Publik",
+  "belumAdaLaporan": "Belum Ada Laporan",
+  "labelProgres": "Progres",
+  "labelDukungan": "Dukungan",
+  "labelTerakhirDiperbarui": "Terakhir Diperbarui",
+
+  "gantiPeranAktif": "Ganti Peran Aktif",
+  "pengaturanAplikasi": "Pengaturan Aplikasi",
+  "subtitlePengaturan": "Tema tampilan, pilihan bahasa, dan preferensi",
+  "labelPeranAkses": "Peran & Akses",
+  "labelPengaturanPreferensi": "Pengaturan & Preferensi",
+  "sectionTampilanTema": "Tampilan & Tema",
+  "sectionBahasaLokalisasi": "Bahasa & Lokalisasi",
+  "sectionInformasiAplikasi": "Informasi Aplikasi",
+
+  "pilihSurveyor": "Pilih surveyor",
+  "labelIdLaporanDuplikatWajib": "ID Laporan Duplikat (WAJIB)",
+  "labelPilihSurveyorWajib": "Pilih Surveyor (WAJIB)",
+  "labelAlasanWajib": "Alasan (WAJIB)",
+  "hintMasukkanIdLaporanDuplikat": "Masukkan ID laporan duplikat",
+  "hintBerikanAlasanKeputusan": "Berikan alasan keputusan ini",
+
+  "laporanBerhasilDiverifikasi": "Laporan berhasil diverifikasi",
+  "laporanDitolak": "Laporan ditolak",
+  "mintaInformasi": "Minta Informasi",
+  "verifikasiRTRW": "Verifikasi RT_RW",
+  "gagalMemuat": "Gagal memuat: {error}",
+  "@gagalMemuat": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "belumAdaKasusVerifikasi": "Belum ada kasus yang perlu diverifikasi.",
+  "permintaanInformasiTerkirim": "Permintaan informasi berhasil dikirim",
+  "pelatihanRTRW": "Pelatihan RT/RW",
+
+  "semuaNotifikasiDibaca": "Semua notifikasi ditandai sudah dibaca",
+  "gagalMenandaiSemua": "Gagal menandai semua: {error}",
+  "@gagalMenandaiSemua": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "gagalMenandai": "Gagal menandai: {error}",
+  "@gagalMenandai": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "bacaSemua": "Baca semua",
+
+  "buktiDitambahkanKeKasus": "Bukti berhasil ditambahkan ke kasus",
+  "gagalMenambahkanBukti": "Gagal menambahkan bukti: {error}",
+  "@gagalMenambahkanBukti": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "kategoriLaporanTidakTersedia": "Kategori laporan tidak tersedia",
+  "laporanTersimpanAutoSync": "Laporan tersimpan. Akan sinkron otomatis.",
+
+  "gantiPeranPengguna": "Ganti Peran Pengguna",
+  "berhasilBeralihPeran": "Berhasil beralih ke peran {role}",
+  "@berhasilBeralihPeran": {
+    "placeholders": {
+      "role": {"type": "String"}
+    }
+  },
+  "gagalBeralihPeran": "Gagal beralih peran. Silakan coba lagi.",
+  "errorDenganPesan": "Error: {error}",
+  "@errorDenganPesan": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "mergeKasus": "Gabungkan Kasus",
+  "fiturGabungkanSegeraHadir": "Fitur gabungkan kasus akan segera hadir.",
+  "gagalUbahStatus": "Gagal ubah status: {error}",
+  "@gagalUbahStatus": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "tugasDanProgres": "Tugas & Progres",
+  "detailAudit": "Detail Audit",
+
+  "fotoBukti": "Foto Bukti",
+  "dokumen": "Dokumen",
+
+  "lihatDiPetaLabel": "Lihat di Peta",
+  "labelPenilaianAI": "Penilaian AI",
+
+  "izinDiperlukan": "Izin Diperlukan",
+  "bukaPengaturan": "Buka Pengaturan",
+  "aksesLokasi": "Akses Lokasi",
+  "aksesKamera": "Akses Kamera",
+
+  "konfigurasiBobotTersimpan": "Konfigurasi bobot prioritas berhasil disimpan",
+  "konfigurasiPrioritas": "Konfigurasi Prioritas",
+  "aturPrioritas": "Atur Prioritas",
+  "skorPrioritas": "Skor Prioritas: ",
+  "labelAlasanPerubahan": "Alasan perubahan",
+  "labelAlasanOpsional": "Alasan (opsional)",
+  "labelIdKasusTarget": "ID Kasus Target (WAJIB)",
+
+  "assignKasus": "Assign Kasus",
+  "labelIdUnitWajib": "ID Unit (WAJIB)",
+  "labelInstruksiOpsional": "Instruksi (opsional)",
+
+  "aiRescanBerhasil": "AI re-scan triggered successfully",
+  "aiRescanGagal": "Failed to trigger re-scan: {error}",
+  "@aiRescanGagal": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "retryScan": "Retry Scan",
+  "labelStatus": "Status",
+  "labelConfidence": "Confidence",
+  "labelResult": "Result",
+
+  "semuaAksi": "Semua Aksi",
+  "createBuat": "CREATE (Buat)",
+  "updateUbah": "UPDATE (Ubah)",
+  "deleteHapus": "DELETE (Hapus)",
+  "approveSetujui": "APPROVE (Setujui)",
+  "rejectTolak": "REJECT (Tolak)",
+  "semuaTipeObjek": "Semua Tipe Objek",
+  "laporanReport": "Laporan (Report)",
+  "penggunaUser": "Pengguna (User)",
+  "kategoriCategory": "Kategori (Category)",
+  "wilayah": "Wilayah",
+  "unitKerja": "Unit Kerja",
+  "csvFormat": "CSV Format",
+  "jsonFormat": "JSON Format",
+  "mengunduhAuditLog": "Mengunduh data audit log...",
+  "exportGagal": "Export gagal: {error}",
+  "@exportGagal": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "kondisiSebelumnya": "Kondisi Sebelumnya (Before)",
+  "kondisiSesudahnya": "Kondisi Sesudahnya (After)",
+  "metadataTambahan": "Metadata Tambahan",
+  "labelAksi": "Aksi",
+  "labelObjek": "Objek",
+  "labelActor": "Actor",
+  "labelTanggal": "Tanggal",
+  "exportLabel": "Export",
+
+  "supportingFactors": "Supporting Factors",
+  "riskFactors": "Risk Factors",
+
+  "labelKasusBaru": "Kasus baru",
+  "labelPerluVerifikasi": "Perlu verifikasi",
+  "labelSlaTerlewat": "SLA terlewat",
+  "labelPrioritasTinggi": "Prioritas tinggi",
+  "labelPerluKelengkapan": "Perlu kelengkapan",
+  "labelTotalAntrean": "Total Antrean",
+  "labelTepatWaktu": "Tepat Waktu",
+  "labelSedangDiproses": "Sedang Diproses",
+  "labelSLATerlewatDashboard": "SLA Terlewat",
+  "kasusBerisikoSLA": "{count} kasus berisiko SLA",
+  "@kasusBerisikoSLA": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "tingkatSinkronisasi": "Tingkat Sinkronisasi",
+  "surveyorMenunggu": "Surveyor Menunggu",
+
+  "petugasLabel": "Petugas",
+  "totalAntreanLabel": "Total Antrean",
+  "selesaiLabel": "Selesai",
+
+  "totalLaporanLabel": "Total Laporan",
+  "totalKasusLabel": "Total Kasus",
+
+  "belumAdaRiwayatVerifikasi": "Belum ada riwayat",
+  "perjalananLaporanAkanDitampilkan": "Perjalanan laporan akan ditampilkan di sini.",
+
+  "langkahDari": "Langkah {current} dari {total}",
+  "@langkahDari": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "fotoLabel": "Foto",
+  "deskripsiLabel": "Deskripsi",
+  "lokasiLabel": "Lokasi",
+  "dibuatLabel": "Dibuat",
+  "tindakanLabel": "Tindakan",
+  "timelineLabel": "Timeline",
+
+  "photoCounter": "{current} / {total}",
+  "@photoCounter": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "menungguVerifikasi": "Menunggu Verifikasi",
+  "terverifikasi": "Terverifikasi",
+  "sedangDitangani": "Sedang Ditangani",
+  "perluLengkapi": "Perlu Lengkapi",
+  "surveiLabel": "Survei",
+  "tolakLabel": "Tolak",
+  "tugaskanPetugas": "Tugaskan Petugas",
+  "gabungkan": "Gabungkan",
+  "tandaiSelesai": "Tandai Selesai",
+
+  "labelSeverity": "Severity",
+  "labelScore": "Score",
+
+  "petugasLabelA": "Petugas",
+  "clarifikasiLabel": "Clarifikasi",
+  "kunjungiLabel": "Kunjungi",
+  "terimaLabel": "Terima",
+
+  "ringkasanOperasionalDaerah": "Ringkasan Operasional Daerah",
+  "dataPenangananKasusDaerah": "Data penanganan kasus daerah",
+  "apaYangHarusDitanganiHariIni": "Apa yang harus ditangani hari ini?",
+  "petaRingkasKasus": "Peta ringkas kasus",
+  "bukaPeta": "Buka Peta →",
+  "lihatSemuaKasusDiPeta": "Lihat semua kasus di peta",
+  "dashboardAuditor": "Dashboard Auditor",
+  "auditIntegrityMonitoring": "Audit & Integrity Monitoring",
+  "lihatLogAktivitas": "Lihat Log Aktivitas →",
+  "gagalMemuatStatistik": "Gagal memuat statistik",
+  "gagalMemuatAntrean": "Gagal memuat antrean",
+  "gagalMemuatTren": "Gagal memuat tren",
+  "gagalMemuatKasusKritis": "Gagal memuat kasus kritis",
+  "gagalMemuatAnalitik": "Gagal memuat analitik",
+  "belumAdaKonfigurasiSLA": "Belum ada konfigurasi batas waktu penanganan pengaduan.",
+  "tidakAdaNotifikasi": "Tidak Ada Notifikasi",
+  "pemberitahuanTerkait": "Pemberitahuan terkait laporan atau penugasan akan muncul di sini.",
+  "gagalMemuatNotifikasi": "Gagal Memuat Notifikasi",
+  "modeGelap": "Mode Gelap",
+  "modeGelapSubtitle": "Aktifkan tema gelap untuk kenyamanan mata di malam hari",
+  "bahasaAplikasi": "Bahasa Aplikasi",
+  "pilihBahasa": "Pilih Bahasa",
+  "peranSaatIni": "Peran Saat Ini",
+  "akunHanyaSatuPeran": "Akun Anda saat ini hanya memiliki satu peran yang aktif. Hubungi Administrator Daerah jika Anda membutuhkan akses ke peran tambahan.",
+  "aktif": "AKTIF",
+  "peranTersedia": "Peran Tersedia untuk Akun Ini",
+  "peranAktifSaatIni": "Peran aktif saat ini",
+  "tapUntukMengaktifkan": "Tap untuk mengaktifkan",
+  "algoritmaPenilaianPrioritas": "Algoritma Penilaian Prioritas",
+  "aturPersentaseBobot": "Atur persentase bobot setiap faktor untuk menghitung skor prioritas otomatis pada setiap laporan yang masuk.",
+  "statusSLAAktif": "Status SLA Aktif",
+  "slaDinonaktifkan": "Jika dinonaktifkan, peringatan keterlambatan tidak dihitung",
+  "tentukanBatasWaktuSLA": "Tentukan batas waktu standar penanganan (SLA) untuk kategori laporan ini.",
+  "belumPunyaAkun": "Belum punya akun?",
+  "akunDemo": "Akun Demo",
+
+  "loginGagal": "Login gagal",
+  "sistemInformasiGeospasial": "Sistem Informasi Geospasial\n& Penanganan Laporan",
+  "gunakanAkun": "Gunakan akun Anda untuk mengakses laporan.",
+  "emailLabel": "Email",
+  "emailHint": "email@contoh.com",
+  "emailKosong": "Email tidak boleh kosong",
+  "emailTidakValid": "Format email tidak valid",
+  "kataSandi": "Kata Sandi",
+  "kataSandiKosong": "Kata sandi tidak boleh kosong",
+  "kataSandiMinimal6": "Kata sandi minimal 6 karakter",
+
+  "registrasiGagal": "Registrasi gagal",
+  "tidakDapatTerhubung": "Tidak dapat terhubung ke server",
+  "daftarAkun": "Daftar Akun",
+  "buatAkunBaru": "Buat akun baru untuk memulai.",
+  "namaLengkap": "Nama Lengkap",
+  "namaLengkapHint": "Nama lengkap Anda",
+  "namaKosong": "Nama tidak boleh kosong",
+  "namaMinimal2": "Nama minimal 2 karakter",
+  "kataSandiMinimal8": "Kata sandi minimal 8 karakter",
+  "konfirmasiKataSandi": "Konfirmasi Kata Sandi",
+  "ulangiKataSandi": "Ulangi kata sandi",
+  "kataSandiTidakCocok": "Kata sandi tidak cocok",
+  "sudahPunyaAkun": "Sudah punya akun?",
+  "minimal8Karakter": "Minimal 8 karakter",
+
+  "gagalMemuatStatistik": "Gagal memuat statistik",
+  "gagalMemuatKasusTerdekat": "Gagal memuat kasus terdekat",
+  "gagalMemuatLaporan": "Gagal memuat laporan",
+  "wilayahAktif": "Wilayah aktif",
+  "memuat": "Memuat...",
+  "tidakAdaTugasUntukDiunduh": "Tidak ada tugas untuk diunduh",
+  "berhasilMengunduhTugas": "Berhasil mengunduh {count} tugas",
+  "@berhasilMengunduhTugas": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "semuaTugasSudahDiunduh": "Semua tugas sudah diunduh",
+  "hariLalu": "hari lalu",
+  "mingguLalu": "minggu lalu",
+  "jamLalu": "jam lalu",
+
+  "tanggal": "Tanggal",
+  "jalanRusak": "Jalan Rusak",
+  "jembatan": "Jembatan",
+  "drainase": "Drainase",
+  "fasilitasUmum": "Fasilitas Umum",
+  "gagalMemuatPeta": "Gagal memuat peta",
+  "mendukung": "mendukung",
+
+  "tapUntukBukaKamera": "Tap untuk membuka kamera",
+  "lokasiTerdeteksi": "Lokasi Terdeteksi",
+  "ambilLokasiGps": "Ambil Lokasi GPS",
+  "tapUntukMendapatkanLokasi": "Tap untuk mendapatkan lokasi saat ini",
+  "kasusSerupa": "{count} Kasus Serupa",
+  "@kasusSerupa": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "tidakDapatAksesGps": "Tidak dapat mengakses GPS. Pilih lokasi manual di peta.",
+  "laporanTersimpanDi": "Laporan tersimpan di {address}",
+  "@laporanTersimpanDi": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "laporanTersimpanTerkirim": "Laporan tersimpan dan terkirim.",
+  "laporanAnonimTersimpanDi": "Laporan anonim tersimpan di {address}",
+  "@laporanAnonimTersimpanDi": {
+    "placeholders": {
+      "address": {"type": "String"}
+    }
+  },
+  "laporanAnonimTersimpanId": "Laporan anonim tersimpan: {id}",
+  "@laporanAnonimTersimpanId": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
+  "tersimpanPada": "Tersimpan {time}",
+  "@tersimpanPada": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "orang": "orang",
+  "jumlahPerkiraanTerdampak": "Jumlah perkiraan warga yang terdampak insiden ini",
+  "seberapaRentan": "Seberapa rentan kelompok masyarakat setempat?",
+  "pilihJenisDampak": "Pilih jenis dampak yang terjadi:",
+  "keselamatan": "Keselamatan",
+  "aksesWilayah": "Akses wilayah",
+  "layananSekolah": "Layanan sekolah",
+  "ekonomi": "Ekonomi",
+  "lingkungan": "Lingkungan",
+
+  "bagianDariKasus": "Bagian dari kasus",
+  "lihatLabel": "Lihat",
+  "perjalananLaporanHeader": "PERJALANAN LAPORAN",
+  "privasiInfo": "Identitas & lokasi presisi Anda hanya terlihat oleh petugas terkait. Publik melihat lokasi yang digeneralisasi.",
+  "gagalUrlUpload": "Gagal mendapatkan URL upload foto",
+  "tambahkanFotoDeskripsi": "Tambahkan foto dan deskripsi untuk melengkapi laporan Anda.",
+  "deskripsiOpsional": "Deskripsi (opsional)",
+  "jelaskanInfoTambahan": "Jelaskan informasi tambahan yang ingin Anda berikan...",
+  "alasanMinimalKarakter": "Alasan harus minimal {count} karakter",
+  "@alasanMinimalKarakter": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "gagalAjukanSanggahan": "Gagal mengajukan sanggahan: {error}",
+  "@gagalAjukanSanggahan": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "ajukanKeberatan": "Ajukan keberatan atas keputusan penolakan laporan Anda.",
+  "alasanSanggahan": "Alasan Sanggahan",
+  "minimalKarakter": "Minimal {count} karakter",
+  "@minimalKarakter": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "jelaskanAlasanKeberatan": "Jelaskan alasan keberatan Anda secara detail...",
+  "buktiFotoOpsional": "Bukti Foto (opsional)",
+  "tambahkanFotoBukti": "Tambahkan foto sebagai bukti pendukung sanggahan Anda",
+
+  "lewatI": "Lewati",
+  "izinkan": "Izinkan",
+  "izinDiperlukanPesan": "Izin {title} diperlukan untuk melanjutkan. Silakan aktifkan izin di Pengaturan.",
+  "@izinDiperlukanPesan": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "berdasarkanStatus": "Berdasarkan Status",
+  "berdasarkanKategori": "Berdasarkan Kategori",
+
+  "aksesLokasiBody": "Izinkan akses lokasi untuk membantu kami menemukan masalah di sekitar Anda dengan lebih akurat.",
+  "aksesKameraBody": "Izinkan akses kamera untuk mengambil foto bukti masalah yang ingin Anda laporkan.",
+  "notifikasiBody": "Aktifkan notifikasi untuk mendapatkan pembaruan tentang status laporan Anda.",
+
+  "tambahkanBukti": "Tambahkan Bukti",
+  "gagalMengambilFoto": "Gagal mengambil foto: {error}",
+  "@gagalMengambilFoto": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  }
+}

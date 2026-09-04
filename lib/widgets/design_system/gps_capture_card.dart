@@ -130,7 +130,7 @@ class GpsCaptureCard extends StatelessWidget {
         Text(
           'Lokasi GPS',
           style: TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             fontWeight: FontWeight.w600,
             color: SigapColors.textSecondary,
           ),
@@ -164,7 +164,7 @@ class GpsCaptureCard extends StatelessWidget {
               Text(
                 'Latitude',
                 style: TextStyle(
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   color: SigapColors.textTertiary,
                 ),
               ),
@@ -172,7 +172,7 @@ class GpsCaptureCard extends StatelessWidget {
               Text(
                 latStr,
                 style: TextStyle(
-                  fontSize: SigapTypography.size14,
+                  fontSize: SigapTypography.bodyMedium,
                   fontWeight: FontWeight.w600,
                   fontFamily: SigapTypography.fontFamilyMono,
                   color: SigapColors.textPrimary,
@@ -189,7 +189,7 @@ class GpsCaptureCard extends StatelessWidget {
               Text(
                 'Longitude',
                 style: TextStyle(
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   color: SigapColors.textTertiary,
                 ),
               ),
@@ -197,7 +197,7 @@ class GpsCaptureCard extends StatelessWidget {
               Text(
                 lngStr,
                 style: TextStyle(
-                  fontSize: SigapTypography.size14,
+                  fontSize: SigapTypography.bodyMedium,
                   fontWeight: FontWeight.w600,
                   fontFamily: SigapTypography.fontFamilyMono,
                   color: SigapColors.textPrimary,
@@ -223,7 +223,7 @@ class GpsCaptureCard extends StatelessWidget {
         Text(
           '${accuracyMeters.toStringAsFixed(1)} m',
           style: TextStyle(
-            fontSize: SigapTypography.size13,
+            fontSize: SigapTypography.bodyText,
             fontWeight: FontWeight.w600,
             fontFamily: SigapTypography.fontFamilyMono,
             color: SigapColors.textPrimary,
@@ -233,7 +233,7 @@ class GpsCaptureCard extends StatelessWidget {
         Text(
           '· $accuracyLabel',
           style: TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             color: accuracyColor,
           ),
         ),
@@ -248,7 +248,7 @@ class GpsCaptureCard extends StatelessWidget {
     return Text(
       'Diperbarui: $formattedTime',
       style: TextStyle(
-        fontSize: SigapTypography.size10,
+        fontSize: SigapTypography.captionSmall,
         color: SigapColors.textTertiary,
       ),
     );

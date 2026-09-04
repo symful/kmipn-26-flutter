@@ -89,7 +89,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
         elevation: 0,
         actions: [
           TextButton(
-            onPressed: () => context.go('/verify/training'),
+            onPressed: () => context.go('/rt-rw/training'),
             child: const Text(
               'Verifikasi Laporan',
               style: TextStyle(
@@ -109,7 +109,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
             const Text(
               'Pelatihan SIGAP untuk RT/RW',
               style: TextStyle(
-                fontSize: SigapTypography.size28,
+                fontSize: SigapTypography.heroText,
                 fontWeight: FontWeight.bold,
                 color: SigapColors.textPrimary,
                 letterSpacing: SigapTypography.letterSpacingTight,
@@ -119,7 +119,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
             const Text(
               'Panduan lengkap untuk pejabat RT dan RW dalam menggunakan sistem SIGAP',
               style: TextStyle(
-                fontSize: SigapTypography.size14,
+                fontSize: SigapTypography.bodyMedium,
                 color: SigapColors.textSecondary,
                 height: SigapTypography.lineHeight145,
               ),
@@ -139,7 +139,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                     'Sistem ini membantu mencatat, melacak, dan menyelesaikan laporan '
                     'kerusakan infrastruktur di lingkungan Anda.',
                     style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textSecondary,
                       height: SigapTypography.lineHeight150,
                     ),
@@ -188,7 +188,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                     'Sebagai RT/RW, tugas utama Anda adalah memverifikasi laporan kerusakan '
                     'yang masuk ke sistem. Berikut langkah-langkahnya:',
                     style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textSecondary,
                       height: SigapTypography.lineHeight150,
                     ),
@@ -240,7 +240,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                     'Dashboard SIGAP menampilkan semua laporan kerusakan yang masuk. '
                     'Berikut elemen-elemen utama yang perlu Anda ketahui:',
                     style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textSecondary,
                       height: SigapTypography.lineHeight150,
                     ),
@@ -265,8 +265,8 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                     title: 'Lakukan',
                     icon: Icons.check_circle,
                     color: SigapColors.success,
-                    bgColor: const Color(0xFFE2F1EE),
-                    borderColor: const Color(0xFFBFE0D9),
+                    bgColor: SigapColors.primaryLight,
+                    borderColor: SigapColors.successBorder,
                     items: const [
                       'Verifikasi laporan dalam 1x24 jam',
                       'Datang langsung ke lokasi',
@@ -282,8 +282,8 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                     title: 'Hindari',
                     icon: Icons.cancel,
                     color: SigapColors.danger,
-                    bgColor: const Color(0xFFF8E2DE),
-                    borderColor: const Color(0xFFECC4BD),
+                    bgColor: SigapColors.dangerBg,
+                    borderColor: SigapColors.dangerBorder,
                     items: const [
                       'Memverifikasi tanpa ke lokasi',
                       'Memberikan alasan kosong',
@@ -343,7 +343,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                   const Text(
                     'Siap Memulai?',
                     style: TextStyle(
-                      fontSize: SigapTypography.size22,
+                      fontSize: SigapTypography.headlineMedium,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -353,7 +353,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                     'Akses menu Verifikasi Laporan untuk memproses laporan kerusakan dari masyarakat.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: SigapTypography.size14,
+                      fontSize: SigapTypography.bodyMedium,
                       color: Colors.white70,
                     ),
                   ),
@@ -387,7 +387,7 @@ class _RtRwTrainingScreenState extends ConsumerState<RtRwTrainingScreen> {
                     ElevatedButton(
                       onPressed: () {
                         _markTrainingComplete();
-                        context.go('/verify/training');
+                        context.go('/rt-rw/training');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -427,7 +427,7 @@ class _SectionTitle extends StatelessWidget {
     return Text(
       '$number. $title',
       style: const TextStyle(
-        fontSize: SigapTypography.size20,
+        fontSize: SigapTypography.headlineSmall,
         fontWeight: FontWeight.bold,
         color: SigapColors.textPrimary,
       ),
@@ -475,7 +475,7 @@ class _InfoCard extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
             ),
@@ -487,7 +487,7 @@ class _InfoCard extends StatelessWidget {
               child: Text(
                 '• $item',
                 style: const TextStyle(
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   color: SigapColors.textSecondary,
                 ),
               ),
@@ -530,7 +530,7 @@ class _StepCard extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: SigapTypography.size14,
+                  fontSize: SigapTypography.bodyMedium,
                 ),
               ),
             ),
@@ -543,7 +543,7 @@ class _StepCard extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size14,
+                    fontSize: SigapTypography.bodyMedium,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),
@@ -552,7 +552,7 @@ class _StepCard extends StatelessWidget {
                 Text(
                   description,
                   style: const TextStyle(
-                    fontSize: SigapTypography.size13,
+                    fontSize: SigapTypography.bodyText,
                     color: SigapColors.textSecondary,
                     height: SigapTypography.lineHeight140,
                   ),
@@ -581,7 +581,7 @@ class _StatusLegendCard extends StatelessWidget {
           const Text(
             'Status Laporan',
             style: TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               fontWeight: FontWeight.w600,
               color: SigapColors.primary,
             ),
@@ -646,7 +646,7 @@ class _StatusItem extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size11,
+                  fontSize: SigapTypography.captionMedium,
                   fontWeight: FontWeight.w500,
                   color: SigapColors.textPrimary,
                 ),
@@ -654,7 +654,7 @@ class _StatusItem extends StatelessWidget {
               Text(
                 sublabel,
                 style: const TextStyle(
-                  fontSize: SigapTypography.size10,
+                  fontSize: SigapTypography.captionSmall,
                   color: SigapColors.textMuted,
                 ),
               ),
@@ -683,7 +683,7 @@ class _ReportInfoCard extends StatelessWidget {
           Text(
             'Informasi Laporan',
             style: TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               fontWeight: FontWeight.w600,
               color: SigapColors.primary,
             ),
@@ -719,7 +719,7 @@ class _InfoRow extends StatelessWidget {
       child: RichText(
         text: TextSpan(
           style: const TextStyle(
-            fontSize: SigapTypography.size12,
+            fontSize: SigapTypography.bodySmall,
             color: SigapColors.textSecondary,
           ),
           children: [
@@ -771,7 +771,7 @@ class _BestPracticeCard extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: SigapTypography.size13,
+                  fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,
                   color: color,
                 ),
@@ -785,7 +785,7 @@ class _BestPracticeCard extends StatelessWidget {
               child: Text(
                 '• $item',
                 style: TextStyle(
-                  fontSize: SigapTypography.size12,
+                  fontSize: SigapTypography.bodySmall,
                   color: color.withValues(alpha: 0.8),
                 ),
               ),
@@ -816,7 +816,7 @@ class _FaqItem extends StatelessWidget {
           Text(
             question,
             style: const TextStyle(
-              fontSize: SigapTypography.size14,
+              fontSize: SigapTypography.bodyMedium,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
             ),
@@ -825,7 +825,7 @@ class _FaqItem extends StatelessWidget {
           Text(
             answer,
             style: const TextStyle(
-              fontSize: SigapTypography.size13,
+              fontSize: SigapTypography.bodyText,
               color: SigapColors.textSecondary,
               height: SigapTypography.lineHeight140,
             ),
