@@ -74,11 +74,69 @@ class _CaseQueuePageState extends ConsumerState<CaseQueuePage> {
             : null,
         limit: 100,
       );
+      var entries = result.data;
+
+      // If server returned empty, merge with local Drift reports so non-warga
+      // roles can still see reports that warga submitted offline.
+      if (entries.isEmpty) {
+        try {
+          final localRepo = ref.read(reportRepositoryProvider);
+          final localReports = await localRepo.getAllReports();
+          if (localReports.isNotEmpty) {
+            entries = localReports
+                .map(
+                  (r) => Report.fromJson({
+                    'id': r.serverId ?? r.idempotencyKey,
+                    'idempotency_key': r.idempotencyKey,
+                    'category_id': r.categoryId,
+                    'description': r.description,
+                    'lat': r.lat,
+                    'lng': r.lng,
+                    'status': r.status,
+                    'created_at': r.createdAt.toIso8601String(),
+                    'updated_at': r.updatedAt.toIso8601String(),
+                  }),
+                )
+                .toList();
+          }
+        } catch (_) {
+          // Local Drift unavailable — proceed with empty server list
+        }
+      }
+
       setState(() {
-        _entries = result.data;
+        _entries = entries;
         _loading = false;
       });
     } catch (e) {
+      // On network error, try local Drift as fallback
+      try {
+        final localRepo = ref.read(reportRepositoryProvider);
+        final localReports = await localRepo.getAllReports();
+        if (localReports.isNotEmpty) {
+          setState(() {
+            _entries = localReports
+                .map(
+                  (r) => Report.fromJson({
+                    'id': r.serverId ?? r.idempotencyKey,
+                    'idempotency_key': r.idempotencyKey,
+                    'category_id': r.categoryId,
+                    'description': r.description,
+                    'lat': r.lat,
+                    'lng': r.lng,
+                    'status': r.status,
+                    'created_at': r.createdAt.toIso8601String(),
+                    'updated_at': r.updatedAt.toIso8601String(),
+                  }),
+                )
+                .toList();
+            _loading = false;
+          });
+          return;
+        }
+      } catch (_) {
+        // Local Drift unavailable
+      }
       setState(() {
         _loading = false;
         _errorMessage = e.toString();

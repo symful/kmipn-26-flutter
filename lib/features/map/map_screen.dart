@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
-import 'package:flutter_map_heatmap/flutter_map_heatmap.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import '../../config/map_constants.dart';
 import '../../db/database.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
@@ -12,13 +11,9 @@ import '../../providers/providers.dart';
 import '../../api/client.dart';
 import '../../utils/logger.dart';
 import '../../widgets/design_system/design_system.dart';
+import 'report_map_widget.dart';
 
 final _logger = Logger('MapScreen');
-
-// ─── Tile Providers ───────────────────────────────────────────────────────────
-
-const _primaryTileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-const _fallbackTileUrl = 'https://tile.openstreetmap.de/{z}/{x}/{y}.png';
 
 // ─── Filter State ─────────────────────────────────────────────────────────────
 
@@ -90,18 +85,6 @@ final deviceLocationProvider = FutureProvider<LatLng?>((ref) async {
   }
 });
 
-// ─── Indonesia Map Constants ───────────────────────────────────────────────
-
-const _indonesiaCenter = LatLng(-2.548926, 118.0148634);
-final _indonesiaBounds = LatLngBounds(
-  const LatLng(-11.0, 95.0),
-  const LatLng(6.0, 141.0),
-);
-final _indonesiaMaxBounds = LatLngBounds(
-  const LatLng(-14.0, 92.0),
-  const LatLng(9.0, 144.0),
-);
-
 // ─── Map Screen ───────────────────────────────────────────────────────────────
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -113,74 +96,6 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
-  final bool _tileErrorOccurred = false;
-  late final MapOptions _mapOptions;
-
-  @override
-  void initState() {
-    super.initState();
-    _mapOptions = MapOptions(
-      initialCenter: _indonesiaCenter,
-      initialZoom: 5.0,
-      minZoom: 3.5,
-      maxZoom: 18.0,
-      cameraConstraint: CameraConstraint.contain(bounds: _indonesiaMaxBounds),
-      onTap: _onMapTap,
-      onMapReady: _onMapReady,
-    );
-  }
-
-  bool _mapReadyFired = false;
-
-  void _onMapReady() {
-    if (_mapReadyFired) return;
-    _mapReadyFired = true;
-    final reports = ref.read(localReportsProvider).valueOrNull ?? [];
-    final currentFilters = ref.read(mapFiltersProvider);
-    final filteredReports = _filterReports(reports, currentFilters);
-    _fitIndonesiaOrReports(filteredReports);
-  }
-
-  void _fitIndonesiaOrReports(List<LocalReport> reports) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final validReports = reports
-          .where((r) => r.lat != 0 || r.lng != 0)
-          .toList();
-      if (validReports.isEmpty) {
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: _indonesiaBounds,
-            padding: const EdgeInsets.all(24),
-            maxZoom: 6,
-          ),
-        );
-      } else if (validReports.length == 1) {
-        _mapController.move(
-          LatLng(validReports.first.lat, validReports.first.lng),
-          14,
-        );
-      } else {
-        final points = validReports.map((r) => LatLng(r.lat, r.lng)).toList();
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: LatLngBounds.fromPoints(points),
-            padding: const EdgeInsets.all(40),
-            maxZoom: 14,
-          ),
-        );
-      }
-    });
-  }
-
-  void _onMapTap(TapPosition tapPosition, LatLng point) {
-    final callback = ref.read(pickLocationCallbackProvider);
-    if (callback != null) {
-      callback(point);
-      ref.read(pickLocationModeProvider.notifier).state = false;
-      ref.read(pickLocationCallbackProvider.notifier).state = null;
-    }
-  }
 
   void _showFilterSheet() {
     showModalBottomSheet(
@@ -196,7 +111,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final reportsAsync = ref.watch(localReportsProvider);
     final filters = ref.watch(mapFiltersProvider);
     final heatmapEnabled = ref.watch(heatmapEnabledProvider);
-    final pickMode = ref.watch(pickLocationModeProvider);
     final deviceLocationAsync = ref.watch(deviceLocationProvider);
 
     // Show location prompt when device location is unavailable
@@ -204,7 +118,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         deviceLocationAsync.hasError ||
         (deviceLocationAsync.value == null && !deviceLocationAsync.isLoading);
 
-    return Scaffold(
+    return ResponsiveScaffold(
       appBar: AppBar(
         title: Text(l10n.petaLaporan),
         actions: [
@@ -220,7 +134,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
           MinTapTarget(
-            semanticsLabel: 'Filter',
+            semanticsLabel: l10n.filter,
             child: IconButton(
               icon: Badge(
                 isLabelVisible: filters.isActive,
@@ -230,153 +144,33 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               onPressed: _showFilterSheet,
             ),
           ),
-          MinTapTarget(
-            semanticsLabel: l10n.pilihLokasi,
-            child: IconButton(
-              icon: Icon(
-                pickMode ? Icons.location_on : Icons.location_on_outlined,
-                color: pickMode ? SigapColors.primary : null,
-              ),
-              tooltip: l10n.pilihLokasi,
-              onPressed: () {
-                final newPickMode = !pickMode;
-                ref.read(pickLocationModeProvider.notifier).state = newPickMode;
-                if (newPickMode) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.ketukPetaUntukMemilihLokasi),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
         ],
       ),
-      body: Stack(
-        children: [
-          FlutterMap(
+      body: reportsAsync.when(
+        data: (reports) {
+          final filteredReports = _filterReports(reports, filters);
+          final mapMarkers = filteredReports
+              .map((r) => ReportMapMarker.fromLocalReport(r))
+              .toList();
+          return ReportMapWidget(
+            markers: mapMarkers,
+            showHeatmap: heatmapEnabled,
             mapController: _mapController,
-            options: _mapOptions,
-            children: [
-              TileLayer(
-                urlTemplate: _tileErrorOccurred
-                    ? _fallbackTileUrl
-                    : _primaryTileUrl,
-                userAgentPackageName: 'id.kmipn.sigap',
-              ),
-              reportsAsync.when(
-                data: (reports) {
-                  final filteredReports = _filterReports(reports, filters);
-                  final markers = _buildMarkers(filteredReports);
-                  final heatmapData = _buildHeatmapData(filteredReports);
-
-                  return Stack(
-                    children: [
-                      if (heatmapEnabled && heatmapData.isNotEmpty)
-                        HeatMapLayer(
-                          heatMapDataSource: InMemoryHeatMapDataSource(
-                            data: heatmapData,
-                          ),
-                          heatMapOptions: HeatMapOptions(
-                            radius: 40,
-                            blurFactor: 0.5,
-                            gradient: {
-                              0.0: Colors.green,
-                              0.5: Colors.yellow,
-                              0.9: Colors.red,
-                            },
-                          ),
-                        ),
-                      MarkerClusterLayerWidget(
-                        options: MarkerClusterLayerOptions(
-                          maxClusterRadius: 80,
-                          size: const Size(50, 50),
-                          markers: markers,
-                          builder: (context, markers) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: SigapColors.primary.withValues(
-                                  alpha: 0.8,
-                                ),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  markers.length.toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (e, _) => Center(child: Text('Error: $e')),
-              ),
-            ],
-          ),
-
-          if (pickMode)
-            Positioned(
-              bottom: 16,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: SigapColors.primary,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    l10n.ketukPetaUntukMemilihLokasi,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          if (showLocationPrompt)
-            Positioned(
-              top: 16,
-              left: 16,
-              right: 16,
-              child: Material(
-                elevation: 4,
-                borderRadius: BorderRadius.circular(8),
-                color: SigapColors.offlineBg,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.location_off, color: SigapColors.offlineDot),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Aktifkan lokasi untuk melihat peta Anda',
-                          style: TextStyle(color: SigapColors.offlineText),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
+            showLocationPrompt: showLocationPrompt,
+            onMarkerTap: (marker) {
+              final report = filteredReports.firstWhere(
+                (r) =>
+                    (r.lat == marker.point.latitude &&
+                        r.lng == marker.point.longitude) ||
+                    (r.idempotencyKey == marker.id),
+                orElse: () => filteredReports.first,
+              );
+              _showReportDetails(context, report);
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
       ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
@@ -387,9 +181,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             backgroundColor: Colors.white,
             foregroundColor: SigapColors.primary,
             onPressed: () {
-              final reports = reportsAsync.valueOrNull ?? [];
-              final filteredReports = _filterReports(reports, filters);
-              _fitIndonesiaOrReports(filteredReports);
+              _mapController.fitCamera(
+                CameraFit.bounds(
+                  bounds: LatLngBounds(
+                    const LatLng(-11.0, 95.0),
+                    const LatLng(6.0, 141.0),
+                  ),
+                  padding: const EdgeInsets.all(24),
+                  maxZoom: 6,
+                ),
+              );
             },
             child: const Icon(Icons.public),
           ),
@@ -441,68 +242,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }).toList();
   }
 
-  List<Marker> _buildMarkers(List<LocalReport> reports) {
-    return reports.map((r) {
-      return Marker(
-        point: LatLng(r.lat, r.lng),
-        width: 40,
-        height: 40,
-        child: GestureDetector(
-          onTap: () => _showReportDetails(r),
-          child: Icon(
-            Icons.location_on,
-            color: _getMarkerColor(r.status),
-            size: 36,
-          ),
-        ),
-      );
-    }).toList();
-  }
-
-  Color _getMarkerColor(String statusStr) {
-    try {
-      final status = ReportStatus.fromJson(statusStr);
-      switch (status) {
-        case ReportStatus.submitted:
-          return SigapColors.perluTindakan;
-        case ReportStatus.underReview:
-        case ReportStatus.needsSurvey:
-        case ReportStatus.verified:
-        case ReportStatus.inProgress:
-        case ReportStatus.needsCompletion:
-        case ReportStatus.inReview:
-        case ReportStatus.needsAction:
-          return SigapColors.diproses;
-        case ReportStatus.resolved:
-        case ReportStatus.completed:
-          return SigapColors.selesai;
-        case ReportStatus.rejected:
-        case ReportStatus.duplicateMerged:
-        case ReportStatus.outOfScope:
-        case ReportStatus.pending:
-        case ReportStatus.locallyCreated:
-        case ReportStatus.locallySaved:
-          return SigapColors.textMuted;
-        case ReportStatus.assigned:
-        case ReportStatus.closed:
-        case ReportStatus.merged:
-        case ReportStatus.separated:
-        case ReportStatus.draft:
-          return SigapColors.primary;
-      }
-    } catch (e, s) {
-      _logger.warning('Error parsing report status "$statusStr"', e, s);
-      return SigapColors.primary;
-    }
-  }
-
-  List<WeightedLatLng> _buildHeatmapData(List<LocalReport> reports) {
-    return reports.map((r) {
-      return WeightedLatLng(LatLng(r.lat, r.lng), 1.0);
-    }).toList();
-  }
-
-  void _showReportDetails(LocalReport report) {
+  void _showReportDetails(BuildContext context, LocalReport report) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -539,7 +280,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
             const SizedBox(height: SigapSpacing.sm),
             Text(
-              'Status: ${report.status}',
+              l10n.statusMarker(report.status),
               style: TextStyle(color: SigapColors.textSecondary),
             ),
             const SizedBox(height: SigapSpacing.md),
@@ -634,7 +375,10 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                 ],
               ),
               const SizedBox(height: SigapSpacing.lg),
-              Text('Kategori', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.kategori,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: SigapSpacing.sm),
               categoriesAsync.when(
                 data: (categories) => Wrap(
@@ -662,7 +406,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                 error: (_, __) => _buildHardcodedCategoryChips(),
               ),
               const SizedBox(height: SigapSpacing.lg),
-              Text('Status', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.status, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: SigapSpacing.sm),
               Wrap(
                 spacing: 8,
@@ -684,7 +428,10 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                 }).toList(),
               ),
               const SizedBox(height: SigapSpacing.lg),
-              Text('Waktu', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.waktuSection,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: SigapSpacing.sm),
               Row(
                 children: [
@@ -694,7 +441,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                       child: Text(
                         _startDate != null
                             ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                            : 'Dari Tanggal',
+                            : l10n.dariTanggal,
                       ),
                     ),
                   ),
@@ -705,7 +452,7 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
                       child: Text(
                         _endDate != null
                             ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-                            : 'Sampai Tanggal',
+                            : l10n.sampaiTanggal,
                       ),
                     ),
                   ),
@@ -768,42 +515,44 @@ class _FilterBottomSheetState extends ConsumerState<_FilterBottomSheet> {
   }
 
   String _formatCategory(String cat) {
+    final l10n = AppLocalizations.of(context)!;
     switch (cat) {
       case 'road':
-        return 'Jalan Rusak';
+        return l10n.jalanRusak;
       case 'bridge':
-        return 'Jembatan';
+        return l10n.jembatan;
       case 'drainage':
-        return 'Drainase';
+        return l10n.drainase;
       case 'public':
-        return 'Fasilitas Umum';
+        return l10n.fasilitasUmum;
       default:
         return cat;
     }
   }
 
   String _formatStatus(ReportStatus status) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case ReportStatus.submitted:
-        return 'Submitted';
+        return l10n.submittedLabel;
       case ReportStatus.underReview:
-        return 'Under Review';
+        return l10n.underReviewLabel;
       case ReportStatus.verified:
-        return 'Verified';
+        return l10n.verifiedLabel;
       case ReportStatus.inProgress:
-        return 'In Progress';
+        return l10n.inProgressLabel;
       case ReportStatus.resolved:
-        return 'Resolved';
+        return l10n.resolvedLabel;
       case ReportStatus.rejected:
-        return 'Rejected';
+        return l10n.rejectedLabel;
       case ReportStatus.duplicateMerged:
-        return 'Duplicate';
+        return l10n.duplikat;
       case ReportStatus.needsSurvey:
-        return 'Needs Survey';
+        return l10n.perluSurvei;
       case ReportStatus.needsCompletion:
-        return 'Needs Completion';
+        return l10n.perluKelengkapan;
       case ReportStatus.outOfScope:
-        return 'Out of Scope';
+        return l10n.diluteJangkauan;
       default:
         return status.value;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// A simple animated toggle switch.
@@ -30,7 +31,7 @@ class PrivacyToggle extends StatelessWidget {
             height: 20,
             margin: const EdgeInsets.symmetric(horizontal: 2),
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: SigapColors.surface,
               shape: BoxShape.circle,
             ),
           ),
@@ -59,6 +60,7 @@ class PrivacyToggleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(SigapSpacing.x12),
       decoration: BoxDecoration(
@@ -73,7 +75,7 @@ class PrivacyToggleCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Identitas saya di publik',
+                  l10n.identitasPublik,
                   style: TextStyle(
                     fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
@@ -82,7 +84,7 @@ class PrivacyToggleCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  'Default: privat · hanya petugas melihat',
+                  l10n.defaultPrivatPetugas,
                   style: TextStyle(
                     fontSize: SigapTypography.captionMedium,
                     color: SigapColors.textTertiary,
@@ -95,8 +97,7 @@ class PrivacyToggleCard extends StatelessWidget {
           GestureDetector(
             onTap: () => _showInfoTooltip(context),
             child: Tooltip(
-              message:
-                  'Jika aktif, nama Anda terlihat oleh publik. Lokasi tetap digeneralisasi.',
+              message: l10n.keteranganPrivasiTooltip,
               child: Container(
                 width: 18,
                 height: 18,
@@ -128,6 +129,7 @@ class PrivacyToggleCard extends StatelessWidget {
   }
 
   void _showInfoTooltip(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -135,7 +137,7 @@ class PrivacyToggleCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(SigapRadius.lg),
         ),
         title: Text(
-          'Tentang Privasi',
+          l10n.tentangPrivasi,
           style: TextStyle(
             fontSize: SigapTypography.bodyMedium,
             fontWeight: FontWeight.w600,
@@ -143,8 +145,7 @@ class PrivacyToggleCard extends StatelessWidget {
           ),
         ),
         content: Text(
-          'Identitas dan lokasi presisi Anda hanya terlihat oleh petugas terkait. '
-          'Publik hanya melihat lokasi yang digeneralisasi.',
+          l10n.identitasLokasiPrivasi,
           style: TextStyle(
             fontSize: SigapTypography.bodySmall,
             color: SigapColors.textSecondary,
@@ -155,7 +156,7 @@ class PrivacyToggleCard extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Tutup',
+              l10n.tutup,
               style: TextStyle(
                 color: SigapColors.primary,
                 fontWeight: FontWeight.w600,

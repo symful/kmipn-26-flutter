@@ -4,6 +4,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/widgets/design_system/authenticated_shell.dart';
+import 'package:sigap/widgets/design_system/sigap_app_bar.dart';
 
 /// Export screen for exporting reports as CSV, GeoJSON, or PDF.
 ///
@@ -27,14 +29,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(l10n.exportData),
-        backgroundColor: SigapColors.surface,
-        foregroundColor: SigapColors.textPrimary,
-        elevation: 0,
-      ),
+      appBar: SigapAppBar(title: l10n.exportData),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
@@ -60,7 +60,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   const SizedBox(width: SigapSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Export laporan dalam format CSV, GeoJSON, atau PDF. Data akan difilter sesuai opsi yang dipilih.',
+                      l10n.exportInfoDeskripsi,
                       style: TextStyle(
                         fontSize: SigapTypography.bodySmall,
                         color: SigapColors.primaryDark,
@@ -74,7 +74,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
             // Export Options
             Text(
-              'Format Export',
+              l10n.exportFormat,
               style: TextStyle(
                 fontSize: SigapTypography.bodyMedium,
                 fontWeight: FontWeight.bold,
@@ -87,8 +87,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             _ExportTile(
               icon: Icons.table_chart,
               title: l10n.csvSpreadsheet,
-              description:
-                  'Export data laporan dalam format CSV untuk Excel atau Google Sheets.',
+              description: l10n.exportCsvDeskripsi,
               isLoading: _loadingCsv,
               onTap: _exportCsv,
             ),
@@ -98,8 +97,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             _ExportTile(
               icon: Icons.map,
               title: l10n.geoJsonGeospatial,
-              description:
-                  'Export data laporan dengan koordinat geospasial untuk GIS.',
+              description: l10n.exportGeojsonDeskripsi,
               isLoading: _loadingGeojson,
               onTap: _exportGeojson,
             ),
@@ -109,7 +107,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             _ExportTile(
               icon: Icons.picture_as_pdf,
               title: l10n.pdfLaporan,
-              description: 'Export laporan lengkap dalam format PDF.',
+              description: l10n.exportPdfDeskripsi,
               isLoading: _loadingPdf,
               onTap: _exportPdf,
             ),
@@ -151,6 +149,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Future<void> _exportCsv() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _loadingCsv = true;
       _error = null;
@@ -163,13 +162,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       );
       await Share.share(csv, subject: 'SIGAP Reports Export (CSV)');
     } catch (e) {
-      setState(() => _error = 'Export CSV gagal: ${e.toString()}');
+      setState(() => _error = '${l10n.exportCsvGagal} ${e.toString()}');
     } finally {
       setState(() => _loadingCsv = false);
     }
   }
 
   Future<void> _exportGeojson() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _loadingGeojson = true;
       _error = null;
@@ -183,16 +183,17 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       final featureCount = geojson.features?.length ?? 0;
       final jsonStr = featureCount > 0
           ? 'Type: ${geojson.type}, Features: $featureCount'
-          : 'Empty GeoJSON';
+          : l10n.emptyGeoJSON;
       await Share.share(jsonStr, subject: 'SIGAP Reports Export (GeoJSON)');
     } catch (e) {
-      setState(() => _error = 'Export GeoJSON gagal: ${e.toString()}');
+      setState(() => _error = '${l10n.exportGeojsonGagal} ${e.toString()}');
     } finally {
       setState(() => _loadingGeojson = false);
     }
   }
 
   Future<void> _exportPdf() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _loadingPdf = true;
       _error = null;
@@ -208,7 +209,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         subject: 'SIGAP Reports Export (PDF)',
       );
     } catch (e) {
-      setState(() => _error = 'Export PDF gagal: ${e.toString()}');
+      setState(() => _error = '${l10n.exportPdfGagal} ${e.toString()}');
     } finally {
       setState(() => _loadingPdf = false);
     }

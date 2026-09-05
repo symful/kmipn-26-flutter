@@ -113,7 +113,7 @@ class _ThumbnailItem extends StatelessWidget {
                   child: const Icon(
                     Icons.zoom_in,
                     size: 12,
-                    color: Colors.white,
+                    color: SigapColors.surface,
                   ),
                 ),
               ),

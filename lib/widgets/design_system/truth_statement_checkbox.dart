@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// A checkbox widget with a truth statement for report submission.
@@ -22,6 +23,7 @@ class TruthStatementCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onChanged != null ? () => onChanged!(!value) : null,
       behavior: HitTestBehavior.opaque,
@@ -42,7 +44,7 @@ class TruthStatementCheckbox extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: value
-                ? const Icon(Icons.check, size: 12, color: Colors.white)
+                ? const Icon(Icons.check, size: 12, color: SigapColors.surface)
                 : null,
           ),
           const SizedBox(width: 9),
@@ -50,7 +52,7 @@ class TruthStatementCheckbox extends StatelessWidget {
           // Statement text
           Expanded(
             child: Text(
-              'Saya menyatakan informasi ini benar sesuai kondisi yang saya lihat.',
+              l10n.sayaMenyatakanBenar,
               style: TextStyle(
                 fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w400,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import '../../../../theme/tokens.dart';
 
 /// S-01 Surveyor Home Screen Header Widget
@@ -18,6 +19,7 @@ class TaskListHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final displayDate = date ?? DateTime.now();
 
     return Container(
@@ -34,7 +36,7 @@ class TaskListHeader extends StatelessWidget {
         children: [
           // Title: "Tugas hari ini"
           Text(
-            'Tugas hari ini',
+            l10n.tugasHariIniTitle,
             style: const TextStyle(
               fontSize: SigapTypography.headlineMedium,
               fontWeight: FontWeight.w700,

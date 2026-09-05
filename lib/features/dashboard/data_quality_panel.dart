@@ -46,6 +46,7 @@ class DataQualityPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SigapCard(
       padding: const EdgeInsets.all(SigapSpacing.md),
       child: Column(
@@ -61,8 +62,8 @@ class DataQualityPanel extends StatelessWidget {
                 size: 18,
               ),
               const SizedBox(width: SigapSpacing.xs),
-              const Text(
-                'Kualitas Data',
+              Text(
+                l10n.kualitasData,
                 style: TextStyle(
                   fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,
@@ -75,11 +76,11 @@ class DataQualityPanel extends StatelessWidget {
 
           // Content
           if (isLoading)
-            _buildLoadingState()
+            _buildLoadingState(context)
           else if (errorMessage != null)
             _buildErrorState(errorMessage!)
           else if (metrics == null)
-            _buildEmptyState()
+            _buildEmptyState(context)
           else
             _buildMetrics(),
         ],
@@ -87,12 +88,13 @@ class DataQualityPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        _DataQualityItemSkeleton(label: 'Tingkat Sinkronisasi'),
+        _DataQualityItemSkeleton(label: l10n.tingkatSinkronisasi),
         const SizedBox(height: SigapSpacing.md),
-        _DataQualityItemSkeleton(label: 'Surveyor Menunggu'),
+        _DataQualityItemSkeleton(label: l10n.surveyorMenunggu),
       ],
     );
   }
@@ -124,12 +126,13 @@ class DataQualityPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return const Center(
+  Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Padding(
         padding: EdgeInsets.all(SigapSpacing.md),
         child: Text(
-          'Data tidak tersedia',
+          l10n.dataTidakTersedia,
           style: TextStyle(
             fontSize: SigapTypography.bodySmall,
             color: SigapColors.textTertiary,
@@ -263,8 +266,8 @@ class _SurveyorMenungguItem extends StatelessWidget {
               ),
               Text(
                 hasWaiting
-                    ? '$count surveyor perlu ditugaskan'
-                    : 'Semua surveyor aktif',
+                    ? l10n.surveyorPerluDitugaskan(count)
+                    : l10n.semuaSurveyorAktif,
                 style: TextStyle(
                   fontSize: SigapTypography.captionMedium,
                   fontWeight: FontWeight.w500,
@@ -289,6 +292,7 @@ class _SlaAtRiskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasAtRisk = count > 0;
 
     return Row(
@@ -314,17 +318,17 @@ class _SlaAtRiskItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Risiko SLA',
-                style: TextStyle(
+              Text(
+                l10n.risikoSLA,
+                style: const TextStyle(
                   fontSize: SigapTypography.captionMedium,
                   color: SigapColors.textMuted,
                 ),
               ),
               Text(
                 hasAtRisk
-                    ? '$count kasus berisiko terlambat'
-                    : 'Semua kasus on track',
+                    ? l10n.kasusBerisikoTerlambat(count)
+                    : l10n.semuaKasusOnTrack,
                 style: TextStyle(
                   fontSize: SigapTypography.captionMedium,
                   fontWeight: FontWeight.w500,

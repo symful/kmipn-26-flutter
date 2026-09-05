@@ -58,7 +58,7 @@ class AiAssessmentCard extends StatelessWidget {
                 ),
                 const SizedBox(width: SigapSpacing.sm),
                 Text(
-                  'Confidence',
+                  l10n.labelConfidence,
                   style: TextStyle(
                     fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
@@ -118,7 +118,7 @@ class AiAssessmentCard extends StatelessWidget {
                     risks.isEmpty &&
                     correlationIds.isEmpty)
                   Text(
-                    'No assessment factors available.',
+                    l10n.noAssessmentFactors,
                     style: TextStyle(
                       fontSize: SigapTypography.bodyText,
                       color: SigapColors.textMuted,
@@ -207,6 +207,7 @@ class _CorrelationIds extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -215,7 +216,7 @@ class _CorrelationIds extends StatelessWidget {
             Icon(Icons.link, color: SigapColors.info, size: 14),
             const SizedBox(width: SigapSpacing.xs),
             Text(
-              'Duplicate Candidates',
+              l10n.duplicateCandidates,
               style: TextStyle(
                 fontSize: SigapTypography.bodySmall,
                 fontWeight: FontWeight.w600,

@@ -184,7 +184,7 @@ class ActionButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: SigapColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: SigapColors.surface,
         padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(SigapRadius.md),

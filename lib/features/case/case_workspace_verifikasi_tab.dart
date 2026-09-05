@@ -16,7 +16,7 @@ import '../../capabilities/can.dart';
 /// - Verification action buttons (Setuju/Tolak/Minta Info)
 /// - Decision modal sheets for each action type
 ///
-/// RT_RW/Verifikator role can verify or reject cases.
+/// Verifikator role can verify or reject cases.
 /// Uses capabilities: case.verify, case.reject, case.request_info
 ///
 /// This content was consolidated from CaseReviewScreen into the
@@ -34,6 +34,33 @@ class CaseWorkspaceVerifikasiTab extends ConsumerStatefulWidget {
     this.assessmentData,
     required this.assessmentError,
   });
+
+  /// Checks if a case status is terminal (resolved, rejected, closed, etc.)
+  /// Terminal statuses should not show any action buttons.
+  static bool isTerminalStatus(String status) {
+    const terminalStatuses = {
+      'SELESAI',
+      'DITOLAK',
+      'DUPLIKAT',
+      'DITUTUP',
+      'OUT_OF_SCOPE',
+      'LUAR_CAKUPAN',
+      'SEPARATED',
+      'MERGED',
+      'CLOSED',
+      'RESOLVED',
+      'REJECTED',
+      'DUPLICATE_MERGED',
+      'resolved',
+      'rejected',
+      'closed',
+      'duplicate_merged',
+      'merged',
+      'separated',
+      'out_of_scope',
+    };
+    return terminalStatuses.contains(status);
+  }
 
   @override
   ConsumerState<CaseWorkspaceVerifikasiTab> createState() =>
@@ -93,14 +120,12 @@ class _CaseWorkspaceVerifikasiTabState
       setState(() => _success = true);
     } catch (e) {
       final errorStr = e.toString();
+      final l10n = AppLocalizations.of(context)!;
       if (errorStr.contains('409') ||
           errorStr.toLowerCase().contains('invalid_transition')) {
-        setState(
-          () => _submitError =
-              'Transisi status tidak valid. Laporan mungkin sudah diproses.',
-        );
+        setState(() => _submitError = l10n.transisiStatusTidakValid);
       } else {
-        setState(() => _submitError = 'Gagal mengirim keputusan: $errorStr');
+        setState(() => _submitError = l10n.gagalMengirimKeputusan(errorStr));
       }
     } finally {
       setState(() => _submitting = false);
@@ -159,7 +184,7 @@ class _CaseWorkspaceVerifikasiTabState
                     height: 24,
                     decoration: BoxDecoration(
                       color: color,
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(SigapRadius.x2),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -167,7 +192,7 @@ class _CaseWorkspaceVerifikasiTabState
                     child: Text(
                       label,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: SigapTypography.titleLarge,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -237,7 +262,13 @@ class _CaseWorkspaceVerifikasiTabState
                   foregroundColor: SigapColors.surface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text(l10n.kirimKeputusan),
+                child: Text(
+                  l10n.kirimKeputusan,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyMedium,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -256,13 +287,11 @@ class _CaseWorkspaceVerifikasiTabState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // Role-gated: Only show for VERIFIKATOR/RT_RW roles (has case.verify/reject/request_info capabilities)
+    // Role-gated: Only show for VERIFIKATOR roles (has case.verify/reject/request_info capabilities)
     return Can(
       action: 'case.verify',
       resource: Resource(type: 'case', id: widget.caseId),
-      fallback: const AccessDeniedCard(
-        message: 'Anda tidak memiliki akses untuk memverifikasi kasus ini.',
-      ),
+      fallback: AccessDeniedCard(message: l10n.andaTidakAksesVerifikasi),
       child: _buildVerificationContent(l10n),
     );
   }
@@ -279,19 +308,32 @@ class _CaseWorkspaceVerifikasiTabState
               size: 64,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Keputusan berhasil dikirim',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.keputusanBerhasilDikirim,
+              style: TextStyle(
+                fontSize: SigapTypography.titleLarge,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => context.pop(),
-              child: Text(l10n.kembali),
+              child: Text(
+                l10n.kembali,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyMedium,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
       );
     }
+
+    // Check if case is in a terminal status — hide all action buttons
+    final status = widget.caseDetail.report?.status?.value ?? '';
+    final isTerminal = CaseWorkspaceVerifikasiTab.isTerminalStatus(status);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(SigapSpacing.lg),
@@ -327,7 +369,7 @@ class _CaseWorkspaceVerifikasiTabState
                   ),
                   const SizedBox(width: SigapSpacing.sm),
                   Text(
-                    'Assessment tidak tersedia',
+                    l10n.assessmentTidakTersedia,
                     style: TextStyle(
                       color: SigapColors.perluTindakan,
                       fontSize: SigapTypography.bodyText,
@@ -340,95 +382,97 @@ class _CaseWorkspaceVerifikasiTabState
             const SizedBox(height: SigapSpacing.lg),
           ],
 
-          // Decision Actions Panel
-          _SectionLabel(label: l10n.tindakan),
-          const SizedBox(height: SigapSpacing.md),
-          StickyActionBar(
-            actions: [
-              // Tolak (Reject) - case.reject capability
-              SigapActionButton(
-                label: l10n.ditolak,
-                semanticsLabel: l10n.ditolak,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'rejected',
-                        l10n.ditolak,
-                        SigapColors.perluTindakan,
-                      ),
-                icon: Icons.cancel,
-              ),
-              // Duplikat (Duplicate)
-              SigapOutlineButton(
-                label: l10n.duplikat,
-                semanticsLabel: l10n.duplikat,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'duplicate',
-                        l10n.tandaiDuplikat,
-                        SigapColors.offlineDot,
-                      ),
-                icon: Icons.link,
-              ),
-              // Survei (Survey)
-              SigapOutlineButton(
-                label: l10n.survei,
-                semanticsLabel: l10n.survei,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'needs_survey',
-                        l10n.perluSurvei,
-                        SigapColors.primary,
-                      ),
-                icon: Icons.search,
-              ),
-              // Diluar Jangkauan (Out of Scope)
-              SigapOutlineButton(
-                label: l10n.dilute,
-                semanticsLabel: l10n.dilute,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'out_of_scope',
-                        l10n.diluteJangkauan,
-                        SigapColors.offlineDot,
-                      ),
-                icon: Icons.block,
-              ),
-              // Perlu Lengkapi (Needs Completion)
-              SigapOutlineButton(
-                label: l10n.perluDilengkapi,
-                semanticsLabel: l10n.perluDilengkapi,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'needs_completion',
-                        l10n.perluDilengkapi,
-                        SigapColors.diproses,
-                      ),
-                icon: Icons.edit_note,
-              ),
-              // Setuju/Valid (Verify/Approve) - case.verify capability
-              SigapActionButton(
-                label: l10n.valid,
-                semanticsLabel: l10n.valid,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'valid',
-                        l10n.valid,
-                        SigapColors.selesai,
-                      ),
-                icon: Icons.check_circle,
-              ),
-            ],
-          ),
+          // Decision Actions Panel — only for non-terminal statuses
+          if (!isTerminal) ...[
+            _SectionLabel(label: l10n.tindakan),
+            const SizedBox(height: SigapSpacing.md),
+            StickyActionBar(
+              actions: [
+                // Tolak (Reject) - case.reject capability
+                SigapActionButton(
+                  label: l10n.ditolak,
+                  semanticsLabel: l10n.ditolak,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'rejected',
+                          l10n.ditolak,
+                          SigapColors.perluTindakan,
+                        ),
+                  icon: Icons.cancel,
+                ),
+                // Duplikat (Duplicate)
+                SigapOutlineButton(
+                  label: l10n.duplikat,
+                  semanticsLabel: l10n.duplikat,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'duplicate',
+                          l10n.tandaiDuplikat,
+                          SigapColors.offlineDot,
+                        ),
+                  icon: Icons.link,
+                ),
+                // Survei (Survey)
+                SigapOutlineButton(
+                  label: l10n.survei,
+                  semanticsLabel: l10n.survei,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'needs_survey',
+                          l10n.perluSurvei,
+                          SigapColors.primary,
+                        ),
+                  icon: Icons.search,
+                ),
+                // Diluar Jangkauan (Out of Scope)
+                SigapOutlineButton(
+                  label: l10n.dilute,
+                  semanticsLabel: l10n.dilute,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'out_of_scope',
+                          l10n.diluteJangkauan,
+                          SigapColors.offlineDot,
+                        ),
+                  icon: Icons.block,
+                ),
+                // Perlu Lengkapi (Needs Completion)
+                SigapOutlineButton(
+                  label: l10n.perluDilengkapi,
+                  semanticsLabel: l10n.perluDilengkapi,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'needs_completion',
+                          l10n.perluDilengkapi,
+                          SigapColors.diproses,
+                        ),
+                  icon: Icons.edit_note,
+                ),
+                // Setuju/Valid (Verify/Approve) - case.verify capability
+                SigapActionButton(
+                  label: l10n.valid,
+                  semanticsLabel: l10n.valid,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'valid',
+                          l10n.valid,
+                          SigapColors.selesai,
+                        ),
+                  icon: Icons.check_circle,
+                ),
+              ],
+            ),
+          ],
           if (_submitError != null) ...[
             const SizedBox(height: SigapSpacing.md),
             Text(
-              'Error: $_submitError',
+              l10n.errorLabel(_submitError!),
               style: const TextStyle(
                 color: SigapColors.perluTindakan,
                 fontSize: SigapTypography.bodyText,

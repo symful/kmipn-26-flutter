@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
 
@@ -45,6 +46,7 @@ class ErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final iconWidget = Icon(
       icon ?? Icons.error_outline,
       color: SigapColors.perluTindakan,
@@ -55,7 +57,9 @@ class ErrorCard extends StatelessWidget {
       message,
       style: TextStyle(
         color: compact ? SigapColors.textSecondary : SigapColors.textPrimary,
-        fontSize: compact ? SigapTypography.bodyText : SigapTypography.bodyMedium,
+        fontSize: compact
+            ? SigapTypography.bodyText
+            : SigapTypography.bodyMedium,
         fontWeight: compact ? FontWeight.w400 : FontWeight.w500,
       ),
     );
@@ -81,7 +85,7 @@ class ErrorCard extends StatelessWidget {
                   minimumSize: const Size(48, 48),
                 ),
                 child: Text(
-                  retryLabel ?? 'Coba lagi',
+                  retryLabel ?? l10n.cobaLagi,
                   style: const TextStyle(fontSize: SigapTypography.bodyText),
                 ),
               ),
@@ -102,7 +106,7 @@ class ErrorCard extends StatelessWidget {
             const SizedBox(height: SigapSpacing.lg),
             ElevatedButton(
               onPressed: onRetry,
-              child: Text(retryLabel ?? 'Coba lagi'),
+              child: Text(retryLabel ?? l10n.cobaLagi),
             ),
           ],
         ],
@@ -120,6 +124,7 @@ class ErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: SigapSpacing.md,
@@ -158,7 +163,7 @@ class ErrorBanner extends StatelessWidget {
                 minimumSize: const Size(48, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
               ),
-              child: const Text('Coba lagi', style: TextStyle(fontSize: 12)),
+              child: Text(l10n.cobaLagi, style: const TextStyle(fontSize: 12)),
             ),
           ],
         ],

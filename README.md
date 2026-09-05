@@ -82,7 +82,6 @@ kmipn-26-flutter/
 │   │   ├── petugas/               # Technical officer task handling & proof upload
 │   │   ├── operator/              # Case dispatch, duplicate merge, SLA tracking
 │   │   ├── verifikator/           # Triage queue, report validation & decision
-│   │   ├── rt_rw/                 # Neighborhood verification & training
 │   │   ├── admin_daerah/          # Technical units, SLA rules & regional stats
 │   │   ├── auditor/               # Immutable audit log search & filters
 │   │   ├── exec/                  # Executive dashboard with KPI trend charts
@@ -235,13 +234,14 @@ The Flutter app communicates with a single unified backend surface. All endpoint
 | GET | `/api/notifications` | List user notifications (supports `?unread=1` filter) |
 | POST | `/api/notifications/:id/read` | Mark notification as read |
 
-### Audit Trail (`/api/audit/*`)
+### Audit Trail (`/api/auditor/*`)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/audit` | Full audit log (supports filters: report_id, actor_role, action, from, to) |
-| GET | `/api/audit/search` | Paginated audit search with page/limit |
-| GET | `/api/audit/export` | Export audit log as CSV or JSON (`?format=csv\|json`) |
-| GET | `/api/audit/verify-chain` | Verify audit chain integrity |
+| GET | `/api/auditor/audit-search` | Paginated audit search with filters (actor_id, action, object_type, object_id, from, to) and pagination |
+| GET | `/api/auditor/audit-export` | Export audit log as CSV or JSON (`?format=csv\|json`) |
+| GET | `/api/auditor/stats` | Audit statistics (counts, top actors, failed attempts, suspicious activity) |
+| GET | `/api/auditor/verify-chain` | Verify audit chain integrity |
+| GET | `/api/auditor/system-logs` | System logs with level filter and pagination |
 
 ### AI Agent (`/api/agent/*`)
 | Method | Endpoint | Description |
@@ -283,7 +283,6 @@ The mobile app includes a built-in **Role Switcher** accessible from the drawer 
 | **AUDITOR** | `auditor@sigap.id` | `auditor123` | Immutable audit log trail and user activity inspection |
 | **PENGAMBIL_KEPUTUSAN** | `eksekutif@sigap.id` | `exec123` | Executive KPI analytics, budget statistics, resolution trends |
 
-| **RT_RW** | `rtrw@sigap.id` | `rtrw123` | Local RT/RW report validation and community confirmation |
 
 ---
 
@@ -313,5 +312,3 @@ In software licensing, "unlicensed" or lacking an explicit license file **does n
 - No implied rights of commercial distribution, modification, or derivation existed for those earlier unlicensed commits.
 
 With the formal inclusion of the [`LICENSE`](./LICENSE) file in this release, all rights, permissions, modification allowances, and mandatory public attribution requirements are governed explicitly under **SSPL-1.0**.
-
-

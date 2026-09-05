@@ -432,7 +432,6 @@
   "laporanBerhasilDiverifikasi": "Laporan berhasil diverifikasi",
   "laporanDitolak": "Laporan ditolak",
   "mintaInformasi": "Minta Informasi",
-  "verifikasiRTRW": "Verifikasi RT_RW",
   "gagalMemuat": "Gagal memuat: {error}",
   "@gagalMemuat": {
     "placeholders": {
@@ -441,7 +440,6 @@
   },
   "belumAdaKasusVerifikasi": "Belum ada kasus yang perlu diverifikasi.",
   "permintaanInformasiTerkirim": "Permintaan informasi berhasil dikirim",
-  "pelatihanRTRW": "Pelatihan RT/RW",
 
   "semuaNotifikasiDibaca": "Semua notifikasi ditandai sudah dibaca",
   "gagalMenandaiSemua": "Gagal menandai semua: {error}",
@@ -506,6 +504,7 @@
   "aksesKamera": "Akses Kamera",
 
   "konfigurasiBobotTersimpan": "Konfigurasi bobot prioritas berhasil disimpan",
+  "bobotPrioritas": "Bobot Prioritas",
   "konfigurasiPrioritas": "Konfigurasi Prioritas",
   "aturPrioritas": "Atur Prioritas",
   "skorPrioritas": "Skor Prioritas: ",
@@ -578,6 +577,7 @@
     }
   },
   "tingkatSinkronisasi": "Tingkat Sinkronisasi",
+  "pusatSinkronisasi": "Pusat Sinkronisasi",
   "surveyorMenunggu": "Surveyor Menunggu",
 
   "petugasLabel": "Petugas",
@@ -817,5 +817,835 @@
     "placeholders": {
       "error": {"type": "String"}
     }
-  }
+  },
+
+  "gagalMemuatData": "Gagal memuat data",
+  "keputusanBerhasilDikirim": "Keputusan berhasil dikirim",
+  "assessmentTidakTersedia": "Assessment tidak tersedia",
+  "tidakAdaDokumen": "Tidak ada dokumen",
+  "menungguKlaimPersonel": "Menunggu klaim personel",
+  "informasiYangDiperlukan": "Informasi yang diperlukan",
+  "umurBacklogKasus": "Umur backlog kasus",
+  "dataTidakTersedia": "Data tidak tersedia",
+  "distribusiStatus": "Distribusi Status",
+  "distribusiKategori": "Distribusi Kategori",
+  "dataKategoriTidakTersedia": "Data kategori tidak tersedia",
+  "semuaSurveyorAktif": "Semua surveyor aktif",
+
+  "terjadiKesalahan": "Terjadi kesalahan. Coba lagi.",
+  "koneksiTimeout": "Koneksi timeout. Coba lagi.",
+  "tidakAdaKoneksiInternet": "Tidak ada koneksi internet.",
+  "permintaanDibatalkan": "Permintaan dibatalkan.",
+  "emailAtauPasswordSalah": "Email atau password salah.",
+  "sesiHabis": "Sesi habis. Silakan login kembali.",
+  "andaTidakMemilikiAkses": "Anda tidak memiliki akses.",
+  "dataTidakDitemukan": "Data tidak ditemukan.",
+  "dataTidakValid": "Data tidak valid. Periksa input Anda.",
+  "serverSedangBermasalah": "Server sedang bermasalah. Coba lagi nanti.",
+  "terlaluBanyakPermintaan": "Terlalu banyak permintaan. Coba lagi nanti.",
+  "dataSudahAdaAtauKonflik": "Data sudah ada atau konflik.",
+  "serverTidakTersedia": "Server tidak tersedia. Coba lagi nanti.",
+  "terjadiKesalahanDenganCode": "Terjadi kesalahan (code: {statusCode}).",
+  "@terjadiKesalahanDenganCode": {
+    "placeholders": {
+      "statusCode": {"type": "int"}
+    }
+  },
+  "apiError": "API Error: {statusCode}",
+  "@apiError": {
+    "placeholders": {
+      "statusCode": {"type": "int"}
+    }
+  },
+  "requestTimeoutPada": "Request timeout pada {endpoint}",
+  "@requestTimeoutPada": {
+    "placeholders": {
+      "endpoint": {"type": "String"}
+    }
+  },
+  "minimal10KarakterValidasi": "minimal 10 karakter",
+  "tidakBolehKosong": "tidak boleh kosong",
+  "formatEmailTidakValid": "format email tidak valid",
+  "terlaluPanjang": "terlalu panjang",
+  "terlaluPendek": "terlalu pendek",
+  "harus": "harus",
+  "gagalMendekodeGambar": "Gagal mendekode gambar untuk menghapus EXIF",
+
+  "menungguVerifikasiLabel": "Menunggu verifikasi",
+  "terverifikasiLabel": "Terverifikasi",
+  "sedangDitanganiLabel": "Sedang ditangani",
+  "perluKelengkapanLabel": "Perlu kelengkapan",
+  "slaTerlewatLabel": "SLA terlewat",
+  "tersimpanDiPerangkatLabel": "Tersimpan di perangkat",
+  "laporanDiterimaLabel": "Laporan diterima",
+  "sedangDiperiksaLabel": "Sedang diperiksa",
+  "perluDilengkapiLabel": "Perlu dilengkapi",
+  "perluTindakanAndaLabel": "Perlu tindakan Anda",
+  "draftLabel": "Draft",
+  "digabungLabel": "Digabung",
+  "dipisahLabel": "Dipisah",
+  "dalamReviewLabel": "Dalam Review",
+  "unknownLabel": "Unknown",
+  "laporanPertamaDiterima": "Laporan pertama diterima",
+  "kasusDibuatDariKonsolidasi": "Kasus dibuat dari konsolidasi",
+  "laporanDigabung": "Laporan digabung",
+  "menungguVerifikasiManual": "Menunggu verifikasi manual",
+
+  "beranda": "Beranda",
+  "laporanNav": "Laporan",
+  "sinkronNav": "Sinkron",
+  "riwayatNav": "Riwayat",
+  "akunNav": "Akun",
+  "buatLaporanFAB": "Buat laporan",
+
+  "izinkanLokasiDitolakSnack": "Izin lokasi ditolak",
+  "gagalCaptureGPS": "Gagal capture GPS: {error}",
+  "@gagalCaptureGPS": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "maksimal5Foto": "Maksimal 5 foto",
+  "tambahFoto": "Tambah foto ({count}/{max})",
+  "@tambahFoto": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  "formSurveiTitle": "Form Survei",
+  "kembaliKeDaftarTugasBtn": "Kembali ke Daftar Tugas",
+  "fotoPerSudut": "Foto per sudut",
+  "formSurveiHeader": "Form survei",
+  "gpsBelumTertangkap": "GPS Belum Tertangkap",
+  "tidakDitemukanDiLokasi": "Tidak ditemukan di lokasi",
+
+  "ringkasanTab": "Ringkasan",
+  "buktiLaporanTab": "Bukti & Laporan",
+  "verifikasiTab": "Verifikasi",
+  "tugasProgresTab": "Tugas & Progres",
+  "riwayatAuditTab": "Riwayat Audit",
+  "aksiGunakanPanelVerifikasi": "Aksi \"{label}\" - gunakan panel verifikasi",
+  "@aksiGunakanPanelVerifikasi": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "bukaTabVerifikasi": "Buka tab Verifikasi untuk aksi \"{label}\"",
+  "@bukaTabVerifikasi": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "statusKasus": "Status Kasus",
+  "daftarTugasProgres": "Daftar tugas dan progres penanganan akan ditampilkan di sini.",
+  "riwayatAuditLabel": "Riwayat Audit",
+  "detailAuditTitle": "Detail Audit",
+  "detailAuditDesc": "Detail lengkap audit chain akan ditampilkan di sini.",
+  "belumAdaRiwayatAudit": "Belum ada riwayat audit",
+  "transisiStatusTidakValid": "Transisi status tidak valid. Laporan mungkin sudah diproses.",
+  "gagalMengirimKeputusan": "Gagal mengirim keputusan: {error}",
+  "@gagalMengirimKeputusan": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "gagalMemuatError": "Gagal memuat: {error}",
+  "@gagalMemuatError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "errorLabel": "Error: {error}",
+  "@errorLabel": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "andaTidakAksesVerifikasi": "Anda tidak memiliki akses untuk memverifikasi kasus ini.",
+  "andaTidakAksesTugas": "Anda tidak memiliki akses untuk melihat tugas kasus ini.",
+  "andaTidakAksesAudit": "Anda tidak memiliki akses untuk melihat riwayat audit.",
+  "tidakAdaTugasTitle": "Tidak Ada Tugas",
+  "tugasPenangananMuncul": "Tugas penanganan untuk kasus ini akan muncul di sini.",
+  "tidakAdaDeskripsi": "Tidak ada deskripsi.",
+  "koordinatLabel": "Koordinat: {lat}, {lng}",
+  "@koordinatLabel": {
+    "placeholders": {
+      "lat": {"type": "String"},
+      "lng": {"type": "String"}
+    }
+  },
+  "prioritasLabel": "Prioritas: {value}",
+  "@prioritasLabel": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+
+  "kembaliKeLaporan": "Kembali ke Laporan",
+  "batalBtn": "Batal",
+  "idLaporanLabel": "ID Laporan",
+  "apaItuSanggahan": "Apa itu Sanggahan?",
+  "sanggahanAdalah": "Sanggahan adalah cara Anda untuk mengajukan keberatan terhadap keputusan penolakan.",
+  "alasanSanggahanLabel": "Alasan Sanggahan",
+  "wajibLabel": "WAJIB",
+  "karakterMinimum": "{current} / {minimum} karakter minimum",
+  "@karakterMinimum": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "minimum": {"type": "int"}
+    }
+  },
+  "validLabel": "Valid",
+  "ajukanSanggahanBtn": "Ajukan Sanggahan",
+  "gagalAjukanSanggahanError": "Gagal mengajukan sanggahan: {error}",
+  "@gagalAjukanSanggahanError": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "sanggahanBerhasil": "Sanggahan Berhasil Diajukan",
+  "sanggahanBerhasilDesc": "Sanggahan Anda untuk laporan {reportId} telah berhasil diajukan.",
+  "@sanggahanBerhasilDesc": {
+    "placeholders": {
+      "reportId": {"type": "String"}
+    }
+  },
+
+  "filterAuditLog": "Filter Audit Log",
+  "idUserNamaActor": "ID / Nama Pengguna (Actor)",
+  "idObjekResourceId": "ID Objek (Resource ID)",
+  "aksiAction": "Aksi (Action)",
+  "tipeObjekResourceType": "Tipe Objek (Resource Type)",
+  "filterAktif": "Filter Aktif: ",
+  "aksiFilter": "Aksi: {value}",
+  "@aksiFilter": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "objekFilter": "Objek: {value}",
+  "@objekFilter": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "actorFilter": "Actor: {value}",
+  "@actorFilter": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "tanggalTerpilih": "Tanggal: Terpilih",
+  "detailPerubahanLabel": "Detail Perubahan: {action}",
+  "@detailPerubahanLabel": {
+    "placeholders": {
+      "action": {"type": "String"}
+    }
+  },
+  "gagalMemuatAuditLog": "Gagal Memuat Audit Log",
+  "tidakAdaDataAuditLog": "Tidak Ada Data Audit Log",
+  "tidakDitemukanRiwayatLog": "Tidak ditemukan riwayat log dengan kriteria filter saat ini.",
+  "belumAdaAktivitasTercatat": "Belum ada aktivitas yang tercatat di audit log.",
+  "lihatDetailPerubahanDiff": "Lihat detail perubahan (diff)",
+  "kosongTidakAdaData": "(Kosong / Tidak ada data)",
+  "wilayahFilter": "Wilayah: {value}",
+  "@wilayahFilter": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+
+  "wargaRole": "Warga",
+  "surveyorRole": "Surveyor",
+  "petugasRole": "Petugas",
+  "operatorRole": "Operator",
+  "verifikatorRole": "Verifikator",
+  "adminDaerahRole": "Admin Daerah",
+  "auditorRole": "Auditor",
+  "eksekutifRole": "Eksekutif",
+
+  "tidakAdaTugasSurvei": "Tidak Ada Tugas Survei",
+  "belumAdaTugas": "Belum Ada Tugas",
+  "tugasPenangananDariOperator": "Tugas penanganan dari operator akan muncul di sini saat ditugaskan.",
+  "detailTugasSurvei": "Detail Tugas Survei",
+  "detailTugasPetugas": "Detail Tugas Petugas",
+  "gagalMemuatDetailTugas": "Gagal Memuat Detail Tugas",
+  "gagalMemuatTugasTitle": "Gagal Memuat Tugas",
+  "urutkanLabel": "Urutkan: ",
+  "tugasHariIni": "Tugas hari ini",
+
+  "semuaTersinkronStatus": "Semua tersinkron",
+  "tidakAdaDataMenungguSinkron": "Tidak ada data yang menunggu sinkron",
+  "gagalDikirimLabel": "Gagal dikirim",
+  "menungguLabel": "Menunggu",
+  "gagalLabel": "Gagal",
+
+  "kasusKritisTitle": "Kasus Kritis",
+  "tidakAdaKasusKritis": "Tidak ada kasus kritis",
+  "gagalMemuatPetaError": "Gagal memuat peta",
+  "statusMarker": "Status: {status}",
+  "@statusMarker": {
+    "placeholders": {
+      "status": {"type": "String"}
+    }
+  },
+  "kategoriSection": "Kategori",
+  "statusSection": "Status",
+  "waktuSection": "Waktu",
+
+  "pengaturanTooltip": "Pengaturan",
+  "wargaDefault": "Warga",
+  "apakahYakinKeluar": "Apakah Anda yakin ingin keluar dari sesi akun ini?",
+  "bahasaIndonesiaLabel": "Bahasa Indonesia",
+  "statusServer": "Status Server",
+  "onlineTersambung": "Online (Tersambung)",
+
+  "cobaLagiBtn": "Coba lagi",
+  "aksesDitolakTitle": "Akses Ditolak",
+  "tutupBtn": "Tutup",
+  "tentangPrivasi": "Tentang Privasi",
+  "privasiInfoBody": "Identitas dan lokasi presisi Anda hanya terlihat oleh petugas terkait. Publik hanya melihat lokasi yang digeneralisasi.",
+  "identitasPublik": "Identitas saya di publik",
+
+  "prioritasRendah": "Rendah",
+  "prioritasTinggi": "Tinggi",
+  "prioritasDiubah": "Prioritas diubah",
+  "rendahLabel": "Rendah",
+  "tinggiLabel": "Tinggi",
+
+  "siapOfflineBadge": "Siap offline",
+  "unduhUntukOffline": "Unduh untuk offline",
+  "prioritasTinggiCard": "Prioritas tinggi",
+  "prioritasSedangCard": "Prioritas sedang",
+  "prioritasNormalCard": "Prioritas normal",
+  "prioritasRendahCard": "Prioritas rendah",
+  "tugasHariIniTitle": "Tugas hari ini",
+  "umurBacklogTitle": "Umur backlog kasus",
+  "unduhBatchBtn": "Unduh batch",
+  "kasusKritisDefault": "Kasus kritis",
+  "kasusTerdekatTitle": "Kasus terdekat",
+  "lihatPetaAction": "Lihat peta",
+  "sedangDitanganiStatus": "Sedang ditangani",
+  "terverifikasiStatus": "Terverifikasi",
+  "lokasiGPS": "Lokasi GPS",
+  "catatanLapangan": "Catatan lapangan",
+  "tambahkanCatatan": "Tambahkan catatan...",
+  "batasWaktuBelumDipilih": "Batas Waktu: (belum dipilih)",
+  "batasWaktuLabel": "Batas Waktu: {time}",
+  "@batasWaktuLabel": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "simpanDanSinkronkanNantiBtn": "Simpan dan sinkronkan nanti",
+  "tidakAdaKoneksiAntrean": "Tidak ada koneksi — laporan akan masuk antrean.",
+  "tambahkanBuktiKeKasus": "Tambahkan bukti ke kasus ini",
+  "buatTerpisah": "Buat terpisah",
+  "lanjutKeReviewHasilSurvei": "Lanjut ke review hasil survei",
+  "mintaClarifikasiBtn": "Minta Clarifikasi",
+  "terimaTugasBtn": "Terima Tugas",
+  "sinkronkanSekarang": "Sinkronkan Sekarang",
+  "sinkronkanSekarangSemantics": "Sinkronkan sekarang",
+  "petaAreaBuktiDiunduh": "Peta area + bukti diunduh",
+  "duplicateCandidates": "Kandidat Duplikat",
+
+  "menungguVerifikasiSnackBar": "Menunggu Verifikasi",
+  "terverifikasiSnackBar": "Terverifikasi",
+  "sedangDitanganiSnackBar": "Sedang Ditangani",
+  "perluKelengkapanSnackBar": "Perlu Kelengkapan",
+  "slaTerlewatSnackBar": "SLA Terlewat",
+  "submittedLabel": "Submitted",
+  "underReviewLabel": "Under Review",
+  "inProgressLabel": "In Progress",
+  "resolvedLabel": "Resolved",
+  "rejectedLabel": "Rejected",
+  "verifiedLabel": "Verified",
+
+  "kualitasData": "Kualitas Data",
+  "tingkatSinkronisasiLabel": "Tingkat Sinkronisasi",
+  "surveyorMenungguLabel": "Surveyor Menunggu",
+  "risikoSLA": "Risiko SLA",
+  "semuaKasusOnTrack": "Semua kasus on track",
+  "pendahLabel": "Pendah",
+
+  "sinkronisasiBerhasil": "Sinkronisasi Berhasil",
+  "dataBerhasilDisinkronkan": "Data berhasil disinkronkan ke server",
+  "sinkronisasiGagal": "Sinkronisasi Gagal",
+  "gagalMenyinkronkanData": "Gagal menyinkronkan data. Silakan coba lagi.",
+  "itemGagalDisinkronkan": "Item gagal disinkronkan",
+
+  "exportFormat": "Format Export",
+  "exportCSVGagal": "Export CSV gagal:",
+  "exportGeoJSONGagal": "Export GeoJSON gagal:",
+  "exportPDFGagal": "Export PDF gagal:",
+  "emptyGeoJSON": "Empty GeoJSON",
+
+  "sigapMobile": "SIGAP Mobile",
+  "sistemInformasiGerakAduan": "Sistem Informasi Geospasial & Penanganan Laporan Publik",
+  "versiAplikasi": "v1.0.0",
+
+  "batalkanTugasTitle": "Tolak Tugas",
+  "alasanPenolakanLabel": "Alasan penolakan",
+  "masukkanAlasanHint": "Masukkan alasan...",
+  "mintaClarifikasiTitle": "Minta Clarifikasi",
+  "pertanyaanKlarifikasiLabel": "Pertanyaan / klarifikasi",
+  "tulisPertanyaanHint": "Tulis pertanyaan Anda...",
+
+  "kondisiAktual": "Kondisi aktual",
+  "rekomendasiHasil": "Rekomendasi hasil",
+  "ambilGPS": "Ambil GPS",
+
+  "pilihPeranKonteks": "Pilih peran untuk berganti konteks kerja. Menu, alur data, dan izin akses akan disesuaikan secara otomatis.",
+  "kirimLaporanPublik": "Kirim laporan pengaduan publik dan pantau status penyelesaian.",
+  "ringkasanEksekutif": "Ringkasan eksekutif, analisis tren verifikasi, dan statistik wilayah.",
+
+  "gagalMemuatAssessment": "Gagal Memuat Assessment",
+  "belumAdaAssessmentAI": "Belum Ada Assessment AI",
+
+  "formatExportTitle": "Format Export",
+
+  "riwayatAuditImmutable": "Riwayat audit bersifat immutable dan tidak dapat diubah. ",
+
+  "kategoriColon": "Kategori:",
+  "deskripsiColon": "Deskripsi:",
+  "fotoColon": "Foto:",
+  "buktiFotoDariPelapor": "Bukti foto kerusakan dari pelapor",
+  "koordinatColon": "Koordinat:",
+  "lokasiTepatDiPeta": "Lokasi tepat di peta",
+  "tanggalColon": "Tanggal:",
+  "kapanLaporanDibuat": "Kapan laporan dibuat",
+
+  "statusLaporan": "Status Laporan",
+  "laporanBaru": "Laporan baru",
+  "perluTindakanStatus": "Perlu Tindakan",
+  "sedangDiprosesStatus": "Sedang Diproses",
+  "selesaiStatus": "Selesai",
+  "ditolakStatus": "Ditolak",
+
+  "keteranganPrivasiTooltip": "Jika aktif, nama Anda terlihat oleh publik. Lokasi tetap digeneralisasi.",
+  "identitasLokasiPrivasi": "Identitas dan lokasi presisi Anda hanya terlihat oleh petugas terkait. Publik hanya melihat lokasi yang digeneralisasi.",
+
+  "gpsBadge": "GPS",
+  "maks5FotoFormat": "Maks 5 foto, format JPG/PNG. GPS dari EXIF akan digunakan jika tersedia.",
+  "jamSuffix": "Jam",
+  "aktifStatus": "Aktif",
+  "nonaktifStatus": "Nonaktif",
+  "targetJam": "Target: {hours} jam",
+  "@targetJam": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "wilayahPrefix": "Wilayah: {value}",
+  "@wilayahPrefix": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "slugPrefix": "Slug: {value}",
+  "@slugPrefix": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+
+  "latihanVerifikasiLaporan": "Pelatihan Verifikasi Laporan",
+  "apaItuSIGAP": "Apa itu SIGAP?",
+  "tujuanSIGAP": "Tujuan SIGAP",
+  "caraMemverifikasiLaporan": "Cara Memverifikasi Laporan",
+  "terimaTautanVerifikasi": "Terima Tautan Verifikasi",
+  "bukaTautan": "Buka Tautan",
+  "periksaKondisiLapangan": "Periksa Kondisi di Lapangan",
+  "berikanKeputusan": "Berikan Keputusan",
+  "kirimVerifikasiTitle": "Kirim Verifikasi",
+  "klikTombolKirimVerifikasi": "Klik tombol 'Kirim Verifikasi' untuk mengirimkan keputusan Anda ke sistem.",
+  "memahamiDashboardSIGAP": "Memahami Dashboard SIGAP",
+  "dashboardMenampilkanLaporan": "Dashboard SIGAP menampilkan semua laporan kerusakan yang masuk.",
+  "bestPractice": "Best Practice",
+  "lakukan": "Lakukan",
+  "verifikasiDalam1x24Jam": "Verifikasi laporan dalam 1x24 jam",
+  "hindari": "Hindari",
+  "pertanyaanUmum": "Pertanyaan Umum",
+
+  "statusDikonfirmasi": "Dikonfirmasi",
+  "statusDitolakRT": "Ditolak",
+  "laporanTidakValid": "Laporan tidak valid",
+  "berikanAlasanJelas": "Berikan alasan yang jelas",
+
+  "simpanKonfigurasiBtn": "Simpan Konfigurasi",
+  "editSLATooltip": "Edit SLA",
+  "segarkanTooltip": "Segarkan",
+
+  "antreanNav": "Antrean",
+  "exportNav": "Ekspor",
+  "analitikNav": "Analitik",
+  "dashboardEksekutif": "Dashboard Eksekutif",
+
+  "masukkanPertanyaanInformasiHint": "Masukkan pertanyaan atau informasi yang diperlukan...",
+  "diajukanPada": "Diajukan: {date}",
+  "@diajukanPada": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "olehPelaku": "oleh: {userId}",
+  "@olehPelaku": {
+    "placeholders": {
+      "userId": {"type": "String"}
+    }
+  },
+  "verifikasiLaporan": "Verifikasi Laporan",
+  "panduanLengkapRTRW": "Panduan lengkap untuk pejabat RT dan RW dalam menggunakan sistem SIGAP",
+  "deskripsiSIGAP": "SIGAP (Sistem Informasi Geospasial & Penanganan Laporan Desa) adalah platform digital untuk pemetaan dan pemantauan pembangunan desa. Sistem ini membantu mencatat, melacak, dan menyelesaikan laporan kerusakan infrastruktur di lingkungan Anda.",
+  "memetakanKerusakan": "Memetakan kerusakan infrastruktur",
+  "mempercepatPerbaikan": "Mempercepat proses perbaikan",
+  "transparansiLaporan": "Transparansi laporan masyarakat",
+  "koordinasiPemerintah": "Koordinasi antar tingkat pemerintah",
+  "memverifikasiLaporan": "Memverifikasi laporan kerusakan",
+  "memberikanKonfirmasi": "Memberikan konfirmasi di lapangan",
+  "melaporkanKerusakanBaru": "Melaporkan kerusakan baru",
+  "memantauStatusPerbaikan": "Memantau status perbaikan",
+  "deskripsiTerimaTautan": "Anda akan menerima tautan verifikasi melalui SMS atau WhatsApp dari sistem SIGAP. Tautan berisi token unik untuk mengakses laporan.",
+  "deskripsiBukaTautan": "Klik tautan yang dikirimkan. Anda akan diarahkan ke halaman verifikasi SIGAP.",
+  "deskripsiPeriksaKondisi": "Kunjungi lokasi yang disebutkan dalam laporan. Periksa apakah kerusakan benar-benar ada dan catat kondisi sebenarnya.",
+  "deskripsiBerikanKeputusan": "Pilih 'Dikonfirmasi' jika kerusakan benar ada, atau 'Ditolak' jika laporan tidak valid. Berikan alasan yang jelas.",
+  "deskripsiKirimVerifikasi": "Klik tombol 'Kirim Verifikasi' untuk mengirimkan keputusan Anda ke sistem.",
+  "deskripsiMemahamiDashboard": "Dashboard SIGAP menampilkan semua laporan kerusakan yang masuk. Berikut elemen-elemen utama yang perlu Anda ketahui:",
+  "datangLangsungKeLokasi": "Datang langsung ke lokasi",
+  "berikanAlasanDetail": "Berikan alasan yang detail",
+  "dokumentasikanDenganFoto": "Dokumentasikan dengan foto",
+  "laporkanJikaKendala": "Laporkan jika ada kendala",
+  "memverifikasiTanpaKeLokasi": "Memverifikasi tanpa ke lokasi",
+  "memberikanAlasanKosong": "Memberikan alasan kosong",
+  "menundaVerifikasi": "Menunda verifikasi terlalu lama",
+  "menolakTanpaAlasan": "Menolak tanpa alasan jelas",
+  "mengabaikanLaporan": "Mengabaikan laporan masyarakat",
+  "faqLokasiSulitDiakses": "Bagaimana jika lokasi sulit diakses?",
+  "faqLokasiSulitDiaksesJawab": "Coba verifikasi dari titik terdekat yang memungkinkan. Jika benar-benar tidak bisa diakses, berikan alasan di sistem dan minta bantuan tetangga atau warga sekitar untuk dokumentasi.",
+  "faqLaporanTidakJelasPertanyaan": "Apa yang harus dilakukan jika laporan tidak jelas?",
+  "faqLaporanTidakJelasJawab": "Hubungi pelapor melalui nomor yang tertera untuk meminta klarifikasi. Jika tidak bisa dihubungi, verifikasi berdasarkan informasi yang ada dan catat ketidakjelasan tersebut.",
+  "faqWaktuVerifikasiPertanyaan": "Berapa lama waktu verifikasi?",
+  "faqWaktuVerifikasiJawab": "Idealnya, verifikasi dilakukan dalam 1x24 jam setelah laporan masuk. Namun, jika ada kendala, segera hubungi admin daerah.",
+  "faqTidakSetujuPertanyaan": "Bagaimana jika saya tidak setuju dengan keputusan petugas?",
+  "faqTidakSetujuJawab": "Setiap keputusan sudah tercatat dalam sistem. Jika ada keberatan, silakan hubungi admin daerah atau sampaikan melalui fitur komentar yang tersedia.",
+  "siapMemulai": "Siap Memulai?",
+  "aksesMenuVerifikasi": "Akses menu Verifikasi Laporan untuk memproses laporan kerusakan dari masyarakat.",
+  "pelatihanSelesai": "Pelatihan Selesai",
+  "dalamPenanganan": "Dalam penanganan",
+  "sudahDiperbaiki": "Sudah diperbaiki",
+  "informasiLaporan": "Informasi Laporan",
+  "sanggahanDeskripsiLengkap": "Sanggahan adalah cara Anda untuk mengajukan keberatan terhadap keputusan yang telah diambil terhadap laporan Anda. Jika Anda merasa laporan Anda ditolak atau diputuskan secara tidak adil, Anda dapat mengajukan sanggahan formal yang akan ditinjau oleh tim verifier.",
+  "jelaskanAlasanSanggahanHint": "Jelaskan alasan sanggahan Anda secara detail...\n\nMinimal {count} karakter.",
+  "@jelaskanAlasanSanggahanHint": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "rentangTanggalSemua": "Rentang Tanggal: (Semua)",
+
+  "olehLabel": "Oleh: {actor}",
+  "@olehLabel": {
+    "placeholders": {
+      "actor": {"type": "String"}
+    }
+  },
+  "tugasCount": "{count} Tugas",
+  "@tugasCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "ditugaskanPada": "Ditugaskan: {date}",
+  "@ditugaskanPada": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "entriAuditCount": "{count} Entri Audit",
+  "@entriAuditCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "riwayatAuditInfo": "Riwayat audit bersifat immutable dan tidak dapat diubah. Semua tindakan pada kasus ini dicatat untuk keperluan audit.",
+  "semuaTindakanTercatatDiSini": "Semua tindakan pada kasus ini akan dicatat di sini.",
+  "resourceLabel": "Resource: {resource}",
+  "@resourceLabel": {
+    "placeholders": {
+      "resource": {"type": "String"}
+    }
+  },
+
+  "gpsBerhasilDitangkap": "GPS berhasil ditangkap: {lat}, {lng}",
+  "@gpsBerhasilDitangkap": {
+    "placeholders": {
+      "lat": {"type": "String"},
+      "lng": {"type": "String"}
+    }
+  },
+  "gagalMemilihGambar": "Gagal memilih gambar: {error}",
+  "@gagalMemilihGambar": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "ringan": "Ringan",
+  "kritis": "Kritis",
+  "validPerluTindakLanjut": "Valid \u2014 perlu tindak lanjut",
+  "kondisiColonLabel": "Kondisi: {value}",
+  "@kondisiColonLabel": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "rekomendasiColonLabel": "Rekomendasi: {value}",
+  "@rekomendasiColonLabel": {
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "dataSurveiTersimpanLokal": "Data survei tersimpan lokal. Akan dikirim otomatis saat online.",
+  "dataSurveiTersimpanDiproses": "Data survei telah tersimpan dan akan diproses oleh tim terkait.",
+  "hintCatatanLapangan": "Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.",
+  "labelOffline": "offline",
+  "tambahFotoLabel": "Tambah foto",
+  "ketukUntukMenangkapGps": "Ketuk untuk menangkap koordinat GPS",
+  "depan": "Depan",
+  "samping": "Samping",
+  "atas": "Atas",
+  "fotoCountDari": "{count} dari {total}",
+  "@fotoCountDari": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "infoSerupa": "{distance} \u00b7 kemiripan {similarity}% \u00b7 {count} laporan",
+  "@infoSerupa": {
+    "placeholders": {
+      "distance": {"type": "String"},
+      "similarity": {"type": "int"},
+      "count": {"type": "int"}
+    }
+  },
+
+  "tidakDapatTerhubungKeServer": "Tidak dapat terhubung ke server.",
+  "errorTidakDikenal": "Error tidak dikenal",
+  "gagalRetryLoop": "Keluar dari loop retry tak terduga",
+  "gagalMemuatLaporanPublik": "Gagal memuat laporan publik",
+  "gagalMemuatKasusPublik": "Gagal memuat kasus publik",
+  "gagalMemuatStatistikPublik": "Gagal memuat statistik publik",
+  "gagalMemuatMetadataBagikan": "Gagal memuat metadata berbagi",
+  "fileFotoTidakDitemukan": "File foto tidak ditemukan: {path}",
+  "@fileFotoTidakDitemukan": {
+    "placeholders": {
+      "path": {"type": "String"}
+    }
+  },
+  "uploadFotoGagal": "Upload foto gagal",
+  "uploadFotoGagalUrl": "Upload foto gagal: tidak ada URL yang dikembalikan",
+  "jenisKerusakanDeskripsi": "Jenis kerusakan (jalan, drainase, jembatan, dll)",
+  "penjelasanDariPelapor": "Penjelasan detail dari pelapor",
+  "rentangTanggalLabel": "Rentang Tanggal: {range}",
+  "@rentangTanggalLabel": {
+    "placeholders": {
+      "range": {"type": "String"}
+    }
+  },
+  "auditLogExportSubjek": "Ekspor Audit Log ({format})",
+  "@auditLogExportSubjek": {
+    "placeholders": {
+      "format": {"type": "String"}
+    }
+  },
+
+  "penggunaSigap": "Pengguna SIGAP",
+  "aktifkanLokasiUntukMelihatPeta": "Aktifkan lokasi untuk melihat peta Anda",
+  "dariTanggal": "Dari Tanggal",
+  "sampaiTanggal": "Sampai Tanggal",
+  "tugasAkanMunculDiSini": "Tugas akan muncul di sini",
+  "laporanAndaKirimkanMuncul": "Laporan yang Anda kirim akan muncul di sini",
+  "countMenunggu": "{count} menunggu",
+  "@countMenunggu": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "tugasTersimpanOfflineCount": "{count} tugas tersimpan offline",
+  "@tugasTersimpanOfflineCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "labelLaporanChart": "laporan",
+  "labelKasusChart": "kasus",
+  "tidakAdaDataTren": "Tidak ada data tren",
+  "surveyorPerluDitugaskan": "{count} surveyor perlu ditugaskan",
+  "@surveyorPerluDitugaskan": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "kasusBerisikoTerlambat": "{count} kasus berisiko terlambat",
+  "@kasusBerisikoTerlambat": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "overdue": "Terlambat",
+
+  "tugasSurveiTitle": "Tugas Survei",
+  "tugasPetugasTitle": "Tugas Petugas",
+  "tugasSurveiDeskripsi": "Semua tugas survei lapangan yang ditugaskan akan tampil di sini.",
+  "tugasPetugasDeskripsi": "Tugas penanganan dari operator akan muncul di sini saat ditugaskan.",
+  "terlambatXjam": "Terlambat {hours}h",
+  "@terlambatXjam": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "slaXjam": "SLA {hours}j",
+  "@slaXjam": {
+    "placeholders": {
+      "hours": {"type": "int"}
+    }
+  },
+  "slaBesok": "SLA besok",
+  "slaXhari": "SLA {days}d",
+  "@slaXhari": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "verifikatorMemintaInfo": "Verifikator meminta informasi tambahan untuk melengkapi laporan ini.",
+  "tenggatTanggal": "Tenggat {date}.",
+  "@tenggatTanggal": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "eventFallback": "Kejadian",
+  "simpanSinkronkanNanti": "Simpan dan sinkronkan nanti",
+  "kondisiBerat": "Berat",
+  "dampakKeselamatanAkses": "Keselamatan \u00b7 akses terganggu",
+  "exportInfoDeskripsi": "Export laporan dalam format CSV, GeoJSON, atau PDF. Data akan difilter sesuai opsi yang dipilih.",
+  "exportCsvDeskripsi": "Export data laporan dalam format CSV untuk Excel atau Google Sheets.",
+  "exportGeojsonDeskripsi": "Export data laporan dengan koordinat geospasial untuk GIS.",
+  "exportPdfDeskripsi": "Export laporan lengkap dalam format PDF.",
+  "exportCsvGagal": "Export CSV gagal:",
+  "exportGeojsonGagal": "Export GeoJSON gagal:",
+  "exportPdfGagal": "Export PDF gagal:",
+  "faktorKeparahan": "Tingkat Keparahan (Severity)",
+  "faktorKebaruan": "Kebaruan Laporan (Recency)",
+  "faktorUrgensi": "Urgensi Kategori (Category)",
+  "faktorKepadatan": "Kepadatan Wilayah (Location)",
+  "faktorRiwayat": "Riwayat Wilayah/Laporan (History)",
+  "totalBobotSesuai": "Total bobot: 100% (Sesuai)",
+  "totalBobotDisarankan": "Total bobot: {total}% (Disarankan total 100%)",
+  "@totalBobotDisarankan": {
+    "placeholders": {
+      "total": {"type": "int"}
+    }
+  },
+  "roleDescAdmin": "Kelola master wilayah, unit UPT, SLA, dan konfigurasi bobot prioritas.",
+  "roleDescOperator": "Disposisi penugasan, eskalasi kasus, dan monitoring antrean laporan.",
+  "roleDescVerifikator": "Validasi kelayakan laporan pengaduan masuk dan tinjauan kebenaran.",
+  "roleDescPetugas": "Tindak lanjut teknis lapangan dan penyelesaian masalah pengaduan.",
+  "roleDescSurveyor": "Survei dan peninjauan fisik lapangan dengan formulir teknis.",
+  "roleDescAuditor": "Inspeksi jejak audit, log aktivitas sistem, dan pelaporan compliance.",
+  "roleDescWarga": "Kirim laporan pengaduan publik dan pantau status penyelesaian.",
+  "roleDescExec": "Ringkasan eksekutif, analisis tren verifikasi, dan statistik wilayah.",
+  "roleDescDefault": "Akses fitur operasional sistem SIGAP.",
+  "assessmentAiMunculNanti": "Assessment AI akan muncul setelah laporan diajukan dan diproses.",
+  "reportLabelId": "Laporan: {id}",
+  "@reportLabelId": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
+  "laporanCountLabel": "{count} laporan",
+  "@laporanCountLabel": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "semuaLabel": "Semua {label}",
+  "@semuaLabel": {
+    "placeholders": {
+      "label": {"type": "String"}
+    }
+  },
+  "targetJamHari": "Target: {hours} jam ({days} hari)",
+  "@targetJamHari": {
+    "placeholders": {
+      "hours": {"type": "int"},
+      "days": {"type": "double"}
+    }
+  },
+  "slaOverdueLaporan": "{count} laporan",
+  "@slaOverdueLaporan": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "syncChannelName": "Notifikasi Sinkronisasi",
+  "syncChannelDescription": "Notifikasi untuk event sinkronisasi",
+  "itemTidakDisinkronkanPercobaan": "Item {key} tidak dapat disinkronkan setelah beberapa percobaan.",
+  "@itemTidakDisinkronkanPercobaan": {
+    "placeholders": {
+      "key": {"type": "String"}
+    }
+  },
+  "beberapaItemTidakDisinkronkan": "Beberapa item tidak dapat disinkronkan setelah beberapa percobaan.",
+  "pilihWilayahFallback": "Pilih Wilayah",
+  "kabBandungFallback": "Kab. Bandung",
+  "draftLabelStatus": "Draft",
+  "digabungLabelStatus": "Digabung",
+  "dipisahLabelStatus": "Dipisah",
+  "dalamReviewLabelStatus": "Dalam Review",
+
+  "noAssessmentFactors": "Tidak ada faktor penilaian yang tersedia.",
+  "latitude": "Latitude",
+  "longitude": "Longitude",
+  "diperbaruiPada": "Diperbarui: {time}",
+  "akurasiSedang": "Akurasi sedang",
+  "akurasiBuruk": "Akurasi buruk",
+  "laporanPendukungCount": "laporan pendukung",
+  "statusOnline": "Online",
+  "statusOffline": "Offline",
+  "statusSyncing": "Syncing",
+  "statusErrorLabel": "Error",
+  "sinkronStatusA11y": "Status sinkron: {status}",
+  "bukaPusatSinkronisasiLink": "Buka Pusat Sinkronisasi →",
+  "laporanBelumTersinkronCount": "{count} laporan belum tersinkron",
+  "defaultPrivatPetugas": "Default: privat · hanya petugas melihat",
+  "severityColonValue": "Severity: {value}",
+  "scoreColonValue": "Score: {value}",
+  "ringkasanLaporanUppercase": "RINGKASAN LAPORAN",
+  "waktuLabel": "Waktu",
+  "dampakLabel": "Dampak",
+  "fotoIndexPlaceholder": "foto {index}",
+  "checklistWajib": "CHECKLIST WAJIB",
+  "kasusSerupaDitemukan": "{count} kasus serupa ditemukan di dekat sini",
+  "kemiripanLabel": "kemiripan",
+  "naLabel": "N/A",
+  "lessThan1dLabel": "<1d",
+  "sayaMenyatakanBenar": "Saya menyatakan informasi ini benar sesuai kondisi yang saya lihat.",
+  "terimaTugasLabel": "Terima Tugas",
+  "labelSubmitted": "Submitted",
+  "labelUnderReview": "Under Review",
+  "labelDiproses": "Diproses",
+  "labelTerverifikasi": "Terverifikasi",
+  "labelSelesai": "Selesai",
+  "labelDitolak": "Ditolak",
+  "labelBaru": "Baru",
+  "labelDitugaskan": "Ditugaskan",
+  "labelDikerjakan": "Dikerjakan"
 }

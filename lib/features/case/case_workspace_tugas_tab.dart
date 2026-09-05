@@ -172,7 +172,7 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
                 ),
                 const SizedBox(width: SigapSpacing.sm),
                 Text(
-                  '${_tasks.length} Tugas',
+                  l10n.tugasCount(_tasks.length),
                   style: const TextStyle(
                     fontSize: SigapTypography.subtitle,
                     fontWeight: FontWeight.bold,
@@ -230,8 +230,8 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
               ),
             ),
             const SizedBox(height: SigapSpacing.md),
-            const Text(
-              'Tidak Ada Tugas',
+            Text(
+              l10n.tidakAdaTugasTitle,
               style: TextStyle(
                 fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w700,
@@ -239,8 +239,8 @@ class _CaseWorkspaceTugasTabState extends ConsumerState<CaseWorkspaceTugasTab> {
               ),
             ),
             const SizedBox(height: SigapSpacing.xs),
-            const Text(
-              'Tugas penanganan untuk kasus ini akan muncul di sini.',
+            Text(
+              l10n.tugasPenangananMuncul,
               style: TextStyle(
                 fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
@@ -309,19 +309,19 @@ class _CaseTaskItem {
     }
   }
 
-  String get statusLabel {
+  String getStatusLabel(AppLocalizations l10n) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'Baru';
+        return l10n.labelBaru;
       case 'assigned':
-        return 'Ditugaskan';
+        return l10n.labelDitugaskan;
       case 'in_progress':
-        return 'Dikerjakan';
+        return l10n.labelDikerjakan;
       case 'completed':
       case 'resolved':
-        return 'Selesai';
+        return l10n.labelSelesai;
       case 'rejected':
-        return 'Ditolak';
+        return l10n.labelDitolak;
       default:
         return status;
     }
@@ -410,10 +410,10 @@ class _CaseTaskCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: task.statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(SigapRadius.x6),
                         ),
                         child: Text(
-                          task.statusLabel,
+                          task.getStatusLabel(l10n),
                           style: TextStyle(
                             fontSize: SigapTypography.captionMedium,
                             fontWeight: FontWeight.w600,
@@ -428,7 +428,7 @@ class _CaseTaskCard extends StatelessWidget {
                   if (task.assignedAt != null) ...[
                     const SizedBox(height: SigapSpacing.xs),
                     Text(
-                      'Ditugaskan: ${formatDate(task.assignedAt!)}',
+                      l10n.ditugaskanPada(formatDate(task.assignedAt!)),
                       style: const TextStyle(
                         fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textTertiary,
@@ -457,7 +457,8 @@ class _CaseTaskCard extends StatelessWidget {
                           child: Text(
                             l10n.tolak,
                             style: const TextStyle(
-                              fontSize: SigapTypography.bodySmall,
+                              fontSize: SigapTypography.bodyMedium,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -475,7 +476,8 @@ class _CaseTaskCard extends StatelessWidget {
                           child: Text(
                             l10n.terima,
                             style: const TextStyle(
-                              fontSize: SigapTypography.bodySmall,
+                              fontSize: SigapTypography.bodyMedium,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),

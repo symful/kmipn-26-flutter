@@ -8,6 +8,7 @@ import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/authenticated_shell.dart';
 import 'package:sigap/widgets/design_system/skeleton_loaders.dart';
 import 'home_screen.dart' show mergeReports, ReportItem;
+import 'package:sigap/widgets/design_system/sigap_card.dart';
 import '../theme/sigap_color_scheme.dart';
 
 class LaporanScreen extends ConsumerWidget {
@@ -83,13 +84,7 @@ class _ReportListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        side: BorderSide(color: SigapColorScheme.of(context).borderCard),
-      ),
+    return SigapCard(
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -157,7 +152,7 @@ class _ReportListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: SigapSpacing.xs),
                     Text(
-                      '${report.lat.toStringAsFixed(4)}, ${report.lng.toStringAsFixed(4)}',
+                      _formatTimeAgo(context, report.createdAt),
                       style: TextStyle(
                         fontSize: SigapTypography.captionMedium,
                         color: SigapColorScheme.of(context).textMuted,
@@ -208,6 +203,21 @@ class _ReportListItem extends StatelessWidget {
   String _serverStatusLabel(BuildContext context, String? status) {
     return statusLabel(context, status);
   }
+
+  String _formatTimeAgo(BuildContext context, DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 0) {
+      if (diff.inDays == 1) return l10n.kemarin;
+      if (diff.inDays < 7) return '${diff.inDays} ${l10n.hariLalu}';
+      return '${(diff.inDays / 7).floor()} ${l10n.mingguLalu}';
+    } else if (diff.inHours > 0) {
+      return '${diff.inHours} ${l10n.jamLalu}';
+    } else if (diff.inMinutes > 0) {
+      return '${diff.inMinutes} ${l10n.menitYangLalu}';
+    }
+    return l10n.baruSaja;
+  }
 }
 
 class _LaporanLoading extends StatelessWidget {
@@ -218,10 +228,7 @@ class _LaporanLoading extends StatelessWidget {
     return ListView.builder(
       padding: const EdgeInsets.all(SigapSpacing.md),
       itemCount: 5,
-      itemBuilder: (_, __) => const Card(
-        margin: EdgeInsets.only(bottom: SigapSpacing.sm),
-        child: SkeletonBox(height: 80),
-      ),
+      itemBuilder: (_, __) => SigapCard(child: SkeletonBox(height: 80)),
     );
   }
 }
@@ -231,6 +238,7 @@ class _EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -244,7 +252,7 @@ class _EmptyView extends StatelessWidget {
           ),
           const SizedBox(height: SigapSpacing.md),
           Text(
-            'Belum ada laporan',
+            l10n.belumAdaLaporan,
             style: TextStyle(
               fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
@@ -253,7 +261,7 @@ class _EmptyView extends StatelessWidget {
           ),
           const SizedBox(height: SigapSpacing.xs),
           Text(
-            'Laporan yang Anda kirim akan muncul di sini',
+            l10n.laporanAndaKirimkanMuncul,
             style: TextStyle(
               fontSize: SigapTypography.bodyText,
               color: SigapColorScheme.of(context).textMuted,
@@ -272,6 +280,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -285,7 +294,7 @@ class _ErrorView extends StatelessWidget {
           ),
           const SizedBox(height: SigapSpacing.md),
           Text(
-            'Gagal memuat laporan',
+            l10n.gagalMemuatLaporan,
             style: TextStyle(
               fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
@@ -302,7 +311,7 @@ class _ErrorView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: SigapSpacing.md),
-          ElevatedButton(onPressed: onRetry, child: const Text('Coba lagi')),
+          ElevatedButton(onPressed: onRetry, child: Text(l10n.cobaLagi)),
         ],
       ),
     );

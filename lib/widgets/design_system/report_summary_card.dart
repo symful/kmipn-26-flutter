@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/widgets/design_system/sigap_card.dart';
 
 /// M-11 report summary card model.
 ///
@@ -81,13 +83,14 @@ class ReportSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section label
-        const Text(
-          'RINGKASAN LAPORAN',
-          style: TextStyle(
+        Text(
+          l10n.ringkasanLaporanUppercase,
+          style: const TextStyle(
             fontSize: SigapTypography.bodySmall,
             fontWeight: FontWeight.w700,
             color: SigapColors.textTertiary,
@@ -97,13 +100,7 @@ class ReportSummaryCard extends StatelessWidget {
         const SizedBox(height: SigapSpacing.sm),
 
         // Card
-        Container(
-          decoration: BoxDecoration(
-            color: SigapColors.bgCard,
-            border: Border.all(color: SigapColors.borderCard),
-            borderRadius: BorderRadius.circular(SigapRadius.lg),
-          ),
-          clipBehavior: Clip.antiAlias,
+        SigapCard(
           child: Column(
             children: [
               // Photo + info row
@@ -127,7 +124,7 @@ class ReportSummaryCard extends StatelessWidget {
                               _CategoryBadge(initials: report.initials),
                               const SizedBox(width: SigapSpacing.x6),
                               Text(
-                                'Kondisi: ${report.condition}',
+                                l10n.kondisiColonLabel(report.condition),
                                 style: const TextStyle(
                                   fontSize: SigapTypography.captionMedium,
                                   color: SigapColors.textTertiary,
@@ -159,7 +156,7 @@ class ReportSummaryCard extends StatelessWidget {
 
               // Location row
               _InfoRow(
-                label: 'Lokasi',
+                label: l10n.lokasi,
                 value: report.location,
                 accuracy: report.accuracy,
                 canEdit: report.canEditLocation,
@@ -171,7 +168,7 @@ class ReportSummaryCard extends StatelessWidget {
 
               // Timestamp row
               _InfoRow(
-                label: 'Waktu',
+                label: l10n.waktuLabel,
                 value: report.timestamp,
                 canEdit: report.canEditTimestamp,
                 onEdit: onEditTimestamp,
@@ -182,7 +179,11 @@ class ReportSummaryCard extends StatelessWidget {
               const _Divider(),
 
               // Impact row
-              _InfoRow(label: 'Dampak', value: report.impact, isImpact: true),
+              _InfoRow(
+                label: l10n.dampakLabel,
+                value: report.impact,
+                isImpact: true,
+              ),
             ],
           ),
         ),

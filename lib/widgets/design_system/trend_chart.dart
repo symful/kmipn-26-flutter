@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
 import 'package:sigap/widgets/design_system/skeleton_loaders.dart';
@@ -62,12 +63,13 @@ class TrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (data.isEmpty) {
       return SigapCard(
         padding: const EdgeInsets.all(SigapSpacing.md),
-        child: const Center(
+        child: Center(
           child: Text(
-            'Tidak ada data tren',
+            l10n.tidakAdaDataTren,
             style: TextStyle(
               color: SigapColors.textMuted,
               fontSize: SigapTypography.bodyText,
@@ -94,8 +96,8 @@ class TrendChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Umur backlog kasus',
+              Text(
+                l10n.umurBacklogKasus,
                 style: TextStyle(
                   fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,

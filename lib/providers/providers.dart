@@ -1,6 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:sigap/api/exceptions.dart';
 import '../api/client.dart';
 import '../db/database.dart';
@@ -13,14 +12,6 @@ import 'auth_provider.dart';
 export 'auth_provider.dart';
 
 final _logger = Logger('Providers');
-
-// ─── Location Picking Providers ───────────────────────────────────────────────
-
-final pickLocationModeProvider = StateProvider<bool>((ref) => false);
-
-final pickLocationCallbackProvider = StateProvider<void Function(LatLng)?>(
-  (ref) => null,
-);
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -49,6 +40,13 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient(
     onLogout: () => ref.read(authNotifierProvider.notifier).logout(),
   );
+});
+
+/// Public (unauthenticated) API client for anonymous/public endpoints.
+/// Does not carry auth tokens — safe for unauthenticated screens.
+final publicApiClientProvider = Provider<ApiClient>((ref) {
+  ref.keepAlive();
+  return ApiClient(onLogout: () async {});
 });
 
 final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) {

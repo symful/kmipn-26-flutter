@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/design_system/authenticated_shell.dart';
 import '../../widgets/design_system/section_label.dart';
+import '../../widgets/design_system/sigap_app_bar.dart';
+import '../../widgets/design_system/sigap_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -12,80 +15,206 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authNotifierProvider);
+    final activeRole = authState.activeRole ?? authState.userRole ?? '';
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return AuthenticatedShell(
+      activeRole: activeRole,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(l10n.profil),
+      appBar: SigapAppBar(
+        title: l10n.profil,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Pengaturan',
+            tooltip: l10n.pengaturan,
             onPressed: () => context.push('/settings'),
           ),
         ],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(SigapSpacing.lg),
-          children: [
-            _UserInfoCard(
-              name: authState.userName ?? 'Pengguna SIGAP',
-              email: authState.userEmail ?? '',
-              role: authState.activeRole ?? authState.userRole ?? 'Warga',
+      body: ListView(
+        padding: const EdgeInsets.all(SigapSpacing.lg),
+        children: [
+          SigapCard(
+            padding: const EdgeInsets.all(SigapSpacing.lg),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: SigapColors.primary,
+                  foregroundColor: SigapColors.surface,
+                  child: Text(
+                    (authState.userName ?? l10n.penggunaSigap).isNotEmpty
+                        ? (authState.userName ?? l10n.penggunaSigap)[0]
+                              .toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      fontSize: SigapTypography.headlineMedium,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: SigapSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        authState.userName ?? l10n.penggunaSigap,
+                        style: const TextStyle(
+                          fontSize: SigapTypography.bodyLarge,
+                          fontWeight: FontWeight.bold,
+                          color: SigapColors.textPrimary,
+                        ),
+                      ),
+                      if ((authState.userEmail ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          authState.userEmail ?? '',
+                          style: const TextStyle(
+                            fontSize: SigapTypography.bodySmall,
+                            color: SigapColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: SigapSpacing.sm,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: SigapColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(SigapRadius.pill),
+                          border: Border.all(
+                            color: SigapColors.primary.withValues(alpha: 0.25),
+                          ),
+                        ),
+                        child: Text(
+                          (authState.activeRole ??
+                                  authState.userRole ??
+                                  'Warga')
+                              .toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: SigapTypography.captionSmall,
+                            fontWeight: FontWeight.bold,
+                            color: SigapColors.primary,
+                            letterSpacing: SigapTypography.letterSpacingLabel,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: SigapSpacing.lg),
-            SectionLabel(
-              label: l10n.labelPeranAkses,
-              padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-            _RoleCard(
-              role: authState.activeRole ?? authState.userRole ?? 'Warga',
-              isActive: true,
+          ),
+          const SizedBox(height: SigapSpacing.lg),
+          SectionLabel(
+            label: l10n.labelPeranAkses,
+            padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
+          ),
+          const SizedBox(height: SigapSpacing.sm),
+          SigapCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
+              leading: Icon(Icons.check_circle, color: SigapColors.primary),
+              title: Text(
+                (authState.activeRole ??
+                        authState.userRole ??
+                        l10n.wargaDefault)
+                    .replaceAll('_', ' ')
+                    .toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: SigapTypography.bodyMedium,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+              subtitle: Text(
+                l10n.peranAktifSaatIni,
+                style: TextStyle(
+                  fontSize: SigapTypography.bodySmall,
+                  color: SigapColors.textSecondary,
+                ),
+              ),
+              trailing: const Icon(
+                Icons.chevron_right,
+                color: SigapColors.textMuted,
+              ),
               onTap: () => context.push('/switch-role'),
             ),
-            const SizedBox(height: SigapSpacing.sm),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: SigapSpacing.sm),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SigapRadius.md),
+          ),
+          const SizedBox(height: SigapSpacing.sm),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: SigapSpacing.sm),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(SigapRadius.md),
+              ),
+            ),
+            icon: const Icon(Icons.swap_horiz, size: 20),
+            label: Text(l10n.gantiPeranAktif),
+            onPressed: () => context.push('/switch-role'),
+          ),
+          const SizedBox(height: SigapSpacing.xl),
+          SectionLabel(
+            label: l10n.labelPengaturanPreferensi,
+            padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
+          ),
+          const SizedBox(height: SigapSpacing.sm),
+          SigapCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
+              leading: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: SigapColors.primaryLight,
+                  borderRadius: BorderRadius.circular(SigapRadius.sm),
+                ),
+                child: const Icon(
+                  Icons.tune,
+                  size: 20,
+                  color: SigapColors.primary,
                 ),
               ),
-              icon: const Icon(Icons.swap_horiz, size: 20),
-              label: Text(l10n.gantiPeranAktif),
-              onPressed: () => context.push('/switch-role'),
-            ),
-            const SizedBox(height: SigapSpacing.xl),
-            SectionLabel(
-              label: l10n.labelPengaturanPreferensi,
-              padding: const EdgeInsets.only(bottom: SigapSpacing.xs),
-            ),
-            const SizedBox(height: SigapSpacing.sm),
-            _ActionCard(
-              icon: Icons.tune,
-              title: l10n.pengaturanAplikasi,
-              subtitle: l10n.subtitlePengaturan,
+              title: Text(
+                l10n.pengaturanAplikasi,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: SigapTypography.bodyMedium,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+              subtitle: Text(
+                l10n.subtitlePengaturan,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodySmall,
+                  color: SigapColors.textSecondary,
+                ),
+              ),
+              trailing: const Icon(
+                Icons.chevron_right,
+                color: SigapColors.textMuted,
+              ),
               onTap: () => context.push('/settings'),
             ),
-            const SizedBox(height: SigapSpacing.lg),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.logout, size: 20),
-              label: Text(l10n.keluar),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SigapColors.perluTindakan,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(SigapRadius.md),
-                ),
+          ),
+          const SizedBox(height: SigapSpacing.lg),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.logout, size: 20),
+            label: Text(l10n.keluar),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: SigapColors.perluTindakan,
+              foregroundColor: SigapColors.surface,
+              padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(SigapRadius.md),
               ),
-              onPressed: () => _handleLogout(context, ref),
             ),
-          ],
-        ),
+            onPressed: () => _handleLogout(context, ref),
+          ),
+        ],
       ),
     );
   }
@@ -113,9 +242,9 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
-          content: const Text(
-            'Apakah Anda yakin ingin keluar dari sesi akun ini?',
-            style: TextStyle(
+          content: Text(
+            dl10n.apakahYakinKeluar,
+            style: const TextStyle(
               fontSize: SigapTypography.bodyText,
               color: SigapColors.textSecondary,
             ),
@@ -131,12 +260,22 @@ class ProfileScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
+                // Invalidate all data providers before clearing auth state
+                ref.invalidate(wargaReportsProvider);
+                ref.invalidate(wargaStatsProvider);
+                ref.invalidate(localReportsProvider);
+                ref.invalidate(surveyorTasksProvider);
+                ref.invalidate(notificationsProvider);
+                ref.invalidate(unreadCountProvider);
+                ref.invalidate(wilayahProvider);
+                ref.invalidate(userWilayahProvider);
+                ref.invalidate(categoriesProvider);
                 ref.read(authNotifierProvider.notifier).logout();
                 context.go('/');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.perluTindakan,
-                foregroundColor: Colors.white,
+                foregroundColor: SigapColors.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(SigapRadius.sm),
                 ),
@@ -146,190 +285,6 @@ class ProfileScreen extends ConsumerWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _UserInfoCard extends StatelessWidget {
-  final String name;
-  final String email;
-  final String role;
-  const _UserInfoCard({
-    required this.name,
-    required this.email,
-    required this.role,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(SigapSpacing.lg),
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.lg),
-        border: Border.all(color: SigapColors.border),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: SigapColors.primary,
-            foregroundColor: Colors.white,
-            child: Text(
-              name.isNotEmpty ? name[0].toUpperCase() : '?',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(width: SigapSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: SigapTypography.bodyLarge,
-                    fontWeight: FontWeight.bold,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
-                if (email.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    email,
-                    style: const TextStyle(
-                      fontSize: SigapTypography.bodySmall,
-                      color: SigapColors.textSecondary,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.sm,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: SigapColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(SigapRadius.pill),
-                    border: Border.all(
-                      color: SigapColors.primary.withValues(alpha: 0.25),
-                    ),
-                  ),
-                  child: Text(
-                    role.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: SigapTypography.captionSmall,
-                      fontWeight: FontWeight.bold,
-                      color: SigapColors.primary,
-                      letterSpacing: SigapTypography.letterSpacingLabel,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoleCard extends StatelessWidget {
-  final String role;
-  final bool isActive;
-  final VoidCallback onTap;
-  const _RoleCard({
-    required this.role,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(
-          color: isActive ? SigapColors.primary : SigapColors.border,
-        ),
-      ),
-      child: ListTile(
-        leading: Icon(
-          isActive ? Icons.check_circle : Icons.circle_outlined,
-          color: isActive ? SigapColors.primary : SigapColors.textMuted,
-        ),
-        title: Text(
-          role.replaceAll('_', ' ').toUpperCase(),
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: SigapTypography.bodyMedium,
-            color: SigapColors.textPrimary,
-          ),
-        ),
-        subtitle: Text(
-          isActive ? 'Peran aktif saat ini' : 'Tap untuk mengaktifkan',
-          style: const TextStyle(
-            fontSize: SigapTypography.bodySmall,
-            color: SigapColors.textSecondary,
-          ),
-        ),
-        trailing: const Icon(Icons.chevron_right, color: SigapColors.textMuted),
-        onTap: onTap,
-      ),
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  const _ActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: SigapColors.border),
-      ),
-      child: ListTile(
-        leading: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: SigapColors.primaryLight,
-            borderRadius: BorderRadius.circular(SigapRadius.sm),
-          ),
-          child: Icon(icon, size: 20, color: SigapColors.primary),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: SigapTypography.bodyMedium,
-            color: SigapColors.textPrimary,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(
-            fontSize: SigapTypography.bodySmall,
-            color: SigapColors.textSecondary,
-          ),
-        ),
-        trailing: const Icon(Icons.chevron_right, color: SigapColors.textMuted),
-        onTap: onTap,
-      ),
     );
   }
 }

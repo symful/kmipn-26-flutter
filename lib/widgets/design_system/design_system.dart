@@ -39,7 +39,6 @@ export 'photo_full_screen.dart';
 
 // AppBar widgets
 export 'back_arrow_button.dart';
-export 'title_app_bar.dart';
 
 // State management helpers
 export 'async_data_widget.dart';
@@ -63,3 +62,10 @@ export 'filter_bottom_sheet.dart';
 export 'urgent_case_list.dart';
 export 'legend_dot.dart';
 export 'error_card.dart';
+
+// DC Design Guide widgets
+export 'initials_avatar.dart';
+export 'category_pill.dart';
+export 'info_card.dart';
+export 'status_badge.dart';
+export 'sigap_filter_chip.dart';

@@ -141,7 +141,7 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: SigapColors.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(SigapRadius.sm),
                 ),
@@ -159,12 +159,9 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
                 }
                 try {
                   final client = ref.read(apiClientProvider);
-                  await client.dio.post(
-                    '/api/units',
-                    data: {
-                      'name': nameController.text.trim(),
-                      'region': wilayahIdController.text.trim(),
-                    },
+                  await client.createUnit(
+                    name: nameController.text.trim(),
+                    region: wilayahIdController.text.trim(),
                   );
                   if (ctx.mounted) Navigator.pop(ctx, true);
                 } catch (e) {
@@ -192,10 +189,13 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(l10n.kelolaUnit),
+      appBar: SigapAppBar(
+        title: l10n.kelolaUnit,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -207,7 +207,7 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _createItem,
         backgroundColor: SigapColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: SigapColors.surface,
         icon: const Icon(Icons.add),
         label: Text(l10n.tambahUnit),
       ),
@@ -317,7 +317,7 @@ class _UnitsScreenState extends ConsumerState<UnitsScreen> {
                               subtitle: Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
-                                  'Wilayah: $region',
+                                  l10n.wilayahPrefix(region),
                                   style: const TextStyle(
                                     fontSize: SigapTypography.bodySmall,
                                     color: SigapColors.textSecondary,

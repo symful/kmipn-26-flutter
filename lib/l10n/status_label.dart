@@ -9,7 +9,7 @@ String statusLabel(BuildContext context, String? status) {
   final l10n = AppLocalizations.of(context)!;
   switch (status) {
     case 'draft':
-      return 'Draft';
+      return l10n.draftLabelStatus;
     case 'submitted':
     case 'under_review':
       return l10n.perluTindakan;
@@ -30,9 +30,9 @@ String statusLabel(BuildContext context, String? status) {
     case 'closed':
       return l10n.tutup;
     case 'merged':
-      return 'Digabung';
+      return l10n.digabungLabelStatus;
     case 'separated':
-      return 'Dipisah';
+      return l10n.dipisahLabelStatus;
     case 'needs_completion':
       return l10n.perluDilengkapi;
     case 'out_of_scope':
@@ -40,14 +40,14 @@ String statusLabel(BuildContext context, String? status) {
     case 'pending':
       return l10n.menunggu;
     case 'locally_created':
-      return 'Draft';
+      return l10n.draftLabelStatus;
     case 'locally_saved':
       return l10n.tersimpanDiPerangkat;
     case 'in_review':
-      return 'Dalam Review';
+      return l10n.dalamReviewLabelStatus;
     case 'needs_action':
       return l10n.perluTindakan;
     default:
-      return status ?? 'Unknown';
+      return l10n.unknownLabel;
   }
 }

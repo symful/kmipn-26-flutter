@@ -44,14 +44,14 @@ class NotificationBell extends StatelessWidget {
               decoration: BoxDecoration(
                 color: SigapColors.perluTindakan, // #c0392b per M-05
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 1.6),
+                border: Border.all(color: SigapColors.surface, width: 1.6),
               ),
               child: Center(
                 child: Text(
                   unreadCount > 99 ? '99+' : unreadCount.toString(),
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
+                    color: SigapColors.surface,
+                    fontSize: SigapTypography.captionSmall,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

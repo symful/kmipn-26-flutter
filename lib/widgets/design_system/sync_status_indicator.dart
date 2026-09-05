@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Canonical sync status indicator pill — consolidates duplicate offline/online
@@ -82,16 +83,16 @@ class SyncStatusIndicator extends StatelessWidget {
   // Label
   // -------------------------------------------------------------------------
 
-  String get label {
+  String _label(AppLocalizations l10n) {
     switch (state) {
       case SyncState.online:
-        return 'Online';
+        return l10n.statusOnline;
       case SyncState.offline:
-        return 'Offline';
+        return l10n.statusOffline;
       case SyncState.syncing:
-        return 'Syncing';
+        return l10n.statusSyncing;
       case SyncState.error:
-        return 'Error';
+        return l10n.statusErrorLabel;
     }
   }
 
@@ -101,8 +102,10 @@ class SyncStatusIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final label = _label(l10n);
     return Semantics(
-      label: 'Sync status: $label',
+      label: l10n.sinkronStatusA11y(label),
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: SigapSpacing.x9,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// A case matched by location/similarity during report creation (M-11).
@@ -69,8 +70,9 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final count = widget.cases.length;
-    final label = '$count kasus serupa ditemukan di dekat sini';
+    final label = l10n.kasusSerupaDitemukan(count);
 
     return Container(
       decoration: BoxDecoration(
@@ -104,7 +106,7 @@ class _SimilarCasesBannerState extends State<SimilarCasesBanner> {
                     widget.onViewAll?.call();
                   },
                   child: Text(
-                    _isExpanded ? 'Tutup' : 'Lihat Semua',
+                    _isExpanded ? l10n.tutup : l10n.lihatSemua,
                     style: const TextStyle(
                       fontSize: SigapTypography.bodySmallFine,
                       fontWeight: FontWeight.w600,
@@ -163,9 +165,10 @@ class _CaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SigapColors.surface,
         border: Border.all(color: SigapColors.infoChartBar),
         borderRadius: BorderRadius.circular(SigapRadius.md),
       ),
@@ -190,7 +193,7 @@ class _CaseCard extends StatelessWidget {
                   caseItem.initials,
                   style: TextStyle(
                     fontFamily: SigapTypography.fontFamilyMono,
-                    fontSize: 12,
+                    fontSize: SigapTypography.bodySmall,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.primaryDark,
                   ),
@@ -212,7 +215,7 @@ class _CaseCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      '${caseItem.distance} · kemiripan ${caseItem.similarityPercent}% · ${caseItem.reportCount} laporan',
+                      '${caseItem.distance} · ${l10n.kemiripanLabel} ${caseItem.similarityPercent}% · ${caseItem.reportCount} ${l10n.laporan}',
                       style: const TextStyle(
                         fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textTertiary,
@@ -239,12 +242,12 @@ class _CaseCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(SigapRadius.x9),
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
-                      'Tambahkan bukti ke kasus ini',
+                    child: Text(
+                      l10n.tambahkanBuktiKeKasus,
                       style: TextStyle(
                         fontSize: SigapTypography.bodySmallFine,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: SigapColors.bgCard,
                       ),
                     ),
                   ),
@@ -266,8 +269,8 @@ class _CaseCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(SigapRadius.x9),
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
-                      'Buat terpisah',
+                    child: Text(
+                      l10n.buatTerpisah,
                       style: TextStyle(
                         fontSize: SigapTypography.bodySmallFine,
                         fontWeight: FontWeight.w600,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Online status for S-01 surveyor home screen indicator.
@@ -82,19 +83,20 @@ class ConnectivityIndicator extends StatelessWidget {
   }
 
   /// Label text based on status.
-  String get _label {
+  String _label(AppLocalizations l10n) {
     switch (status) {
       case ConnectivityStatus.online:
-        return 'Online';
+        return l10n.statusOnline;
       case ConnectivityStatus.syncing:
-        return 'Syncing';
+        return l10n.statusSyncing;
       case ConnectivityStatus.offline:
-        return 'Offline';
+        return l10n.statusOffline;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -112,7 +114,7 @@ class ConnectivityIndicator extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Text(
-            _label,
+            _label(l10n),
             style: TextStyle(
               fontSize: SigapTypography.captionMedium,
               fontWeight: FontWeight.w600,

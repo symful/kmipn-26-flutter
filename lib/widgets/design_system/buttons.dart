@@ -21,7 +21,7 @@ class PrimaryButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: SigapColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: SigapColors.surface,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SigapRadius.xl),
@@ -34,7 +34,7 @@ class PrimaryButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                  valueColor: AlwaysStoppedAnimation(SigapColors.surface),
                 ),
               )
             : Text(
@@ -106,7 +106,7 @@ class CtaButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: SigapColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: SigapColors.surface,
           padding: const EdgeInsets.symmetric(vertical: 17, horizontal: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SigapRadius.xl),
@@ -119,7 +119,7 @@ class CtaButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                  valueColor: AlwaysStoppedAnimation(SigapColors.surface),
                 ),
               )
             : Row(
@@ -128,10 +128,14 @@ class CtaButton extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(11),
+                      color: SigapColors.surface.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(SigapRadius.md),
                     ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 18),
+                    child: const Icon(
+                      Icons.add,
+                      color: SigapColors.surface,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 13),
                   Expanded(
@@ -144,7 +148,7 @@ class CtaButton extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: SigapTypography.bodyLarge,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: SigapColors.surface,
                           ),
                         ),
                         if (subtitle != null) ...[
@@ -154,7 +158,9 @@ class CtaButton extends StatelessWidget {
                             style: TextStyle(
                               fontSize: SigapTypography.bodySmall,
                               fontWeight: FontWeight.w400,
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: SigapColors.surface.withValues(
+                                alpha: 0.85,
+                              ),
                             ),
                           ),
                         ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sigap/widgets/design_system/responsive_scaffold.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../theme/tokens.dart';
@@ -35,8 +36,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: SigapColors.bgSurface,
+    return ResponsiveScaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -49,7 +49,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   l10n.lewatI,
                   style: const TextStyle(
                     color: SigapColors.textSecondary,
-                    fontSize: 14,
+                    fontSize: SigapTypography.bodyMedium,
                   ),
                 ),
               ),
@@ -95,14 +95,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(3, (index) {
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: SigapSpacing.x4,
+                    ),
                     width: _currentPage == index ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
                       color: _currentPage == index
                           ? SigapColors.primary
                           : SigapColors.border,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(SigapRadius.x4),
                     ),
                   );
                 }),
@@ -153,7 +155,7 @@ class _PermissionStep extends ConsumerWidget {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: SigapTypography.headlineLarge,
               fontWeight: FontWeight.bold,
               color: SigapColors.textPrimary,
             ),
@@ -164,7 +166,7 @@ class _PermissionStep extends ConsumerWidget {
           Text(
             body,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: SigapTypography.bodyMedium,
               color: SigapColors.textSecondary,
               height: 1.5,
             ),
@@ -179,7 +181,7 @@ class _PermissionStep extends ConsumerWidget {
               onPressed: () => _requestPermission(context, ref),
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: SigapColors.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(SigapRadius.md),
                 ),
@@ -187,7 +189,10 @@ class _PermissionStep extends ConsumerWidget {
               ),
               child: Text(
                 l10n.izinkan,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: SigapTypography.titleMedium,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

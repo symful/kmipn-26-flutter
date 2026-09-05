@@ -5,6 +5,8 @@ import '../../../api/client.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
+import '../../../widgets/design_system/authenticated_shell.dart';
+import '../../../widgets/design_system/sigap_app_bar.dart';
 
 class WilayahScreen extends ConsumerStatefulWidget {
   const WilayahScreen({super.key});
@@ -127,7 +129,6 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                       ),
                     ),
                     items: [
-                      DropdownMenuItem(value: 'rt_rw', child: Text(dl10n.rtRw)),
                       DropdownMenuItem(
                         value: 'kelurahan',
                         child: Text(dl10n.kelurahanDesa),
@@ -182,7 +183,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: SigapColors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(SigapRadius.sm),
                   ),
@@ -199,14 +200,12 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                   }
                   try {
                     final client = ref.read(apiClientProvider);
-                    await client.dio.post(
-                      '/api/admin/wilayah',
-                      data: {
-                        'name': nameController.text.trim(),
-                        if (parentController.text.trim().isNotEmpty)
-                          'parent_id': parentController.text.trim(),
-                        'level': selectedLevel.trim(),
-                      },
+                    await client.createWilayah(
+                      name: nameController.text.trim(),
+                      parentId: parentController.text.trim().isNotEmpty
+                          ? parentController.text.trim()
+                          : null,
+                      level: selectedLevel.trim(),
                     );
                     if (ctx.mounted) Navigator.pop(ctx, true);
                   } catch (e) {
@@ -235,10 +234,13 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(l10n.kelolaWilayah),
+      appBar: SigapAppBar(
+        title: l10n.kelolaWilayah,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -250,7 +252,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _createItem,
         backgroundColor: SigapColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: SigapColors.surface,
         icon: const Icon(Icons.add),
         label: Text(l10n.tambahWilayah),
       ),
@@ -340,7 +342,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                               label: Text(l10n.cobaLagi),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: SigapColors.primary,
-                                foregroundColor: Colors.white,
+                                foregroundColor: SigapColors.surface,
                               ),
                             ),
                           ],
@@ -447,7 +449,7 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
                                 'ID: ${id.length > 8 ? id.substring(0, 8) : id}',
                                 style: const TextStyle(
                                   fontSize: SigapTypography.captionMedium,
-                                  fontFamily: 'monospace',
+                                  fontFamily: SigapTypography.fontFamilyMono,
                                   color: SigapColors.textTertiary,
                                 ),
                               ),
@@ -500,8 +502,6 @@ class _WilayahScreenState extends ConsumerState<WilayahScreen> {
       case 'kelurahan':
       case 'desa':
         return SigapColors.selesai;
-      case 'rt_rw':
-        return SigapColors.offlineDot;
       default:
         return SigapColors.textMuted;
     }

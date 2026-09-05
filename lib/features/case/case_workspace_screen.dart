@@ -8,6 +8,7 @@ import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/design_system/design_system.dart';
 import '../../widgets/design_system/timeline_event.dart' as ds;
+import '../../widgets/design_system/assign_dialog.dart';
 import '../../capabilities/can.dart';
 import 'case_workspace_ringkasan_tab.dart';
 import 'case_workspace_audit_tab.dart';
@@ -50,7 +51,7 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
 
   // Status-driven transitions map (mirrors Web SPA CaseDetail.tsx lines 523-592)
   static const Map<String, _StatusTransition> _statusTransitions = {
-    'MENUNGGU_VERIFIKASI': _StatusTransition(
+    'submitted': _StatusTransition(
       label: 'Menunggu Verifikasi',
       availableActions: [
         'valid',
@@ -60,11 +61,25 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
         'rejected',
       ],
     ),
-    'TERVERIFIKASI': _StatusTransition(
+    'under_review': _StatusTransition(
+      label: 'Menunggu Verifikasi',
+      availableActions: [
+        'valid',
+        'needs_completion',
+        'needs_survey',
+        'duplicate',
+        'rejected',
+      ],
+    ),
+    'verified': _StatusTransition(
       label: 'Terverifikasi',
       availableActions: ['dispatch', 'combine'],
     ),
-    'SEDANG_DITANGANI': _StatusTransition(
+    'assigned': _StatusTransition(
+      label: 'Ditugaskan',
+      availableActions: ['resolve', 'reject'],
+    ),
+    'in_progress': _StatusTransition(
       label: 'Sedang Ditangani',
       availableActions: ['resolve', 'reject'],
     ),
@@ -145,7 +160,7 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
             _CaseAction(
               label: l10n.tugaskanPetugas,
               icon: Icons.send,
-              onPressed: () => _handleStatusChange('in_progress'),
+              onPressed: () => _showAssignDialog(),
             ),
           );
           break;
@@ -174,17 +189,18 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
 
   void _showDecisionSheet(String decision, String label, Color color) {
     // Delegate to VerifikasiTab if on that tab, otherwise show a snackbar
+    final l10n = AppLocalizations.of(context)!;
     if (_tabController.index == 2) {
       // Already on Verifikasi tab - the _VerifikasiTab handles its own decision sheet
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Aksi "$label" - gunakan panel verifikasi')),
+        SnackBar(content: Text(l10n.aksiGunakanPanelVerifikasi(label))),
       );
     } else {
       // Switch to Verifikasi tab and trigger the action
       _tabController.animateTo(2);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Buka tab Verifikasi untuk aksi "$label"')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.bukaTabVerifikasi(label))));
     }
   }
 
@@ -229,6 +245,18 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
     }
   }
 
+  void _showAssignDialog() {
+    if (_caseDetail?.report?.id == null) return;
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => OperatorAssignDialog(caseId: _caseDetail!.report!.id!),
+    ).then((assigned) {
+      if (assigned == true) {
+        _loadData(); // Refresh after successful assignment
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -251,31 +279,31 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
       final client = ref.read(apiClientProvider);
       final caseDetail = await client.getCaseDetail(widget.caseId);
 
-      // Fetch AI assessment if available
+      // Fetch AI assessment via /api/agent/assessments/:reportId (has full factors)
+      // The case detail endpoint doesn't include supporting_factors/risk_factors/correlation_ids.
       Map<String, dynamic>? assessmentData;
       bool assessmentError = false;
       try {
-        final list = await client.getAiAssessment(widget.caseId);
-        final r = list.isNotEmpty ? list.first : null;
-        if (r == null) {
-          assessmentError = true;
-          assessmentData = null;
-        } else {
+        final reportId = caseDetail.report?.id ?? widget.caseId;
+        final entries = await client.getReportAssessments(reportId);
+        final r = entries.isNotEmpty ? entries.first : null;
+        if (r != null) {
           assessmentData = {
-            'confidence': r.confidenceScore,
+            'confidence': r.confidence,
             'factors': {
               'supporting': r.supportingFactors ?? [],
               'risk': r.riskFactors ?? [],
-              'correlation_ids': (r.duplicateCandidates ?? [])
-                  .map((e) => e.reportId?.toString() ?? '')
-                  .where((id) => id.isNotEmpty)
-                  .toList(),
+              'correlation_ids': <String>[],
             },
           };
+        } else {
+          // No assessments — not an error, just empty state
+          assessmentData = null;
+          assessmentError = false;
         }
       } catch (_) {
-        assessmentError = true;
         assessmentData = null;
+        assessmentError = false;
       }
 
       // Fetch timeline
@@ -304,18 +332,18 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.detailKasus),
+    return ResponsiveScaffold(
+      appBar: SigapAppBar(
+        title: l10n.detailKasus,
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          tabs: const [
-            Tab(text: 'Ringkasan'),
-            Tab(text: 'Bukti & Laporan'),
-            Tab(text: 'Verifikasi'),
-            Tab(text: 'Tugas & Progres'),
-            Tab(text: 'Riwayat Audit'),
+          tabs: [
+            Tab(text: l10n.ringkasanTab),
+            Tab(text: l10n.buktiLaporanTab),
+            Tab(text: l10n.verifikasiTab),
+            Tab(text: l10n.tugasProgresTab),
+            Tab(text: l10n.riwayatAuditTab),
           ],
           labelColor: SigapColors.primary,
           unselectedLabelColor: SigapColors.textSecondary,
@@ -330,7 +358,7 @@ class _CaseWorkspaceScreenState extends ConsumerState<CaseWorkspaceScreen>
                 : _error != null
                 ? Center(
                     child: ErrorRetryView(
-                      message: 'Gagal memuat data',
+                      message: l10n.gagalMemuatData,
                       onRetry: _loadData,
                     ),
                   )
@@ -483,14 +511,12 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
       setState(() => _success = true);
     } catch (e) {
       final errorStr = e.toString();
+      final l10n = AppLocalizations.of(context)!;
       if (errorStr.contains('409') ||
           errorStr.toLowerCase().contains('invalid_transition')) {
-        setState(
-          () => _submitError =
-              'Transisi status tidak valid. Laporan mungkin sudah diproses.',
-        );
+        setState(() => _submitError = l10n.transisiStatusTidakValid);
       } else {
-        setState(() => _submitError = 'Gagal mengirim keputusan: $errorStr');
+        setState(() => _submitError = l10n.gagalMengirimKeputusan(errorStr));
       }
     } finally {
       setState(() => _submitting = false);
@@ -549,7 +575,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
                     height: 24,
                     decoration: BoxDecoration(
                       color: color,
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(SigapRadius.x2),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -557,7 +583,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
                     child: Text(
                       label,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: SigapTypography.titleLarge,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -627,7 +653,13 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
                   foregroundColor: SigapColors.surface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text(l10n.kirimKeputusan),
+                child: Text(
+                  l10n.kirimKeputusan,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodyMedium,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -645,13 +677,12 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Role-gated: Only show for VERIFIKATOR role (has case.verify capability)
     return Can(
       action: 'case.verify',
       resource: Resource(type: 'case', id: widget.caseId),
-      fallback: const AccessDeniedCard(
-        message: 'Anda tidak memiliki akses untuk memverifikasi kasus ini.',
-      ),
+      fallback: AccessDeniedCard(message: l10n.andaTidakAksesVerifikasi),
       child: _buildVerificationContent(),
     );
   }
@@ -669,19 +700,32 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
               size: 64,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Keputusan berhasil dikirim',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.keputusanBerhasilDikirim,
+              style: TextStyle(
+                fontSize: SigapTypography.titleLarge,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => context.pop(),
-              child: Text(l10n.kembali),
+              child: Text(
+                l10n.kembali,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyMedium,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
       );
     }
+
+    // Check if case is in a terminal status — hide all action buttons
+    final status = widget.caseDetail.report?.status?.value ?? '';
+    final isTerminal = CaseWorkspaceVerifikasiTab.isTerminalStatus(status);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(SigapSpacing.lg),
@@ -690,14 +734,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
         children: [
           // AI Assessment section
           if (widget.assessmentData != null) ...[
-            Text(
-              l10n.labelPenilaianAI,
-              style: TextStyle(
-                fontSize: SigapTypography.subtitle,
-                fontWeight: FontWeight.bold,
-                color: SigapColors.textPrimary,
-              ),
-            ),
+            SectionLabel(label: l10n.labelPenilaianAI),
             const SizedBox(height: SigapSpacing.sm),
             AiAssessmentCard(assessment: widget.assessmentData!),
             const SizedBox(height: SigapSpacing.lg),
@@ -722,7 +759,7 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
                   ),
                   const SizedBox(width: SigapSpacing.sm),
                   Text(
-                    'Assessment tidak tersedia',
+                    l10n.assessmentTidakTersedia,
                     style: TextStyle(
                       color: SigapColors.perluTindakan,
                       fontSize: SigapTypography.bodyText,
@@ -735,96 +772,91 @@ class _VerifikasiTabState extends ConsumerState<_VerifikasiTab> {
             const SizedBox(height: SigapSpacing.lg),
           ],
 
-          // Decision Actions Panel
-          Text(
-            l10n.tindakan,
-            style: TextStyle(
-              fontSize: SigapTypography.subtitle,
-              fontWeight: FontWeight.bold,
-              color: SigapColors.textPrimary,
+          // Decision Actions Panel — only for non-terminal statuses
+          if (!isTerminal) ...[
+            SectionLabel(label: l10n.tindakan),
+            const SizedBox(height: SigapSpacing.md),
+            StickyActionBar(
+              actions: [
+                SigapActionButton(
+                  label: l10n.ditolak,
+                  semanticsLabel: l10n.ditolak,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'rejected',
+                          l10n.ditolak,
+                          SigapColors.perluTindakan,
+                        ),
+                  icon: Icons.cancel,
+                ),
+                SigapOutlineButton(
+                  label: l10n.duplikat,
+                  semanticsLabel: l10n.duplikat,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'duplicate',
+                          l10n.tandaiDuplikat,
+                          SigapColors.offlineDot,
+                        ),
+                  icon: Icons.link,
+                ),
+                SigapOutlineButton(
+                  label: l10n.survei,
+                  semanticsLabel: l10n.survei,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'needs_survey',
+                          l10n.perluSurvei,
+                          SigapColors.primary,
+                        ),
+                  icon: Icons.search,
+                ),
+                SigapOutlineButton(
+                  label: l10n.dilute,
+                  semanticsLabel: l10n.dilute,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'out_of_scope',
+                          l10n.diluteJangkauan,
+                          SigapColors.offlineDot,
+                        ),
+                  icon: Icons.block,
+                ),
+                SigapOutlineButton(
+                  label: l10n.perluDilengkapi,
+                  semanticsLabel: l10n.perluDilengkapi,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'needs_completion',
+                          l10n.perluDilengkapi,
+                          SigapColors.diproses,
+                        ),
+                  icon: Icons.edit_note,
+                ),
+                SigapActionButton(
+                  label: l10n.valid,
+                  semanticsLabel: l10n.valid,
+                  onPressed: _submitting
+                      ? null
+                      : () => _showDecisionSheet(
+                          'valid',
+                          l10n.valid,
+                          SigapColors.selesai,
+                        ),
+                  icon: Icons.check_circle,
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: SigapSpacing.md),
-          StickyActionBar(
-            actions: [
-              SigapActionButton(
-                label: l10n.ditolak,
-                semanticsLabel: l10n.ditolak,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'rejected',
-                        l10n.ditolak,
-                        SigapColors.perluTindakan,
-                      ),
-                icon: Icons.cancel,
-              ),
-              SigapOutlineButton(
-                label: l10n.duplikat,
-                semanticsLabel: l10n.duplikat,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'duplicate',
-                        l10n.tandaiDuplikat,
-                        SigapColors.offlineDot,
-                      ),
-                icon: Icons.link,
-              ),
-              SigapOutlineButton(
-                label: l10n.survei,
-                semanticsLabel: l10n.survei,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'needs_survey',
-                        l10n.perluSurvei,
-                        SigapColors.primary,
-                      ),
-                icon: Icons.search,
-              ),
-              SigapOutlineButton(
-                label: l10n.dilute,
-                semanticsLabel: l10n.dilute,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'out_of_scope',
-                        l10n.diluteJangkauan,
-                        SigapColors.offlineDot,
-                      ),
-                icon: Icons.block,
-              ),
-              SigapOutlineButton(
-                label: l10n.perluDilengkapi,
-                semanticsLabel: l10n.perluDilengkapi,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'needs_completion',
-                        l10n.perluDilengkapi,
-                        SigapColors.diproses,
-                      ),
-                icon: Icons.edit_note,
-              ),
-              SigapActionButton(
-                label: l10n.valid,
-                semanticsLabel: l10n.valid,
-                onPressed: _submitting
-                    ? null
-                    : () => _showDecisionSheet(
-                        'valid',
-                        l10n.valid,
-                        SigapColors.selesai,
-                      ),
-                icon: Icons.check_circle,
-              ),
-            ],
-          ),
+          ],
           if (_submitError != null) ...[
             const SizedBox(height: SigapSpacing.md),
             Text(
-              'Error: $_submitError',
+              l10n.errorLabel(_submitError!),
               style: const TextStyle(
                 color: SigapColors.perluTindakan,
                 fontSize: SigapTypography.bodyText,
@@ -847,18 +879,18 @@ class _TugasProgresTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     // Role-gated: Only show for PETUGAS/OPERATOR roles
     return Can(
       action: 'task.view',
       resource: Resource(type: 'case', id: caseId),
-      fallback: const AccessDeniedCard(
-        message: 'Anda tidak memiliki akses untuk melihat tugas kasus ini.',
-      ),
+      fallback: AccessDeniedCard(message: l10n.andaTidakAksesTugas),
       child: _buildTugasProgresContent(context, ref),
     );
   }
 
   Widget _buildTugasProgresContent(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final report = caseDetail.report;
     final status = report?.status?.value ?? '-';
 
@@ -882,7 +914,7 @@ class _TugasProgresTab extends ConsumerWidget {
                     ),
                     const SizedBox(width: SigapSpacing.sm),
                     Text(
-                      'Status Kasus',
+                      l10n.statusKasus,
                       style: TextStyle(
                         fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.bold,
@@ -893,7 +925,7 @@ class _TugasProgresTab extends ConsumerWidget {
                 ),
                 const SizedBox(height: SigapSpacing.sm),
                 StatusPill(
-                  label: _getStatusLabel(status),
+                  label: _getStatusLabel(status, l10n),
                   tone: _getStatusTone(status),
                 ),
               ],
@@ -903,9 +935,8 @@ class _TugasProgresTab extends ConsumerWidget {
 
           // Placeholder for task list
           _PlaceholderCard(
-            title: 'Tugas & Progres',
-            description:
-                'Daftar tugas dan progres penanganan akan ditampilkan di sini.',
+            title: l10n.tugasProgresTab,
+            description: l10n.daftarTugasProgres,
           ),
         ],
       ),
@@ -928,20 +959,20 @@ class _TugasProgresTab extends ConsumerWidget {
     }
   }
 
-  String _getStatusLabel(String status) {
+  String _getStatusLabel(String status, AppLocalizations l10n) {
     switch (status.toLowerCase()) {
       case 'submitted':
-        return 'Submitted';
+        return l10n.labelSubmitted;
       case 'under_review':
-        return 'Under Review';
+        return l10n.labelUnderReview;
       case 'in_progress':
-        return 'Diproses';
+        return l10n.labelDiproses;
       case 'verified':
-        return 'Terverifikasi';
+        return l10n.labelTerverifikasi;
       case 'resolved':
-        return 'Selesai';
+        return l10n.labelSelesai;
       case 'rejected':
-        return 'Ditolak';
+        return l10n.labelDitolak;
       default:
         return status.isNotEmpty ? status : '-';
     }
@@ -958,17 +989,17 @@ class _RiwayatAuditTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Can(
       action: 'audit.view',
       resource: Resource(type: 'case', id: caseId),
-      fallback: const AccessDeniedCard(
-        message: 'Anda tidak memiliki akses untuk melihat riwayat audit.',
-      ),
+      fallback: AccessDeniedCard(message: l10n.andaTidakAksesAudit),
       child: _buildAuditContent(context),
     );
   }
 
   Widget _buildAuditContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (timelineData == null || (timelineData!.events?.isEmpty ?? true)) {
       return Center(
         child: Column(
@@ -977,7 +1008,7 @@ class _RiwayatAuditTab extends StatelessWidget {
             const Icon(Icons.history, size: 64, color: SigapColors.textMuted),
             const SizedBox(height: 16),
             Text(
-              'Belum ada riwayat audit',
+              l10n.belumAdaRiwayatAudit,
               style: TextStyle(
                 fontSize: SigapTypography.bodyLarge,
                 color: SigapColors.textSecondary,
@@ -993,14 +1024,7 @@ class _RiwayatAuditTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Riwayat Audit',
-            style: TextStyle(
-              fontSize: SigapTypography.subtitle,
-              fontWeight: FontWeight.bold,
-              color: SigapColors.textPrimary,
-            ),
-          ),
+          SectionLabel(label: l10n.riwayatAuditLabel),
           const SizedBox(height: SigapSpacing.md),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
@@ -1021,7 +1045,7 @@ class _RiwayatAuditTab extends StatelessWidget {
                       timelineData!.events![i].timestamp ?? '',
                     ),
                     actor: timelineData!.events![i].userId != null
-                        ? 'oleh: ${timelineData!.events![i].userId}'
+                        ? l10n.olehLabel(timelineData!.events![i].userId!)
                         : null,
                     variant: ds.TimelineVariant.teal,
                     isLast: i == (timelineData!.events!.length - 1),
@@ -1034,8 +1058,8 @@ class _RiwayatAuditTab extends StatelessWidget {
 
           // Additional audit info placeholder
           _PlaceholderCard(
-            title: 'Detail Audit',
-            description: 'Detail lengkap audit chain akan ditampilkan di sini.',
+            title: l10n.detailAuditTitle,
+            description: l10n.detailAuditDesc,
           ),
         ],
       ),

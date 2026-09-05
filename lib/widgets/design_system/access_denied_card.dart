@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// A centered placeholder shown when user lacks permission to view content.
@@ -33,6 +34,7 @@ class AccessDeniedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -46,7 +48,7 @@ class AccessDeniedCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              title ?? 'Akses Ditolak',
+              title ?? l10n.aksesDitolakTitle,
               style: TextStyle(
                 fontSize: SigapTypography.titleLarge,
                 fontWeight: FontWeight.bold,

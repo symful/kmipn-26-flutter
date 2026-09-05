@@ -104,7 +104,7 @@ class _QueueCardsRowContent extends StatelessWidget {
         Expanded(
           child: _QueueCard(
             value: queue.needsCompletion.toString(),
-            label: 'Pendah',
+            label: l10n.pendahLabel,
             color: SigapColors.textMuted,
           ),
         ),
@@ -185,7 +185,7 @@ class _QueueCardsLoading extends StatelessWidget {
                     height: 22,
                     decoration: BoxDecoration(
                       color: SigapColors.bgSurface,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(SigapRadius.x4),
                     ),
                   ),
                   const SizedBox(height: SigapSpacing.xs),
@@ -194,7 +194,7 @@ class _QueueCardsLoading extends StatelessWidget {
                     height: 12,
                     decoration: BoxDecoration(
                       color: SigapColors.bgSurface,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(SigapRadius.x4),
                     ),
                   ),
                 ],
@@ -219,12 +219,12 @@ class _QueueCardsError extends StatelessWidget {
         borderRadius: BorderRadius.circular(SigapRadius.md),
         border: Border.all(color: SigapColors.danger.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.error_outline, color: SigapColors.danger, size: 20),
           SizedBox(width: SigapSpacing.sm),
           Text(
-            'Gagal memuat antrean',
+            AppLocalizations.of(context)!.gagalMemuatAntrean,
             style: TextStyle(
               color: SigapColors.textSecondary,
               fontSize: SigapTypography.bodySmall,

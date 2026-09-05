@@ -120,7 +120,7 @@ class TaskAvatar extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: SigapTypography.captionMicro,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: SigapColors.surface,
                 ),
               ),
             ),

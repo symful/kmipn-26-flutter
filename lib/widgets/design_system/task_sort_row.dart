@@ -28,7 +28,7 @@ class TaskSortRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final sortOptions = [l10n.terbaru, l10n.slaTerdekat, 'Prioritas'];
+    final sortOptions = [l10n.terbaru, l10n.slaTerdekat, l10n.prioritas];
 
     return Row(
       children: [
@@ -101,7 +101,7 @@ class _UnduhBatchLinkState extends State<_UnduhBatchLink> {
             vertical: SigapSpacing.xs,
           ),
           child: Text(
-            'Unduh batch',
+            AppLocalizations.of(context)!.unduhBatch,
             style: TextStyle(
               fontSize: SigapTypography.bodySmall,
               fontWeight: FontWeight.w600,

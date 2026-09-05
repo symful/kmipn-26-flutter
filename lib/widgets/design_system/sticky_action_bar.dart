@@ -85,49 +85,43 @@ class _StickyMobileBar extends StatelessWidget {
   final Color? backgroundColor;
   final double? height;
 
-  static const double _defaultHeight = 72.0;
+  static const double _defaultHeight = 120.0;
 
   @override
   Widget build(BuildContext context) {
     final safeBottom = MediaQuery.of(context).padding.bottom;
 
-    return SizedBox(
+    return Container(
       height: (height ?? _defaultHeight) + safeBottom,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              height: (height ?? _defaultHeight) + safeBottom,
-              decoration: BoxDecoration(
-                color: backgroundColor ?? SigapColors.surface,
-                border: const Border(
-                  top: BorderSide(color: SigapColors.border, width: 1),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? SigapColors.surface,
+        border: const Border(
+          top: BorderSide(color: SigapColors.border, width: 1),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: SigapSpacing.md,
+          right: SigapSpacing.md,
+          top: SigapSpacing.sm,
+          bottom: safeBottom + SigapSpacing.sm,
+        ),
+        child: Wrap(
+          spacing: SigapSpacing.sm,
+          runSpacing: SigapSpacing.sm,
+          children: actions
+              .map(
+                (action) => SizedBox(
+                  width:
+                      (MediaQuery.of(context).size.width -
+                          SigapSpacing.md * 2 -
+                          SigapSpacing.sm * 2) /
+                      3,
+                  child: action,
                 ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: SigapSpacing.lg,
-                  right: SigapSpacing.lg,
-                  top: SigapSpacing.md,
-                  bottom: safeBottom + SigapSpacing.md,
-                ),
-                child: Row(
-                  children: [
-                    if (actions.isNotEmpty) ...[
-                      for (int i = 0; i < actions.length; i++) ...[
-                        if (i > 0) const SizedBox(width: SigapSpacing.sm),
-                        Expanded(child: actions[i]),
-                      ],
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+              )
+              .toList(),
+        ),
       ),
     );
   }
@@ -155,7 +149,7 @@ class _InlineBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: height ?? _defaultHeight,
+      height: null,
       decoration: BoxDecoration(
         color: backgroundColor ?? SigapColors.surface,
         border: const Border(
@@ -166,11 +160,13 @@ class _InlineBar extends StatelessWidget {
         horizontal: SigapSpacing.xl,
         vertical: SigapSpacing.sm,
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (label != null) ...[
+          if (label != null)
             Padding(
-              padding: const EdgeInsets.only(right: SigapSpacing.md),
+              padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
               child: Text(
                 label!,
                 style: TextStyle(
@@ -180,13 +176,11 @@ class _InlineBar extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-          if (actions.isNotEmpty) ...[
-            for (int i = 0; i < actions.length; i++) ...[
-              if (i > 0) const SizedBox(width: SigapSpacing.sm),
-              actions[i],
-            ],
-          ],
+          Wrap(
+            spacing: SigapSpacing.sm,
+            runSpacing: SigapSpacing.sm,
+            children: actions,
+          ),
         ],
       ),
     );
@@ -226,18 +220,26 @@ class SigapActionButton extends StatelessWidget {
       button: true,
       enabled: onPressed != null,
       child: SizedBox(
-        height: 48,
+        height: 44,
         child: icon != null
             ? FilledButton.icon(
                 onPressed: onPressed,
-                icon: Icon(icon, size: 20),
-                label: Text(label, maxLines: maxLines, overflow: overflow),
+                icon: Icon(icon, size: 16),
+                label: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 style: FilledButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(0, 48),
+                  foregroundColor: SigapColors.surface,
+                  minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.lg,
+                    horizontal: SigapSpacing.sm,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(SigapRadius.x8),
@@ -248,16 +250,24 @@ class SigapActionButton extends StatelessWidget {
                 onPressed: onPressed,
                 style: FilledButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(0, 48),
+                  foregroundColor: SigapColors.surface,
+                  minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.lg,
+                    horizontal: SigapSpacing.sm,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(SigapRadius.x8),
                   ),
                 ),
-                child: Text(label, maxLines: maxLines, overflow: overflow),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
       ),
     );
@@ -289,17 +299,25 @@ class SigapOutlineButton extends StatelessWidget {
       button: true,
       enabled: onPressed != null,
       child: SizedBox(
-        height: 48,
+        height: 44,
         child: icon != null
             ? OutlinedButton.icon(
                 onPressed: onPressed,
-                icon: Icon(icon, size: 20),
-                label: Text(label),
+                icon: Icon(icon, size: 16),
+                label: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SigapColors.primary,
-                  minimumSize: const Size(0, 48),
+                  minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.lg,
+                    horizontal: SigapSpacing.sm,
                   ),
                   side: const BorderSide(color: SigapColors.primary),
                   shape: RoundedRectangleBorder(
@@ -311,16 +329,24 @@ class SigapOutlineButton extends StatelessWidget {
                 onPressed: onPressed,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SigapColors.primary,
-                  minimumSize: const Size(0, 48),
+                  minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: SigapSpacing.lg,
+                    horizontal: SigapSpacing.sm,
                   ),
                   side: const BorderSide(color: SigapColors.primary),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(SigapRadius.x8),
                   ),
                 ),
-                child: Text(label),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.bodySmall,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
       ),
     );

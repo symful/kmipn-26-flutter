@@ -6,6 +6,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/api_config.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../widgets/design_system/status_pill.dart';
 import 'auth_interceptor.dart';
 import 'exceptions.dart';
@@ -116,12 +117,12 @@ extension CaseStatusMapper on CaseStatus {
     _ => CaseStatus.menungguVerifikasi,
   };
 
-  String get displayLabel => switch (this) {
-    CaseStatus.menungguVerifikasi => 'Menunggu verifikasi',
-    CaseStatus.terverifikasi => 'Terverifikasi',
-    CaseStatus.sedangDitangani => 'Sedang ditangani',
-    CaseStatus.perluKelengkapan => 'Perlu kelengkapan',
-    CaseStatus.slaTerlewat => 'SLA terlewat',
+  String displayLabel(AppLocalizations l10n) => switch (this) {
+    CaseStatus.menungguVerifikasi => l10n.menungguVerifikasiLabel,
+    CaseStatus.terverifikasi => l10n.terverifikasiLabel,
+    CaseStatus.sedangDitangani => l10n.sedangDitanganiLabel,
+    CaseStatus.perluKelengkapan => l10n.perluKelengkapanLabel,
+    CaseStatus.slaTerlewat => l10n.slaTerlewatLabel,
   };
 
   StatusTone get displayTone => switch (this) {
@@ -174,15 +175,17 @@ extension CitizenReportStatusMapper on ReportStatus {
         CitizenReportStatus.draft => StatusTone.neutral,
       };
 
-  String get citizenLabel => switch (this.toCitizenStatus(isLocalOnly: false)) {
-    CitizenReportStatus.tersimpanPerangkat => 'Tersimpan di perangkat',
-    CitizenReportStatus.laporanDiterima => 'Laporan diterima',
-    CitizenReportStatus.sedangDiperiksa => 'Sedang diperiksa',
-    CitizenReportStatus.perluDilengkapi => 'Perlu dilengkapi',
-    CitizenReportStatus.perluTindakan => 'Perlu tindakan Anda',
-    CitizenReportStatus.sedangDitangani => 'Sedang ditangani',
-    CitizenReportStatus.terverifikasi => 'Terverifikasi',
-    CitizenReportStatus.draft => 'Draft',
+  String citizenLabel(AppLocalizations l10n) => switch (this.toCitizenStatus(
+    isLocalOnly: false,
+  )) {
+    CitizenReportStatus.tersimpanPerangkat => l10n.tersimpanDiPerangkatLabel,
+    CitizenReportStatus.laporanDiterima => l10n.laporanDiterimaLabel,
+    CitizenReportStatus.sedangDiperiksa => l10n.sedangDiperiksaLabel,
+    CitizenReportStatus.perluDilengkapi => l10n.perluDilengkapiLabel,
+    CitizenReportStatus.perluTindakan => l10n.perluTindakanAndaLabel,
+    CitizenReportStatus.sedangDitangani => l10n.sedangDitanganiLabel,
+    CitizenReportStatus.terverifikasi => l10n.terverifikasiLabel,
+    CitizenReportStatus.draft => l10n.draftLabel,
   };
 }
 
@@ -207,11 +210,11 @@ extension ReportTimelineEventMapper on ReportTimelineEvent {
     return null;
   }
 
-  String get displayLabel => switch (this) {
-    ReportTimelineEvent.tersimpanDiPerangkat => 'Tersimpan di perangkat',
-    ReportTimelineEvent.laporanDiterima => 'Laporan diterima',
-    ReportTimelineEvent.sedangDiperiksa => 'Sedang diperiksa',
-    ReportTimelineEvent.perluDilengkapi => 'Perlu dilengkapi',
+  String displayLabel(AppLocalizations l10n) => switch (this) {
+    ReportTimelineEvent.tersimpanDiPerangkat => l10n.tersimpanDiPerangkatLabel,
+    ReportTimelineEvent.laporanDiterima => l10n.laporanDiterimaLabel,
+    ReportTimelineEvent.sedangDiperiksa => l10n.sedangDiperiksaLabel,
+    ReportTimelineEvent.perluDilengkapi => l10n.perluDilengkapiLabel,
   };
 }
 
@@ -242,11 +245,11 @@ extension CaseTimelineEventMapper on CaseTimelineEvent {
     return null;
   }
 
-  String get displayLabel => switch (this) {
-    CaseTimelineEvent.laporanPertamaDiterima => 'Laporan pertama diterima',
-    CaseTimelineEvent.kasusDibuatKonsolidasi => 'Kasus dibuat dari konsolidasi',
-    CaseTimelineEvent.laporanDigabung => 'Laporan digabung',
-    CaseTimelineEvent.menungguVerifikasiManual => 'Menunggu verifikasi manual',
+  String displayLabel(AppLocalizations l10n) => switch (this) {
+    CaseTimelineEvent.laporanPertamaDiterima => l10n.laporanPertamaDiterima,
+    CaseTimelineEvent.kasusDibuatKonsolidasi => l10n.kasusDibuatDariKonsolidasi,
+    CaseTimelineEvent.laporanDigabung => l10n.laporanDigabung,
+    CaseTimelineEvent.menungguVerifikasiManual => l10n.menungguVerifikasiManual,
   };
 }
 
@@ -826,6 +829,9 @@ class Report {
   final double? lat;
   final String? address;
   final String? addressArea;
+  final String? impactDampak;
+  final int? supportingCount;
+  final String? wilayahId;
   Report({
     this.id,
     this.title,
@@ -848,6 +854,9 @@ class Report {
     this.lat,
     this.address,
     this.addressArea,
+    this.impactDampak,
+    this.supportingCount,
+    this.wilayahId,
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
@@ -886,6 +895,9 @@ class Report {
       lat: (json['lat'] as num?)?.toDouble(),
       address: json['address']?.toString(),
       addressArea: json['address_area']?.toString(),
+      impactDampak: json['impact_dampak']?.toString(),
+      supportingCount: json['supporting_count'] as int?,
+      wilayahId: json['wilayah_id']?.toString(),
     );
   }
 
@@ -911,6 +923,8 @@ class Report {
     'lat': lat,
     'address': address,
     'address_area': addressArea,
+    'impact_dampak': impactDampak,
+    'supporting_count': supportingCount,
   };
 }
 
@@ -1083,6 +1097,126 @@ class ScoreFactors {
     'laporan_pendukung': laporanPendukung,
     'kelewatan_sla': kelewatanSla,
   };
+}
+
+/// Priority breakdown factors from GET /api/reports/:id/priority.
+class PriorityBreakdown {
+  final int? severity;
+  final int? affectedResidents;
+  final int? regionVulnerability;
+  final int? slaPressure;
+  final int? otherFactors;
+  final int? reportCount;
+
+  const PriorityBreakdown({
+    this.severity,
+    this.affectedResidents,
+    this.regionVulnerability,
+    this.slaPressure,
+    this.otherFactors,
+    this.reportCount,
+  });
+
+  factory PriorityBreakdown.fromJson(Map<String, dynamic> json) {
+    return PriorityBreakdown(
+      severity: json['severity'] as int?,
+      affectedResidents: json['affected_residents'] as int?,
+      regionVulnerability: json['region_vulnerability'] as int?,
+      slaPressure: json['sla_pressure'] as int?,
+      otherFactors: json['other_factors'] as int?,
+      reportCount: json['report_count'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'severity': severity,
+    'affected_residents': affectedResidents,
+    'region_vulnerability': regionVulnerability,
+    'sla_pressure': slaPressure,
+    'other_factors': otherFactors,
+    'report_count': reportCount,
+  };
+}
+
+/// Response from GET /api/reports/:id/priority.
+class PriorityResponse {
+  final String? id;
+  final int? version;
+  final int? score;
+  final String? level;
+  final PriorityBreakdown? breakdown;
+
+  const PriorityResponse({
+    this.id,
+    this.version,
+    this.score,
+    this.level,
+    this.breakdown,
+  });
+
+  factory PriorityResponse.fromJson(Map<String, dynamic> json) {
+    return PriorityResponse(
+      id: json['id']?.toString(),
+      version: json['version'] as int?,
+      score: json['score'] as int?,
+      level: json['level']?.toString(),
+      breakdown: json['breakdown'] != null
+          ? PriorityBreakdown.fromJson(
+              json['breakdown'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'version': version,
+    'score': score,
+    'level': level,
+    'breakdown': breakdown?.toJson(),
+  };
+}
+
+/// Entry from GET /api/agent/assessments/:reportId.
+class AgentAssessmentEntry {
+  final String? id;
+  final String? toolName;
+  final String? modelVersion;
+  final double? confidence;
+  final List<String>? supportingFactors;
+  final List<String>? riskFactors;
+  final String? status;
+  final String? createdAt;
+
+  const AgentAssessmentEntry({
+    this.id,
+    this.toolName,
+    this.modelVersion,
+    this.confidence,
+    this.supportingFactors,
+    this.riskFactors,
+    this.status,
+    this.createdAt,
+  });
+
+  factory AgentAssessmentEntry.fromJson(Map<String, dynamic> json) {
+    // Backend returns nested factors: { supporting: [...], risk: [...], correlation_ids: [...] }
+    final factors = json['factors'] as Map<String, dynamic>?;
+    return AgentAssessmentEntry(
+      id: json['id']?.toString(),
+      toolName: json['tool_name']?.toString(),
+      modelVersion: json['model_version']?.toString(),
+      confidence: (json['confidence'] as num?)?.toDouble(),
+      supportingFactors: (factors?['supporting'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
+      riskFactors: (factors?['risk'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
+      status: json['status']?.toString(),
+      createdAt: json['created_at']?.toString(),
+    );
+  }
 }
 
 class CaseDetail {
@@ -1741,19 +1875,6 @@ class WargaProfile {
       stats: json['stats'] != null
           ? WargaStats.fromJson(json['stats'] as Map<String, dynamic>)
           : null,
-    );
-  }
-}
-
-class GenerateRtRwTokenResult {
-  final String? verificationToken;
-  final String? expiresAt;
-  GenerateRtRwTokenResult({this.verificationToken, this.expiresAt});
-
-  factory GenerateRtRwTokenResult.fromJson(Map<String, dynamic> json) {
-    return GenerateRtRwTokenResult(
-      verificationToken: json['verification_token'] as String?,
-      expiresAt: json['expires_at'] as String?,
     );
   }
 }
@@ -2833,6 +2954,7 @@ class ApiClient {
   final Dio _dio;
   final Dio _publicDio;
   final Future<void> Function()? _checkConnectivityFn;
+  final AppLocalizations? _l10n;
 
   ApiClient({
     String? baseUrl,
@@ -2842,11 +2964,13 @@ class ApiClient {
     Future<void> Function()? checkConnectivity,
     String? testAccessToken,
     Future<String?> Function(String role)? authTokenProvider,
+    AppLocalizations? l10n,
 
     /// Optional callback invoked when the server returns 403 cap_stale.
     /// The interceptor calls this to mark capabilities as stale before refetch.
     Future<void> Function()? onCapabilitiesStale,
-  }) : _dio =
+  }) : _l10n = l10n,
+       _dio =
            dio ??
            Dio(
              BaseOptions(
@@ -2966,7 +3090,9 @@ class ApiClient {
         switch (e.type) {
           case DioExceptionType.connectionError:
           case DioExceptionType.connectionTimeout:
-            throw NetworkException('Tidak dapat terhubung ke server.');
+            throw NetworkException(
+              _l10n?.tidakDapatTerhubungKeServer ?? 'Cannot connect to server.',
+            );
           case DioExceptionType.sendTimeout:
           case DioExceptionType.receiveTimeout:
             throw TimeoutException(const Duration(seconds: 30), endpoint);
@@ -2982,14 +3108,15 @@ class ApiClient {
             final userMessage = extractErrorMessage(e);
             throw ApiException(
               statusCode: 0,
-              body: e.message ?? 'Unknown error',
+              body: e.message ?? (_l10n?.errorTidakDikenal ?? 'Unknown error'),
               endpoint: endpoint,
               userMessage: '$userMessage [$endpoint]',
             );
         }
       }
     }
-    throw lastError ?? Exception('Unexpected retry loop exit');
+    throw lastError ??
+        Exception(_l10n?.gagalRetryLoop ?? 'Unexpected retry loop exit');
   }
 
   // ─── Auth ─────────────────────────────────────────────────────────────────
@@ -3120,16 +3247,19 @@ class ApiClient {
             statusCode: sc,
             body: res.data?.toString(),
             endpoint: '/api/public/reports',
-            userMessage: 'Failed to fetch public reports',
+            userMessage:
+                _l10n?.gagalMemuatLaporanPublik ??
+                'Failed to fetch public reports',
           );
         }
         final data = res.data as Map<String, dynamic>;
-        final reportsList = data['reports'] as List? ?? [];
+        final reportsList = data['data'] as List? ?? [];
+        final pagination = data['pagination'] as Map<String, dynamic>?;
         return PublicReportsPage(
           items: reportsList
               .map((e) => PublicReportItem.fromJson(e as Map<String, dynamic>))
               .toList(),
-          total: reportsList.length,
+          total: (pagination?['total'] as num?)?.toInt() ?? reportsList.length,
           page: 1,
           limit: limit,
         );
@@ -3145,7 +3275,9 @@ class ApiClient {
         switch (e.type) {
           case DioExceptionType.connectionError:
           case DioExceptionType.connectionTimeout:
-            throw NetworkException('Tidak dapat terhubung ke server.');
+            throw NetworkException(
+              _l10n?.tidakDapatTerhubungKeServer ?? 'Cannot connect to server.',
+            );
           case DioExceptionType.sendTimeout:
           case DioExceptionType.receiveTimeout:
             throw TimeoutException(
@@ -3155,14 +3287,15 @@ class ApiClient {
           default:
             throw ApiException(
               statusCode: e.response?.statusCode ?? 0,
-              body: e.message ?? 'Unknown error',
+              body: e.message ?? (_l10n?.errorTidakDikenal ?? 'Unknown error'),
               endpoint: '/api/public/reports',
               userMessage: '${extractErrorMessage(e)} [/api/public/reports]',
             );
         }
       }
     }
-    throw lastError ?? Exception('Unexpected retry loop exit');
+    throw lastError ??
+        Exception(_l10n?.gagalRetryLoop ?? 'Unexpected retry loop exit');
   }
 
   /// Fetches a single public case by ID — no auth required.
@@ -3184,7 +3317,8 @@ class ApiClient {
             statusCode: sc,
             body: res.data?.toString(),
             endpoint: '/api/public/cases/$id',
-            userMessage: 'Failed to fetch public case',
+            userMessage:
+                _l10n?.gagalMemuatKasusPublik ?? 'Failed to fetch public case',
           );
         }
         return res.data as Map<String, dynamic>;
@@ -3200,7 +3334,9 @@ class ApiClient {
         switch (e.type) {
           case DioExceptionType.connectionError:
           case DioExceptionType.connectionTimeout:
-            throw NetworkException('Tidak dapat terhubung ke server.');
+            throw NetworkException(
+              _l10n?.tidakDapatTerhubungKeServer ?? 'Cannot connect to server.',
+            );
           case DioExceptionType.sendTimeout:
           case DioExceptionType.receiveTimeout:
             throw TimeoutException(
@@ -3210,18 +3346,19 @@ class ApiClient {
           default:
             throw ApiException(
               statusCode: e.response?.statusCode ?? 0,
-              body: e.message ?? 'Unknown error',
+              body: e.message ?? (_l10n?.errorTidakDikenal ?? 'Unknown error'),
               endpoint: '/api/public/cases/$id',
               userMessage: '${extractErrorMessage(e)} [/api/public/cases/$id]',
             );
         }
       }
     }
-    throw lastError ?? Exception('Unexpected retry loop exit');
+    throw lastError ??
+        Exception(_l10n?.gagalRetryLoop ?? 'Unexpected retry loop exit');
   }
 
   /// Fetches public stats — no auth required.
-  Future<PublicStats> getPublicStats() async {
+  Future<PublicStats> getPublicStats({String? wilayah, String? period}) async {
     await _checkConnectivity();
     final backoffs = [
       const Duration(seconds: 2),
@@ -3231,28 +3368,35 @@ class ApiClient {
     Object? lastError;
     for (var attempt = 0; attempt <= 3; attempt++) {
       try {
-        final res = await _publicDio.get('/api/public/stats');
+        final res = await _publicDio.get(
+          '/api/public/stats',
+          queryParameters: {
+            if (wilayah != null) 'wilayah': wilayah,
+            if (period != null) 'period': period,
+          },
+        );
         final sc = res.statusCode ?? 0;
         if (sc >= 400) {
           throw ApiException(
             statusCode: sc,
             body: res.data?.toString(),
             endpoint: '/api/public/stats',
-            userMessage: 'Failed to fetch public stats',
+            userMessage:
+                _l10n?.gagalMemuatStatistikPublik ??
+                'Failed to fetch public stats',
           );
         }
         final data = res.data as Map<String, dynamic>;
-        final stats = data['stats'] as Map<String, dynamic>? ?? {};
         return PublicStats(
-          total: stats['total'] as int?,
-          byStatus: stats['by_status'] as Map<String, dynamic>?,
-          byCategory: (stats['by_category'] is List)
-              ? (stats['by_category'] as List)
+          total: data['total'] as int?,
+          byStatus: data['by_status'] as Map<String, dynamic>?,
+          byCategory: (data['by_category'] is List)
+              ? (data['by_category'] as List)
                     .map((e) => e as Map<String, dynamic>)
                     .toList()
               : null,
-          recentReports7d: stats['recent_reports_7d'] as int?,
-          resolutionRate7d: (stats['resolution_rate_7d'] as num?)?.toDouble(),
+          recentReports7d: data['recent_reports_7d'] as int?,
+          resolutionRate7d: (data['resolution_rate_7d'] as num?)?.toDouble(),
         );
       } on DioException catch (e) {
         final statusCode = e.response?.statusCode;
@@ -3266,7 +3410,9 @@ class ApiClient {
         switch (e.type) {
           case DioExceptionType.connectionError:
           case DioExceptionType.connectionTimeout:
-            throw NetworkException('Tidak dapat terhubung ke server.');
+            throw NetworkException(
+              _l10n?.tidakDapatTerhubungKeServer ?? 'Cannot connect to server.',
+            );
           case DioExceptionType.sendTimeout:
           case DioExceptionType.receiveTimeout:
             throw TimeoutException(
@@ -3276,14 +3422,15 @@ class ApiClient {
           default:
             throw ApiException(
               statusCode: e.response?.statusCode ?? 0,
-              body: e.message ?? 'Unknown error',
+              body: e.message ?? (_l10n?.errorTidakDikenal ?? 'Unknown error'),
               endpoint: '/api/public/stats',
               userMessage: '${extractErrorMessage(e)} [/api/public/stats]',
             );
         }
       }
     }
-    throw lastError ?? Exception('Unexpected retry loop exit');
+    throw lastError ??
+        Exception(_l10n?.gagalRetryLoop ?? 'Unexpected retry loop exit');
   }
 
   /// Fetches OG meta for sharing a case — no auth required.
@@ -3304,7 +3451,9 @@ class ApiClient {
             statusCode: sc,
             body: res.data?.toString(),
             endpoint: '/api/public/cases/$caseId/share',
-            userMessage: 'Failed to fetch share metadata',
+            userMessage:
+                _l10n?.gagalMemuatMetadataBagikan ??
+                'Failed to fetch share metadata',
           );
         }
         final data = res.data as Map<String, dynamic>;
@@ -3321,7 +3470,9 @@ class ApiClient {
         switch (e.type) {
           case DioExceptionType.connectionError:
           case DioExceptionType.connectionTimeout:
-            throw NetworkException('Tidak dapat terhubung ke server.');
+            throw NetworkException(
+              _l10n?.tidakDapatTerhubungKeServer ?? 'Cannot connect to server.',
+            );
           case DioExceptionType.sendTimeout:
           case DioExceptionType.receiveTimeout:
             throw TimeoutException(
@@ -3331,7 +3482,7 @@ class ApiClient {
           default:
             throw ApiException(
               statusCode: e.response?.statusCode ?? 0,
-              body: e.message ?? 'Unknown error',
+              body: e.message ?? (_l10n?.errorTidakDikenal ?? 'Unknown error'),
               endpoint: '/api/public/cases/$caseId/share',
               userMessage:
                   '${extractErrorMessage(e)} [/api/public/cases/$caseId/share]',
@@ -3339,7 +3490,8 @@ class ApiClient {
         }
       }
     }
-    throw lastError ?? Exception('Unexpected retry loop exit');
+    throw lastError ??
+        Exception(_l10n?.gagalRetryLoop ?? 'Unexpected retry loop exit');
   }
 
   // ─── Reports ───────────────────────────────────────────────────────────────
@@ -3359,6 +3511,7 @@ class ApiClient {
     int limit = 50,
     String? q,
     String? wilayahId,
+    String? creatorId,
   }) async {
     return await _execute<PaginatedReports>(
       dioCall: () => _dio.get(
@@ -3370,6 +3523,7 @@ class ApiClient {
           if (cursor != null) 'cursor': cursor,
           if (q != null) 'q': q,
           if (wilayahId != null) 'wilayah_id': wilayahId,
+          if (creatorId != null) 'creator_id': creatorId,
         },
       ),
       endpoint: '/api/reports',
@@ -3465,7 +3619,8 @@ class ApiClient {
       throw ApiException(
         statusCode: 404,
         endpoint: filePath,
-        userMessage: 'Photo file not found: $filePath',
+        userMessage:
+            '${_l10n?.fileFotoTidakDitemukan ?? 'Photo file not found'}: $filePath',
       );
     }
 
@@ -3485,7 +3640,8 @@ class ApiClient {
       throw ApiException(
         statusCode: 500,
         endpoint: '/api/reports/photos/upload-url-anon',
-        userMessage: 'Photo upload failed: no URL returned',
+        userMessage:
+            _l10n?.uploadFotoGagalUrl ?? 'Photo upload failed: no URL returned',
       );
     }
 
@@ -3568,7 +3724,7 @@ class ApiClient {
       throw ApiException(
         statusCode: res.statusCode ?? 0,
         endpoint: putUrl,
-        userMessage: 'Photo upload failed',
+        userMessage: _l10n?.uploadFotoGagal ?? 'Photo upload failed',
       );
     }
     return PhotoPutResponse.fromJson((res.data as Map).cast<String, dynamic>());
@@ -3596,7 +3752,8 @@ class ApiClient {
       throw ApiException(
         statusCode: 404,
         endpoint: filePath,
-        userMessage: 'Photo file not found: $filePath',
+        userMessage:
+            '${_l10n?.fileFotoTidakDitemukan ?? 'Photo file not found'}: $filePath',
       );
     }
     final bytes = await file.readAsBytes();
@@ -3652,8 +3809,8 @@ class ApiClient {
   // ─── Warga Reports ────────────────────────────────────────────────────────
 
   Future<WargaReportsPage> getMyReports() async {
-    // Backend scopes reports by role, so no need for creator_id=me
-    final paginatedReports = await getReports(limit: 100);
+    // Pass creator_id=me so backend filters by reporter_id (not just wilayah_id)
+    final paginatedReports = await getReports(limit: 100, creatorId: 'me');
     return WargaReportsPage(items: paginatedReports.data);
   }
 
@@ -3667,6 +3824,63 @@ class ApiClient {
       return TimelineEnvelope.fromJson(timelineData);
     }
     return TimelineEnvelope(events: []);
+  }
+
+  /// Fetches priority data for a report from GET /api/reports/:id/priority.
+  Future<PriorityResponse?> getReportPriority(String reportId) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/api/reports/$reportId/priority',
+      );
+      final data = res.data;
+      if (data == null) return null;
+      return PriorityResponse.fromJson(data);
+    } on DioException catch (e) {
+      // 404 means no priority computed yet — return null gracefully
+      if (e.response?.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
+  /// Fetches AI assessment entries for a report
+  /// from GET /api/agent/assessments/:reportId.
+  Future<List<AgentAssessmentEntry>> getReportAssessments(
+    String reportId,
+  ) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/api/agent/assessments/$reportId',
+      );
+      final data = res.data;
+      if (data == null) return [];
+      final list = data['assessments'] as List? ?? [];
+      return list
+          .map((e) => AgentAssessmentEntry.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) return [];
+      rethrow;
+    }
+  }
+
+  /// Fetches audit trail entries for a report
+  /// from GET /api/auditor/audit-search?object_id={reportId}.
+  Future<List<AuditEntry>> getReportAudit(String reportId) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/api/auditor/audit-search',
+        queryParameters: {'object_id': reportId, 'limit': 50},
+      );
+      final data = res.data;
+      if (data == null) return [];
+      final list = data['entries'] as List? ?? data['data'] as List? ?? [];
+      return list
+          .map((e) => AuditEntry.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) return [];
+      rethrow;
+    }
   }
 
   // ─── Nearby Reports (with client-side haversine distance) ───────────────
@@ -3881,6 +4095,16 @@ class ApiClient {
       case 'verify-completion':
         endpoint = '/api/cases/$caseId/verify-completion';
         body = {'decision': 'approved', if (note != null) 'reason': note};
+        break;
+      case 'dispatch':
+      case 'assign':
+        // Operator dispatches case to a technical unit.
+        // Web SPA uses POST /reports/:id/assign
+        endpoint = '/api/reports/$caseId/assign';
+        body = {
+          if (unitId != null) 'assigned_unit_id': unitId,
+          if (note != null) 'instructions': note,
+        };
         break;
       default:
         // Unknown action — fall through to accept endpoint as legacy fallback
@@ -4100,15 +4324,22 @@ class ApiClient {
   // ─── Map ────────────────────────────────────────────────────────────────
 
   Future<GeoJSONFeatureCollection> getMapGeoJson({String? wilayah}) async {
-    return await _execute<GeoJSONFeatureCollection>(
-      dioCall: () => _dio.get(
-        '/api/map/geojson',
-        queryParameters: {if (wilayah != null) 'wilayah': wilayah},
-      ),
-      endpoint: '/api/map/geojson',
-      parse: (data) => GeoJSONFeatureCollection.fromJson(
-        (data as Map).cast<String, dynamic>(),
-      ),
+    await _checkConnectivity();
+    final res = await _publicDio.get(
+      '/api/public/geojson',
+      queryParameters: {if (wilayah != null) 'wilayah': wilayah},
+    );
+    final sc = res.statusCode ?? 0;
+    if (sc >= 400) {
+      throw ApiException(
+        statusCode: sc,
+        body: res.data?.toString(),
+        endpoint: '/api/public/geojson',
+        userMessage: _l10n?.gagalMemuatPeta ?? 'Failed to load map data',
+      );
+    }
+    return GeoJSONFeatureCollection.fromJson(
+      (res.data as Map).cast<String, dynamic>(),
     );
   }
 
@@ -4199,6 +4430,31 @@ class ApiClient {
       total: entries.length,
       page: page,
       limit: limit,
+    );
+  }
+
+  /// Fetches admin-daerah dashboard stats from GET /api/admin-daerah/dashboard.
+  Future<AdminDaerahDashboard> getAdminDaerahDashboard() async {
+    return await _execute<AdminDaerahDashboard>(
+      dioCall: () => _dio.get('/api/admin-daerah/dashboard'),
+      endpoint: '/api/admin-daerah/dashboard',
+      parse: (data) =>
+          AdminDaerahDashboard.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
+  Future<Unit> createUnit({
+    required String name,
+    required String region,
+  }) async {
+    return await _execute<Unit>(
+      dioCall: () => _dio.post(
+        '/api/units',
+        data: {'name': name, 'region': region},
+        options: Options(contentType: 'application/json'),
+      ),
+      endpoint: '/api/units',
+      parse: (data) => Unit.fromJson((data as Map).cast<String, dynamic>()),
     );
   }
 
@@ -4392,6 +4648,8 @@ class ApiClient {
     required String name,
     String? parentId,
     String? code,
+    String? slug,
+    String? icon,
   }) async {
     return await _execute<Category>(
       dioCall: () => _dio.post(
@@ -4400,6 +4658,8 @@ class ApiClient {
           'name': name,
           if (parentId != null) 'parent_id': parentId,
           if (code != null) 'code': code,
+          if (slug != null) 'slug': slug,
+          if (icon != null) 'icon': icon,
         },
         options: Options(contentType: 'application/json'),
       ),
@@ -4453,7 +4713,7 @@ class ApiClient {
   Future<Wilayah> createWilayah({
     required String name,
     String? parentId,
-    int? level,
+    String? level,
   }) async {
     return await _execute<Wilayah>(
       dioCall: () => _dio.post(
@@ -4541,7 +4801,7 @@ class ApiClient {
   }) async {
     final response = await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get(
-        '/api/audit',
+        '/api/auditor/audit-search',
         queryParameters: {
           'page': page,
           'limit': limit,
@@ -4553,17 +4813,18 @@ class ApiClient {
           if (to != null) 'to': to,
         },
       ),
-      endpoint: '/api/audit',
+      endpoint: '/api/auditor/audit-search',
       parse: (data) => (data as Map).cast<String, dynamic>(),
     );
     final entriesData = (response['entries'] as List?) ?? [];
+    final pagination = response['pagination'] as Map<String, dynamic>? ?? {};
     return AuditPage(
       entries: entriesData
           .map((e) => AuditEntry.fromJson((e as Map).cast<String, dynamic>()))
           .toList(),
-      total: response['total'] as int? ?? 0,
-      page: response['page'] as int? ?? page,
-      limit: response['limit'] as int? ?? limit,
+      total: pagination['total'] as int? ?? 0,
+      page: pagination['page'] as int? ?? page,
+      limit: pagination['limit'] as int? ?? limit,
     );
   }
 
@@ -4577,7 +4838,7 @@ class ApiClient {
     String format = 'csv',
   }) async {
     final res = await _dio.get(
-      '/api/audit/export',
+      '/api/auditor/audit-export',
       queryParameters: {
         if (actorId != null) 'actor_id': actorId,
         if (action != null) 'action': action,
@@ -4600,25 +4861,25 @@ class ApiClient {
     String? from,
     String? to,
   }) async {
-    return await _execute<List<AuditEntry>>(
+    final response = await _execute<Map<String, dynamic>>(
       dioCall: () => _dio.get(
-        '/api/audit',
+        '/api/auditor/audit-search',
         queryParameters: {
-          if (reportId != null) 'report_id': reportId,
+          if (reportId != null) 'object_id': reportId,
+          if (reportId != null) 'object_type': 'report',
           if (actorRole != null) 'actor_role': actorRole,
           if (action != null) 'action': action,
           if (from != null) 'from': from,
           if (to != null) 'to': to,
         },
       ),
-      endpoint: '/api/audit',
-      parse: (data) {
-        final list = data as List;
-        return list
-            .map((e) => AuditEntry.fromJson(e as Map<String, dynamic>))
-            .toList();
-      },
+      endpoint: '/api/auditor/audit-search',
+      parse: (data) => (data as Map).cast<String, dynamic>(),
     );
+    final entriesData = (response['entries'] as List?) ?? [];
+    return entriesData
+        .map((e) => AuditEntry.fromJson((e as Map).cast<String, dynamic>()))
+        .toList();
   }
 
   Future<ProgressResult> updateTaskProgress({

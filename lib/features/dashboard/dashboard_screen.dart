@@ -5,9 +5,10 @@ import 'package:sigap/api/client.dart';
 import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/widgets/design_system/responsive_scaffold.dart';
 import 'package:sigap/widgets/design_system/skeleton_loaders.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
-import 'package:sigap/providers/capability_provider.dart';
+import 'package:sigap/widgets/can.dart';
 import 'package:sigap/widgets/design_system/metric_card.dart';
 import 'package:sigap/widgets/design_system/progress_metric_card.dart';
 import 'package:sigap/widgets/design_system/trend_chart.dart';
@@ -405,6 +406,7 @@ class _OperatorQueueSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final queueAsync = ref.watch(queueCountsProvider);
     final backlogAsync = ref.watch(backlogTrendProvider);
     final criticalAsync = ref.watch(criticalCasesProvider);
@@ -453,8 +455,8 @@ class _OperatorQueueSection extends ConsumerWidget {
                       .toList();
                   return TrendChart(
                     data: trendData,
-                    primaryLabel: 'laporan',
-                    secondaryLabel: 'kasus',
+                    primaryLabel: l10n.labelLaporanChart,
+                    secondaryLabel: l10n.labelKasusChart,
                     primaryColor: SigapColors.info,
                     secondaryColor: SigapColors.primary,
                   );
@@ -689,7 +691,7 @@ class _AuditorSection extends ConsumerWidget {
                 child: const Text(
                   'A',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: SigapColors.surface,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -819,21 +821,14 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        Expanded(
-          child: Scaffold(
-            backgroundColor: SigapColors.bgSurface,
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.dashboard),
-              backgroundColor: SigapColors.surface,
-              foregroundColor: SigapColors.textPrimary,
-              elevation: 0,
-            ),
-            body: const _DashboardBody(),
-          ),
-        ),
-      ],
+    return ResponsiveScaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.dashboard),
+        backgroundColor: SigapColors.surface,
+        foregroundColor: SigapColors.textPrimary,
+        elevation: 0,
+      ),
+      body: const _DashboardBody(),
     );
   }
 }
@@ -843,18 +838,7 @@ class _DashboardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Import Can widget for capability gating
-    final canWidget = ref.watch(
-      capabilityNotifierProvider.select((s) => s.valueOrNull),
-    );
-
     final statsAsync = ref.watch(dashboardStatsProvider);
-
-    // Build capability check helper
-    bool hasCapability(String action) {
-      final caps = canWidget?.capabilities ?? {};
-      return caps.contains(action);
-    }
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -863,28 +847,48 @@ class _DashboardBody extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Admin Daerah section (admin.users.manage)
-          if (hasCapability('admin.users.manage')) ...[
-            const _AdminDaerahSection(),
-            const SizedBox(height: SigapSpacing.xl),
-          ],
+          Can(
+            action: 'admin.users.manage',
+            child: Column(
+              children: [
+                const _AdminDaerahSection(),
+                const SizedBox(height: SigapSpacing.xl),
+              ],
+            ),
+          ),
 
           // Operator queue section (case.dispatch)
-          if (hasCapability('case.dispatch')) ...[
-            const _OperatorQueueSection(),
-            const SizedBox(height: SigapSpacing.xl),
-          ],
+          Can(
+            action: 'case.dispatch',
+            child: Column(
+              children: [
+                const _OperatorQueueSection(),
+                const SizedBox(height: SigapSpacing.xl),
+              ],
+            ),
+          ),
 
           // Auditor section (audit.read)
-          if (hasCapability('audit.read')) ...[
-            const _AuditorSection(),
-            const SizedBox(height: SigapSpacing.xl),
-          ],
+          Can(
+            action: 'audit.read',
+            child: Column(
+              children: [
+                const _AuditorSection(),
+                const SizedBox(height: SigapSpacing.xl),
+              ],
+            ),
+          ),
 
           // Analytics section (analytics.read)
-          if (hasCapability('analytics.read')) ...[
-            const _AnalyticsSection(),
-            const SizedBox(height: SigapSpacing.xl),
-          ],
+          Can(
+            action: 'analytics.read',
+            child: Column(
+              children: [
+                const _AnalyticsSection(),
+                const SizedBox(height: SigapSpacing.xl),
+              ],
+            ),
+          ),
 
           // Show skeleton while loading
           statsAsync.when(

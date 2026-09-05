@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import '../../../../theme/tokens.dart';
 
 /// S-04 GPS Card widget for surveyor visit form screen.
@@ -67,22 +68,23 @@ class GpsCaptureCard extends StatelessWidget {
   }
 
   /// Returns a human-readable label for the accuracy status.
-  static String getAccuracyLabel(AccuracyStatus status) {
+  static String getAccuracyLabel(AccuracyStatus status, AppLocalizations l10n) {
     switch (status) {
       case AccuracyStatus.good:
-        return 'Akurasi baik';
+        return l10n.akurasiBaik;
       case AccuracyStatus.moderate:
-        return 'Akurasi sedang';
+        return l10n.akurasiSedang;
       case AccuracyStatus.poor:
-        return 'Akurasi buruk';
+        return l10n.akurasiBuruk;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final status = getAccuracyStatus(accuracyMeters);
     final accuracyColor = _getAccuracyColor(status);
-    final accuracyLabel = getAccuracyLabel(status);
+    final accuracyLabel = getAccuracyLabel(status, l10n);
 
     return Container(
       decoration: BoxDecoration(
@@ -104,14 +106,14 @@ class GpsCaptureCard extends StatelessWidget {
                 _buildHeader(),
                 const SizedBox(height: SigapSpacing.sm),
                 // Coordinates display
-                _buildCoordinates(),
+                _buildCoordinates(context),
                 const SizedBox(height: SigapSpacing.sm),
                 // Accuracy indicator row
                 _buildAccuracyRow(status, accuracyColor, accuracyLabel),
                 // Timestamp
                 if (timestamp != null) ...[
                   const SizedBox(height: SigapSpacing.x4),
-                  _buildTimestamp(),
+                  _buildTimestamp(context),
                 ],
               ],
             ),
@@ -150,7 +152,8 @@ class GpsCaptureCard extends StatelessWidget {
   }
 
   /// Builds the coordinates display row.
-  Widget _buildCoordinates() {
+  Widget _buildCoordinates(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Format coordinates to 6 decimal places
     final latStr = latitude.toStringAsFixed(6);
     final lngStr = longitude.toStringAsFixed(6);
@@ -162,7 +165,7 @@ class GpsCaptureCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Latitude',
+                l10n.latitude,
                 style: TextStyle(
                   fontSize: SigapTypography.captionSmall,
                   color: SigapColors.textTertiary,
@@ -187,7 +190,7 @@ class GpsCaptureCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Longitude',
+                l10n.longitude,
                 style: TextStyle(
                   fontSize: SigapTypography.captionSmall,
                   color: SigapColors.textTertiary,
@@ -242,11 +245,12 @@ class GpsCaptureCard extends StatelessWidget {
   }
 
   /// Builds the timestamp row.
-  Widget _buildTimestamp() {
+  Widget _buildTimestamp(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final formattedTime = _formatTimestamp(timestamp!);
 
     return Text(
-      'Diperbarui: $formattedTime',
+      l10n.diperbaruiPada(formattedTime),
       style: TextStyle(
         fontSize: SigapTypography.captionSmall,
         color: SigapColors.textTertiary,

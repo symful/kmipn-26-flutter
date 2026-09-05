@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Sticky bottom bar with submit CTA button and offline warning.
@@ -32,6 +33,7 @@ class StickyFooterCTA extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: SigapColors.bgCard,
@@ -54,7 +56,7 @@ class StickyFooterCTA extends StatelessWidget {
 
           // Offline notice: amber dot + warning text
           if (isOffline) ...[
-            const _OfflineNoticeRow(),
+            _OfflineNoticeRow(l10n: l10n),
             const SizedBox(height: SigapSpacing.sm),
           ],
 
@@ -74,7 +76,8 @@ class StickyFooterCTA extends StatelessWidget {
 ///
 /// Design spec: 7px amber dot (#b8730a) + text 11.5px #8a5808
 class _OfflineNoticeRow extends StatelessWidget {
-  const _OfflineNoticeRow();
+  final AppLocalizations l10n;
+  const _OfflineNoticeRow({required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +96,7 @@ class _OfflineNoticeRow extends StatelessWidget {
         const SizedBox(width: 6),
         // Warning text: 11.5px #8a5808
         Text(
-          'Tidak ada koneksi — laporan akan masuk antrean.',
+          l10n.tidakAdaKoneksiAntrean,
           style: const TextStyle(
             fontSize: SigapTypography.captionFine,
             color: SigapColors.warningText,
@@ -137,7 +140,9 @@ class _SubmitButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    SigapColors.surface,
+                  ),
                 ),
               )
             : Text(
@@ -145,7 +150,7 @@ class _SubmitButton extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: SigapTypography.subtitle,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: SigapColors.surface,
                 ),
               ),
       ),

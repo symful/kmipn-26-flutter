@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import '../../../theme/tokens.dart';
 
 /// Status of a nearby case.
@@ -49,12 +50,12 @@ class KasusTerdekatCard extends StatelessWidget {
     this.onTap,
   });
 
-  String get _statusLabel {
+  String _statusLabel(AppLocalizations l10n) {
     switch (status) {
       case KasusStatus.sedangDitangani:
-        return 'Sedang ditangani';
+        return l10n.sedangDitangani;
       case KasusStatus.terverifikasi:
-        return 'Terverifikasi';
+        return l10n.terverifikasi;
     }
   }
 
@@ -94,10 +95,10 @@ class KasusTerdekatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(SigapSpacing.md),
         decoration: BoxDecoration(
           color: SigapColors.bgCard,
           border: Border.all(color: SigapColors.borderCard),
@@ -147,7 +148,7 @@ class KasusTerdekatCard extends StatelessWidget {
 
                   // Subtitle: RW · distance · laporan count
                   Text(
-                    '$rw · $_distanceText · $laporanCount laporan pendukung',
+                    '$rw · $_distanceText · $laporanCount ${l10n.laporanPendukungCount}',
                     style: const TextStyle(
                       fontSize: SigapTypography.captionFine,
                       color: SigapColors.textTertiary,
@@ -157,7 +158,7 @@ class KasusTerdekatCard extends StatelessWidget {
 
                   // Status pill
                   _StatusPill(
-                    label: _statusLabel,
+                    label: _statusLabel(l10n),
                     dotColor: _statusDotColor,
                     bgColor: _statusBgColor,
                     textColor: _statusTextColor,
@@ -241,6 +242,7 @@ class KasusTerdekatSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -249,9 +251,9 @@ class KasusTerdekatSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'Kasus terdekat',
-              style: TextStyle(
+            Text(
+              l10n.kasusTerdekat,
+              style: const TextStyle(
                 fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w700,
                 color: SigapColors.textPrimary,
@@ -259,8 +261,8 @@ class KasusTerdekatSection extends StatelessWidget {
             ),
             GestureDetector(
               onTap: onLihatPeta,
-              child: const Text(
-                'Lihat peta',
+              child: Text(
+                l10n.lihatPeta,
                 style: TextStyle(
                   fontSize: SigapTypography.bodySmall,
                   fontWeight: FontWeight.w600,

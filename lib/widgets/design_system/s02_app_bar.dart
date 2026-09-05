@@ -12,7 +12,7 @@ import 'package:sigap/widgets/design_system/design_system.dart';
 /// - Amber (1-2 days remaining): SigapColors.warning
 /// - Red (<1 day or overdue): SigapColors.danger
 ///
-/// Now uses [TitleAppBar] internally.
+/// Now uses [SigapAppBar] internally.
 class S02AppBar extends StatelessWidget {
   /// Title text (case category).
   final String title;
@@ -32,12 +32,12 @@ class S02AppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TitleAppBar(
+    return SigapAppBar(
       title: title,
       onBack: onBack,
       padding: const EdgeInsets.symmetric(horizontal: SigapSpacing.lg),
       trailing: SlaBadge(
-        data: SlaBadgeData.fromDaysRemaining(slaDaysRemaining),
+        data: SlaBadgeData.fromDaysRemaining(context, slaDaysRemaining),
       ),
     );
   }

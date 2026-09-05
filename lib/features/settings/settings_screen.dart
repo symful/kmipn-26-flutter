@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../providers/auth_provider.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/design_system/authenticated_shell.dart';
 import '../../widgets/design_system/section_label.dart';
+import '../../widgets/design_system/sigap_app_bar.dart';
+import '../../widgets/design_system/sigap_card.dart';
 import '../../providers/settings_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -10,29 +14,30 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+
+    return AuthenticatedShell(
+      activeRole: activeRole,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.pengaturan)),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(SigapSpacing.lg),
-          children: [
-            SectionLabel(
-              label: AppLocalizations.of(context)!.sectionTampilanTema,
-            ),
-            const _ThemeToggle(),
-            const SizedBox(height: SigapSpacing.lg),
-            SectionLabel(
-              label: AppLocalizations.of(context)!.sectionBahasaLokalisasi,
-            ),
-            const _LanguageSelector(),
-            const SizedBox(height: SigapSpacing.xl),
-            SectionLabel(
-              label: AppLocalizations.of(context)!.sectionInformasiAplikasi,
-            ),
-            const _AppInfoCard(),
-          ],
-        ),
+      appBar: SigapAppBar(title: AppLocalizations.of(context)!.pengaturan),
+      body: ListView(
+        padding: const EdgeInsets.all(SigapSpacing.lg),
+        children: [
+          SectionLabel(
+            label: AppLocalizations.of(context)!.sectionTampilanTema,
+          ),
+          const _ThemeToggle(),
+          const SizedBox(height: SigapSpacing.lg),
+          SectionLabel(
+            label: AppLocalizations.of(context)!.sectionBahasaLokalisasi,
+          ),
+          const _LanguageSelector(),
+          const SizedBox(height: SigapSpacing.xl),
+          SectionLabel(
+            label: AppLocalizations.of(context)!.sectionInformasiAplikasi,
+          ),
+          const _AppInfoCard(),
+        ],
       ),
     );
   }
@@ -98,9 +103,10 @@ class _LanguageSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final currentLocale = settings.locale;
+    final l10n = AppLocalizations.of(context)!;
     final displayName = currentLocale.languageCode == 'id'
-        ? 'Bahasa Indonesia'
-        : 'English (US)';
+        ? l10n.bahasaIndonesiaLabel
+        : l10n.englishUs;
 
     return Container(
       decoration: BoxDecoration(
@@ -187,9 +193,9 @@ class _LanguageSelector extends ConsumerWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(SigapRadius.md),
                         ),
-                        title: const Text(
-                          'Bahasa Indonesia',
-                          style: TextStyle(
+                        title: Text(
+                          AppLocalizations.of(context)!.bahasaIndonesiaLabel,
+                          style: const TextStyle(
                             fontSize: SigapTypography.bodyMedium,
                             fontWeight: FontWeight.w500,
                           ),
@@ -206,9 +212,9 @@ class _LanguageSelector extends ConsumerWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(SigapRadius.md),
                         ),
-                        title: const Text(
-                          'English',
-                          style: TextStyle(
+                        title: Text(
+                          AppLocalizations.of(context)!.english,
+                          style: const TextStyle(
                             fontSize: SigapTypography.bodyMedium,
                             fontWeight: FontWeight.w500,
                           ),
@@ -237,7 +243,7 @@ class _LanguageSelector extends ConsumerWidget {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: SigapColors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(SigapRadius.sm),
                   ),
@@ -264,13 +270,8 @@ class _AppInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SigapCard(
       padding: const EdgeInsets.all(SigapSpacing.md),
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: SigapColors.border),
-      ),
       child: Column(
         children: [
           Row(
@@ -289,12 +290,12 @@ class _AppInfoCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: SigapSpacing.md),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'SIGAP Mobile',
+                      AppLocalizations.of(context)!.sigapMobile,
                       style: TextStyle(
                         fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.bold,
@@ -302,7 +303,7 @@ class _AppInfoCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Sistem Informasi & Gerak Aduan Publik',
+                      AppLocalizations.of(context)!.sistemInformasiGerakAduan,
                       style: TextStyle(
                         fontSize: SigapTypography.captionMedium,
                         color: SigapColors.textSecondary,
@@ -321,9 +322,9 @@ class _AppInfoCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(SigapRadius.pill),
                   border: Border.all(color: SigapColors.border),
                 ),
-                child: const Text(
-                  'v1.0.0',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.versiAplikasi,
+                  style: const TextStyle(
                     fontSize: SigapTypography.captionMedium,
                     fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
@@ -335,11 +336,11 @@ class _AppInfoCard extends StatelessWidget {
           const SizedBox(height: SigapSpacing.sm),
           const Divider(height: 1, color: SigapColors.border),
           const SizedBox(height: SigapSpacing.sm),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Status Server',
+                AppLocalizations.of(context)!.statusServer,
                 style: TextStyle(
                   fontSize: SigapTypography.bodySmall,
                   color: SigapColors.textSecondary,
@@ -350,7 +351,7 @@ class _AppInfoCard extends StatelessWidget {
                   Icon(Icons.circle, size: 8, color: SigapColors.selesai),
                   SizedBox(width: 4),
                   Text(
-                    'Online (Tersambung)',
+                    AppLocalizations.of(context)!.onlineTersambung,
                     style: TextStyle(
                       fontSize: SigapTypography.bodySmall,
                       fontWeight: FontWeight.w500,

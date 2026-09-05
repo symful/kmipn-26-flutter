@@ -69,7 +69,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                   runSpacing: SigapSpacing.sm,
                   children: [
                     StatusPill(
-                      label: _statusLabel(status),
+                      label: _statusLabel(status, l10n),
                       tone: _statusTone(status),
                     ),
                     if (categoryName != null)
@@ -102,7 +102,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                           borderRadius: BorderRadius.circular(SigapRadius.sm),
                         ),
                         child: Text(
-                          'Prioritas: ${priority.value}',
+                          l10n.prioritasLabel(priority.value),
                           style: const TextStyle(
                             color: SigapColors.warningText,
                             fontSize: SigapTypography.bodySmall,
@@ -119,19 +119,19 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
 
           // Photo Gallery
           if (photoUrls.isNotEmpty) ...[
-            _SectionLabel(label: l10n.foto),
+            SectionLabel(label: l10n.foto),
             const SizedBox(height: SigapSpacing.sm),
             _buildPhotoGallery(context, photoUrls),
             const SizedBox(height: SigapSpacing.lg),
           ],
 
           // Description
-          _SectionLabel(label: l10n.deskripsi),
+          SectionLabel(label: l10n.deskripsi),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
             child: Text(
-              description.isNotEmpty ? description : 'Tidak ada deskripsi.',
+              description.isNotEmpty ? description : l10n.tidakAdaDeskripsi,
               style: const TextStyle(
                 fontSize: SigapTypography.bodyMedium,
                 color: SigapColors.textPrimary,
@@ -141,7 +141,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
           const SizedBox(height: SigapSpacing.lg),
 
           // Location
-          _SectionLabel(label: l10n.lokasi),
+          SectionLabel(label: l10n.lokasi),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
@@ -152,11 +152,14 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                   report?.addressArea ??
                       report?.address ??
                       (lat != null && lng != null
-                          ? 'Koordinat: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
-                          : 'Lokasi tidak tersedia'),
+                          ? l10n.koordinatLabel(
+                              lat.toStringAsFixed(6),
+                              lng.toStringAsFixed(6),
+                            )
+                          : l10n.lokasiTidakTersedia),
                   style: const TextStyle(
                     fontSize: SigapTypography.bodyText,
-                    fontFamily: 'monospace',
+                    fontFamily: SigapTypography.fontFamilyMono,
                     color: SigapColors.textPrimary,
                   ),
                 ),
@@ -172,7 +175,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
           const SizedBox(height: SigapSpacing.lg),
 
           // Created At
-          _SectionLabel(label: l10n.labelDibuat),
+          SectionLabel(label: l10n.labelDibuat),
           const SizedBox(height: SigapSpacing.sm),
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
@@ -188,11 +191,11 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
 
           // AI Assessment
           if (assessmentData != null) ...[
-            _SectionLabel(label: l10n.labelPenilaianAI),
+            SectionLabel(label: l10n.labelPenilaianAI),
             const SizedBox(height: SigapSpacing.sm),
             AiAssessmentCard(assessment: assessmentData!),
           ] else if (assessmentError) ...[
-            _SectionLabel(label: l10n.labelPenilaianAI),
+            SectionLabel(label: l10n.labelPenilaianAI),
             const SizedBox(height: SigapSpacing.sm),
             Container(
               padding: const EdgeInsets.symmetric(
@@ -204,7 +207,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                 borderRadius: BorderRadius.circular(SigapRadius.sm),
                 border: Border.all(color: SigapColors.dangerBorder),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
@@ -214,7 +217,7 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
                   ),
                   SizedBox(width: SigapSpacing.sm),
                   Text(
-                    'Assessment tidak tersedia',
+                    l10n.assessmentTidakTersedia,
                     style: TextStyle(
                       color: SigapColors.dangerTextStrong,
                       fontSize: SigapTypography.bodyText,
@@ -320,20 +323,20 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
     }
   }
 
-  String _statusLabel(String status) {
+  String _statusLabel(String status, AppLocalizations l10n) {
     switch (status.toLowerCase()) {
       case 'submitted':
-        return 'Submitted';
+        return l10n.labelSubmitted;
       case 'under_review':
-        return 'Under Review';
+        return l10n.labelUnderReview;
       case 'in_progress':
-        return 'Diproses';
+        return l10n.labelDiproses;
       case 'verified':
-        return 'Terverifikasi';
+        return l10n.labelTerverifikasi;
       case 'resolved':
-        return 'Selesai';
+        return l10n.labelSelesai;
       case 'rejected':
-        return 'Ditolak';
+        return l10n.labelDitolak;
       default:
         return status.isNotEmpty ? status : '-';
     }
@@ -346,24 +349,5 @@ class CaseWorkspaceRingkasanTab extends StatelessWidget {
     } catch (_) {
       return isoString;
     }
-  }
-}
-
-/// Section label widget for consistent styling across tabs.
-class _SectionLabel extends StatelessWidget {
-  final String label;
-
-  const _SectionLabel({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: const TextStyle(
-        fontSize: SigapTypography.subtitle,
-        fontWeight: FontWeight.bold,
-        color: SigapColors.textPrimary,
-      ),
-    );
   }
 }

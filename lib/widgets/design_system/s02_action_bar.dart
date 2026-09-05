@@ -136,7 +136,7 @@ class _MintaClarifikasiButton extends StatelessWidget {
         ),
       ),
       child: Text(
-        'Minta Clarifikasi',
+        AppLocalizations.of(context)!.mintaClarifikasi,
         style: const TextStyle(
           fontSize: SigapTypography.bodyText,
           fontWeight: FontWeight.w600,
@@ -159,7 +159,7 @@ class _TerimaTugasButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: SigapColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: SigapColors.surface,
         padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -167,7 +167,7 @@ class _TerimaTugasButton extends StatelessWidget {
         elevation: 0,
       ),
       child: Text(
-        'Terima Tugas',
+        AppLocalizations.of(context)!.terimaTugasLabel,
         style: const TextStyle(
           fontSize: SigapTypography.bodyText,
           fontWeight: FontWeight.w600,
@@ -189,7 +189,7 @@ class _KunjungiButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: SigapColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: SigapColors.surface,
         padding: const EdgeInsets.symmetric(vertical: SigapSpacing.x12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -197,7 +197,7 @@ class _KunjungiButton extends StatelessWidget {
         elevation: 0,
       ),
       child: Text(
-        'Kunjungi',
+        AppLocalizations.of(context)!.kunjungi,
         style: const TextStyle(
           fontSize: SigapTypography.bodyText,
           fontWeight: FontWeight.w600,

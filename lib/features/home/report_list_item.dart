@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/design_system/sigap_card.dart';
 import '../../db/database.dart';
 
 class ReportListItem extends StatelessWidget {
@@ -47,8 +48,7 @@ class ReportListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
+    return SigapCard(
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -69,7 +69,7 @@ class ReportListItem extends StatelessWidget {
                   _statusLabel(),
                   style: TextStyle(
                     color: _statusColor(),
-                    fontSize: 11,
+                    fontSize: SigapTypography.captionMedium,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -83,14 +83,16 @@ class ReportListItem extends StatelessWidget {
                       report.description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13),
+                      style: const TextStyle(
+                        fontSize: SigapTypography.bodyText,
+                      ),
                     ),
                     const SizedBox(height: SigapSpacing.xs),
                     Text(
                       '${report.lat.toStringAsFixed(4)}, ${report.lng.toStringAsFixed(4)}',
                       style: TextStyle(
                         color: SigapColors.textMuted,
-                        fontSize: 11,
+                        fontSize: SigapTypography.captionMedium,
                       ),
                     ),
                   ],

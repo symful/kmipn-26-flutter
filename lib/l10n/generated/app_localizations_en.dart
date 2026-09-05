@@ -1155,9 +1155,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mintaInformasi => 'Request Information';
 
   @override
-  String get verifikasiRTRW => 'RT_RW Verification';
-
-  @override
   String gagalMemuat(String error) {
     return 'Failed to load: $error';
   }
@@ -1168,9 +1165,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get permintaanInformasiTerkirim =>
       'Information request sent successfully';
-
-  @override
-  String get pelatihanRTRW => 'RT/RW Training';
 
   @override
   String get semuaNotifikasiDibaca => 'All notifications marked as read';
@@ -1263,6 +1257,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get konfigurasiBobotTersimpan =>
       'Priority weight configuration saved successfully';
+
+  @override
+  String get bobotPrioritas => 'Priority Weight';
 
   @override
   String get konfigurasiPrioritas => 'Priority Configuration';
@@ -1425,6 +1422,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tingkatSinkronisasi => 'Sync Level';
+
+  @override
+  String get pusatSinkronisasi => 'Sync Center';
 
   @override
   String get surveyorMenunggu => 'Surveyors Waiting';
@@ -1918,4 +1918,1672 @@ class AppLocalizationsEn extends AppLocalizations {
   String gagalMengambilFoto(String error) {
     return 'Failed to pick photo: $error';
   }
+
+  @override
+  String get gagalMemuatData => 'Failed to load data';
+
+  @override
+  String get keputusanBerhasilDikirim => 'Decision sent successfully';
+
+  @override
+  String get assessmentTidakTersedia => 'Assessment not available';
+
+  @override
+  String get tidakAdaDokumen => 'No documents';
+
+  @override
+  String get menungguKlaimPersonel => 'Awaiting personnel claim';
+
+  @override
+  String get informasiYangDiperlukan => 'Required information';
+
+  @override
+  String get umurBacklogKasus => 'Case backlog age';
+
+  @override
+  String get dataTidakTersedia => 'Data not available';
+
+  @override
+  String get distribusiStatus => 'Status Distribution';
+
+  @override
+  String get distribusiKategori => 'Category Distribution';
+
+  @override
+  String get dataKategoriTidakTersedia => 'Category data not available';
+
+  @override
+  String get semuaSurveyorAktif => 'All surveyors active';
+
+  @override
+  String get terjadiKesalahan => 'An error occurred. Please try again.';
+
+  @override
+  String get koneksiTimeout => 'Connection timeout. Please try again.';
+
+  @override
+  String get tidakAdaKoneksiInternet => 'No internet connection.';
+
+  @override
+  String get permintaanDibatalkan => 'Request cancelled.';
+
+  @override
+  String get emailAtauPasswordSalah => 'Invalid email or password.';
+
+  @override
+  String get sesiHabis => 'Session expired. Please login again.';
+
+  @override
+  String get andaTidakMemilikiAkses => 'You don\'t have access.';
+
+  @override
+  String get dataTidakDitemukan => 'Data not found.';
+
+  @override
+  String get dataTidakValid => 'Invalid data. Please check your input.';
+
+  @override
+  String get serverSedangBermasalah =>
+      'Server is having issues. Please try again later.';
+
+  @override
+  String get terlaluBanyakPermintaan =>
+      'Too many requests. Please try again later.';
+
+  @override
+  String get dataSudahAdaAtauKonflik => 'Data already exists or conflict.';
+
+  @override
+  String get serverTidakTersedia =>
+      'Server unavailable. Please try again later.';
+
+  @override
+  String terjadiKesalahanDenganCode(int statusCode) {
+    return 'An error occurred (code: $statusCode).';
+  }
+
+  @override
+  String apiError(int statusCode) {
+    return 'API Error: $statusCode';
+  }
+
+  @override
+  String requestTimeoutPada(String endpoint) {
+    return 'Request timeout on $endpoint';
+  }
+
+  @override
+  String get minimal10KarakterValidasi => 'minimum 10 characters';
+
+  @override
+  String get tidakBolehKosong => 'cannot be empty';
+
+  @override
+  String get formatEmailTidakValid => 'invalid email format';
+
+  @override
+  String get terlaluPanjang => 'too long';
+
+  @override
+  String get terlaluPendek => 'too short';
+
+  @override
+  String get harus => 'must';
+
+  @override
+  String get gagalMendekodeGambar => 'Failed to decode image for EXIF removal';
+
+  @override
+  String get menungguVerifikasiLabel => 'Waiting for verification';
+
+  @override
+  String get terverifikasiLabel => 'Verified';
+
+  @override
+  String get sedangDitanganiLabel => 'Being handled';
+
+  @override
+  String get perluKelengkapanLabel => 'Needs completion';
+
+  @override
+  String get slaTerlewatLabel => 'SLA overdue';
+
+  @override
+  String get tersimpanDiPerangkatLabel => 'Saved on device';
+
+  @override
+  String get laporanDiterimaLabel => 'Report accepted';
+
+  @override
+  String get sedangDiperiksaLabel => 'Being checked';
+
+  @override
+  String get perluDilengkapiLabel => 'Needs to be completed';
+
+  @override
+  String get perluTindakanAndaLabel => 'Needs your action';
+
+  @override
+  String get draftLabel => 'Draft';
+
+  @override
+  String get digabungLabel => 'Merged';
+
+  @override
+  String get dipisahLabel => 'Split';
+
+  @override
+  String get dalamReviewLabel => 'Under Review';
+
+  @override
+  String get unknownLabel => 'Unknown';
+
+  @override
+  String get laporanPertamaDiterima => 'First report received';
+
+  @override
+  String get kasusDibuatDariKonsolidasi => 'Case created from consolidation';
+
+  @override
+  String get laporanDigabung => 'Report merged';
+
+  @override
+  String get menungguVerifikasiManual => 'Waiting for manual verification';
+
+  @override
+  String get laporanNav => 'Reports';
+
+  @override
+  String get sinkronNav => 'Sync';
+
+  @override
+  String get riwayatNav => 'History';
+
+  @override
+  String get akunNav => 'Account';
+
+  @override
+  String get buatLaporanFAB => 'Create report';
+
+  @override
+  String get izinkanLokasiDitolakSnack => 'Location permission denied';
+
+  @override
+  String gagalCaptureGPS(String error) {
+    return 'GPS capture failed: $error';
+  }
+
+  @override
+  String get maksimal5Foto => 'Maximum 5 photos';
+
+  @override
+  String tambahFoto(int count, int max) {
+    return 'Add photo ($count/$max)';
+  }
+
+  @override
+  String get formSurveiTitle => 'Survey Form';
+
+  @override
+  String get kembaliKeDaftarTugasBtn => 'Back to Task List';
+
+  @override
+  String get fotoPerSudut => 'Photo per angle';
+
+  @override
+  String get formSurveiHeader => 'Survey form';
+
+  @override
+  String get gpsBelumTertangkap => 'GPS not captured';
+
+  @override
+  String get tidakDitemukanDiLokasi => 'Not found at location';
+
+  @override
+  String get ringkasanTab => 'Summary';
+
+  @override
+  String get buktiLaporanTab => 'Evidence & Reports';
+
+  @override
+  String get verifikasiTab => 'Verification';
+
+  @override
+  String get tugasProgresTab => 'Tasks & Progress';
+
+  @override
+  String get riwayatAuditTab => 'Audit History';
+
+  @override
+  String aksiGunakanPanelVerifikasi(String label) {
+    return 'Action \"$label\" - use verification panel';
+  }
+
+  @override
+  String bukaTabVerifikasi(String label) {
+    return 'Open Verification tab for action \"$label\"';
+  }
+
+  @override
+  String get statusKasus => 'Case Status';
+
+  @override
+  String get daftarTugasProgres =>
+      'Task list and handling progress will be displayed here.';
+
+  @override
+  String get riwayatAuditLabel => 'Audit History';
+
+  @override
+  String get detailAuditTitle => 'Audit Detail';
+
+  @override
+  String get detailAuditDesc =>
+      'Complete audit chain details will be displayed here.';
+
+  @override
+  String get belumAdaRiwayatAudit => 'No audit history yet';
+
+  @override
+  String get transisiStatusTidakValid =>
+      'Invalid status transition. Report may have been processed.';
+
+  @override
+  String gagalMengirimKeputusan(String error) {
+    return 'Failed to send decision: $error';
+  }
+
+  @override
+  String gagalMemuatError(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String errorLabel(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get andaTidakAksesVerifikasi =>
+      'You don\'t have access to verify this case.';
+
+  @override
+  String get andaTidakAksesTugas =>
+      'You don\'t have access to view case tasks.';
+
+  @override
+  String get andaTidakAksesAudit =>
+      'You don\'t have access to view audit history.';
+
+  @override
+  String get tidakAdaTugasTitle => 'No Tasks';
+
+  @override
+  String get tugasPenangananMuncul =>
+      'Handling tasks for this case will appear here.';
+
+  @override
+  String get tidakAdaDeskripsi => 'No description.';
+
+  @override
+  String koordinatLabel(String lat, String lng) {
+    return 'Coordinates: $lat, $lng';
+  }
+
+  @override
+  String prioritasLabel(String value) {
+    return 'Priority: $value';
+  }
+
+  @override
+  String get kembaliKeLaporan => 'Back to Report';
+
+  @override
+  String get batalBtn => 'Cancel';
+
+  @override
+  String get idLaporanLabel => 'Report ID';
+
+  @override
+  String get apaItuSanggahan => 'What is an Objection?';
+
+  @override
+  String get sanggahanAdalah =>
+      'An objection is your way to file a grievance against a rejection decision.';
+
+  @override
+  String get alasanSanggahanLabel => 'Objection Reason';
+
+  @override
+  String get wajibLabel => 'REQUIRED';
+
+  @override
+  String karakterMinimum(int current, int minimum) {
+    return '$current / $minimum characters minimum';
+  }
+
+  @override
+  String get validLabel => 'Valid';
+
+  @override
+  String get ajukanSanggahanBtn => 'Submit Objection';
+
+  @override
+  String gagalAjukanSanggahanError(String error) {
+    return 'Failed to submit objection: $error';
+  }
+
+  @override
+  String get sanggahanBerhasil => 'Objection Successfully Submitted';
+
+  @override
+  String sanggahanBerhasilDesc(String reportId) {
+    return 'Your objection for report $reportId has been successfully submitted.';
+  }
+
+  @override
+  String get filterAuditLog => 'Filter Audit Log';
+
+  @override
+  String get idUserNamaActor => 'User ID / Name (Actor)';
+
+  @override
+  String get idObjekResourceId => 'Object ID (Resource ID)';
+
+  @override
+  String get aksiAction => 'Action';
+
+  @override
+  String get tipeObjekResourceType => 'Object Type (Resource Type)';
+
+  @override
+  String get filterAktif => 'Active Filter: ';
+
+  @override
+  String aksiFilter(String value) {
+    return 'Action: $value';
+  }
+
+  @override
+  String objekFilter(String value) {
+    return 'Object: $value';
+  }
+
+  @override
+  String actorFilter(String value) {
+    return 'Actor: $value';
+  }
+
+  @override
+  String get tanggalTerpilih => 'Date: Selected';
+
+  @override
+  String detailPerubahanLabel(String action) {
+    return 'Change Detail: $action';
+  }
+
+  @override
+  String get gagalMemuatAuditLog => 'Failed to Load Audit Log';
+
+  @override
+  String get tidakAdaDataAuditLog => 'No Audit Log Data';
+
+  @override
+  String get tidakDitemukanRiwayatLog =>
+      'No log history found with current filter criteria.';
+
+  @override
+  String get belumAdaAktivitasTercatat =>
+      'No activity recorded in audit log yet.';
+
+  @override
+  String get lihatDetailPerubahanDiff => 'View change detail (diff)';
+
+  @override
+  String get kosongTidakAdaData => '(Empty / No data)';
+
+  @override
+  String wilayahFilter(String value) {
+    return 'Region: $value';
+  }
+
+  @override
+  String get wargaRole => 'Citizen';
+
+  @override
+  String get surveyorRole => 'Surveyor';
+
+  @override
+  String get petugasRole => 'Officer';
+
+  @override
+  String get operatorRole => 'Operator';
+
+  @override
+  String get verifikatorRole => 'Verifier';
+
+  @override
+  String get adminDaerahRole => 'Regional Admin';
+
+  @override
+  String get auditorRole => 'Auditor';
+
+  @override
+  String get eksekutifRole => 'Executive';
+
+  @override
+  String get tidakAdaTugasSurvei => 'No Survey Tasks';
+
+  @override
+  String get belumAdaTugas => 'No Tasks Yet';
+
+  @override
+  String get tugasPenangananDariOperator =>
+      'Handling tasks from operator will appear here when assigned.';
+
+  @override
+  String get detailTugasSurvei => 'Survey Task Detail';
+
+  @override
+  String get detailTugasPetugas => 'Officer Task Detail';
+
+  @override
+  String get gagalMemuatDetailTugas => 'Failed to Load Task Detail';
+
+  @override
+  String get gagalMemuatTugasTitle => 'Failed to Load Tasks';
+
+  @override
+  String get urutkanLabel => 'Sort: ';
+
+  @override
+  String get tugasHariIni => 'Today\'s Tasks';
+
+  @override
+  String get semuaTersinkronStatus => 'All synchronized';
+
+  @override
+  String get tidakAdaDataMenungguSinkron => 'No data waiting to sync';
+
+  @override
+  String get gagalDikirimLabel => 'Failed to send';
+
+  @override
+  String get menungguLabel => 'Waiting';
+
+  @override
+  String get gagalLabel => 'Failed';
+
+  @override
+  String get kasusKritisTitle => 'Critical Cases';
+
+  @override
+  String get tidakAdaKasusKritis => 'No critical cases';
+
+  @override
+  String get gagalMemuatPetaError => 'Failed to load map';
+
+  @override
+  String statusMarker(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String get kategoriSection => 'Category';
+
+  @override
+  String get statusSection => 'Status';
+
+  @override
+  String get waktuSection => 'Time';
+
+  @override
+  String get pengaturanTooltip => 'Settings';
+
+  @override
+  String get wargaDefault => 'Citizen';
+
+  @override
+  String get apakahYakinKeluar =>
+      'Are you sure you want to log out from this account?';
+
+  @override
+  String get bahasaIndonesiaLabel => 'Bahasa Indonesia';
+
+  @override
+  String get statusServer => 'Server Status';
+
+  @override
+  String get onlineTersambung => 'Online (Connected)';
+
+  @override
+  String get cobaLagiBtn => 'Try Again';
+
+  @override
+  String get aksesDitolakTitle => 'Access Denied';
+
+  @override
+  String get tutupBtn => 'Close';
+
+  @override
+  String get tentangPrivasi => 'About Privacy';
+
+  @override
+  String get privasiInfoBody =>
+      'Your identity and precise location are only visible to related officers. Public only sees generalized location.';
+
+  @override
+  String get identitasPublik => 'My identity is public';
+
+  @override
+  String get prioritasRendah => 'Low';
+
+  @override
+  String get prioritasTinggi => 'High';
+
+  @override
+  String get prioritasDiubah => 'Priority changed';
+
+  @override
+  String get rendahLabel => 'Low';
+
+  @override
+  String get tinggiLabel => 'High';
+
+  @override
+  String get siapOfflineBadge => 'Ready for offline';
+
+  @override
+  String get unduhUntukOffline => 'Download for offline';
+
+  @override
+  String get prioritasTinggiCard => 'High priority';
+
+  @override
+  String get prioritasSedangCard => 'Medium priority';
+
+  @override
+  String get prioritasNormalCard => 'Normal priority';
+
+  @override
+  String get prioritasRendahCard => 'Low priority';
+
+  @override
+  String get tugasHariIniTitle => 'Today\'s Tasks';
+
+  @override
+  String get umurBacklogTitle => 'Case backlog age';
+
+  @override
+  String get unduhBatchBtn => 'Download batch';
+
+  @override
+  String get kasusKritisDefault => 'Critical cases';
+
+  @override
+  String get kasusTerdekatTitle => 'Nearest Case';
+
+  @override
+  String get lihatPetaAction => 'View map';
+
+  @override
+  String get sedangDitanganiStatus => 'Being handled';
+
+  @override
+  String get terverifikasiStatus => 'Verified';
+
+  @override
+  String get lokasiGPS => 'GPS Location';
+
+  @override
+  String get catatanLapangan => 'Field notes';
+
+  @override
+  String get tambahkanCatatan => 'Add notes...';
+
+  @override
+  String get batasWaktuBelumDipilih => 'Deadline: (not selected)';
+
+  @override
+  String batasWaktuLabel(String time) {
+    return 'Deadline: $time';
+  }
+
+  @override
+  String errorGeneric(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get simpanDanSinkronkanNantiBtn => 'Save and sync later';
+
+  @override
+  String get tidakAdaKoneksiAntrean =>
+      'No connection - report will enter queue.';
+
+  @override
+  String get tambahkanBuktiKeKasus => 'Add evidence to this case';
+
+  @override
+  String get buatTerpisah => 'Create separate';
+
+  @override
+  String get lanjutKeReviewHasilSurvei => 'Continue to survey results review';
+
+  @override
+  String get mintaClarifikasiBtn => 'Request Clarification';
+
+  @override
+  String get terimaTugasBtn => 'Accept Task';
+
+  @override
+  String get sinkronkanSekarang => 'Sync Now';
+
+  @override
+  String get sinkronkanSekarangSemantics => 'Sync now';
+
+  @override
+  String get petaAreaBuktiDiunduh => 'Map area + downloaded evidence';
+
+  @override
+  String get duplicateCandidates => 'Duplicate Candidates';
+
+  @override
+  String get menungguVerifikasiSnackBar => 'Waiting for verification';
+
+  @override
+  String get terverifikasiSnackBar => 'Verified';
+
+  @override
+  String get sedangDitanganiSnackBar => 'Being handled';
+
+  @override
+  String get perluKelengkapanSnackBar => 'Needs completion';
+
+  @override
+  String get slaTerlewatSnackBar => 'SLA overdue';
+
+  @override
+  String get submittedLabel => 'Submitted';
+
+  @override
+  String get underReviewLabel => 'Under Review';
+
+  @override
+  String get inProgressLabel => 'In Progress';
+
+  @override
+  String get resolvedLabel => 'Resolved';
+
+  @override
+  String get rejectedLabel => 'Rejected';
+
+  @override
+  String get verifiedLabel => 'Verified';
+
+  @override
+  String get kualitasData => 'Data Quality';
+
+  @override
+  String get tingkatSinkronisasiLabel => 'Sync Level';
+
+  @override
+  String get surveyorMenungguLabel => 'Surveyors Waiting';
+
+  @override
+  String get risikoSLA => 'SLA Risk';
+
+  @override
+  String get semuaKasusOnTrack => 'All cases on track';
+
+  @override
+  String get pendahLabel => 'Pending';
+
+  @override
+  String get sinkronisasiBerhasil => 'Sync Successful';
+
+  @override
+  String get dataBerhasilDisinkronkan => 'Data successfully synced to server';
+
+  @override
+  String get sinkronisasiGagal => 'Sync Failed';
+
+  @override
+  String get gagalMenyinkronkanData => 'Failed to sync data. Please try again.';
+
+  @override
+  String get itemGagalDisinkronkan => 'Item failed to sync';
+
+  @override
+  String get exportFormat => 'Export Format';
+
+  @override
+  String get exportCSVGagal => 'CSV export failed:';
+
+  @override
+  String get exportGeoJSONGagal => 'GeoJSON export failed:';
+
+  @override
+  String get exportPDFGagal => 'PDF export failed:';
+
+  @override
+  String get emptyGeoJSON => 'Empty GeoJSON';
+
+  @override
+  String get sigapMobile => 'SIGAP Mobile';
+
+  @override
+  String get sistemInformasiGerakAduan =>
+      'Geospatial Information System & Public Complaint Handling';
+
+  @override
+  String get versiAplikasi => 'v1.0.0';
+
+  @override
+  String get batalkanTugasTitle => 'Reject Task';
+
+  @override
+  String get alasanPenolakanLabel => 'Rejection reason';
+
+  @override
+  String get masukkanAlasanHint => 'Enter reason...';
+
+  @override
+  String get mintaClarifikasiTitle => 'Request Clarification';
+
+  @override
+  String get pertanyaanKlarifikasiLabel => 'Question / clarification';
+
+  @override
+  String get tulisPertanyaanHint => 'Type your question...';
+
+  @override
+  String get kondisiAktual => 'Current condition';
+
+  @override
+  String get rekomendasiHasil => 'Recommendation result';
+
+  @override
+  String get ambilGPS => 'Get GPS';
+
+  @override
+  String get pilihPeranKonteks =>
+      'Select a role to switch work context. Menu, data flow, and access permissions will be automatically adjusted.';
+
+  @override
+  String get kirimLaporanPublik =>
+      'Submit public complaint reports and monitor completion status.';
+
+  @override
+  String get ringkasanEksekutif =>
+      'Executive summary, verification trend analysis, and regional statistics.';
+
+  @override
+  String get gagalMemuatAssessment => 'Failed to Load Assessment';
+
+  @override
+  String get belumAdaAssessmentAI => 'No AI Assessment Yet';
+
+  @override
+  String get formatExportTitle => 'Export Format';
+
+  @override
+  String get riwayatAuditImmutable =>
+      'Audit history is immutable and cannot be modified. ';
+
+  @override
+  String get kategoriColon => 'Category:';
+
+  @override
+  String get deskripsiColon => 'Description:';
+
+  @override
+  String get fotoColon => 'Photo:';
+
+  @override
+  String get buktiFotoDariPelapor => 'Photo evidence of damage from reporter';
+
+  @override
+  String get koordinatColon => 'Coordinates:';
+
+  @override
+  String get lokasiTepatDiPeta => 'Exact location on map';
+
+  @override
+  String get tanggalColon => 'Date:';
+
+  @override
+  String get kapanLaporanDibuat => 'When the report was created';
+
+  @override
+  String get statusLaporan => 'Report Status';
+
+  @override
+  String get laporanBaru => 'New report';
+
+  @override
+  String get perluTindakanStatus => 'Needs Action';
+
+  @override
+  String get sedangDiprosesStatus => 'In Progress';
+
+  @override
+  String get selesaiStatus => 'Done';
+
+  @override
+  String get ditolakStatus => 'Rejected';
+
+  @override
+  String get keteranganPrivasiTooltip =>
+      'If active, your name is visible to public. Location remains generalized.';
+
+  @override
+  String get identitasLokasiPrivasi =>
+      'Your identity and precise location are only visible to related officers. Public only sees generalized location.';
+
+  @override
+  String get gpsBadge => 'GPS';
+
+  @override
+  String get maks5FotoFormat =>
+      'Max 5 photos, JPG/PNG format. GPS from EXIF will be used if available.';
+
+  @override
+  String get jamSuffix => 'Hours';
+
+  @override
+  String get aktifStatus => 'Active';
+
+  @override
+  String get nonaktifStatus => 'Inactive';
+
+  @override
+  String targetJam(int hours) {
+    return 'Target: $hours hours';
+  }
+
+  @override
+  String wilayahPrefix(String value) {
+    return 'Region: $value';
+  }
+
+  @override
+  String slugPrefix(String value) {
+    return 'Slug: $value';
+  }
+
+  @override
+  String get latihanVerifikasiLaporan => 'Report Verification Training';
+
+  @override
+  String get apaItuSIGAP => 'What is SIGAP?';
+
+  @override
+  String get tujuanSIGAP => 'SIGAP Purpose';
+
+  @override
+  String get caraMemverifikasiLaporan => 'How to Verify Reports';
+
+  @override
+  String get terimaTautanVerifikasi => 'Receive Verification Link';
+
+  @override
+  String get bukaTautan => 'Open Link';
+
+  @override
+  String get periksaKondisiLapangan => 'Check Field Conditions';
+
+  @override
+  String get berikanKeputusan => 'Make a Decision';
+
+  @override
+  String get kirimVerifikasiTitle => 'Submit Verification';
+
+  @override
+  String get klikTombolKirimVerifikasi =>
+      'Click the \'Submit Verification\' button to send your decision to the system.';
+
+  @override
+  String get memahamiDashboardSIGAP => 'Understanding SIGAP Dashboard';
+
+  @override
+  String get dashboardMenampilkanLaporan =>
+      'The SIGAP Dashboard displays all incoming damage reports.';
+
+  @override
+  String get bestPractice => 'Best Practice';
+
+  @override
+  String get lakukan => 'Do';
+
+  @override
+  String get verifikasiDalam1x24Jam => 'Verify reports within 1x24 hours';
+
+  @override
+  String get hindari => 'Don\'t';
+
+  @override
+  String get pertanyaanUmum => 'Frequently Asked Questions';
+
+  @override
+  String get statusDikonfirmasi => 'Confirmed';
+
+  @override
+  String get statusDitolakRT => 'Rejected';
+
+  @override
+  String get laporanTidakValid => 'Report is not valid';
+
+  @override
+  String get berikanAlasanJelas => 'Provide a clear reason';
+
+  @override
+  String get simpanKonfigurasiBtn => 'Save Configuration';
+
+  @override
+  String get editSLATooltip => 'Edit SLA';
+
+  @override
+  String get segarkanTooltip => 'Refresh';
+
+  @override
+  String get antreanNav => 'Queue';
+
+  @override
+  String get exportNav => 'Export';
+
+  @override
+  String get analitikNav => 'Analytics';
+
+  @override
+  String get dashboardEksekutif => 'Executive Dashboard';
+
+  @override
+  String get masukkanPertanyaanInformasiHint =>
+      'Enter the question or information needed...';
+
+  @override
+  String diajukanPada(String date) {
+    return 'Submitted: $date';
+  }
+
+  @override
+  String olehPelaku(String userId) {
+    return 'by: $userId';
+  }
+
+  @override
+  String get verifikasiLaporan => 'Verify Reports';
+
+  @override
+  String get panduanLengkapRTRW =>
+      'Complete guide for RT and RW officials in using the SIGAP system';
+
+  @override
+  String get deskripsiSIGAP =>
+      'SIGAP (Geospatial Information System & Village Report Handling) is a digital platform for mapping and monitoring village development. This system helps record, track, and resolve infrastructure damage reports in your area.';
+
+  @override
+  String get memetakanKerusakan => 'Mapping infrastructure damage';
+
+  @override
+  String get mempercepatPerbaikan => 'Accelerating repair process';
+
+  @override
+  String get transparansiLaporan => 'Transparency of community reports';
+
+  @override
+  String get koordinasiPemerintah => 'Coordination between government levels';
+
+  @override
+  String get memverifikasiLaporan => 'Verifying damage reports';
+
+  @override
+  String get memberikanKonfirmasi => 'Providing field confirmation';
+
+  @override
+  String get melaporkanKerusakanBaru => 'Reporting new damage';
+
+  @override
+  String get memantauStatusPerbaikan => 'Monitoring repair status';
+
+  @override
+  String get deskripsiTerimaTautan =>
+      'You will receive a verification link via SMS or WhatsApp from the SIGAP system. The link contains a unique token to access the report.';
+
+  @override
+  String get deskripsiBukaTautan =>
+      'Click the link sent to you. You will be redirected to the SIGAP verification page.';
+
+  @override
+  String get deskripsiPeriksaKondisi =>
+      'Visit the location mentioned in the report. Check if the damage really exists and note the actual conditions.';
+
+  @override
+  String get deskripsiBerikanKeputusan =>
+      'Select \'Confirmed\' if the damage really exists, or \'Rejected\' if the report is not valid. Provide a clear reason.';
+
+  @override
+  String get deskripsiKirimVerifikasi =>
+      'Click the \'Submit Verification\' button to send your decision to the system.';
+
+  @override
+  String get deskripsiMemahamiDashboard =>
+      'The SIGAP Dashboard displays all incoming damage reports. Here are the main elements you need to know:';
+
+  @override
+  String get datangLangsungKeLokasi => 'Visit the location in person';
+
+  @override
+  String get berikanAlasanDetail => 'Provide detailed reasons';
+
+  @override
+  String get dokumentasikanDenganFoto => 'Document with photos';
+
+  @override
+  String get laporkanJikaKendala => 'Report if there are obstacles';
+
+  @override
+  String get memverifikasiTanpaKeLokasi =>
+      'Verifying without visiting location';
+
+  @override
+  String get memberikanAlasanKosong => 'Giving empty reasons';
+
+  @override
+  String get menundaVerifikasi => 'Delaying verification too long';
+
+  @override
+  String get menolakTanpaAlasan => 'Rejecting without clear reason';
+
+  @override
+  String get mengabaikanLaporan => 'Ignoring community reports';
+
+  @override
+  String get faqLokasiSulitDiakses =>
+      'What if the location is difficult to access?';
+
+  @override
+  String get faqLokasiSulitDiaksesJawab =>
+      'Try to verify from the nearest possible point. If it really cannot be accessed, provide a reason in the system and ask for help from neighbors or nearby residents for documentation.';
+
+  @override
+  String get faqLaporanTidakJelasPertanyaan =>
+      'What should be done if the report is unclear?';
+
+  @override
+  String get faqLaporanTidakJelasJawab =>
+      'Contact the reporter through the listed number to request clarification. If unreachable, verify based on available information and note the ambiguity.';
+
+  @override
+  String get faqWaktuVerifikasiPertanyaan =>
+      'How long is the verification time?';
+
+  @override
+  String get faqWaktuVerifikasiJawab =>
+      'Ideally, verification should be done within 1x24 hours after the report is received. However, if there are obstacles, immediately contact the regional admin.';
+
+  @override
+  String get faqTidakSetujuPertanyaan =>
+      'What if I disagree with the officer\'s decision?';
+
+  @override
+  String get faqTidakSetujuJawab =>
+      'Every decision is recorded in the system. If there are objections, please contact the regional admin or submit through the available comment feature.';
+
+  @override
+  String get siapMemulai => 'Ready to Start?';
+
+  @override
+  String get aksesMenuVerifikasi =>
+      'Access the Report Verification menu to process damage reports from the community.';
+
+  @override
+  String get pelatihanSelesai => 'Training Complete';
+
+  @override
+  String get dalamPenanganan => 'Under handling';
+
+  @override
+  String get sudahDiperbaiki => 'Already repaired';
+
+  @override
+  String get informasiLaporan => 'Report Information';
+
+  @override
+  String get sanggahanDeskripsiLengkap =>
+      'An objection is your way to file a grievance against a decision that has been made regarding your report. If you feel your report was rejected or decided unfairly, you can submit a formal objection that will be reviewed by the verification team.';
+
+  @override
+  String jelaskanAlasanSanggahanHint(int count) {
+    return 'Explain your objection reason in detail...\n\nMinimum $count characters.';
+  }
+
+  @override
+  String get rentangTanggalSemua => 'Date Range: (All)';
+
+  @override
+  String olehLabel(String actor) {
+    return 'By: $actor';
+  }
+
+  @override
+  String tugasCount(int count) {
+    return '$count Tasks';
+  }
+
+  @override
+  String ditugaskanPada(String date) {
+    return 'Assigned: $date';
+  }
+
+  @override
+  String entriAuditCount(int count) {
+    return '$count Audit Entries';
+  }
+
+  @override
+  String get riwayatAuditInfo =>
+      'Audit history is immutable and cannot be modified. All actions on this case are recorded for audit purposes.';
+
+  @override
+  String get semuaTindakanTercatatDiSini =>
+      'All actions on this case will be recorded here.';
+
+  @override
+  String resourceLabel(String resource) {
+    return 'Resource: $resource';
+  }
+
+  @override
+  String gpsBerhasilDitangkap(String lat, String lng) {
+    return 'GPS captured: $lat, $lng';
+  }
+
+  @override
+  String gagalMemilihGambar(String error) {
+    return 'Failed to pick image: $error';
+  }
+
+  @override
+  String get ringan => 'Light';
+
+  @override
+  String get kritis => 'Critical';
+
+  @override
+  String get validPerluTindakLanjut => 'Valid — follow-up needed';
+
+  @override
+  String kondisiColonLabel(String value) {
+    return 'Condition: $value';
+  }
+
+  @override
+  String rekomendasiColonLabel(String value) {
+    return 'Recommendation: $value';
+  }
+
+  @override
+  String get dataSurveiTersimpanLokal =>
+      'Survey data saved locally. Will be sent automatically when online.';
+
+  @override
+  String get dataSurveiTersimpanDiproses =>
+      'Survey data has been saved and will be processed by the relevant team.';
+
+  @override
+  String get hintCatatanLapangan =>
+      'Hole widening since resident report, emergency signs from RW already in place.';
+
+  @override
+  String get labelOffline => 'offline';
+
+  @override
+  String get tambahFotoLabel => 'Add photo';
+
+  @override
+  String get ketukUntukMenangkapGps => 'Tap to capture GPS coordinates';
+
+  @override
+  String get depan => 'Front';
+
+  @override
+  String get samping => 'Side';
+
+  @override
+  String get atas => 'Top';
+
+  @override
+  String fotoCountDari(int count, int total) {
+    return '$count of $total';
+  }
+
+  @override
+  String infoSerupa(String distance, int similarity, int count) {
+    return '$distance · $similarity% similarity · $count reports';
+  }
+
+  @override
+  String get tidakDapatTerhubungKeServer => 'Cannot connect to server.';
+
+  @override
+  String get errorTidakDikenal => 'Unknown error';
+
+  @override
+  String get gagalRetryLoop => 'Unexpected retry loop exit';
+
+  @override
+  String get gagalMemuatLaporanPublik => 'Failed to fetch public reports';
+
+  @override
+  String get gagalMemuatKasusPublik => 'Failed to fetch public case';
+
+  @override
+  String get gagalMemuatStatistikPublik => 'Failed to fetch public stats';
+
+  @override
+  String get gagalMemuatMetadataBagikan => 'Failed to fetch share metadata';
+
+  @override
+  String fileFotoTidakDitemukan(String path) {
+    return 'Photo file not found: $path';
+  }
+
+  @override
+  String get uploadFotoGagal => 'Photo upload failed';
+
+  @override
+  String get uploadFotoGagalUrl => 'Photo upload failed: no URL returned';
+
+  @override
+  String get jenisKerusakanDeskripsi =>
+      'Type of damage (road, drainage, bridge, etc)';
+
+  @override
+  String get penjelasanDariPelapor => 'Detailed explanation from reporter';
+
+  @override
+  String rentangTanggalLabel(String range) {
+    return 'Date Range: $range';
+  }
+
+  @override
+  String auditLogExportSubjek(String format) {
+    return 'Audit Log Export ($format)';
+  }
+
+  @override
+  String get penggunaSigap => 'SIGAP User';
+
+  @override
+  String get aktifkanLokasiUntukMelihatPeta =>
+      'Enable location to view your map';
+
+  @override
+  String get dariTanggal => 'From Date';
+
+  @override
+  String get sampaiTanggal => 'Until Date';
+
+  @override
+  String get tugasAkanMunculDiSini => 'Tasks will appear here';
+
+  @override
+  String get laporanAndaKirimkanMuncul => 'Reports you submit will appear here';
+
+  @override
+  String countMenunggu(int count) {
+    return '$count waiting';
+  }
+
+  @override
+  String tugasTersimpanOfflineCount(int count) {
+    return '$count tasks saved offline';
+  }
+
+  @override
+  String get labelLaporanChart => 'reports';
+
+  @override
+  String get labelKasusChart => 'cases';
+
+  @override
+  String get tidakAdaDataTren => 'No trend data';
+
+  @override
+  String surveyorPerluDitugaskan(int count) {
+    return '$count surveyors need assignment';
+  }
+
+  @override
+  String kasusBerisikoTerlambat(int count) {
+    return '$count cases at risk of delay';
+  }
+
+  @override
+  String get overdue => 'Overdue';
+
+  @override
+  String get tugasSurveiTitle => 'Survey Tasks';
+
+  @override
+  String get tugasPetugasTitle => 'Officer Tasks';
+
+  @override
+  String get tugasSurveiDeskripsi =>
+      'All field survey tasks assigned to you will appear here.';
+
+  @override
+  String get tugasPetugasDeskripsi =>
+      'Handling tasks from operator will appear here when assigned.';
+
+  @override
+  String terlambatXjam(int hours) {
+    return 'Overdue ${hours}h';
+  }
+
+  @override
+  String slaXjam(int hours) {
+    return 'SLA ${hours}h';
+  }
+
+  @override
+  String get slaBesok => 'SLA tomorrow';
+
+  @override
+  String slaXhari(int days) {
+    return 'SLA ${days}d';
+  }
+
+  @override
+  String get verifikatorMemintaInfo =>
+      'The verifier requested additional information to complete this report.';
+
+  @override
+  String tenggatTanggal(String date) {
+    return 'Deadline $date.';
+  }
+
+  @override
+  String get eventFallback => 'Event';
+
+  @override
+  String get simpanSinkronkanNanti => 'Save and sync later';
+
+  @override
+  String get kondisiBerat => 'Heavy';
+
+  @override
+  String get dampakKeselamatanAkses => 'Safety · access disrupted';
+
+  @override
+  String get exportInfoDeskripsi =>
+      'Export reports in CSV, GeoJSON, or PDF format. Data will be filtered according to selected options.';
+
+  @override
+  String get exportCsvDeskripsi =>
+      'Export report data in CSV format for Excel or Google Sheets.';
+
+  @override
+  String get exportGeojsonDeskripsi =>
+      'Export report data with geospatial coordinates for GIS.';
+
+  @override
+  String get exportPdfDeskripsi => 'Export complete report in PDF format.';
+
+  @override
+  String get exportCsvGagal => 'CSV export failed:';
+
+  @override
+  String get exportGeojsonGagal => 'GeoJSON export failed:';
+
+  @override
+  String get exportPdfGagal => 'PDF export failed:';
+
+  @override
+  String get faktorKeparahan => 'Severity Level (Severity)';
+
+  @override
+  String get faktorKebaruan => 'Report Recency (Recency)';
+
+  @override
+  String get faktorUrgensi => 'Category Urgency (Category)';
+
+  @override
+  String get faktorKepadatan => 'Region Density (Location)';
+
+  @override
+  String get faktorRiwayat => 'Region/Report History (History)';
+
+  @override
+  String get totalBobotSesuai => 'Total weight: 100% (Correct)';
+
+  @override
+  String totalBobotDisarankan(int total) {
+    return 'Total weight: $total% (Recommended 100%)';
+  }
+
+  @override
+  String get roleDescAdmin =>
+      'Manage regional master data, UPT units, SLA, and priority weight configuration.';
+
+  @override
+  String get roleDescOperator =>
+      'Dispatch assignments, escalate cases, and monitor report queues.';
+
+  @override
+  String get roleDescVerifikator =>
+      'Validate incoming complaint report eligibility and truth review.';
+
+  @override
+  String get roleDescPetugas =>
+      'Technical field follow-up and complaint resolution.';
+
+  @override
+  String get roleDescSurveyor =>
+      'Field survey and physical inspection with technical forms.';
+
+  @override
+  String get roleDescAuditor =>
+      'Audit trail inspection, system activity logs, and compliance reporting.';
+
+  @override
+  String get roleDescWarga =>
+      'Submit public complaint reports and monitor completion status.';
+
+  @override
+  String get roleDescExec =>
+      'Executive summary, verification trend analysis, and regional statistics.';
+
+  @override
+  String get roleDescDefault => 'Access SIGAP system operational features.';
+
+  @override
+  String get assessmentAiMunculNanti =>
+      'AI Assessment will appear after the report is submitted and processed.';
+
+  @override
+  String reportLabelId(String id) {
+    return 'Report: $id';
+  }
+
+  @override
+  String laporanCountLabel(int count) {
+    return '$count reports';
+  }
+
+  @override
+  String semuaLabel(String label) {
+    return 'All $label';
+  }
+
+  @override
+  String targetJamHari(int hours, double days) {
+    return 'Target: $hours hours ($days days)';
+  }
+
+  @override
+  String slaOverdueLaporan(int count) {
+    return '$count reports';
+  }
+
+  @override
+  String get syncChannelName => 'Sync Notifications';
+
+  @override
+  String get syncChannelDescription => 'Notifications for sync events';
+
+  @override
+  String itemTidakDisinkronkanPercobaan(String key) {
+    return 'Item $key could not be synced after several attempts.';
+  }
+
+  @override
+  String get beberapaItemTidakDisinkronkan =>
+      'Some items could not be synced after several attempts.';
+
+  @override
+  String get pilihWilayahFallback => 'Select Region';
+
+  @override
+  String get kabBandungFallback => 'Kab. Bandung';
+
+  @override
+  String get draftLabelStatus => 'Draft';
+
+  @override
+  String get digabungLabelStatus => 'Merged';
+
+  @override
+  String get dipisahLabelStatus => 'Split';
+
+  @override
+  String get dalamReviewLabelStatus => 'Under Review';
+
+  @override
+  String get noAssessmentFactors => 'No assessment factors available.';
+
+  @override
+  String get latitude => 'Latitude';
+
+  @override
+  String get longitude => 'Longitude';
+
+  @override
+  String diperbaruiPada(Object time) {
+    return 'Updated: $time';
+  }
+
+  @override
+  String get akurasiSedang => 'Moderate accuracy';
+
+  @override
+  String get akurasiBuruk => 'Poor accuracy';
+
+  @override
+  String get laporanPendukungCount => 'supporting reports';
+
+  @override
+  String get statusOnline => 'Online';
+
+  @override
+  String get statusOffline => 'Offline';
+
+  @override
+  String get statusSyncing => 'Syncing';
+
+  @override
+  String get statusErrorLabel => 'Error';
+
+  @override
+  String sinkronStatusA11y(Object status) {
+    return 'Sync status: $status';
+  }
+
+  @override
+  String get bukaPusatSinkronisasiLink => 'Open Sync Center →';
+
+  @override
+  String laporanBelumTersinkronCount(Object count) {
+    return '$count reports not yet synced';
+  }
+
+  @override
+  String get defaultPrivatPetugas => 'Default: private · only officers see';
+
+  @override
+  String severityColonValue(Object value) {
+    return 'Severity: $value';
+  }
+
+  @override
+  String scoreColonValue(Object value) {
+    return 'Score: $value';
+  }
+
+  @override
+  String get ringkasanLaporanUppercase => 'REPORT SUMMARY';
+
+  @override
+  String get waktuLabel => 'Time';
+
+  @override
+  String get dampakLabel => 'Impact';
+
+  @override
+  String fotoIndexPlaceholder(Object index) {
+    return 'photo $index';
+  }
+
+  @override
+  String get checklistWajib => 'MANDATORY CHECKLIST';
+
+  @override
+  String kasusSerupaDitemukan(Object count) {
+    return '$count similar cases found nearby';
+  }
+
+  @override
+  String get kemiripanLabel => 'similarity';
+
+  @override
+  String get naLabel => 'N/A';
+
+  @override
+  String get lessThan1dLabel => '<1d';
+
+  @override
+  String get sayaMenyatakanBenar =>
+      'I declare this information is true according to the conditions I observed.';
+
+  @override
+  String get terimaTugasLabel => 'Accept Task';
+
+  @override
+  String get labelSubmitted => 'Submitted';
+
+  @override
+  String get labelUnderReview => 'Under Review';
+
+  @override
+  String get labelDiproses => 'In Progress';
+
+  @override
+  String get labelTerverifikasi => 'Verified';
+
+  @override
+  String get labelSelesai => 'Resolved';
+
+  @override
+  String get labelDitolak => 'Rejected';
+
+  @override
+  String get labelBaru => 'New';
+
+  @override
+  String get labelDitugaskan => 'Assigned';
+
+  @override
+  String get labelDikerjakan => 'In Progress';
 }

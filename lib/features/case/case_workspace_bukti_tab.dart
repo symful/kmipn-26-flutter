@@ -48,7 +48,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
           SigapCard(
             padding: const EdgeInsets.all(SigapSpacing.md),
             child: Text(
-              description.isNotEmpty ? description : 'Tidak ada deskripsi.',
+              description.isNotEmpty ? description : l10n.tidakAdaDeskripsi,
               style: const TextStyle(
                 fontSize: SigapTypography.bodyMedium,
                 color: SigapColors.textPrimary,
@@ -69,11 +69,14 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
                   report?.addressArea ??
                       report?.address ??
                       (lat != null && lng != null
-                          ? 'Koordinat: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
-                          : 'Lokasi tidak tersedia'),
+                          ? l10n.koordinatLabel(
+                              lat.toStringAsFixed(6),
+                              lng.toStringAsFixed(6),
+                            )
+                          : l10n.lokasiTidakTersedia),
                   style: const TextStyle(
                     fontSize: SigapTypography.bodyText,
-                    fontFamily: 'monospace',
+                    fontFamily: SigapTypography.fontFamilyMono,
                     color: SigapColors.textPrimary,
                   ),
                 ),
@@ -103,7 +106,7 @@ class CaseWorkspaceBuktiTab extends StatelessWidget {
                   ),
                   const SizedBox(height: SigapSpacing.md),
                   Text(
-                    'Tidak ada dokumen',
+                    l10n.tidakAdaDokumen,
                     style: TextStyle(
                       fontSize: SigapTypography.bodyMedium,
                       color: SigapColors.textSecondary,

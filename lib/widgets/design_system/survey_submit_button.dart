@@ -43,7 +43,7 @@ class SurveySubmitButton extends StatelessWidget {
           label: l10n.lanjutKeReviewHasil,
           icon: Icons.send,
           onPressed: isEnabled ? onPressed : null,
-          semanticsLabel: 'Lanjut ke review hasil survei',
+          semanticsLabel: l10n.lanjutKeReviewHasilSurvei,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

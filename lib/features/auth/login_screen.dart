@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/generated/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
+import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
 
@@ -42,6 +42,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (success) {
+      // Invalidate all data providers so they refetch with new auth state
+      ref.invalidate(wargaReportsProvider);
+      ref.invalidate(wargaStatsProvider);
+      ref.invalidate(localReportsProvider);
+      ref.invalidate(surveyorTasksProvider);
+      ref.invalidate(notificationsProvider);
+      ref.invalidate(unreadCountProvider);
+      ref.invalidate(wilayahProvider);
+      ref.invalidate(userWilayahProvider);
+      ref.invalidate(categoriesProvider);
+
+      if (!mounted) return;
       const redirectPath = '/dashboard';
       context.go(redirectPath);
     } else {
@@ -61,8 +73,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: SigapColors.bgScreen,
+    return ResponsiveScaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(SigapSpacing.lg),
@@ -85,7 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         child: const Icon(
                           Icons.location_on,
-                          color: Colors.white,
+                          color: SigapColors.surface,
                           size: 40,
                         ),
                       ),
@@ -237,7 +248,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SigapColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: SigapColors.surface,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
                       ),
@@ -249,7 +260,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: SigapColors.surface,
                             ),
                           )
                         : Text(
@@ -309,57 +320,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: WrapAlignment.center,
                   children: [
                     _DemoAccountChip(
-                      label: 'Warga',
+                      label: l10n.wargaRole,
                       email: 'warga@sigap.id',
                       password: 'warga123',
                       onTap: _fillDemoCredentials,
                     ),
                     _DemoAccountChip(
-                      label: 'Surveyor',
+                      label: l10n.surveyorRole,
                       email: 'surveyor@sigap.id',
                       password: 'surveyor123',
                       onTap: _fillDemoCredentials,
                     ),
                     _DemoAccountChip(
-                      label: 'Petugas',
+                      label: l10n.petugasRole,
                       email: 'petugas@sigap.id',
                       password: 'petugas123',
                       onTap: _fillDemoCredentials,
                     ),
                     _DemoAccountChip(
-                      label: 'Operator',
+                      label: l10n.operatorRole,
                       email: 'operator@sigap.id',
                       password: 'operator123',
                       onTap: _fillDemoCredentials,
                     ),
                     _DemoAccountChip(
-                      label: 'Verifikator',
+                      label: l10n.verifikatorRole,
                       email: 'verifikator@sigap.id',
                       password: 'verifikator123',
                       onTap: _fillDemoCredentials,
                     ),
                     _DemoAccountChip(
-                      label: 'Admin Daerah',
+                      label: l10n.adminDaerahRole,
                       email: 'admin.daerah@sigap.id',
                       password: 'admin123',
                       onTap: _fillDemoCredentials,
                     ),
                     _DemoAccountChip(
-                      label: 'Auditor',
+                      label: l10n.auditorRole,
                       email: 'auditor@sigap.id',
                       password: 'auditor123',
                       onTap: _fillDemoCredentials,
                     ),
                     _DemoAccountChip(
-                      label: 'Eksekutif',
+                      label: l10n.eksekutifRole,
                       email: 'eksekutif@sigap.id',
                       password: 'exec123',
-                      onTap: _fillDemoCredentials,
-                    ),
-                    _DemoAccountChip(
-                      label: 'RT/RW',
-                      email: 'rtrw@sigap.id',
-                      password: 'rtrw123',
                       onTap: _fillDemoCredentials,
                     ),
                   ],

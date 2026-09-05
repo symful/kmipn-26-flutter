@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../api/client.dart' as new_api;
 import '../../../api/exceptions.dart' show ApiException;
 import '../../../l10n/generated/app_localizations.dart';
-import '../../../providers/auth_provider.dart';
+import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
 
@@ -44,7 +43,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
 
     try {
-      final client = new_api.ApiClient();
+      final client = ref.read(publicApiClientProvider);
       await client.register(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
@@ -86,8 +85,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: SigapColors.bgScreen,
+    return ResponsiveScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -359,7 +357,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     onPressed: _isLoading ? null : _handleRegister,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SigapColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: SigapColors.surface,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
                       ),
@@ -371,7 +369,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: SigapColors.surface,
                             ),
                           )
                         : Text(

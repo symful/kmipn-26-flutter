@@ -183,6 +183,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   Future<void> _captureGps() async {
     setState(() => _gpsLoading = true);
+    final l10n = AppLocalizations.of(context)!;
 
     try {
       LocationPermission permission = await Geolocator.checkPermission();
@@ -192,9 +193,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Izin lokasi ditolak')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.izinkanLokasiDitolakSnack)),
+          );
         }
         setState(() => _gpsLoading = false);
         return;
@@ -217,7 +218,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'GPS captured: ${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}',
+              l10n.gpsBerhasilDitangkap(
+                position.latitude.toStringAsFixed(5),
+                position.longitude.toStringAsFixed(5),
+              ),
             ),
           ),
         );
@@ -225,9 +229,9 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
     } catch (e) {
       setState(() => _gpsLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal capture GPS: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.gagalCaptureGPS(e.toString()))),
+        );
       }
     }
   }
@@ -259,7 +263,11 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
         });
       }
     } catch (e) {
-      setState(() => _submitError = 'Gagal memilih gambar: $e');
+      setState(
+        () => _submitError = AppLocalizations.of(
+          context,
+        )!.gagalMemilihGambar(e.toString()),
+      );
     }
   }
 
@@ -278,7 +286,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt, color: SigapColors.primary),
-              title: const Text('Kamera'),
+              title: Text(AppLocalizations.of(context)!.kamera),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(cameraSource());
@@ -289,7 +297,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 Icons.photo_library,
                 color: SigapColors.primary,
               ),
-              title: const Text('Galeri'),
+              title: Text(AppLocalizations.of(context)!.galeri),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.gallery);
@@ -303,6 +311,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   Future<void> _submit() async {
     if (!_canSubmit) return;
+    final l10n = AppLocalizations.of(context)!;
 
     setState(() {
       _submitting = true;
@@ -325,10 +334,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
       final online = await SyncEngine.isOnline();
       if (!online) {
         // Build checklist from form data
-        final kondisiLabels = ['Ringan', 'Berat', 'Kritis'];
+        final kondisiLabels = [l10n.ringan, l10n.berat, l10n.kritis];
         final rekomendasiLabels = [
-          'Valid — perlu tindak lanjut',
-          'Tidak ditemukan di lokasi',
+          l10n.validPerluTindakLanjut,
+          l10n.tidakDitemukanDiLokasi,
         ];
         final checklist = [
           ..._checklistItems,
@@ -405,10 +414,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
       }
 
       // Build checklist from form data
-      final kondisiLabels = ['Ringan', 'Berat', 'Kritis'];
+      final kondisiLabels = [l10n.ringan, l10n.berat, l10n.kritis];
       final rekomendasiLabels = [
-        'Valid — perlu tindak lanjut',
-        'Tidak ditemukan di lokasi',
+        l10n.validPerluTindakLanjut,
+        l10n.tidakDitemukanDiLokasi,
       ];
       final checklist = [
         ..._checklistItems,
@@ -452,255 +461,241 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (_success) {
-      return Column(
-        children: [
-          Expanded(
-            child: Scaffold(
-              appBar: AppBar(title: const Text('Form Survei')),
-              body: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(SigapSpacing.xl),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: SigapColors.primary,
-                        size: 64,
-                      ),
-                      const SizedBox(height: SigapSpacing.lg),
-                      Text(
-                        l10n.surveiBerhasilDikirim,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: SigapSpacing.sm),
-                      Text(
-                        _queuedOffline
-                            ? 'Data survei tersimpan lokal. Akan dikirim otomatis saat online.'
-                            : 'Data survei telah tersimpan dan akan diproses oleh tim terkait.',
-                        style: TextStyle(
-                          color: SigapColors.textSecondary,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: SigapSpacing.xl),
-                      ElevatedButton(
-                        onPressed: () => context.go('/tasks'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: SigapColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: SigapSpacing.xl,
-                            vertical: SigapSpacing.md,
-                          ),
-                        ),
-                        child: const Text('Kembali ke Daftar Tugas'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      children: [
-        Expanded(
-          child: Scaffold(
-            backgroundColor: SigapColors.bgScreen,
-            body: Column(
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.formSurveiTitle)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(SigapSpacing.xl),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // S-04 Header: Form survei / TGS-3402 · offline + Tersimpan 10:02 + 66% progress
-                _FormSurveiHeader(),
-                Expanded(
-                  child: SingleChildScrollView(
+                const Icon(
+                  Icons.check_circle,
+                  color: SigapColors.primary,
+                  size: 64,
+                ),
+                const SizedBox(height: SigapSpacing.lg),
+                Text(
+                  l10n.surveiBerhasilDikirim,
+                  style: const TextStyle(
+                    fontSize: SigapTypography.titleLarge,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: SigapSpacing.sm),
+                Text(
+                  _queuedOffline
+                      ? l10n.dataSurveiTersimpanLokal
+                      : l10n.dataSurveiTersimpanDiproses,
+                  style: TextStyle(
+                    color: SigapColors.textSecondary,
+                    fontSize: SigapTypography.bodyMedium,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: SigapSpacing.xl),
+                ElevatedButton(
+                  onPressed: () => context.push('/tasks'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: SigapColors.primary,
+                    foregroundColor: SigapColors.surface,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 14,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // 1. Foto per sudut Section — custom 3-slot row matching S-04
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: const [
-                                Text(
-                                  'Foto per sudut',
-                                  style: TextStyle(
-                                    fontSize: SigapTypography.bodyText,
-                                    fontWeight: FontWeight.w700,
-                                    color: SigapColors.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(width: 2),
-                                Text(
-                                  '*',
-                                  style: TextStyle(
-                                    fontSize: SigapTypography.bodyText,
-                                    fontWeight: FontWeight.w700,
-                                    color: SigapColors.danger,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            _buildPhotoCounter(),
-                          ],
-                        ),
-                        const SizedBox(height: SigapSpacing.sm),
-                        _FotoSudutRow(
-                          photos: _photos,
-                          onAddPhoto: _showPhotoSourceDialog,
-                          onRemovePhoto: _removePhoto,
-                        ),
-                        const SizedBox(height: SigapSpacing.x14),
-
-                        // 2. Kondisi Segmented Control — custom matching S-04 (Ringan/Berat/Kritis)
-                        Row(
-                          children: const [
-                            Text(
-                              'Kondisi aktual',
-                              style: TextStyle(
-                                fontSize: SigapTypography.bodyText,
-                                fontWeight: FontWeight.w700,
-                                color: SigapColors.textPrimary,
-                              ),
-                            ),
-                            SizedBox(width: 2),
-                            Text(
-                              '*',
-                              style: TextStyle(
-                                fontSize: SigapTypography.bodyText,
-                                fontWeight: FontWeight.w700,
-                                color: SigapColors.danger,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: SigapSpacing.sm),
-                        _buildKondisiSegmentedControl(),
-                        const SizedBox(height: SigapSpacing.x14),
-
-                        // 3. GPS Section — GpsCaptureCard
-                        _buildGpsCard(),
-                        const SizedBox(height: SigapSpacing.x14),
-
-                        // 4. Catatan Lapangan
-                        CatatanLapangan(
-                          controller: _notesController,
-                          hintText:
-                              'Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.',
-                          maxCharacters: 300,
-                        ),
-                        const SizedBox(height: SigapSpacing.x14),
-
-                        // 5. Rekomendasi Section
-                        Row(
-                          children: const [
-                            Text(
-                              'Rekomendasi hasil',
-                              style: TextStyle(
-                                fontSize: SigapTypography.bodyText,
-                                fontWeight: FontWeight.w700,
-                                color: SigapColors.textPrimary,
-                              ),
-                            ),
-                            SizedBox(width: 2),
-                            Text(
-                              '*',
-                              style: TextStyle(
-                                fontSize: SigapTypography.bodyText,
-                                fontWeight: FontWeight.w700,
-                                color: SigapColors.danger,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: SigapSpacing.sm),
-                        RekomendasiSelector(
-                          selectedValue: _selectedRekomendasi == 0
-                              ? 'Valid — perlu tindak lanjut'
-                              : 'Tidak ditemukan di lokasi',
-                          options: const [
-                            'Valid — perlu tindak lanjut',
-                            'Tidak ditemukan di lokasi',
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedRekomendasi = value.startsWith('Valid')
-                                  ? 0
-                                  : 1;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: SigapSpacing.x14),
-
-                        // Error message
-                        if (_submitError != null) ...[
-                          const SizedBox(height: SigapSpacing.lg),
-                          Container(
-                            padding: const EdgeInsets.all(SigapSpacing.md),
-                            decoration: BoxDecoration(
-                              color: SigapColors.dangerBg,
-                              borderRadius: BorderRadius.circular(
-                                SigapRadius.sm,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.error_outline,
-                                  color: SigapColors.danger,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: SigapSpacing.sm),
-                                Expanded(
-                                  child: Text(
-                                    _submitError!,
-                                    style: TextStyle(
-                                      color: SigapColors.danger,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-
-                        const SizedBox(height: 100),
-                      ],
+                      horizontal: SigapSpacing.xl,
+                      vertical: SigapSpacing.md,
                     ),
                   ),
-                ),
-
-                // Bottom Fixed Submit Button — S-02 SurveySubmitButton
-                SurveySubmitButton(
-                  isLoading: _submitting,
-                  isEnabled: _canSubmit,
-                  onPressed: _submit,
+                  child: Text(l10n.kembaliKeDaftarTugasBtn),
                 ),
               ],
             ),
           ),
         ),
-      ],
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: SigapColors.bgScreen,
+      body: Column(
+        children: [
+          // S-04 Header: Form survei / TGS-3402 · offline + Tersimpan 10:02 + 66% progress
+          _FormSurveiHeader(context),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SigapSpacing.lg,
+                vertical: SigapSpacing.x14,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 1. Foto per sudut Section — custom 3-slot row matching S-04
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            l10n.fotoPerSudut,
+                            style: TextStyle(
+                              fontSize: SigapTypography.bodyText,
+                              fontWeight: FontWeight.w700,
+                              color: SigapColors.textPrimary,
+                            ),
+                          ),
+                          SizedBox(width: SigapSpacing.xxs),
+                          Text(
+                            '*',
+                            style: TextStyle(
+                              fontSize: SigapTypography.bodyText,
+                              fontWeight: FontWeight.w700,
+                              color: SigapColors.danger,
+                            ),
+                          ),
+                        ],
+                      ),
+                      _buildPhotoCounter(),
+                    ],
+                  ),
+                  const SizedBox(height: SigapSpacing.sm),
+                  _FotoSudutRow(
+                    photos: _photos,
+                    onAddPhoto: _showPhotoSourceDialog,
+                    onRemovePhoto: _removePhoto,
+                  ),
+                  const SizedBox(height: SigapSpacing.x14),
+
+                  // 2. Kondisi Segmented Control — custom matching S-04 (Ringan/Berat/Kritis)
+                  Row(
+                    children: [
+                      Text(
+                        l10n.kondisiAktual,
+                        style: TextStyle(
+                          fontSize: SigapTypography.bodyText,
+                          fontWeight: FontWeight.w700,
+                          color: SigapColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(width: SigapSpacing.xxs),
+                      Text(
+                        '*',
+                        style: TextStyle(
+                          fontSize: SigapTypography.bodyText,
+                          fontWeight: FontWeight.w700,
+                          color: SigapColors.danger,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: SigapSpacing.sm),
+                  _buildKondisiSegmentedControl(),
+                  const SizedBox(height: SigapSpacing.x14),
+
+                  // 3. GPS Section — GpsCaptureCard
+                  _buildGpsCard(),
+                  const SizedBox(height: SigapSpacing.x14),
+
+                  // 4. Catatan Lapangan
+                  CatatanLapangan(
+                    controller: _notesController,
+                    hintText: l10n.hintCatatanLapangan,
+                    maxCharacters: 300,
+                  ),
+                  const SizedBox(height: SigapSpacing.x14),
+
+                  // 5. Rekomendasi Section
+                  Row(
+                    children: [
+                      Text(
+                        l10n.rekomendasiHasil,
+                        style: TextStyle(
+                          fontSize: SigapTypography.bodyText,
+                          fontWeight: FontWeight.w700,
+                          color: SigapColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(width: SigapSpacing.xxs),
+                      Text(
+                        '*',
+                        style: TextStyle(
+                          fontSize: SigapTypography.bodyText,
+                          fontWeight: FontWeight.w700,
+                          color: SigapColors.danger,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: SigapSpacing.sm),
+                  RekomendasiSelector(
+                    selectedValue: _selectedRekomendasi == 0
+                        ? l10n.validPerluTindakLanjut
+                        : l10n.tidakDitemukanDiLokasi,
+                    options: [
+                      l10n.validPerluTindakLanjut,
+                      l10n.tidakDitemukanDiLokasi,
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedRekomendasi = value.startsWith('Valid')
+                            ? 0
+                            : 1;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: SigapSpacing.x14),
+
+                  // Error message
+                  if (_submitError != null) ...[
+                    const SizedBox(height: SigapSpacing.lg),
+                    Container(
+                      padding: const EdgeInsets.all(SigapSpacing.md),
+                      decoration: BoxDecoration(
+                        color: SigapColors.dangerBg,
+                        borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: SigapColors.danger,
+                            size: 18,
+                          ),
+                          const SizedBox(width: SigapSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              _submitError!,
+                              style: TextStyle(
+                                color: SigapColors.danger,
+                                fontSize: SigapTypography.bodyText,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+
+          // Bottom Fixed Submit Button — S-02 SurveySubmitButton
+          SurveySubmitButton(
+            isLoading: _submitting,
+            isEnabled: _canSubmit,
+            onPressed: _submit,
+          ),
+        ],
+      ),
     );
   }
 
   /// S-04 Header matching: "Form survei / TGS-3402 · offline" + "Tersimpan 10:02" + 66% progress
-  Widget _FormSurveiHeader() {
+  Widget _FormSurveiHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Construct task code from taskId (following task_workspace pattern)
     final taskCode = _taskDetail?.taskId != null
         ? 'TGS-${_taskDetail!.taskId!.length >= 4 ? _taskDetail!.taskId!.substring(0, 4) : _taskDetail!.taskId}'
@@ -749,8 +744,8 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 constraints: const BoxConstraints(),
               ),
               const SizedBox(width: SigapSpacing.md),
-              const Text(
-                'Form survei',
+              Text(
+                l10n.formSurveiHeader,
                 style: TextStyle(
                   fontSize: SigapTypography.headlineSmall,
                   fontWeight: FontWeight.w700,
@@ -768,7 +763,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 ),
               ),
               Text(
-                ' · offline',
+                ' · ${l10n.labelOffline}',
                 style: TextStyle(
                   fontSize: SigapTypography.captionMedium,
                   color: SigapColors.textTertiary,
@@ -788,7 +783,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    'Tersimpan $formattedTime',
+                    l10n.tersimpanPada(formattedTime),
                     style: TextStyle(
                       fontSize: SigapTypography.captionMedium,
                       fontWeight: FontWeight.w600,
@@ -867,11 +862,12 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
   }
 
   Widget _buildPhotoCounter() {
+    final l10n = AppLocalizations.of(context)!;
     final filledCount = _photos.length.clamp(0, 3);
     return Row(
       children: [
         Text(
-          '$filledCount dari 3',
+          l10n.fotoCountDari(filledCount, 3),
           style: TextStyle(
             fontSize: SigapTypography.bodyText,
             fontWeight: FontWeight.w600,
@@ -883,7 +879,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
           GestureDetector(
             onTap: _showPhotoSourceDialog,
             child: Text(
-              'Tambah foto',
+              l10n.tambahFotoLabel,
               style: TextStyle(
                 fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w600,
@@ -897,6 +893,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   /// S-04 GPS card using S-02 GpsCaptureCard widget.
   Widget _buildGpsCard() {
+    final l10n = AppLocalizations.of(context)!;
     if (_capturedGps != null) {
       return GpsCaptureCard(
         latitude: _capturedGps!.$1,
@@ -935,19 +932,19 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'GPS Belum Tertangkap',
+                    l10n.gpsBelumTertangkap,
                     style: TextStyle(
                       color: SigapColors.textPrimary,
-                      fontSize: 14,
+                      fontSize: SigapTypography.bodyMedium,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Ketuk untuk menangkap koordinat GPS',
+                    l10n.ketukUntukMenangkapGps,
                     style: TextStyle(
                       color: SigapColors.textTertiary,
-                      fontSize: 12,
+                      fontSize: SigapTypography.bodySmall,
                     ),
                   ),
                 ],
@@ -968,10 +965,10 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                       color: SigapColors.primary,
                       borderRadius: BorderRadius.circular(SigapRadius.pill),
                     ),
-                    child: const Text(
-                      'Ambil GPS',
+                    child: Text(
+                      l10n.ambilGPS,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: SigapColors.surface,
                         fontSize: SigapTypography.bodySmall,
                         fontWeight: FontWeight.w600,
                       ),
@@ -985,7 +982,8 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
 
   /// S-04 Kondisi segmented control: Ringan / Berat / Kritis
   Widget _buildKondisiSegmentedControl() {
-    const kondisiOptions = ['Ringan', 'Berat', 'Kritis'];
+    final l10n = AppLocalizations.of(context)!;
+    final kondisiOptions = [l10n.ringan, l10n.berat, l10n.kritis];
     return Container(
       decoration: BoxDecoration(
         color: SigapColors.bgCard,
@@ -1017,7 +1015,7 @@ class _FormSurveiScreenState extends ConsumerState<FormSurveiScreen> {
                     fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
                     color: isSelected
-                        ? Colors.white
+                        ? SigapColors.surface
                         : SigapColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
@@ -1114,10 +1112,10 @@ class _FotoSudutRow extends StatelessWidget {
     required this.onRemovePhoto,
   });
 
-  static const _labels = ['Depan', 'Samping', 'Atas'];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final labels = [l10n.depan, l10n.samping, l10n.atas];
     return Row(
       children: List.generate(3, (index) {
         final hasPhoto = index < photos.length;
@@ -1168,7 +1166,9 @@ class _FotoSudutRow extends StatelessWidget {
                               child: GestureDetector(
                                 onTap: () => onRemovePhoto(index),
                                 child: Container(
-                                  padding: const EdgeInsets.all(4),
+                                  padding: const EdgeInsets.all(
+                                    SigapSpacing.x4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: SigapColors.textPrimary.withValues(
                                       alpha: 0.54,
@@ -1177,7 +1177,7 @@ class _FotoSudutRow extends StatelessWidget {
                                   ),
                                   child: const Icon(
                                     Icons.close,
-                                    color: Colors.white,
+                                    color: SigapColors.surface,
                                     size: 14,
                                   ),
                                 ),
@@ -1200,7 +1200,7 @@ class _FotoSudutRow extends StatelessWidget {
                                 child: Text(
                                   '+',
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: SigapTypography.headlineMedium,
                                     color: SigapColors.textMuted,
                                   ),
                                 ),
@@ -1211,7 +1211,7 @@ class _FotoSudutRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  hasPhoto ? '${_labels[index]} ✓' : _labels[index],
+                  hasPhoto ? '${labels[index]} ✓' : labels[index],
                   style: TextStyle(
                     color: hasPhoto
                         ? SigapColors.textTertiary

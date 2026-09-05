@@ -85,10 +85,13 @@ class _PriorityConfigScreenState extends ConsumerState<PriorityConfigScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.konfigurasiPrioritas),
+      appBar: SigapAppBar(
+        title: AppLocalizations.of(context)!.bobotPrioritas,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -186,12 +189,12 @@ class _PriorityForm extends StatefulWidget {
 class _PriorityFormState extends State<_PriorityForm> {
   late Map<String, double> _weights;
 
-  final Map<String, String> _factorLabels = const {
-    'severity': 'Tingkat Keparahan (Severity)',
-    'recency': 'Kebaruan Laporan (Recency)',
-    'category': 'Urgensi Kategori (Category)',
-    'location': 'Kepadatan Wilayah (Location)',
-    'history': 'Riwayat Wilayah/Laporan (History)',
+  Map<String, String> _factorLabels(AppLocalizations l10n) => {
+    'severity': l10n.faktorKeparahan,
+    'recency': l10n.faktorKebaruan,
+    'category': l10n.faktorUrgensi,
+    'location': l10n.faktorKepadatan,
+    'history': l10n.faktorRiwayat,
   };
 
   final Map<String, IconData> _factorIcons = const {
@@ -239,88 +242,92 @@ class _PriorityFormState extends State<_PriorityForm> {
     final isExact100 = total == 100;
     final dl10n = AppLocalizations.of(context)!;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Total percentage status card
-        SigapCard(
-          borderTopColor: isExact100
-              ? SigapColors.selesai
-              : SigapColors.warning,
-          child: Row(
-            children: [
-              Icon(
-                isExact100 ? Icons.check_circle : Icons.info,
-                color: isExact100 ? SigapColors.selesai : SigapColors.warning,
-                size: 20,
-              ),
-              const SizedBox(width: SigapSpacing.sm),
-              Expanded(
-                child: Text(
-                  isExact100
-                      ? 'Total bobot: 100% (Sesuai)'
-                      : 'Total bobot: $total% (Disarankan total 100%)',
-                  style: TextStyle(
-                    fontSize: SigapTypography.bodySmall,
-                    fontWeight: FontWeight.w600,
-                    color: isExact100
-                        ? SigapColors.selesai
-                        : SigapColors.warningTextStrong,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(SigapSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Total percentage status card
+          SigapCard(
+            borderTopColor: isExact100
+                ? SigapColors.selesai
+                : SigapColors.warning,
+            child: Row(
+              children: [
+                Icon(
+                  isExact100 ? Icons.check_circle : Icons.info,
+                  color: isExact100 ? SigapColors.selesai : SigapColors.warning,
+                  size: 20,
+                ),
+                const SizedBox(width: SigapSpacing.sm),
+                Expanded(
+                  child: Text(
+                    isExact100
+                        ? dl10n.totalBobotSesuai
+                        : dl10n.totalBobotDisarankan(total),
+                    style: TextStyle(
+                      fontSize: SigapTypography.bodySmall,
+                      fontWeight: FontWeight.w600,
+                      color: isExact100
+                          ? SigapColors.selesai
+                          : SigapColors.warningTextStrong,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: SigapSpacing.md),
-
-        // Sliders card
-        SigapCard(
-          child: Column(
-            children: _weights.entries.map((e) {
-              final label = _factorLabels[e.key] ?? e.key.toUpperCase();
-              final icon = _factorIcons[e.key] ?? Icons.tune;
-              return _WeightSlider(
-                label: label,
-                icon: icon,
-                value: e.value,
-                onChanged: (v) => setState(() => _weights[e.key] = v),
-              );
-            }).toList(),
-          ),
-        ),
-        const SizedBox(height: SigapSpacing.xl),
-
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: SigapColors.primary,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(SigapRadius.md),
+              ],
             ),
           ),
-          onPressed: widget.saving
-              ? null
-              : () => widget.onSave({'weights': _weights}),
-          child: widget.saving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
+          const SizedBox(height: SigapSpacing.md),
+
+          // Sliders card
+          SigapCard(
+            child: Column(
+              children: _weights.entries.map((e) {
+                final label =
+                    _factorLabels(dl10n)[e.key] ?? e.key.toUpperCase();
+                final icon = _factorIcons[e.key] ?? Icons.tune;
+                return _WeightSlider(
+                  label: label,
+                  icon: icon,
+                  value: e.value,
+                  onChanged: (v) => setState(() => _weights[e.key] = v),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: SigapSpacing.xl),
+
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: SigapColors.primary,
+              foregroundColor: SigapColors.surface,
+              padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(SigapRadius.md),
+              ),
+            ),
+            onPressed: widget.saving
+                ? null
+                : () => widget.onSave({'weights': _weights}),
+            child: widget.saving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: SigapColors.surface,
+                    ),
+                  )
+                : Text(
+                    dl10n.simpanKonfigurasi,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodyMedium,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                )
-              : Text(
-                  dl10n.simpanKonfigurasi,
-                  style: const TextStyle(
-                    fontSize: SigapTypography.bodyMedium,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

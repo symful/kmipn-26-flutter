@@ -100,7 +100,7 @@ void main() {
   });
 
   group('warga report flow', () {
-    test('submitReport returns id and status', () async {
+    test('submitReport returns id and duplicate', () async {
       final result = await wargaClient.submitReport(
         idempotencyKey:
             'TEST_${testRunId}_create_${DateTime.now().millisecondsSinceEpoch}',
@@ -112,9 +112,9 @@ void main() {
       expect(result.id, isNotNull, reason: 'report id should not be null');
       expect(result.id, isNotEmpty, reason: 'report id should not be empty');
       expect(
-        result.status,
-        isA<String>(),
-        reason: 'report status should be string',
+        result.duplicate,
+        isA<bool>(),
+        reason: 'duplicate flag should be bool',
       );
     });
 

@@ -9,16 +9,76 @@ class Capabilities {
   /// Maps each of the 10 canonical roles to their permitted capability IDs.
   /// Dart equivalent of Record&lt;Role, Set&lt;String&gt;&gt;.
   static const Map<String, Set<String>> roleCapabilityMatrix = {
-    "ADMIN_DAERAH": {"admin.category.manage", "admin.integration.manage", "admin.scoring.manage", "admin.sla.manage", "admin.units.manage", "admin.users.manage", "admin.wilayah.manage", "analytics.read", "audit.read", "case.close", "case.export", "case.merge", "case.read", "case.reopen", "case.separate", "report.read"},
+    "ADMIN_DAERAH": {
+      "admin.category.manage",
+      "admin.integration.manage",
+      "admin.scoring.manage",
+      "admin.sla.manage",
+      "admin.units.manage",
+      "admin.users.manage",
+      "admin.wilayah.manage",
+      "analytics.read",
+      "audit.read",
+      "case.close",
+      "case.export",
+      "case.merge",
+      "case.read",
+      "case.reopen",
+      "case.separate",
+      "report.read",
+    },
     "AUDITOR": {"analytics.read", "audit.read", "case.read", "report.read"},
-    "OPERATOR": {"case.close", "case.dispatch", "case.export", "case.merge", "case.read", "case.reopen", "case.separate", "report.read", "task.read"},
+    "OPERATOR": {
+      "case.close",
+      "case.dispatch",
+      "case.export",
+      "case.merge",
+      "case.read",
+      "case.reopen",
+      "case.separate",
+      "report.read",
+      "task.read",
+    },
     "PENGAMBIL_KEPUTUSAN": {"analytics.read", "case.read", "report.read"},
-    "PETUGAS": {"case.read", "report.read", "task.accept", "task.complete", "task.read", "task.reject", "task.upload_proof"},
+    "PETUGAS": {
+      "case.read",
+      "report.read",
+      "task.accept",
+      "task.complete",
+      "task.read",
+      "task.reject",
+      "task.upload_proof",
+    },
     "PUBLIC": {"public.read", "report.submit.public"},
-    "RT_RW": {"case.read", "case.reject", "case.request_info", "case.verify", "report.read", "task.accept", "task.read", "task.reject"},
-    "SURVEYOR": {"case.read", "report.read", "survey.start", "task.accept", "task.complete", "task.read", "task.reject", "task.upload_proof"},
-    "VERIFIKATOR": {"case.export", "case.merge", "case.read", "case.reject", "case.request_info", "case.separate", "case.verify", "report.read", "task.read"},
-    "WARGA": {"case.read", "public.read", "report.lengkapi", "report.read", "report.sanggah", "report.submit"}
+    "SURVEYOR": {
+      "case.read",
+      "report.read",
+      "survey.start",
+      "task.accept",
+      "task.complete",
+      "task.read",
+      "task.reject",
+      "task.upload_proof",
+    },
+    "VERIFIKATOR": {
+      "case.export",
+      "case.merge",
+      "case.read",
+      "case.reject",
+      "case.request_info",
+      "case.separate",
+      "case.verify",
+      "report.read",
+      "task.read",
+    },
+    "WARGA": {
+      "case.read",
+      "public.read",
+      "report.lengkapi",
+      "report.read",
+      "report.sanggah",
+      "report.submit",
+    },
   };
 
   /// Admin UI status dropdown — English labels.
@@ -26,7 +86,7 @@ class Capabilities {
     {'value': "", 'label': "Semua Status"},
     {'value': "SUBMITTED", 'label': "Submitted"},
     {'value': "PERLU_DILENGKAPI", 'label': "Needs Completion"},
-    {'value': "DRAFT", 'label': "Draft"}
+    {'value': "DRAFT", 'label': "Draft"},
   ];
 
   /// Admin UI status dropdown — Indonesian labels.
@@ -34,14 +94,22 @@ class Capabilities {
     {'value': "", 'label': "Semua Status"},
     {'value': "SUBMITTED", 'label': "Perlu Tindakan"},
     {'value': "PERLU_DILENGKAPI", 'label': "Perlu Dilengkapi"},
-    {'value': "DRAFT", 'label': "Draf"}
+    {'value': "DRAFT", 'label': "Draf"},
   ];
 
   /// Public portal status options with CSS colour classes.
   static const List<Map<String, String>> publicStatusOptions = [
-    {'value': "SUBMITTED", 'label': "Perlu Tindakan", 'color': "bg-red-100 text-red-700"},
-    {'value': "PERLU_DILENGKAPI", 'label': "Perlu Dilengkapi", 'color': "bg-yellow-100 text-yellow-700"},
-    {'value': "DRAFT", 'label': "Draf", 'color': "bg-gray-100 text-gray-700"}
+    {
+      'value': "SUBMITTED",
+      'label': "Perlu Tindakan",
+      'color': "bg-red-100 text-red-700",
+    },
+    {
+      'value': "PERLU_DILENGKAPI",
+      'label': "Perlu Dilengkapi",
+      'color': "bg-yellow-100 text-yellow-700",
+    },
+    {'value': "DRAFT", 'label': "Draf", 'color': "bg-gray-100 text-gray-700"},
   ];
 
   /// Maps CaseStatus → WargaSummaryStatus for warga home-screen cards.
@@ -51,6 +119,6 @@ class Capabilities {
     "MENUNGGU_VERIFIKASI": "PERLU_TINDAKAN",
     "SEDANG_DITANGANI": "DIPROSES",
     "SELESAI": "SELESAI",
-    "TERVERIFIKASI": "DIPROSES"
+    "TERVERIFIKASI": "DIPROSES",
   };
 }

@@ -51,7 +51,7 @@ class _OperatorPriorityDialogState
 
   Color get _priorityColor {
     if (_priority >= 70) return SigapColors.perluTindakan;
-    if (_priority >= 40) return Colors.orange;
+    if (_priority >= 40) return SigapColors.warning;
     return SigapColors.selesai;
   }
 
@@ -72,7 +72,7 @@ class _OperatorPriorityDialogState
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: _priorityColor,
-                    fontSize: 18,
+                    fontSize: SigapTypography.titleLarge,
                   ),
                 ),
               ],
@@ -91,7 +91,10 @@ class _OperatorPriorityDialogState
               children: [
                 Text(
                   'Rendah',
-                  style: TextStyle(fontSize: 11, color: SigapColors.selesai),
+                  style: TextStyle(
+                    fontSize: SigapTypography.captionMedium,
+                    color: SigapColors.selesai,
+                  ),
                 ),
                 Text(
                   'Tinggi',
@@ -117,7 +120,7 @@ class _OperatorPriorityDialogState
                 'Error: $_error',
                 style: const TextStyle(
                   color: SigapColors.perluTindakan,
-                  fontSize: 12,
+                  fontSize: SigapTypography.bodySmall,
                 ),
               ),
             ],

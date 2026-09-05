@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 import 'a11y.dart';
 
@@ -37,6 +38,7 @@ class ErrorRetryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(SigapSpacing.md),
       decoration: BoxDecoration(
@@ -65,7 +67,7 @@ class ErrorRetryView extends StatelessWidget {
             ),
           ),
           MinTapTarget(
-            semanticsLabel: retryLabel ?? 'Coba lagi',
+            semanticsLabel: retryLabel ?? l10n.cobaLagi,
             child: TextButton(
               onPressed: onRetry,
               style: TextButton.styleFrom(
@@ -73,7 +75,7 @@ class ErrorRetryView extends StatelessWidget {
                 minimumSize: const Size(kMinTapTarget, kMinTapTarget),
               ),
               child: Text(
-                retryLabel ?? 'Coba lagi',
+                retryLabel ?? l10n.cobaLagi,
                 style: const TextStyle(fontSize: SigapTypography.bodyText),
               ),
             ),

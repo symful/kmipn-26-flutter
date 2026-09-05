@@ -7,6 +7,9 @@ import '../../../api/exceptions.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
+import '../../../widgets/design_system/authenticated_shell.dart';
+import '../../../widgets/design_system/sigap_app_bar.dart';
+import '../../../widgets/design_system/sigap_card.dart';
 import '../../../utils/logger.dart';
 
 final _logger = Logger('AuditLogScreen');
@@ -121,7 +124,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
-          final dl10n = AppLocalizations.of(ctx)!;
+          final l10n = AppLocalizations.of(ctx)!;
           return Container(
             padding: EdgeInsets.only(
               left: SigapSpacing.xl,
@@ -144,9 +147,9 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                     children: [
                       const Icon(Icons.filter_alt, color: SigapColors.primary),
                       const SizedBox(width: SigapSpacing.sm),
-                      const Text(
-                        'Filter Audit Log',
-                        style: TextStyle(
+                      Text(
+                        l10n.filterAuditLog,
+                        style: const TextStyle(
                           fontSize: SigapTypography.bodyLarge,
                           fontWeight: FontWeight.bold,
                           color: SigapColors.textPrimary,
@@ -167,7 +170,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                           });
                         },
                         child: Text(
-                          dl10n.reset,
+                          l10n.reset,
                           style: const TextStyle(
                             color: SigapColors.textSecondary,
                           ),
@@ -180,7 +183,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                   TextField(
                     controller: _actorIdController,
                     decoration: InputDecoration(
-                      labelText: 'ID / Nama Pengguna (Actor)',
+                      labelText: l10n.idUserNamaActor,
                       prefixIcon: const Icon(Icons.person_outline, size: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -196,7 +199,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                   TextField(
                     controller: _objectIdController,
                     decoration: InputDecoration(
-                      labelText: 'ID Objek (Resource ID)',
+                      labelText: l10n.idObjekResourceId,
                       prefixIcon: const Icon(Icons.tag, size: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -212,7 +215,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                   DropdownButtonFormField<String>(
                     initialValue: _actionFilter,
                     decoration: InputDecoration(
-                      labelText: 'Aksi (Action)',
+                      labelText: l10n.aksiAction,
                       prefixIcon: const Icon(Icons.bolt, size: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -225,27 +228,27 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                     items: [
                       DropdownMenuItem(
                         value: null,
-                        child: Text(dl10n.semuaAksi),
+                        child: Text(l10n.semuaAksi),
                       ),
                       DropdownMenuItem(
                         value: 'CREATE',
-                        child: Text(dl10n.createBuat),
+                        child: Text(l10n.createBuat),
                       ),
                       DropdownMenuItem(
                         value: 'UPDATE',
-                        child: Text(dl10n.updateUbah),
+                        child: Text(l10n.updateUbah),
                       ),
                       DropdownMenuItem(
                         value: 'DELETE',
-                        child: Text(dl10n.deleteHapus),
+                        child: Text(l10n.deleteHapus),
                       ),
                       DropdownMenuItem(
                         value: 'APPROVE',
-                        child: Text(dl10n.approveSetujui),
+                        child: Text(l10n.approveSetujui),
                       ),
                       DropdownMenuItem(
                         value: 'REJECT',
-                        child: Text(dl10n.rejectTolak),
+                        child: Text(l10n.rejectTolak),
                       ),
                     ],
                     onChanged: (v) => setSheetState(() => _actionFilter = v),
@@ -254,7 +257,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                   DropdownButtonFormField<String>(
                     initialValue: _objectTypeFilter,
                     decoration: InputDecoration(
-                      labelText: 'Tipe Objek (Resource Type)',
+                      labelText: l10n.tipeObjekResourceType,
                       prefixIcon: const Icon(Icons.category_outlined, size: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -267,27 +270,27 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                     items: [
                       DropdownMenuItem(
                         value: null,
-                        child: Text(dl10n.semuaTipeObjek),
+                        child: Text(l10n.semuaTipeObjek),
                       ),
                       DropdownMenuItem(
                         value: 'report',
-                        child: Text(dl10n.laporanReport),
+                        child: Text(l10n.laporanReport),
                       ),
                       DropdownMenuItem(
                         value: 'user',
-                        child: Text(dl10n.penggunaUser),
+                        child: Text(l10n.penggunaUser),
                       ),
                       DropdownMenuItem(
                         value: 'category',
-                        child: Text(dl10n.kategoriCategory),
+                        child: Text(l10n.kategoriCategory),
                       ),
                       DropdownMenuItem(
                         value: 'wilayah',
-                        child: Text(dl10n.wilayah),
+                        child: Text(l10n.wilayah),
                       ),
                       DropdownMenuItem(
                         value: 'unit',
-                        child: Text(dl10n.unitKerja),
+                        child: Text(l10n.unitKerja),
                       ),
                     ],
                     onChanged: (v) =>
@@ -308,7 +311,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                       ),
                       title: Text(
                         _dateRange == null
-                            ? 'Rentang Tanggal: (Semua)'
+                            ? l10n.rentangTanggalSemua
                             : '${_dateRange!.start.day}/${_dateRange!.start.month}/${_dateRange!.start.year} - ${_dateRange!.end.day}/${_dateRange!.end.month}/${_dateRange!.end.year}',
                         style: const TextStyle(
                           fontSize: SigapTypography.bodyText,
@@ -339,7 +342,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SigapColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: SigapColors.surface,
                       padding: const EdgeInsets.symmetric(
                         vertical: SigapSpacing.md,
                       ),
@@ -359,7 +362,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                       _load(reset: true);
                     },
                     child: Text(
-                      dl10n.terapkanFilter,
+                      l10n.terapkanFilter,
                       style: const TextStyle(
                         fontSize: SigapTypography.bodyMedium,
                         fontWeight: FontWeight.bold,
@@ -408,7 +411,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Detail Perubahan: ${log.action ?? '-'}',
+                            l10n.detailPerubahanLabel(log.action ?? '-'),
                             style: const TextStyle(
                               fontSize: SigapTypography.bodyLarge,
                               fontWeight: FontWeight.bold,
@@ -474,7 +477,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) {
-        final dl10n = AppLocalizations.of(ctx)!;
+        final l10n = AppLocalizations.of(ctx)!;
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SigapRadius.lg),
@@ -485,7 +488,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
               const Icon(Icons.download, color: SigapColors.primary),
               const SizedBox(width: SigapSpacing.sm),
               Text(
-                dl10n.auditLog,
+                l10n.auditLog,
                 style: const TextStyle(
                   fontSize: SigapTypography.bodyLarge,
                   fontWeight: FontWeight.bold,
@@ -494,7 +497,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
             ],
           ),
           content: Text(
-            dl10n.terapkanFilter,
+            l10n.terapkanFilter,
             style: const TextStyle(
               fontSize: SigapTypography.bodyText,
               color: SigapColors.textSecondary,
@@ -504,22 +507,22 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(
-                dl10n.batal,
+                l10n.batal,
                 style: const TextStyle(color: SigapColors.textSecondary),
               ),
             ),
             OutlinedButton.icon(
               icon: const Icon(Icons.table_chart, size: 18),
-              label: Text(dl10n.csvFormat),
+              label: Text(l10n.csvFormat),
               onPressed: () => Navigator.pop(ctx, 'csv'),
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: SigapColors.surface,
               ),
               icon: const Icon(Icons.code, size: 18),
-              label: Text(dl10n.jsonFormat),
+              label: Text(l10n.jsonFormat),
               onPressed: () => Navigator.pop(ctx, 'json'),
             ),
           ],
@@ -551,7 +554,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
 
       await Share.share(
         content,
-        subject: 'Audit Log Export (${result.toUpperCase()})',
+        subject: l10n.auditLogExportSubjek(result.toUpperCase()),
       );
     } catch (e) {
       if (mounted) {
@@ -576,10 +579,13 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(l10n.auditLog),
+      appBar: SigapAppBar(
+        title: l10n.auditLog,
         actions: [
           IconButton(
             icon: Icon(
@@ -608,9 +614,9 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
               ),
               child: Row(
                 children: [
-                  const Text(
-                    'Filter Aktif: ',
-                    style: TextStyle(
+                  Text(
+                    l10n.filterAktif,
+                    style: const TextStyle(
                       fontSize: SigapTypography.captionMedium,
                       fontWeight: FontWeight.bold,
                       color: SigapColors.textSecondary,
@@ -623,7 +629,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                         children: [
                           if (_actionFilter != null)
                             _FilterBadge(
-                              label: 'Aksi: $_actionFilter',
+                              label: l10n.aksiFilter(_actionFilter!),
                               onClear: () {
                                 setState(() => _actionFilter = null);
                                 _load(reset: true);
@@ -631,7 +637,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                             ),
                           if (_objectTypeFilter != null)
                             _FilterBadge(
-                              label: 'Objek: $_objectTypeFilter',
+                              label: l10n.objekFilter(_objectTypeFilter!),
                               onClear: () {
                                 setState(() => _objectTypeFilter = null);
                                 _load(reset: true);
@@ -639,7 +645,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                             ),
                           if (_actorIdFilter != null)
                             _FilterBadge(
-                              label: 'Actor: $_actorIdFilter',
+                              label: l10n.actorFilter(_actorIdFilter!),
                               onClear: () {
                                 setState(() => _actorIdFilter = null);
                                 _actorIdController.clear();
@@ -648,7 +654,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                             ),
                           if (_dateRange != null)
                             _FilterBadge(
-                              label: 'Tanggal: Terpilih',
+                              label: l10n.tanggalTerpilih,
                               onClear: () {
                                 setState(() => _dateRange = null);
                                 _load(reset: true);
@@ -665,9 +671,9 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text(
-                      'Hapus Semua',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.hapusSemua,
+                      style: const TextStyle(
                         fontSize: SigapTypography.captionMedium,
                         color: SigapColors.perluTindakan,
                       ),
@@ -707,9 +713,9 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                               color: SigapColors.perluTindakan,
                             ),
                             const SizedBox(height: SigapSpacing.md),
-                            const Text(
-                              'Gagal Memuat Audit Log',
-                              style: TextStyle(
+                            Text(
+                              l10n.gagalMemuatAuditLog,
+                              style: const TextStyle(
                                 fontSize: SigapTypography.bodyLarge,
                                 fontWeight: FontWeight.bold,
                                 color: SigapColors.textPrimary,
@@ -731,7 +737,7 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                               label: Text(l10n.cobaLagi),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: SigapColors.primary,
-                                foregroundColor: Colors.white,
+                                foregroundColor: SigapColors.surface,
                               ),
                             ),
                           ],
@@ -759,9 +765,9 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                             ),
                           ),
                           const SizedBox(height: SigapSpacing.md),
-                          const Text(
-                            'Tidak Ada Data Audit Log',
-                            style: TextStyle(
+                          Text(
+                            l10n.tidakAdaDataAuditLog,
+                            style: const TextStyle(
                               fontSize: SigapTypography.bodyLarge,
                               fontWeight: FontWeight.bold,
                               color: SigapColors.textPrimary,
@@ -770,8 +776,8 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                           const SizedBox(height: SigapSpacing.xs),
                           Text(
                             _hasActiveFilters
-                                ? 'Tidak ditemukan riwayat log dengan kriteria filter saat ini.'
-                                : 'Belum ada aktivitas yang tercatat di audit log.',
+                                ? l10n.tidakDitemukanRiwayatLog
+                                : l10n.belumAdaAktivitasTercatat,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: SigapTypography.bodyText,
@@ -914,126 +920,126 @@ class _AuditLogCard extends StatelessWidget {
     final wilayah = log.metadata?['wilayah'] as String? ?? '-';
     final timestamp = log.timestamp;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: SigapColors.border),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        child: Padding(
-          padding: const EdgeInsets.all(SigapSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: SigapSpacing.sm,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _actionColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(SigapRadius.pill),
-                      border: Border.all(
-                        color: _actionColor.withValues(alpha: 0.25),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: SigapSpacing.sm),
+      child: SigapCard(
+        padding: EdgeInsets.zero,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(SigapRadius.x12),
+          child: Padding(
+            padding: const EdgeInsets.all(SigapSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SigapSpacing.sm,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _actionColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(SigapRadius.pill),
+                        border: Border.all(
+                          color: _actionColor.withValues(alpha: 0.25),
+                        ),
+                      ),
+                      child: Text(
+                        action,
+                        style: TextStyle(
+                          color: _actionColor,
+                          fontSize: SigapTypography.captionMedium,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    child: Text(
-                      action,
-                      style: TextStyle(
-                        color: _actionColor,
-                        fontSize: SigapTypography.captionMedium,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: SigapSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      actorId,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: SigapTypography.bodyText,
-                        color: SigapColors.textPrimary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    _formatTimestamp(timestamp),
-                    style: const TextStyle(
-                      fontSize: SigapTypography.captionMedium,
-                      color: SigapColors.textMuted,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: SigapSpacing.sm),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: SigapColors.bgSurface,
-                      borderRadius: BorderRadius.circular(SigapRadius.sm),
-                    ),
-                    child: Text(
-                      '$objectType : $objectId',
-                      style: const TextStyle(
-                        fontSize: SigapTypography.captionMedium,
-                        fontFamily: 'monospace',
-                        color: SigapColors.textSecondary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (wilayah != '-') ...[
                     const SizedBox(width: SigapSpacing.sm),
                     Expanded(
                       child: Text(
-                        'Wilayah: $wilayah',
+                        actorId,
                         style: const TextStyle(
-                          fontSize: SigapTypography.captionMedium,
-                          color: SigapColors.textTertiary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: SigapTypography.bodyText,
+                          color: SigapColors.textPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ],
-                ],
-              ),
-              if (log.metadata?['before'] != null ||
-                  log.metadata?['after'] != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: SigapSpacing.xs),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.visibility_outlined,
-                        size: 14,
-                        color: SigapColors.primary,
+                    Text(
+                      _formatTimestamp(timestamp),
+                      style: const TextStyle(
+                        fontSize: SigapTypography.captionMedium,
+                        color: SigapColors.textMuted,
                       ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        'Lihat detail perubahan (diff)',
-                        style: TextStyle(
+                    ),
+                  ],
+                ),
+                const SizedBox(height: SigapSpacing.sm),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: SigapColors.bgSurface,
+                        borderRadius: BorderRadius.circular(SigapRadius.sm),
+                      ),
+                      child: Text(
+                        '$objectType : $objectId',
+                        style: const TextStyle(
                           fontSize: SigapTypography.captionMedium,
-                          color: SigapColors.primary,
-                          fontWeight: FontWeight.w500,
+                          fontFamily: SigapTypography.fontFamilyMono,
+                          color: SigapColors.textSecondary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (wilayah != '-') ...[
+                      const SizedBox(width: SigapSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)!.wilayahFilter(wilayah),
+                          style: const TextStyle(
+                            fontSize: SigapTypography.captionMedium,
+                            color: SigapColors.textTertiary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-            ],
+                if (log.metadata?['before'] != null ||
+                    log.metadata?['after'] != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: SigapSpacing.xs),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.visibility_outlined,
+                          size: 14,
+                          color: SigapColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.lihatDetailPerubahanDiff,
+                          style: const TextStyle(
+                            fontSize: SigapTypography.captionMedium,
+                            color: SigapColors.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1070,9 +1076,9 @@ class _DiffSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(SigapRadius.sm),
               border: Border.all(color: SigapColors.border),
             ),
-            child: const Text(
-              '(Kosong / Tidak ada data)',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.kosongTidakAdaData,
+              style: const TextStyle(
                 fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textMuted,
                 fontStyle: FontStyle.italic,
@@ -1112,7 +1118,7 @@ class _DiffSection extends StatelessWidget {
             formatted,
             style: TextStyle(
               fontSize: SigapTypography.bodySmall,
-              fontFamily: 'monospace',
+              fontFamily: SigapTypography.fontFamilyMono,
               color: SigapColors.textPrimary,
             ),
           ),

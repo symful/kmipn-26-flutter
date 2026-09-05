@@ -15,6 +15,7 @@ import 'package:sigap/theme/tokens.dart';
 /// - `audit.read` → "Audit"
 /// - `analytics.read` → "Analitik"
 /// - `public.read` → "Peta"
+/// - Always last → "Akun" (Profile)
 ///
 /// Covers 9 authenticated human roles:
 /// Warga, Surveyor, Petugas, Operator, Verifikator, RT_RW,
@@ -32,8 +33,8 @@ class AdaptiveNav extends ConsumerWidget {
   /// Index of the currently active nav item.
   final int activeIndex;
 
-  /// Callback fired when a nav item is tapped. Passes the item's index.
-  final ValueChanged<int> onTap;
+  /// Callback fired when a nav item is tapped. Passes the item's index and its route.
+  final void Function(int index, String route) onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,6 +50,7 @@ class AdaptiveNav extends ConsumerWidget {
 
     final caps = capabilityState.capabilities;
     final items = _buildNavItems(caps, l10n);
+    final routes = navRoutesForCapabilities(caps);
 
     // Empty nav: nothing to show for this capability set.
     if (items.isEmpty) {
@@ -57,6 +59,7 @@ class AdaptiveNav extends ConsumerWidget {
 
     return _SigapBottomNav(
       items: items,
+      routes: routes,
       activeIndex: activeIndex,
       onTap: onTap,
     );
@@ -75,8 +78,11 @@ class AdaptiveNav extends ConsumerWidget {
   /// - Export — `case.export` (report/case export).
   /// - Audit — `audit.read`.
   /// - Analitik — `analytics.read`.
-  /// - Tugas — `task.accept`.
+  /// - Dashboard Eksekutif — `analytics.read` (links to /gov-dashboard).
+  /// - Tugas — `task.accept` OR `task.read` (operator sees tasks too).
+  /// - Verifikasi RT/RW — `case.verify` (rt_rw primary workflow).
   /// - Laporan — `report.submit`.
+  /// - Akun — always last.
   List<_SigapBottomNavItem> _buildNavItems(
     Set<String> capabilities,
     AppLocalizations l10n,
@@ -94,7 +100,7 @@ class AdaptiveNav extends ConsumerWidget {
     // Antrean — available if case.read OR case.verify is present.
     if (capabilities.contains('case.read') ||
         capabilities.contains('case.verify')) {
-      items.add(_antreanItem());
+      items.add(_antreanItem(l10n));
     }
 
     // AI Console — available if case.verify is present.
@@ -105,7 +111,7 @@ class AdaptiveNav extends ConsumerWidget {
 
     // Export — available if case.export is present.
     if (capabilities.contains('case.export')) {
-      items.add(_exportItem());
+      items.add(_exportItem(l10n));
     }
 
     // Audit — available only if audit.read is present.
@@ -115,11 +121,19 @@ class AdaptiveNav extends ConsumerWidget {
 
     // Analitik — available only if analytics.read is present.
     if (capabilities.contains('analytics.read')) {
-      items.add(_analitikItem());
+      items.add(_analitikItem(l10n));
     }
 
-    // Tugas / Sinkron — available if task.accept is present.
-    if (capabilities.contains('task.accept')) {
+    // Dashboard Eksekutif — available if analytics.read is present.
+    // Links to /gov-dashboard for executive KPI view.
+    if (capabilities.contains('analytics.read')) {
+      items.add(_dashboardEksekutifItem(l10n));
+    }
+
+    // Tugas — available if task.accept OR task.read is present.
+    // OPERATOR has task.read (view-only), SURVEYOR/PETUGAS have task.accept.
+    if (capabilities.contains('task.accept') ||
+        capabilities.contains('task.read')) {
       items.add(_tugasItem(l10n));
     }
 
@@ -127,6 +141,9 @@ class AdaptiveNav extends ConsumerWidget {
     if (capabilities.contains('report.submit')) {
       items.add(_laporanItem(l10n));
     }
+
+    // Profile — always last; available to all authenticated users.
+    items.add(_profileItem(l10n));
 
     return items;
   }
@@ -146,12 +163,13 @@ class AdaptiveNav extends ConsumerWidget {
     semanticsLabel: l10n.peta,
   );
 
-  _SigapBottomNavItem _antreanItem() => _SigapBottomNavItem(
-    icon: Icons.queue_outlined,
-    activeIcon: Icons.queue,
-    label: 'Antrean',
-    semanticsLabel: 'Antrean',
-  );
+  _SigapBottomNavItem _antreanItem(AppLocalizations l10n) =>
+      _SigapBottomNavItem(
+        icon: Icons.queue_outlined,
+        activeIcon: Icons.queue,
+        label: l10n.antreanNav,
+        semanticsLabel: l10n.antreanNav,
+      );
 
   _SigapBottomNavItem _aiConsoleItem(AppLocalizations l10n) =>
       _SigapBottomNavItem(
@@ -161,11 +179,11 @@ class AdaptiveNav extends ConsumerWidget {
         semanticsLabel: l10n.aiConsole,
       );
 
-  _SigapBottomNavItem _exportItem() => _SigapBottomNavItem(
+  _SigapBottomNavItem _exportItem(AppLocalizations l10n) => _SigapBottomNavItem(
     icon: Icons.file_download_outlined,
     activeIcon: Icons.file_download,
-    label: 'Export',
-    semanticsLabel: 'Export',
+    label: l10n.exportNav,
+    semanticsLabel: l10n.exportNav,
   );
 
   _SigapBottomNavItem _auditItem(AppLocalizations l10n) => _SigapBottomNavItem(
@@ -175,12 +193,21 @@ class AdaptiveNav extends ConsumerWidget {
     semanticsLabel: l10n.auditLog,
   );
 
-  _SigapBottomNavItem _analitikItem() => _SigapBottomNavItem(
-    icon: Icons.analytics_outlined,
-    activeIcon: Icons.analytics,
-    label: 'Analitik',
-    semanticsLabel: 'Analitik',
-  );
+  _SigapBottomNavItem _analitikItem(AppLocalizations l10n) =>
+      _SigapBottomNavItem(
+        icon: Icons.analytics_outlined,
+        activeIcon: Icons.analytics,
+        label: l10n.analitikNav,
+        semanticsLabel: l10n.analitikNav,
+      );
+
+  _SigapBottomNavItem _dashboardEksekutifItem(AppLocalizations l10n) =>
+      _SigapBottomNavItem(
+        icon: Icons.dashboard_outlined,
+        activeIcon: Icons.dashboard,
+        label: l10n.dashboardEksekutif,
+        semanticsLabel: l10n.dashboardEksekutif,
+      );
 
   _SigapBottomNavItem _tugasItem(AppLocalizations l10n) => _SigapBottomNavItem(
     icon: Icons.assignment_outlined,
@@ -196,50 +223,71 @@ class AdaptiveNav extends ConsumerWidget {
         label: l10n.laporan,
         semanticsLabel: l10n.laporan,
       );
+
+  _SigapBottomNavItem _profileItem(AppLocalizations l10n) =>
+      _SigapBottomNavItem(
+        icon: Icons.person_outline,
+        activeIcon: Icons.person,
+        label: l10n.akunNav,
+        semanticsLabel: l10n.akunNav,
+      );
 }
 
 /// Provides the nav item labels for a given set of capabilities.
 /// Useful for tests that need to assert which nav items appear per role.
 ///
-/// Returns a list of nav item labels in left-to-right order.
-List<String> navItemsForCapabilities(Set<String> capabilities) {
+/// Returns a list of localized nav item labels in left-to-right order.
+List<String> navItemsForCapabilities(
+  Set<String> capabilities,
+  AppLocalizations l10n,
+) {
   final items = <String>[];
 
   // Dashboard — always first for authenticated users.
-  items.add('Dashboard');
+  items.add(l10n.dashboard);
 
   if (capabilities.contains('public.read')) {
-    items.add('Peta');
+    items.add(l10n.peta);
   }
 
   if (capabilities.contains('case.read') ||
       capabilities.contains('case.verify')) {
-    items.add('Antrean');
+    items.add(l10n.antreanNav);
   }
 
   if (capabilities.contains('case.verify')) {
-    items.add('AI Console');
+    items.add(l10n.aiConsole);
   }
 
   if (capabilities.contains('case.export')) {
-    items.add('Export');
+    items.add(l10n.exportNav);
   }
 
   if (capabilities.contains('audit.read')) {
-    items.add('Audit');
+    items.add(l10n.auditLog);
   }
 
   if (capabilities.contains('analytics.read')) {
-    items.add('Analitik');
+    items.add(l10n.analitikNav);
   }
 
-  if (capabilities.contains('task.accept')) {
-    items.add('Tugas');
+  // Dashboard Eksekutif — analytics.read (executive KPI view).
+  if (capabilities.contains('analytics.read')) {
+    items.add(l10n.dashboardEksekutif);
+  }
+
+  // Tugas — task.accept OR task.read (operator sees tasks too).
+  if (capabilities.contains('task.accept') ||
+      capabilities.contains('task.read')) {
+    items.add(l10n.tugas);
   }
 
   if (capabilities.contains('report.submit')) {
-    items.add('Laporan');
+    items.add(l10n.laporan);
   }
+
+  // Profile — always last for authenticated users.
+  items.add(l10n.akunNav);
 
   return items;
 }
@@ -279,13 +327,23 @@ List<String> navRoutesForCapabilities(Set<String> capabilities) {
     routes.add('/stats');
   }
 
-  if (capabilities.contains('task.accept')) {
+  // Dashboard Eksekutif — analytics.read (executive KPI view).
+  if (capabilities.contains('analytics.read')) {
+    routes.add('/gov-dashboard');
+  }
+
+  // Tugas — task.accept OR task.read (operator sees tasks too).
+  if (capabilities.contains('task.accept') ||
+      capabilities.contains('task.read')) {
     routes.add('/tasks');
   }
 
   if (capabilities.contains('report.submit')) {
     routes.add('/laporan');
   }
+
+  // Profile — always last for authenticated users.
+  routes.add('/profile');
 
   return routes;
 }
@@ -329,6 +387,7 @@ class _SigapBottomNavItem {
 class _SigapBottomNav extends StatelessWidget {
   const _SigapBottomNav({
     required this.items,
+    required this.routes,
     required this.activeIndex,
     required this.onTap,
   });
@@ -336,11 +395,14 @@ class _SigapBottomNav extends StatelessWidget {
   /// List of navigation items.
   final List<_SigapBottomNavItem> items;
 
+  /// List of route paths matching items by index.
+  final List<String> routes;
+
   /// Index of the currently active item.
   final int activeIndex;
 
-  /// Callback fired when an item is tapped.
-  final ValueChanged<int> onTap;
+  /// Callback fired when an item is tapped. Passes index and route.
+  final void Function(int index, String route) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -361,11 +423,12 @@ class _SigapBottomNav extends StatelessWidget {
           children: List.generate(items.length, (index) {
             final item = items[index];
             final isActive = index == activeIndex;
+            final route = index < routes.length ? routes[index] : '/dashboard';
 
             return _SigapNavItem(
               item: item,
               isActive: isActive,
-              onTap: () => onTap(index),
+              onTap: () => onTap(index, route),
               iconSize: iconSize,
             );
           }),
@@ -462,6 +525,7 @@ class SurveyorBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Container(
@@ -477,7 +541,7 @@ class SurveyorBottomNav extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             _NavItem(
-              label: 'Tugas',
+              label: l10n.tugas,
               isActive: activeIndex == 0,
               onTap: () => onTap(0),
               child: _TugasIcon(
@@ -485,7 +549,7 @@ class SurveyorBottomNav extends StatelessWidget {
               ),
             ),
             _NavItem(
-              label: 'Peta',
+              label: l10n.peta,
               isActive: activeIndex == 1,
               onTap: () => onTap(1),
               child: _PetaIcon(
@@ -493,7 +557,7 @@ class SurveyorBottomNav extends StatelessWidget {
               ),
             ),
             _NavItem(
-              label: 'Sinkron',
+              label: l10n.sinkronNav,
               isActive: activeIndex == 2,
               onTap: () => onTap(2),
               child: _SinkronIcon(
@@ -501,7 +565,7 @@ class SurveyorBottomNav extends StatelessWidget {
               ),
             ),
             _NavItem(
-              label: 'Riwayat',
+              label: l10n.riwayatNav,
               isActive: activeIndex == 3,
               onTap: () => onTap(3),
               child: _RiwayatIcon(
@@ -509,7 +573,7 @@ class SurveyorBottomNav extends StatelessWidget {
               ),
             ),
             _NavItem(
-              label: 'Akun',
+              label: l10n.akunNav,
               isActive: activeIndex == 4,
               onTap: () => onTap(4),
               child: _AkunIcon(
@@ -696,12 +760,12 @@ const List<String> surveyorNavRoutes = [
 ];
 
 /// Label strings for the surveyor 5-tab nav, left-to-right.
-const List<String> surveyorNavLabels = [
-  'Tugas',
-  'Peta',
-  'Sinkron',
-  'Riwayat',
-  'Akun',
+List<String> surveyorNavLabels(AppLocalizations l10n) => [
+  l10n.tugas,
+  l10n.peta,
+  l10n.sinkronNav,
+  l10n.riwayatNav,
+  l10n.akunNav,
 ];
 
 // ---------------------------------------------------------------------------
@@ -740,6 +804,7 @@ class FixedWargaBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     const activeColor = SigapColors.primary;
     const inactiveColor = SigapColors.textMuted;
 
@@ -767,7 +832,7 @@ class FixedWargaBottomNav extends StatelessWidget {
             _WargaNavItem(
               isActive: activeIndex == 0,
               color: activeIndex == 0 ? activeColor : inactiveColor,
-              label: 'Beranda',
+              label: l10n.beranda,
               fontWeight: activeIndex == 0 ? FontWeight.w600 : FontWeight.w500,
               icon: _HomeIcon(
                 color: activeIndex == 0 ? activeColor : inactiveColor,
@@ -778,7 +843,7 @@ class FixedWargaBottomNav extends StatelessWidget {
             _WargaNavItem(
               isActive: activeIndex == 1,
               color: activeIndex == 1 ? activeColor : inactiveColor,
-              label: 'Peta',
+              label: l10n.peta,
               fontWeight: activeIndex == 1 ? FontWeight.w600 : FontWeight.w500,
               icon: _DiamondIcon(
                 color: activeIndex == 1 ? activeColor : inactiveColor,
@@ -791,7 +856,7 @@ class FixedWargaBottomNav extends StatelessWidget {
             _WargaNavItem(
               isActive: activeIndex == 3,
               color: activeIndex == 3 ? activeColor : inactiveColor,
-              label: 'Laporan',
+              label: l10n.laporanNav,
               fontWeight: activeIndex == 3 ? FontWeight.w600 : FontWeight.w500,
               icon: _DocumentIcon(
                 color: activeIndex == 3 ? activeColor : inactiveColor,
@@ -802,7 +867,7 @@ class FixedWargaBottomNav extends StatelessWidget {
             _WargaNavItem(
               isActive: activeIndex == 4,
               color: activeIndex == 4 ? activeColor : inactiveColor,
-              label: 'Akun',
+              label: l10n.akunNav,
               fontWeight: activeIndex == 4 ? FontWeight.w600 : FontWeight.w500,
               icon: _CircleIcon(
                 color: activeIndex == 4 ? activeColor : inactiveColor,
@@ -872,8 +937,9 @@ class _WargaFabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Semantics(
-      label: 'Buat laporan',
+      label: l10n.buatLaporanFAB,
       button: true,
       child: GestureDetector(
         onTap: onTap,
@@ -933,7 +999,7 @@ class _WargaFabItem extends StatelessWidget {
                 ),
               ),
               Text(
-                'Buat',
+                l10n.buat,
                 style: TextStyle(
                   fontSize: SigapTypography.captionSmall,
                   fontWeight: FontWeight.w600,

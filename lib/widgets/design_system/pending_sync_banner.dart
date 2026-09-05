@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../theme/tokens.dart';
 import 'a11y.dart';
 
@@ -40,6 +41,7 @@ class PendingSyncBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: SigapSpacing.x14,
@@ -65,7 +67,7 @@ class PendingSyncBanner extends StatelessWidget {
             child: Text(
               '$pendingCount',
               style: const TextStyle(
-                color: Colors.white,
+                color: SigapColors.surface,
                 fontWeight: FontWeight.w700,
                 fontSize: SigapTypography.bodyMedium,
               ),
@@ -78,7 +80,7 @@ class PendingSyncBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _pendingLabel(pendingCount),
+                  _pendingLabel(pendingCount, l10n),
                   style: const TextStyle(
                     color: SigapColors.warningTextStrong,
                     fontWeight: FontWeight.w600,
@@ -86,8 +88,8 @@ class PendingSyncBanner extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: SigapRadius.x1),
-                const Text(
-                  'Aman tersimpan di perangkat. Akan terkirim otomatis saat ada koneksi.',
+                Text(
+                  l10n.tersimpanDiPerangkat,
                   style: TextStyle(
                     color: SigapColors.offlineText,
                     fontSize: SigapTypography.bodySmall,
@@ -102,12 +104,12 @@ class PendingSyncBanner extends StatelessWidget {
                 ],
                 // View sync center link
                 MinTapTarget(
-                  semanticsLabel: 'Buka Pusat Sinkronisasi',
+                  semanticsLabel: l10n.pusatSinkronisasi,
                   child: GestureDetector(
                     onTap:
                         onViewSyncCenter ?? () => context.push('/sync-center'),
-                    child: const Text(
-                      'Buka Pusat Sinkronisasi →',
+                    child: Text(
+                      l10n.bukaPusatSinkronisasiLink,
                       style: TextStyle(
                         color: SigapColors.primaryDark,
                         fontWeight: FontWeight.w600,
@@ -124,11 +126,8 @@ class PendingSyncBanner extends StatelessWidget {
     );
   }
 
-  String _pendingLabel(int count) {
-    if (count == 1) {
-      return '$count laporan belum tersinkron';
-    }
-    return '$count laporan belum tersinkron';
+  String _pendingLabel(int count, AppLocalizations l10n) {
+    return l10n.laporanBelumTersinkronCount(count);
   }
 }
 
@@ -139,8 +138,9 @@ class _SyncNowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return MinTapTarget(
-      semanticsLabel: 'Sinkronkan sekarang',
+      semanticsLabel: l10n.sinkronkanSekarangSemantics,
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
@@ -152,10 +152,10 @@ class _SyncNowButton extends StatelessWidget {
             color: SigapColors.offlineDot,
             borderRadius: BorderRadius.circular(SigapRadius.sm),
           ),
-          child: const Text(
-            'Sinkronkan Sekarang',
-            style: TextStyle(
-              color: Colors.white,
+          child: Text(
+            l10n.sinkronkanSekarang,
+            style: const TextStyle(
+              color: SigapColors.surface,
               fontWeight: FontWeight.w600,
               fontSize: SigapTypography.bodySmallFine,
             ),

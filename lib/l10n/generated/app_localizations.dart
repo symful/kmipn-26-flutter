@@ -2330,12 +2330,6 @@ abstract class AppLocalizations {
   /// **'Minta Informasi'**
   String get mintaInformasi;
 
-  /// No description provided for @verifikasiRTRW.
-  ///
-  /// In id, this message translates to:
-  /// **'Verifikasi RT_RW'**
-  String get verifikasiRTRW;
-
   /// No description provided for @gagalMemuat.
   ///
   /// In id, this message translates to:
@@ -2353,12 +2347,6 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Permintaan informasi berhasil dikirim'**
   String get permintaanInformasiTerkirim;
-
-  /// No description provided for @pelatihanRTRW.
-  ///
-  /// In id, this message translates to:
-  /// **'Pelatihan RT/RW'**
-  String get pelatihanRTRW;
 
   /// No description provided for @semuaNotifikasiDibaca.
   ///
@@ -2515,6 +2503,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Konfigurasi bobot prioritas berhasil disimpan'**
   String get konfigurasiBobotTersimpan;
+
+  /// No description provided for @bobotPrioritas.
+  ///
+  /// In id, this message translates to:
+  /// **'Bobot Prioritas'**
+  String get bobotPrioritas;
 
   /// No description provided for @konfigurasiPrioritas.
   ///
@@ -2827,6 +2821,12 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tingkat Sinkronisasi'**
   String get tingkatSinkronisasi;
+
+  /// No description provided for @pusatSinkronisasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Pusat Sinkronisasi'**
+  String get pusatSinkronisasi;
 
   /// No description provided for @surveyorMenunggu.
   ///
@@ -3727,6 +3727,2940 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Gagal mengambil foto: {error}'**
   String gagalMengambilFoto(String error);
+
+  /// No description provided for @gagalMemuatData.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat data'**
+  String get gagalMemuatData;
+
+  /// No description provided for @keputusanBerhasilDikirim.
+  ///
+  /// In id, this message translates to:
+  /// **'Keputusan berhasil dikirim'**
+  String get keputusanBerhasilDikirim;
+
+  /// No description provided for @assessmentTidakTersedia.
+  ///
+  /// In id, this message translates to:
+  /// **'Assessment tidak tersedia'**
+  String get assessmentTidakTersedia;
+
+  /// No description provided for @tidakAdaDokumen.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada dokumen'**
+  String get tidakAdaDokumen;
+
+  /// No description provided for @menungguKlaimPersonel.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu klaim personel'**
+  String get menungguKlaimPersonel;
+
+  /// No description provided for @informasiYangDiperlukan.
+  ///
+  /// In id, this message translates to:
+  /// **'Informasi yang diperlukan'**
+  String get informasiYangDiperlukan;
+
+  /// No description provided for @umurBacklogKasus.
+  ///
+  /// In id, this message translates to:
+  /// **'Umur backlog kasus'**
+  String get umurBacklogKasus;
+
+  /// No description provided for @dataTidakTersedia.
+  ///
+  /// In id, this message translates to:
+  /// **'Data tidak tersedia'**
+  String get dataTidakTersedia;
+
+  /// No description provided for @distribusiStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Distribusi Status'**
+  String get distribusiStatus;
+
+  /// No description provided for @distribusiKategori.
+  ///
+  /// In id, this message translates to:
+  /// **'Distribusi Kategori'**
+  String get distribusiKategori;
+
+  /// No description provided for @dataKategoriTidakTersedia.
+  ///
+  /// In id, this message translates to:
+  /// **'Data kategori tidak tersedia'**
+  String get dataKategoriTidakTersedia;
+
+  /// No description provided for @semuaSurveyorAktif.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua surveyor aktif'**
+  String get semuaSurveyorAktif;
+
+  /// No description provided for @terjadiKesalahan.
+  ///
+  /// In id, this message translates to:
+  /// **'Terjadi kesalahan. Coba lagi.'**
+  String get terjadiKesalahan;
+
+  /// No description provided for @koneksiTimeout.
+  ///
+  /// In id, this message translates to:
+  /// **'Koneksi timeout. Coba lagi.'**
+  String get koneksiTimeout;
+
+  /// No description provided for @tidakAdaKoneksiInternet.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada koneksi internet.'**
+  String get tidakAdaKoneksiInternet;
+
+  /// No description provided for @permintaanDibatalkan.
+  ///
+  /// In id, this message translates to:
+  /// **'Permintaan dibatalkan.'**
+  String get permintaanDibatalkan;
+
+  /// No description provided for @emailAtauPasswordSalah.
+  ///
+  /// In id, this message translates to:
+  /// **'Email atau password salah.'**
+  String get emailAtauPasswordSalah;
+
+  /// No description provided for @sesiHabis.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi habis. Silakan login kembali.'**
+  String get sesiHabis;
+
+  /// No description provided for @andaTidakMemilikiAkses.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak memiliki akses.'**
+  String get andaTidakMemilikiAkses;
+
+  /// No description provided for @dataTidakDitemukan.
+  ///
+  /// In id, this message translates to:
+  /// **'Data tidak ditemukan.'**
+  String get dataTidakDitemukan;
+
+  /// No description provided for @dataTidakValid.
+  ///
+  /// In id, this message translates to:
+  /// **'Data tidak valid. Periksa input Anda.'**
+  String get dataTidakValid;
+
+  /// No description provided for @serverSedangBermasalah.
+  ///
+  /// In id, this message translates to:
+  /// **'Server sedang bermasalah. Coba lagi nanti.'**
+  String get serverSedangBermasalah;
+
+  /// No description provided for @terlaluBanyakPermintaan.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlalu banyak permintaan. Coba lagi nanti.'**
+  String get terlaluBanyakPermintaan;
+
+  /// No description provided for @dataSudahAdaAtauKonflik.
+  ///
+  /// In id, this message translates to:
+  /// **'Data sudah ada atau konflik.'**
+  String get dataSudahAdaAtauKonflik;
+
+  /// No description provided for @serverTidakTersedia.
+  ///
+  /// In id, this message translates to:
+  /// **'Server tidak tersedia. Coba lagi nanti.'**
+  String get serverTidakTersedia;
+
+  /// No description provided for @terjadiKesalahanDenganCode.
+  ///
+  /// In id, this message translates to:
+  /// **'Terjadi kesalahan (code: {statusCode}).'**
+  String terjadiKesalahanDenganCode(int statusCode);
+
+  /// No description provided for @apiError.
+  ///
+  /// In id, this message translates to:
+  /// **'API Error: {statusCode}'**
+  String apiError(int statusCode);
+
+  /// No description provided for @requestTimeoutPada.
+  ///
+  /// In id, this message translates to:
+  /// **'Request timeout pada {endpoint}'**
+  String requestTimeoutPada(String endpoint);
+
+  /// No description provided for @minimal10KarakterValidasi.
+  ///
+  /// In id, this message translates to:
+  /// **'minimal 10 karakter'**
+  String get minimal10KarakterValidasi;
+
+  /// No description provided for @tidakBolehKosong.
+  ///
+  /// In id, this message translates to:
+  /// **'tidak boleh kosong'**
+  String get tidakBolehKosong;
+
+  /// No description provided for @formatEmailTidakValid.
+  ///
+  /// In id, this message translates to:
+  /// **'format email tidak valid'**
+  String get formatEmailTidakValid;
+
+  /// No description provided for @terlaluPanjang.
+  ///
+  /// In id, this message translates to:
+  /// **'terlalu panjang'**
+  String get terlaluPanjang;
+
+  /// No description provided for @terlaluPendek.
+  ///
+  /// In id, this message translates to:
+  /// **'terlalu pendek'**
+  String get terlaluPendek;
+
+  /// No description provided for @harus.
+  ///
+  /// In id, this message translates to:
+  /// **'harus'**
+  String get harus;
+
+  /// No description provided for @gagalMendekodeGambar.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal mendekode gambar untuk menghapus EXIF'**
+  String get gagalMendekodeGambar;
+
+  /// No description provided for @menungguVerifikasiLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu verifikasi'**
+  String get menungguVerifikasiLabel;
+
+  /// No description provided for @terverifikasiLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Terverifikasi'**
+  String get terverifikasiLabel;
+
+  /// No description provided for @sedangDitanganiLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang ditangani'**
+  String get sedangDitanganiLabel;
+
+  /// No description provided for @perluKelengkapanLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu kelengkapan'**
+  String get perluKelengkapanLabel;
+
+  /// No description provided for @slaTerlewatLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'SLA terlewat'**
+  String get slaTerlewatLabel;
+
+  /// No description provided for @tersimpanDiPerangkatLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Tersimpan di perangkat'**
+  String get tersimpanDiPerangkatLabel;
+
+  /// No description provided for @laporanDiterimaLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan diterima'**
+  String get laporanDiterimaLabel;
+
+  /// No description provided for @sedangDiperiksaLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang diperiksa'**
+  String get sedangDiperiksaLabel;
+
+  /// No description provided for @perluDilengkapiLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu dilengkapi'**
+  String get perluDilengkapiLabel;
+
+  /// No description provided for @perluTindakanAndaLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu tindakan Anda'**
+  String get perluTindakanAndaLabel;
+
+  /// No description provided for @draftLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Draft'**
+  String get draftLabel;
+
+  /// No description provided for @digabungLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Digabung'**
+  String get digabungLabel;
+
+  /// No description provided for @dipisahLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Dipisah'**
+  String get dipisahLabel;
+
+  /// No description provided for @dalamReviewLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Dalam Review'**
+  String get dalamReviewLabel;
+
+  /// No description provided for @unknownLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Unknown'**
+  String get unknownLabel;
+
+  /// No description provided for @laporanPertamaDiterima.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan pertama diterima'**
+  String get laporanPertamaDiterima;
+
+  /// No description provided for @kasusDibuatDariKonsolidasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasus dibuat dari konsolidasi'**
+  String get kasusDibuatDariKonsolidasi;
+
+  /// No description provided for @laporanDigabung.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan digabung'**
+  String get laporanDigabung;
+
+  /// No description provided for @menungguVerifikasiManual.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu verifikasi manual'**
+  String get menungguVerifikasiManual;
+
+  /// No description provided for @laporanNav.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan'**
+  String get laporanNav;
+
+  /// No description provided for @sinkronNav.
+  ///
+  /// In id, this message translates to:
+  /// **'Sinkron'**
+  String get sinkronNav;
+
+  /// No description provided for @riwayatNav.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat'**
+  String get riwayatNav;
+
+  /// No description provided for @akunNav.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun'**
+  String get akunNav;
+
+  /// No description provided for @buatLaporanFAB.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat laporan'**
+  String get buatLaporanFAB;
+
+  /// No description provided for @izinkanLokasiDitolakSnack.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin lokasi ditolak'**
+  String get izinkanLokasiDitolakSnack;
+
+  /// No description provided for @gagalCaptureGPS.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal capture GPS: {error}'**
+  String gagalCaptureGPS(String error);
+
+  /// No description provided for @maksimal5Foto.
+  ///
+  /// In id, this message translates to:
+  /// **'Maksimal 5 foto'**
+  String get maksimal5Foto;
+
+  /// No description provided for @tambahFoto.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah foto ({count}/{max})'**
+  String tambahFoto(int count, int max);
+
+  /// No description provided for @formSurveiTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Form Survei'**
+  String get formSurveiTitle;
+
+  /// No description provided for @kembaliKeDaftarTugasBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke Daftar Tugas'**
+  String get kembaliKeDaftarTugasBtn;
+
+  /// No description provided for @fotoPerSudut.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto per sudut'**
+  String get fotoPerSudut;
+
+  /// No description provided for @formSurveiHeader.
+  ///
+  /// In id, this message translates to:
+  /// **'Form survei'**
+  String get formSurveiHeader;
+
+  /// No description provided for @gpsBelumTertangkap.
+  ///
+  /// In id, this message translates to:
+  /// **'GPS Belum Tertangkap'**
+  String get gpsBelumTertangkap;
+
+  /// No description provided for @tidakDitemukanDiLokasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ditemukan di lokasi'**
+  String get tidakDitemukanDiLokasi;
+
+  /// No description provided for @ringkasanTab.
+  ///
+  /// In id, this message translates to:
+  /// **'Ringkasan'**
+  String get ringkasanTab;
+
+  /// No description provided for @buktiLaporanTab.
+  ///
+  /// In id, this message translates to:
+  /// **'Bukti & Laporan'**
+  String get buktiLaporanTab;
+
+  /// No description provided for @verifikasiTab.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi'**
+  String get verifikasiTab;
+
+  /// No description provided for @tugasProgresTab.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas & Progres'**
+  String get tugasProgresTab;
+
+  /// No description provided for @riwayatAuditTab.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat Audit'**
+  String get riwayatAuditTab;
+
+  /// No description provided for @aksiGunakanPanelVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Aksi \"{label}\" - gunakan panel verifikasi'**
+  String aksiGunakanPanelVerifikasi(String label);
+
+  /// No description provided for @bukaTabVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka tab Verifikasi untuk aksi \"{label}\"'**
+  String bukaTabVerifikasi(String label);
+
+  /// No description provided for @statusKasus.
+  ///
+  /// In id, this message translates to:
+  /// **'Status Kasus'**
+  String get statusKasus;
+
+  /// No description provided for @daftarTugasProgres.
+  ///
+  /// In id, this message translates to:
+  /// **'Daftar tugas dan progres penanganan akan ditampilkan di sini.'**
+  String get daftarTugasProgres;
+
+  /// No description provided for @riwayatAuditLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat Audit'**
+  String get riwayatAuditLabel;
+
+  /// No description provided for @detailAuditTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Detail Audit'**
+  String get detailAuditTitle;
+
+  /// No description provided for @detailAuditDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Detail lengkap audit chain akan ditampilkan di sini.'**
+  String get detailAuditDesc;
+
+  /// No description provided for @belumAdaRiwayatAudit.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada riwayat audit'**
+  String get belumAdaRiwayatAudit;
+
+  /// No description provided for @transisiStatusTidakValid.
+  ///
+  /// In id, this message translates to:
+  /// **'Transisi status tidak valid. Laporan mungkin sudah diproses.'**
+  String get transisiStatusTidakValid;
+
+  /// No description provided for @gagalMengirimKeputusan.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal mengirim keputusan: {error}'**
+  String gagalMengirimKeputusan(String error);
+
+  /// No description provided for @gagalMemuatError.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat: {error}'**
+  String gagalMemuatError(String error);
+
+  /// No description provided for @errorLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Error: {error}'**
+  String errorLabel(String error);
+
+  /// No description provided for @andaTidakAksesVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak memiliki akses untuk memverifikasi kasus ini.'**
+  String get andaTidakAksesVerifikasi;
+
+  /// No description provided for @andaTidakAksesTugas.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak memiliki akses untuk melihat tugas kasus ini.'**
+  String get andaTidakAksesTugas;
+
+  /// No description provided for @andaTidakAksesAudit.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda tidak memiliki akses untuk melihat riwayat audit.'**
+  String get andaTidakAksesAudit;
+
+  /// No description provided for @tidakAdaTugasTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak Ada Tugas'**
+  String get tidakAdaTugasTitle;
+
+  /// No description provided for @tugasPenangananMuncul.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas penanganan untuk kasus ini akan muncul di sini.'**
+  String get tugasPenangananMuncul;
+
+  /// No description provided for @tidakAdaDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada deskripsi.'**
+  String get tidakAdaDeskripsi;
+
+  /// No description provided for @koordinatLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Koordinat: {lat}, {lng}'**
+  String koordinatLabel(String lat, String lng);
+
+  /// No description provided for @prioritasLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Prioritas: {value}'**
+  String prioritasLabel(String value);
+
+  /// No description provided for @kembaliKeLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Kembali ke Laporan'**
+  String get kembaliKeLaporan;
+
+  /// No description provided for @batalBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Batal'**
+  String get batalBtn;
+
+  /// No description provided for @idLaporanLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'ID Laporan'**
+  String get idLaporanLabel;
+
+  /// No description provided for @apaItuSanggahan.
+  ///
+  /// In id, this message translates to:
+  /// **'Apa itu Sanggahan?'**
+  String get apaItuSanggahan;
+
+  /// No description provided for @sanggahanAdalah.
+  ///
+  /// In id, this message translates to:
+  /// **'Sanggahan adalah cara Anda untuk mengajukan keberatan terhadap keputusan penolakan.'**
+  String get sanggahanAdalah;
+
+  /// No description provided for @alasanSanggahanLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan Sanggahan'**
+  String get alasanSanggahanLabel;
+
+  /// No description provided for @wajibLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'WAJIB'**
+  String get wajibLabel;
+
+  /// No description provided for @karakterMinimum.
+  ///
+  /// In id, this message translates to:
+  /// **'{current} / {minimum} karakter minimum'**
+  String karakterMinimum(int current, int minimum);
+
+  /// No description provided for @validLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Valid'**
+  String get validLabel;
+
+  /// No description provided for @ajukanSanggahanBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Ajukan Sanggahan'**
+  String get ajukanSanggahanBtn;
+
+  /// No description provided for @gagalAjukanSanggahanError.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal mengajukan sanggahan: {error}'**
+  String gagalAjukanSanggahanError(String error);
+
+  /// No description provided for @sanggahanBerhasil.
+  ///
+  /// In id, this message translates to:
+  /// **'Sanggahan Berhasil Diajukan'**
+  String get sanggahanBerhasil;
+
+  /// No description provided for @sanggahanBerhasilDesc.
+  ///
+  /// In id, this message translates to:
+  /// **'Sanggahan Anda untuk laporan {reportId} telah berhasil diajukan.'**
+  String sanggahanBerhasilDesc(String reportId);
+
+  /// No description provided for @filterAuditLog.
+  ///
+  /// In id, this message translates to:
+  /// **'Filter Audit Log'**
+  String get filterAuditLog;
+
+  /// No description provided for @idUserNamaActor.
+  ///
+  /// In id, this message translates to:
+  /// **'ID / Nama Pengguna (Actor)'**
+  String get idUserNamaActor;
+
+  /// No description provided for @idObjekResourceId.
+  ///
+  /// In id, this message translates to:
+  /// **'ID Objek (Resource ID)'**
+  String get idObjekResourceId;
+
+  /// No description provided for @aksiAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Aksi (Action)'**
+  String get aksiAction;
+
+  /// No description provided for @tipeObjekResourceType.
+  ///
+  /// In id, this message translates to:
+  /// **'Tipe Objek (Resource Type)'**
+  String get tipeObjekResourceType;
+
+  /// No description provided for @filterAktif.
+  ///
+  /// In id, this message translates to:
+  /// **'Filter Aktif: '**
+  String get filterAktif;
+
+  /// No description provided for @aksiFilter.
+  ///
+  /// In id, this message translates to:
+  /// **'Aksi: {value}'**
+  String aksiFilter(String value);
+
+  /// No description provided for @objekFilter.
+  ///
+  /// In id, this message translates to:
+  /// **'Objek: {value}'**
+  String objekFilter(String value);
+
+  /// No description provided for @actorFilter.
+  ///
+  /// In id, this message translates to:
+  /// **'Actor: {value}'**
+  String actorFilter(String value);
+
+  /// No description provided for @tanggalTerpilih.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal: Terpilih'**
+  String get tanggalTerpilih;
+
+  /// No description provided for @detailPerubahanLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Detail Perubahan: {action}'**
+  String detailPerubahanLabel(String action);
+
+  /// No description provided for @gagalMemuatAuditLog.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal Memuat Audit Log'**
+  String get gagalMemuatAuditLog;
+
+  /// No description provided for @tidakAdaDataAuditLog.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak Ada Data Audit Log'**
+  String get tidakAdaDataAuditLog;
+
+  /// No description provided for @tidakDitemukanRiwayatLog.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ditemukan riwayat log dengan kriteria filter saat ini.'**
+  String get tidakDitemukanRiwayatLog;
+
+  /// No description provided for @belumAdaAktivitasTercatat.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada aktivitas yang tercatat di audit log.'**
+  String get belumAdaAktivitasTercatat;
+
+  /// No description provided for @lihatDetailPerubahanDiff.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat detail perubahan (diff)'**
+  String get lihatDetailPerubahanDiff;
+
+  /// No description provided for @kosongTidakAdaData.
+  ///
+  /// In id, this message translates to:
+  /// **'(Kosong / Tidak ada data)'**
+  String get kosongTidakAdaData;
+
+  /// No description provided for @wilayahFilter.
+  ///
+  /// In id, this message translates to:
+  /// **'Wilayah: {value}'**
+  String wilayahFilter(String value);
+
+  /// No description provided for @wargaRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Warga'**
+  String get wargaRole;
+
+  /// No description provided for @surveyorRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Surveyor'**
+  String get surveyorRole;
+
+  /// No description provided for @petugasRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Petugas'**
+  String get petugasRole;
+
+  /// No description provided for @operatorRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Operator'**
+  String get operatorRole;
+
+  /// No description provided for @verifikatorRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikator'**
+  String get verifikatorRole;
+
+  /// No description provided for @adminDaerahRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Admin Daerah'**
+  String get adminDaerahRole;
+
+  /// No description provided for @auditorRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Auditor'**
+  String get auditorRole;
+
+  /// No description provided for @eksekutifRole.
+  ///
+  /// In id, this message translates to:
+  /// **'Eksekutif'**
+  String get eksekutifRole;
+
+  /// No description provided for @tidakAdaTugasSurvei.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak Ada Tugas Survei'**
+  String get tidakAdaTugasSurvei;
+
+  /// No description provided for @belumAdaTugas.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum Ada Tugas'**
+  String get belumAdaTugas;
+
+  /// No description provided for @tugasPenangananDariOperator.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas penanganan dari operator akan muncul di sini saat ditugaskan.'**
+  String get tugasPenangananDariOperator;
+
+  /// No description provided for @detailTugasSurvei.
+  ///
+  /// In id, this message translates to:
+  /// **'Detail Tugas Survei'**
+  String get detailTugasSurvei;
+
+  /// No description provided for @detailTugasPetugas.
+  ///
+  /// In id, this message translates to:
+  /// **'Detail Tugas Petugas'**
+  String get detailTugasPetugas;
+
+  /// No description provided for @gagalMemuatDetailTugas.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal Memuat Detail Tugas'**
+  String get gagalMemuatDetailTugas;
+
+  /// No description provided for @gagalMemuatTugasTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal Memuat Tugas'**
+  String get gagalMemuatTugasTitle;
+
+  /// No description provided for @urutkanLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Urutkan: '**
+  String get urutkanLabel;
+
+  /// No description provided for @tugasHariIni.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas hari ini'**
+  String get tugasHariIni;
+
+  /// No description provided for @semuaTersinkronStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua tersinkron'**
+  String get semuaTersinkronStatus;
+
+  /// No description provided for @tidakAdaDataMenungguSinkron.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada data yang menunggu sinkron'**
+  String get tidakAdaDataMenungguSinkron;
+
+  /// No description provided for @gagalDikirimLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal dikirim'**
+  String get gagalDikirimLabel;
+
+  /// No description provided for @menungguLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu'**
+  String get menungguLabel;
+
+  /// No description provided for @gagalLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal'**
+  String get gagalLabel;
+
+  /// No description provided for @kasusKritisTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasus Kritis'**
+  String get kasusKritisTitle;
+
+  /// No description provided for @tidakAdaKasusKritis.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada kasus kritis'**
+  String get tidakAdaKasusKritis;
+
+  /// No description provided for @gagalMemuatPetaError.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat peta'**
+  String get gagalMemuatPetaError;
+
+  /// No description provided for @statusMarker.
+  ///
+  /// In id, this message translates to:
+  /// **'Status: {status}'**
+  String statusMarker(String status);
+
+  /// No description provided for @kategoriSection.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori'**
+  String get kategoriSection;
+
+  /// No description provided for @statusSection.
+  ///
+  /// In id, this message translates to:
+  /// **'Status'**
+  String get statusSection;
+
+  /// No description provided for @waktuSection.
+  ///
+  /// In id, this message translates to:
+  /// **'Waktu'**
+  String get waktuSection;
+
+  /// No description provided for @pengaturanTooltip.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengaturan'**
+  String get pengaturanTooltip;
+
+  /// No description provided for @wargaDefault.
+  ///
+  /// In id, this message translates to:
+  /// **'Warga'**
+  String get wargaDefault;
+
+  /// No description provided for @apakahYakinKeluar.
+  ///
+  /// In id, this message translates to:
+  /// **'Apakah Anda yakin ingin keluar dari sesi akun ini?'**
+  String get apakahYakinKeluar;
+
+  /// No description provided for @bahasaIndonesiaLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Bahasa Indonesia'**
+  String get bahasaIndonesiaLabel;
+
+  /// No description provided for @statusServer.
+  ///
+  /// In id, this message translates to:
+  /// **'Status Server'**
+  String get statusServer;
+
+  /// No description provided for @onlineTersambung.
+  ///
+  /// In id, this message translates to:
+  /// **'Online (Tersambung)'**
+  String get onlineTersambung;
+
+  /// No description provided for @cobaLagiBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba lagi'**
+  String get cobaLagiBtn;
+
+  /// No description provided for @aksesDitolakTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Akses Ditolak'**
+  String get aksesDitolakTitle;
+
+  /// No description provided for @tutupBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup'**
+  String get tutupBtn;
+
+  /// No description provided for @tentangPrivasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Tentang Privasi'**
+  String get tentangPrivasi;
+
+  /// No description provided for @privasiInfoBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Identitas dan lokasi presisi Anda hanya terlihat oleh petugas terkait. Publik hanya melihat lokasi yang digeneralisasi.'**
+  String get privasiInfoBody;
+
+  /// No description provided for @identitasPublik.
+  ///
+  /// In id, this message translates to:
+  /// **'Identitas saya di publik'**
+  String get identitasPublik;
+
+  /// No description provided for @prioritasRendah.
+  ///
+  /// In id, this message translates to:
+  /// **'Rendah'**
+  String get prioritasRendah;
+
+  /// No description provided for @prioritasTinggi.
+  ///
+  /// In id, this message translates to:
+  /// **'Tinggi'**
+  String get prioritasTinggi;
+
+  /// No description provided for @prioritasDiubah.
+  ///
+  /// In id, this message translates to:
+  /// **'Prioritas diubah'**
+  String get prioritasDiubah;
+
+  /// No description provided for @rendahLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Rendah'**
+  String get rendahLabel;
+
+  /// No description provided for @tinggiLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Tinggi'**
+  String get tinggiLabel;
+
+  /// No description provided for @siapOfflineBadge.
+  ///
+  /// In id, this message translates to:
+  /// **'Siap offline'**
+  String get siapOfflineBadge;
+
+  /// No description provided for @unduhUntukOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduh untuk offline'**
+  String get unduhUntukOffline;
+
+  /// No description provided for @prioritasTinggiCard.
+  ///
+  /// In id, this message translates to:
+  /// **'Prioritas tinggi'**
+  String get prioritasTinggiCard;
+
+  /// No description provided for @prioritasSedangCard.
+  ///
+  /// In id, this message translates to:
+  /// **'Prioritas sedang'**
+  String get prioritasSedangCard;
+
+  /// No description provided for @prioritasNormalCard.
+  ///
+  /// In id, this message translates to:
+  /// **'Prioritas normal'**
+  String get prioritasNormalCard;
+
+  /// No description provided for @prioritasRendahCard.
+  ///
+  /// In id, this message translates to:
+  /// **'Prioritas rendah'**
+  String get prioritasRendahCard;
+
+  /// No description provided for @tugasHariIniTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas hari ini'**
+  String get tugasHariIniTitle;
+
+  /// No description provided for @umurBacklogTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Umur backlog kasus'**
+  String get umurBacklogTitle;
+
+  /// No description provided for @unduhBatchBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduh batch'**
+  String get unduhBatchBtn;
+
+  /// No description provided for @kasusKritisDefault.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasus kritis'**
+  String get kasusKritisDefault;
+
+  /// No description provided for @kasusTerdekatTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kasus terdekat'**
+  String get kasusTerdekatTitle;
+
+  /// No description provided for @lihatPetaAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat peta'**
+  String get lihatPetaAction;
+
+  /// No description provided for @sedangDitanganiStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang ditangani'**
+  String get sedangDitanganiStatus;
+
+  /// No description provided for @terverifikasiStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Terverifikasi'**
+  String get terverifikasiStatus;
+
+  /// No description provided for @lokasiGPS.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi GPS'**
+  String get lokasiGPS;
+
+  /// No description provided for @catatanLapangan.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan lapangan'**
+  String get catatanLapangan;
+
+  /// No description provided for @tambahkanCatatan.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambahkan catatan...'**
+  String get tambahkanCatatan;
+
+  /// No description provided for @batasWaktuBelumDipilih.
+  ///
+  /// In id, this message translates to:
+  /// **'Batas Waktu: (belum dipilih)'**
+  String get batasWaktuBelumDipilih;
+
+  /// No description provided for @batasWaktuLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Batas Waktu: {time}'**
+  String batasWaktuLabel(String time);
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In id, this message translates to:
+  /// **'Error: {error}'**
+  String errorGeneric(String error);
+
+  /// No description provided for @simpanDanSinkronkanNantiBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan dan sinkronkan nanti'**
+  String get simpanDanSinkronkanNantiBtn;
+
+  /// No description provided for @tidakAdaKoneksiAntrean.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada koneksi — laporan akan masuk antrean.'**
+  String get tidakAdaKoneksiAntrean;
+
+  /// No description provided for @tambahkanBuktiKeKasus.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambahkan bukti ke kasus ini'**
+  String get tambahkanBuktiKeKasus;
+
+  /// No description provided for @buatTerpisah.
+  ///
+  /// In id, this message translates to:
+  /// **'Buat terpisah'**
+  String get buatTerpisah;
+
+  /// No description provided for @lanjutKeReviewHasilSurvei.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut ke review hasil survei'**
+  String get lanjutKeReviewHasilSurvei;
+
+  /// No description provided for @mintaClarifikasiBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Minta Clarifikasi'**
+  String get mintaClarifikasiBtn;
+
+  /// No description provided for @terimaTugasBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Terima Tugas'**
+  String get terimaTugasBtn;
+
+  /// No description provided for @sinkronkanSekarang.
+  ///
+  /// In id, this message translates to:
+  /// **'Sinkronkan Sekarang'**
+  String get sinkronkanSekarang;
+
+  /// No description provided for @sinkronkanSekarangSemantics.
+  ///
+  /// In id, this message translates to:
+  /// **'Sinkronkan sekarang'**
+  String get sinkronkanSekarangSemantics;
+
+  /// No description provided for @petaAreaBuktiDiunduh.
+  ///
+  /// In id, this message translates to:
+  /// **'Peta area + bukti diunduh'**
+  String get petaAreaBuktiDiunduh;
+
+  /// No description provided for @duplicateCandidates.
+  ///
+  /// In id, this message translates to:
+  /// **'Kandidat Duplikat'**
+  String get duplicateCandidates;
+
+  /// No description provided for @menungguVerifikasiSnackBar.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunggu Verifikasi'**
+  String get menungguVerifikasiSnackBar;
+
+  /// No description provided for @terverifikasiSnackBar.
+  ///
+  /// In id, this message translates to:
+  /// **'Terverifikasi'**
+  String get terverifikasiSnackBar;
+
+  /// No description provided for @sedangDitanganiSnackBar.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang Ditangani'**
+  String get sedangDitanganiSnackBar;
+
+  /// No description provided for @perluKelengkapanSnackBar.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu Kelengkapan'**
+  String get perluKelengkapanSnackBar;
+
+  /// No description provided for @slaTerlewatSnackBar.
+  ///
+  /// In id, this message translates to:
+  /// **'SLA Terlewat'**
+  String get slaTerlewatSnackBar;
+
+  /// No description provided for @submittedLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Submitted'**
+  String get submittedLabel;
+
+  /// No description provided for @underReviewLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Under Review'**
+  String get underReviewLabel;
+
+  /// No description provided for @inProgressLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'In Progress'**
+  String get inProgressLabel;
+
+  /// No description provided for @resolvedLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Resolved'**
+  String get resolvedLabel;
+
+  /// No description provided for @rejectedLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Rejected'**
+  String get rejectedLabel;
+
+  /// No description provided for @verifiedLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Verified'**
+  String get verifiedLabel;
+
+  /// No description provided for @kualitasData.
+  ///
+  /// In id, this message translates to:
+  /// **'Kualitas Data'**
+  String get kualitasData;
+
+  /// No description provided for @tingkatSinkronisasiLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Tingkat Sinkronisasi'**
+  String get tingkatSinkronisasiLabel;
+
+  /// No description provided for @surveyorMenungguLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Surveyor Menunggu'**
+  String get surveyorMenungguLabel;
+
+  /// No description provided for @risikoSLA.
+  ///
+  /// In id, this message translates to:
+  /// **'Risiko SLA'**
+  String get risikoSLA;
+
+  /// No description provided for @semuaKasusOnTrack.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua kasus on track'**
+  String get semuaKasusOnTrack;
+
+  /// No description provided for @pendahLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Pendah'**
+  String get pendahLabel;
+
+  /// No description provided for @sinkronisasiBerhasil.
+  ///
+  /// In id, this message translates to:
+  /// **'Sinkronisasi Berhasil'**
+  String get sinkronisasiBerhasil;
+
+  /// No description provided for @dataBerhasilDisinkronkan.
+  ///
+  /// In id, this message translates to:
+  /// **'Data berhasil disinkronkan ke server'**
+  String get dataBerhasilDisinkronkan;
+
+  /// No description provided for @sinkronisasiGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Sinkronisasi Gagal'**
+  String get sinkronisasiGagal;
+
+  /// No description provided for @gagalMenyinkronkanData.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal menyinkronkan data. Silakan coba lagi.'**
+  String get gagalMenyinkronkanData;
+
+  /// No description provided for @itemGagalDisinkronkan.
+  ///
+  /// In id, this message translates to:
+  /// **'Item gagal disinkronkan'**
+  String get itemGagalDisinkronkan;
+
+  /// No description provided for @exportFormat.
+  ///
+  /// In id, this message translates to:
+  /// **'Format Export'**
+  String get exportFormat;
+
+  /// No description provided for @exportCSVGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Export CSV gagal:'**
+  String get exportCSVGagal;
+
+  /// No description provided for @exportGeoJSONGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Export GeoJSON gagal:'**
+  String get exportGeoJSONGagal;
+
+  /// No description provided for @exportPDFGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Export PDF gagal:'**
+  String get exportPDFGagal;
+
+  /// No description provided for @emptyGeoJSON.
+  ///
+  /// In id, this message translates to:
+  /// **'Empty GeoJSON'**
+  String get emptyGeoJSON;
+
+  /// No description provided for @sigapMobile.
+  ///
+  /// In id, this message translates to:
+  /// **'SIGAP Mobile'**
+  String get sigapMobile;
+
+  /// No description provided for @sistemInformasiGerakAduan.
+  ///
+  /// In id, this message translates to:
+  /// **'Sistem Informasi Geospasial & Penanganan Laporan Publik'**
+  String get sistemInformasiGerakAduan;
+
+  /// No description provided for @versiAplikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'v1.0.0'**
+  String get versiAplikasi;
+
+  /// No description provided for @batalkanTugasTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tolak Tugas'**
+  String get batalkanTugasTitle;
+
+  /// No description provided for @alasanPenolakanLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan penolakan'**
+  String get alasanPenolakanLabel;
+
+  /// No description provided for @masukkanAlasanHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan alasan...'**
+  String get masukkanAlasanHint;
+
+  /// No description provided for @mintaClarifikasiTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Minta Clarifikasi'**
+  String get mintaClarifikasiTitle;
+
+  /// No description provided for @pertanyaanKlarifikasiLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Pertanyaan / klarifikasi'**
+  String get pertanyaanKlarifikasiLabel;
+
+  /// No description provided for @tulisPertanyaanHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Tulis pertanyaan Anda...'**
+  String get tulisPertanyaanHint;
+
+  /// No description provided for @kondisiAktual.
+  ///
+  /// In id, this message translates to:
+  /// **'Kondisi aktual'**
+  String get kondisiAktual;
+
+  /// No description provided for @rekomendasiHasil.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekomendasi hasil'**
+  String get rekomendasiHasil;
+
+  /// No description provided for @ambilGPS.
+  ///
+  /// In id, this message translates to:
+  /// **'Ambil GPS'**
+  String get ambilGPS;
+
+  /// No description provided for @pilihPeranKonteks.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih peran untuk berganti konteks kerja. Menu, alur data, dan izin akses akan disesuaikan secara otomatis.'**
+  String get pilihPeranKonteks;
+
+  /// No description provided for @kirimLaporanPublik.
+  ///
+  /// In id, this message translates to:
+  /// **'Kirim laporan pengaduan publik dan pantau status penyelesaian.'**
+  String get kirimLaporanPublik;
+
+  /// No description provided for @ringkasanEksekutif.
+  ///
+  /// In id, this message translates to:
+  /// **'Ringkasan eksekutif, analisis tren verifikasi, dan statistik wilayah.'**
+  String get ringkasanEksekutif;
+
+  /// No description provided for @gagalMemuatAssessment.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal Memuat Assessment'**
+  String get gagalMemuatAssessment;
+
+  /// No description provided for @belumAdaAssessmentAI.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum Ada Assessment AI'**
+  String get belumAdaAssessmentAI;
+
+  /// No description provided for @formatExportTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Format Export'**
+  String get formatExportTitle;
+
+  /// No description provided for @riwayatAuditImmutable.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat audit bersifat immutable dan tidak dapat diubah. '**
+  String get riwayatAuditImmutable;
+
+  /// No description provided for @kategoriColon.
+  ///
+  /// In id, this message translates to:
+  /// **'Kategori:'**
+  String get kategoriColon;
+
+  /// No description provided for @deskripsiColon.
+  ///
+  /// In id, this message translates to:
+  /// **'Deskripsi:'**
+  String get deskripsiColon;
+
+  /// No description provided for @fotoColon.
+  ///
+  /// In id, this message translates to:
+  /// **'Foto:'**
+  String get fotoColon;
+
+  /// No description provided for @buktiFotoDariPelapor.
+  ///
+  /// In id, this message translates to:
+  /// **'Bukti foto kerusakan dari pelapor'**
+  String get buktiFotoDariPelapor;
+
+  /// No description provided for @koordinatColon.
+  ///
+  /// In id, this message translates to:
+  /// **'Koordinat:'**
+  String get koordinatColon;
+
+  /// No description provided for @lokasiTepatDiPeta.
+  ///
+  /// In id, this message translates to:
+  /// **'Lokasi tepat di peta'**
+  String get lokasiTepatDiPeta;
+
+  /// No description provided for @tanggalColon.
+  ///
+  /// In id, this message translates to:
+  /// **'Tanggal:'**
+  String get tanggalColon;
+
+  /// No description provided for @kapanLaporanDibuat.
+  ///
+  /// In id, this message translates to:
+  /// **'Kapan laporan dibuat'**
+  String get kapanLaporanDibuat;
+
+  /// No description provided for @statusLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Status Laporan'**
+  String get statusLaporan;
+
+  /// No description provided for @laporanBaru.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan baru'**
+  String get laporanBaru;
+
+  /// No description provided for @perluTindakanStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Perlu Tindakan'**
+  String get perluTindakanStatus;
+
+  /// No description provided for @sedangDiprosesStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang Diproses'**
+  String get sedangDiprosesStatus;
+
+  /// No description provided for @selesaiStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get selesaiStatus;
+
+  /// No description provided for @ditolakStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditolak'**
+  String get ditolakStatus;
+
+  /// No description provided for @keteranganPrivasiTooltip.
+  ///
+  /// In id, this message translates to:
+  /// **'Jika aktif, nama Anda terlihat oleh publik. Lokasi tetap digeneralisasi.'**
+  String get keteranganPrivasiTooltip;
+
+  /// No description provided for @identitasLokasiPrivasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Identitas dan lokasi presisi Anda hanya terlihat oleh petugas terkait. Publik hanya melihat lokasi yang digeneralisasi.'**
+  String get identitasLokasiPrivasi;
+
+  /// No description provided for @gpsBadge.
+  ///
+  /// In id, this message translates to:
+  /// **'GPS'**
+  String get gpsBadge;
+
+  /// No description provided for @maks5FotoFormat.
+  ///
+  /// In id, this message translates to:
+  /// **'Maks 5 foto, format JPG/PNG. GPS dari EXIF akan digunakan jika tersedia.'**
+  String get maks5FotoFormat;
+
+  /// No description provided for @jamSuffix.
+  ///
+  /// In id, this message translates to:
+  /// **'Jam'**
+  String get jamSuffix;
+
+  /// No description provided for @aktifStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktif'**
+  String get aktifStatus;
+
+  /// No description provided for @nonaktifStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Nonaktif'**
+  String get nonaktifStatus;
+
+  /// No description provided for @targetJam.
+  ///
+  /// In id, this message translates to:
+  /// **'Target: {hours} jam'**
+  String targetJam(int hours);
+
+  /// No description provided for @wilayahPrefix.
+  ///
+  /// In id, this message translates to:
+  /// **'Wilayah: {value}'**
+  String wilayahPrefix(String value);
+
+  /// No description provided for @slugPrefix.
+  ///
+  /// In id, this message translates to:
+  /// **'Slug: {value}'**
+  String slugPrefix(String value);
+
+  /// No description provided for @latihanVerifikasiLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelatihan Verifikasi Laporan'**
+  String get latihanVerifikasiLaporan;
+
+  /// No description provided for @apaItuSIGAP.
+  ///
+  /// In id, this message translates to:
+  /// **'Apa itu SIGAP?'**
+  String get apaItuSIGAP;
+
+  /// No description provided for @tujuanSIGAP.
+  ///
+  /// In id, this message translates to:
+  /// **'Tujuan SIGAP'**
+  String get tujuanSIGAP;
+
+  /// No description provided for @caraMemverifikasiLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Cara Memverifikasi Laporan'**
+  String get caraMemverifikasiLaporan;
+
+  /// No description provided for @terimaTautanVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Terima Tautan Verifikasi'**
+  String get terimaTautanVerifikasi;
+
+  /// No description provided for @bukaTautan.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka Tautan'**
+  String get bukaTautan;
+
+  /// No description provided for @periksaKondisiLapangan.
+  ///
+  /// In id, this message translates to:
+  /// **'Periksa Kondisi di Lapangan'**
+  String get periksaKondisiLapangan;
+
+  /// No description provided for @berikanKeputusan.
+  ///
+  /// In id, this message translates to:
+  /// **'Berikan Keputusan'**
+  String get berikanKeputusan;
+
+  /// No description provided for @kirimVerifikasiTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kirim Verifikasi'**
+  String get kirimVerifikasiTitle;
+
+  /// No description provided for @klikTombolKirimVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Klik tombol \'Kirim Verifikasi\' untuk mengirimkan keputusan Anda ke sistem.'**
+  String get klikTombolKirimVerifikasi;
+
+  /// No description provided for @memahamiDashboardSIGAP.
+  ///
+  /// In id, this message translates to:
+  /// **'Memahami Dashboard SIGAP'**
+  String get memahamiDashboardSIGAP;
+
+  /// No description provided for @dashboardMenampilkanLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Dashboard SIGAP menampilkan semua laporan kerusakan yang masuk.'**
+  String get dashboardMenampilkanLaporan;
+
+  /// No description provided for @bestPractice.
+  ///
+  /// In id, this message translates to:
+  /// **'Best Practice'**
+  String get bestPractice;
+
+  /// No description provided for @lakukan.
+  ///
+  /// In id, this message translates to:
+  /// **'Lakukan'**
+  String get lakukan;
+
+  /// No description provided for @verifikasiDalam1x24Jam.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi laporan dalam 1x24 jam'**
+  String get verifikasiDalam1x24Jam;
+
+  /// No description provided for @hindari.
+  ///
+  /// In id, this message translates to:
+  /// **'Hindari'**
+  String get hindari;
+
+  /// No description provided for @pertanyaanUmum.
+  ///
+  /// In id, this message translates to:
+  /// **'Pertanyaan Umum'**
+  String get pertanyaanUmum;
+
+  /// No description provided for @statusDikonfirmasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Dikonfirmasi'**
+  String get statusDikonfirmasi;
+
+  /// No description provided for @statusDitolakRT.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditolak'**
+  String get statusDitolakRT;
+
+  /// No description provided for @laporanTidakValid.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan tidak valid'**
+  String get laporanTidakValid;
+
+  /// No description provided for @berikanAlasanJelas.
+  ///
+  /// In id, this message translates to:
+  /// **'Berikan alasan yang jelas'**
+  String get berikanAlasanJelas;
+
+  /// No description provided for @simpanKonfigurasiBtn.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan Konfigurasi'**
+  String get simpanKonfigurasiBtn;
+
+  /// No description provided for @editSLATooltip.
+  ///
+  /// In id, this message translates to:
+  /// **'Edit SLA'**
+  String get editSLATooltip;
+
+  /// No description provided for @segarkanTooltip.
+  ///
+  /// In id, this message translates to:
+  /// **'Segarkan'**
+  String get segarkanTooltip;
+
+  /// No description provided for @antreanNav.
+  ///
+  /// In id, this message translates to:
+  /// **'Antrean'**
+  String get antreanNav;
+
+  /// No description provided for @exportNav.
+  ///
+  /// In id, this message translates to:
+  /// **'Ekspor'**
+  String get exportNav;
+
+  /// No description provided for @analitikNav.
+  ///
+  /// In id, this message translates to:
+  /// **'Analitik'**
+  String get analitikNav;
+
+  /// No description provided for @dashboardEksekutif.
+  ///
+  /// In id, this message translates to:
+  /// **'Dashboard Eksekutif'**
+  String get dashboardEksekutif;
+
+  /// No description provided for @masukkanPertanyaanInformasiHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Masukkan pertanyaan atau informasi yang diperlukan...'**
+  String get masukkanPertanyaanInformasiHint;
+
+  /// No description provided for @diajukanPada.
+  ///
+  /// In id, this message translates to:
+  /// **'Diajukan: {date}'**
+  String diajukanPada(String date);
+
+  /// No description provided for @olehPelaku.
+  ///
+  /// In id, this message translates to:
+  /// **'oleh: {userId}'**
+  String olehPelaku(String userId);
+
+  /// No description provided for @verifikasiLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikasi Laporan'**
+  String get verifikasiLaporan;
+
+  /// No description provided for @panduanLengkapRTRW.
+  ///
+  /// In id, this message translates to:
+  /// **'Panduan lengkap untuk pejabat RT dan RW dalam menggunakan sistem SIGAP'**
+  String get panduanLengkapRTRW;
+
+  /// No description provided for @deskripsiSIGAP.
+  ///
+  /// In id, this message translates to:
+  /// **'SIGAP (Sistem Informasi Geospasial & Penanganan Laporan Desa) adalah platform digital untuk pemetaan dan pemantauan pembangunan desa. Sistem ini membantu mencatat, melacak, dan menyelesaikan laporan kerusakan infrastruktur di lingkungan Anda.'**
+  String get deskripsiSIGAP;
+
+  /// No description provided for @memetakanKerusakan.
+  ///
+  /// In id, this message translates to:
+  /// **'Memetakan kerusakan infrastruktur'**
+  String get memetakanKerusakan;
+
+  /// No description provided for @mempercepatPerbaikan.
+  ///
+  /// In id, this message translates to:
+  /// **'Mempercepat proses perbaikan'**
+  String get mempercepatPerbaikan;
+
+  /// No description provided for @transparansiLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Transparansi laporan masyarakat'**
+  String get transparansiLaporan;
+
+  /// No description provided for @koordinasiPemerintah.
+  ///
+  /// In id, this message translates to:
+  /// **'Koordinasi antar tingkat pemerintah'**
+  String get koordinasiPemerintah;
+
+  /// No description provided for @memverifikasiLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Memverifikasi laporan kerusakan'**
+  String get memverifikasiLaporan;
+
+  /// No description provided for @memberikanKonfirmasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Memberikan konfirmasi di lapangan'**
+  String get memberikanKonfirmasi;
+
+  /// No description provided for @melaporkanKerusakanBaru.
+  ///
+  /// In id, this message translates to:
+  /// **'Melaporkan kerusakan baru'**
+  String get melaporkanKerusakanBaru;
+
+  /// No description provided for @memantauStatusPerbaikan.
+  ///
+  /// In id, this message translates to:
+  /// **'Memantau status perbaikan'**
+  String get memantauStatusPerbaikan;
+
+  /// No description provided for @deskripsiTerimaTautan.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda akan menerima tautan verifikasi melalui SMS atau WhatsApp dari sistem SIGAP. Tautan berisi token unik untuk mengakses laporan.'**
+  String get deskripsiTerimaTautan;
+
+  /// No description provided for @deskripsiBukaTautan.
+  ///
+  /// In id, this message translates to:
+  /// **'Klik tautan yang dikirimkan. Anda akan diarahkan ke halaman verifikasi SIGAP.'**
+  String get deskripsiBukaTautan;
+
+  /// No description provided for @deskripsiPeriksaKondisi.
+  ///
+  /// In id, this message translates to:
+  /// **'Kunjungi lokasi yang disebutkan dalam laporan. Periksa apakah kerusakan benar-benar ada dan catat kondisi sebenarnya.'**
+  String get deskripsiPeriksaKondisi;
+
+  /// No description provided for @deskripsiBerikanKeputusan.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih \'Dikonfirmasi\' jika kerusakan benar ada, atau \'Ditolak\' jika laporan tidak valid. Berikan alasan yang jelas.'**
+  String get deskripsiBerikanKeputusan;
+
+  /// No description provided for @deskripsiKirimVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Klik tombol \'Kirim Verifikasi\' untuk mengirimkan keputusan Anda ke sistem.'**
+  String get deskripsiKirimVerifikasi;
+
+  /// No description provided for @deskripsiMemahamiDashboard.
+  ///
+  /// In id, this message translates to:
+  /// **'Dashboard SIGAP menampilkan semua laporan kerusakan yang masuk. Berikut elemen-elemen utama yang perlu Anda ketahui:'**
+  String get deskripsiMemahamiDashboard;
+
+  /// No description provided for @datangLangsungKeLokasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Datang langsung ke lokasi'**
+  String get datangLangsungKeLokasi;
+
+  /// No description provided for @berikanAlasanDetail.
+  ///
+  /// In id, this message translates to:
+  /// **'Berikan alasan yang detail'**
+  String get berikanAlasanDetail;
+
+  /// No description provided for @dokumentasikanDenganFoto.
+  ///
+  /// In id, this message translates to:
+  /// **'Dokumentasikan dengan foto'**
+  String get dokumentasikanDenganFoto;
+
+  /// No description provided for @laporkanJikaKendala.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporkan jika ada kendala'**
+  String get laporkanJikaKendala;
+
+  /// No description provided for @memverifikasiTanpaKeLokasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Memverifikasi tanpa ke lokasi'**
+  String get memverifikasiTanpaKeLokasi;
+
+  /// No description provided for @memberikanAlasanKosong.
+  ///
+  /// In id, this message translates to:
+  /// **'Memberikan alasan kosong'**
+  String get memberikanAlasanKosong;
+
+  /// No description provided for @menundaVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Menunda verifikasi terlalu lama'**
+  String get menundaVerifikasi;
+
+  /// No description provided for @menolakTanpaAlasan.
+  ///
+  /// In id, this message translates to:
+  /// **'Menolak tanpa alasan jelas'**
+  String get menolakTanpaAlasan;
+
+  /// No description provided for @mengabaikanLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Mengabaikan laporan masyarakat'**
+  String get mengabaikanLaporan;
+
+  /// No description provided for @faqLokasiSulitDiakses.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagaimana jika lokasi sulit diakses?'**
+  String get faqLokasiSulitDiakses;
+
+  /// No description provided for @faqLokasiSulitDiaksesJawab.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba verifikasi dari titik terdekat yang memungkinkan. Jika benar-benar tidak bisa diakses, berikan alasan di sistem dan minta bantuan tetangga atau warga sekitar untuk dokumentasi.'**
+  String get faqLokasiSulitDiaksesJawab;
+
+  /// No description provided for @faqLaporanTidakJelasPertanyaan.
+  ///
+  /// In id, this message translates to:
+  /// **'Apa yang harus dilakukan jika laporan tidak jelas?'**
+  String get faqLaporanTidakJelasPertanyaan;
+
+  /// No description provided for @faqLaporanTidakJelasJawab.
+  ///
+  /// In id, this message translates to:
+  /// **'Hubungi pelapor melalui nomor yang tertera untuk meminta klarifikasi. Jika tidak bisa dihubungi, verifikasi berdasarkan informasi yang ada dan catat ketidakjelasan tersebut.'**
+  String get faqLaporanTidakJelasJawab;
+
+  /// No description provided for @faqWaktuVerifikasiPertanyaan.
+  ///
+  /// In id, this message translates to:
+  /// **'Berapa lama waktu verifikasi?'**
+  String get faqWaktuVerifikasiPertanyaan;
+
+  /// No description provided for @faqWaktuVerifikasiJawab.
+  ///
+  /// In id, this message translates to:
+  /// **'Idealnya, verifikasi dilakukan dalam 1x24 jam setelah laporan masuk. Namun, jika ada kendala, segera hubungi admin daerah.'**
+  String get faqWaktuVerifikasiJawab;
+
+  /// No description provided for @faqTidakSetujuPertanyaan.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagaimana jika saya tidak setuju dengan keputusan petugas?'**
+  String get faqTidakSetujuPertanyaan;
+
+  /// No description provided for @faqTidakSetujuJawab.
+  ///
+  /// In id, this message translates to:
+  /// **'Setiap keputusan sudah tercatat dalam sistem. Jika ada keberatan, silakan hubungi admin daerah atau sampaikan melalui fitur komentar yang tersedia.'**
+  String get faqTidakSetujuJawab;
+
+  /// No description provided for @siapMemulai.
+  ///
+  /// In id, this message translates to:
+  /// **'Siap Memulai?'**
+  String get siapMemulai;
+
+  /// No description provided for @aksesMenuVerifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Akses menu Verifikasi Laporan untuk memproses laporan kerusakan dari masyarakat.'**
+  String get aksesMenuVerifikasi;
+
+  /// No description provided for @pelatihanSelesai.
+  ///
+  /// In id, this message translates to:
+  /// **'Pelatihan Selesai'**
+  String get pelatihanSelesai;
+
+  /// No description provided for @dalamPenanganan.
+  ///
+  /// In id, this message translates to:
+  /// **'Dalam penanganan'**
+  String get dalamPenanganan;
+
+  /// No description provided for @sudahDiperbaiki.
+  ///
+  /// In id, this message translates to:
+  /// **'Sudah diperbaiki'**
+  String get sudahDiperbaiki;
+
+  /// No description provided for @informasiLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'Informasi Laporan'**
+  String get informasiLaporan;
+
+  /// No description provided for @sanggahanDeskripsiLengkap.
+  ///
+  /// In id, this message translates to:
+  /// **'Sanggahan adalah cara Anda untuk mengajukan keberatan terhadap keputusan yang telah diambil terhadap laporan Anda. Jika Anda merasa laporan Anda ditolak atau diputuskan secara tidak adil, Anda dapat mengajukan sanggahan formal yang akan ditinjau oleh tim verifier.'**
+  String get sanggahanDeskripsiLengkap;
+
+  /// No description provided for @jelaskanAlasanSanggahanHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Jelaskan alasan sanggahan Anda secara detail...\n\nMinimal {count} karakter.'**
+  String jelaskanAlasanSanggahanHint(int count);
+
+  /// No description provided for @rentangTanggalSemua.
+  ///
+  /// In id, this message translates to:
+  /// **'Rentang Tanggal: (Semua)'**
+  String get rentangTanggalSemua;
+
+  /// No description provided for @olehLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Oleh: {actor}'**
+  String olehLabel(String actor);
+
+  /// No description provided for @tugasCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} Tugas'**
+  String tugasCount(int count);
+
+  /// No description provided for @ditugaskanPada.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditugaskan: {date}'**
+  String ditugaskanPada(String date);
+
+  /// No description provided for @entriAuditCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} Entri Audit'**
+  String entriAuditCount(int count);
+
+  /// No description provided for @riwayatAuditInfo.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat audit bersifat immutable dan tidak dapat diubah. Semua tindakan pada kasus ini dicatat untuk keperluan audit.'**
+  String get riwayatAuditInfo;
+
+  /// No description provided for @semuaTindakanTercatatDiSini.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua tindakan pada kasus ini akan dicatat di sini.'**
+  String get semuaTindakanTercatatDiSini;
+
+  /// No description provided for @resourceLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Resource: {resource}'**
+  String resourceLabel(String resource);
+
+  /// No description provided for @gpsBerhasilDitangkap.
+  ///
+  /// In id, this message translates to:
+  /// **'GPS berhasil ditangkap: {lat}, {lng}'**
+  String gpsBerhasilDitangkap(String lat, String lng);
+
+  /// No description provided for @gagalMemilihGambar.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memilih gambar: {error}'**
+  String gagalMemilihGambar(String error);
+
+  /// No description provided for @ringan.
+  ///
+  /// In id, this message translates to:
+  /// **'Ringan'**
+  String get ringan;
+
+  /// No description provided for @kritis.
+  ///
+  /// In id, this message translates to:
+  /// **'Kritis'**
+  String get kritis;
+
+  /// No description provided for @validPerluTindakLanjut.
+  ///
+  /// In id, this message translates to:
+  /// **'Valid — perlu tindak lanjut'**
+  String get validPerluTindakLanjut;
+
+  /// No description provided for @kondisiColonLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kondisi: {value}'**
+  String kondisiColonLabel(String value);
+
+  /// No description provided for @rekomendasiColonLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Rekomendasi: {value}'**
+  String rekomendasiColonLabel(String value);
+
+  /// No description provided for @dataSurveiTersimpanLokal.
+  ///
+  /// In id, this message translates to:
+  /// **'Data survei tersimpan lokal. Akan dikirim otomatis saat online.'**
+  String get dataSurveiTersimpanLokal;
+
+  /// No description provided for @dataSurveiTersimpanDiproses.
+  ///
+  /// In id, this message translates to:
+  /// **'Data survei telah tersimpan dan akan diproses oleh tim terkait.'**
+  String get dataSurveiTersimpanDiproses;
+
+  /// No description provided for @hintCatatanLapangan.
+  ///
+  /// In id, this message translates to:
+  /// **'Lubang melebar sejak laporan warga, sudah ada tanda darurat dari RW.'**
+  String get hintCatatanLapangan;
+
+  /// No description provided for @labelOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'offline'**
+  String get labelOffline;
+
+  /// No description provided for @tambahFotoLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Tambah foto'**
+  String get tambahFotoLabel;
+
+  /// No description provided for @ketukUntukMenangkapGps.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketuk untuk menangkap koordinat GPS'**
+  String get ketukUntukMenangkapGps;
+
+  /// No description provided for @depan.
+  ///
+  /// In id, this message translates to:
+  /// **'Depan'**
+  String get depan;
+
+  /// No description provided for @samping.
+  ///
+  /// In id, this message translates to:
+  /// **'Samping'**
+  String get samping;
+
+  /// No description provided for @atas.
+  ///
+  /// In id, this message translates to:
+  /// **'Atas'**
+  String get atas;
+
+  /// No description provided for @fotoCountDari.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} dari {total}'**
+  String fotoCountDari(int count, int total);
+
+  /// No description provided for @infoSerupa.
+  ///
+  /// In id, this message translates to:
+  /// **'{distance} · kemiripan {similarity}% · {count} laporan'**
+  String infoSerupa(String distance, int similarity, int count);
+
+  /// No description provided for @tidakDapatTerhubungKeServer.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak dapat terhubung ke server.'**
+  String get tidakDapatTerhubungKeServer;
+
+  /// No description provided for @errorTidakDikenal.
+  ///
+  /// In id, this message translates to:
+  /// **'Error tidak dikenal'**
+  String get errorTidakDikenal;
+
+  /// No description provided for @gagalRetryLoop.
+  ///
+  /// In id, this message translates to:
+  /// **'Keluar dari loop retry tak terduga'**
+  String get gagalRetryLoop;
+
+  /// No description provided for @gagalMemuatLaporanPublik.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat laporan publik'**
+  String get gagalMemuatLaporanPublik;
+
+  /// No description provided for @gagalMemuatKasusPublik.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat kasus publik'**
+  String get gagalMemuatKasusPublik;
+
+  /// No description provided for @gagalMemuatStatistikPublik.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat statistik publik'**
+  String get gagalMemuatStatistikPublik;
+
+  /// No description provided for @gagalMemuatMetadataBagikan.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat metadata berbagi'**
+  String get gagalMemuatMetadataBagikan;
+
+  /// No description provided for @fileFotoTidakDitemukan.
+  ///
+  /// In id, this message translates to:
+  /// **'File foto tidak ditemukan: {path}'**
+  String fileFotoTidakDitemukan(String path);
+
+  /// No description provided for @uploadFotoGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Upload foto gagal'**
+  String get uploadFotoGagal;
+
+  /// No description provided for @uploadFotoGagalUrl.
+  ///
+  /// In id, this message translates to:
+  /// **'Upload foto gagal: tidak ada URL yang dikembalikan'**
+  String get uploadFotoGagalUrl;
+
+  /// No description provided for @jenisKerusakanDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Jenis kerusakan (jalan, drainase, jembatan, dll)'**
+  String get jenisKerusakanDeskripsi;
+
+  /// No description provided for @penjelasanDariPelapor.
+  ///
+  /// In id, this message translates to:
+  /// **'Penjelasan detail dari pelapor'**
+  String get penjelasanDariPelapor;
+
+  /// No description provided for @rentangTanggalLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Rentang Tanggal: {range}'**
+  String rentangTanggalLabel(String range);
+
+  /// No description provided for @auditLogExportSubjek.
+  ///
+  /// In id, this message translates to:
+  /// **'Ekspor Audit Log ({format})'**
+  String auditLogExportSubjek(String format);
+
+  /// No description provided for @penggunaSigap.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengguna SIGAP'**
+  String get penggunaSigap;
+
+  /// No description provided for @aktifkanLokasiUntukMelihatPeta.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan lokasi untuk melihat peta Anda'**
+  String get aktifkanLokasiUntukMelihatPeta;
+
+  /// No description provided for @dariTanggal.
+  ///
+  /// In id, this message translates to:
+  /// **'Dari Tanggal'**
+  String get dariTanggal;
+
+  /// No description provided for @sampaiTanggal.
+  ///
+  /// In id, this message translates to:
+  /// **'Sampai Tanggal'**
+  String get sampaiTanggal;
+
+  /// No description provided for @tugasAkanMunculDiSini.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas akan muncul di sini'**
+  String get tugasAkanMunculDiSini;
+
+  /// No description provided for @laporanAndaKirimkanMuncul.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan yang Anda kirim akan muncul di sini'**
+  String get laporanAndaKirimkanMuncul;
+
+  /// No description provided for @countMenunggu.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} menunggu'**
+  String countMenunggu(int count);
+
+  /// No description provided for @tugasTersimpanOfflineCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} tugas tersimpan offline'**
+  String tugasTersimpanOfflineCount(int count);
+
+  /// No description provided for @labelLaporanChart.
+  ///
+  /// In id, this message translates to:
+  /// **'laporan'**
+  String get labelLaporanChart;
+
+  /// No description provided for @labelKasusChart.
+  ///
+  /// In id, this message translates to:
+  /// **'kasus'**
+  String get labelKasusChart;
+
+  /// No description provided for @tidakAdaDataTren.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada data tren'**
+  String get tidakAdaDataTren;
+
+  /// No description provided for @surveyorPerluDitugaskan.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} surveyor perlu ditugaskan'**
+  String surveyorPerluDitugaskan(int count);
+
+  /// No description provided for @kasusBerisikoTerlambat.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} kasus berisiko terlambat'**
+  String kasusBerisikoTerlambat(int count);
+
+  /// No description provided for @overdue.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlambat'**
+  String get overdue;
+
+  /// No description provided for @tugasSurveiTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas Survei'**
+  String get tugasSurveiTitle;
+
+  /// No description provided for @tugasPetugasTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas Petugas'**
+  String get tugasPetugasTitle;
+
+  /// No description provided for @tugasSurveiDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua tugas survei lapangan yang ditugaskan akan tampil di sini.'**
+  String get tugasSurveiDeskripsi;
+
+  /// No description provided for @tugasPetugasDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Tugas penanganan dari operator akan muncul di sini saat ditugaskan.'**
+  String get tugasPetugasDeskripsi;
+
+  /// No description provided for @terlambatXjam.
+  ///
+  /// In id, this message translates to:
+  /// **'Terlambat {hours}h'**
+  String terlambatXjam(int hours);
+
+  /// No description provided for @slaXjam.
+  ///
+  /// In id, this message translates to:
+  /// **'SLA {hours}j'**
+  String slaXjam(int hours);
+
+  /// No description provided for @slaBesok.
+  ///
+  /// In id, this message translates to:
+  /// **'SLA besok'**
+  String get slaBesok;
+
+  /// No description provided for @slaXhari.
+  ///
+  /// In id, this message translates to:
+  /// **'SLA {days}d'**
+  String slaXhari(int days);
+
+  /// No description provided for @verifikatorMemintaInfo.
+  ///
+  /// In id, this message translates to:
+  /// **'Verifikator meminta informasi tambahan untuk melengkapi laporan ini.'**
+  String get verifikatorMemintaInfo;
+
+  /// No description provided for @tenggatTanggal.
+  ///
+  /// In id, this message translates to:
+  /// **'Tenggat {date}.'**
+  String tenggatTanggal(String date);
+
+  /// No description provided for @eventFallback.
+  ///
+  /// In id, this message translates to:
+  /// **'Kejadian'**
+  String get eventFallback;
+
+  /// No description provided for @simpanSinkronkanNanti.
+  ///
+  /// In id, this message translates to:
+  /// **'Simpan dan sinkronkan nanti'**
+  String get simpanSinkronkanNanti;
+
+  /// No description provided for @kondisiBerat.
+  ///
+  /// In id, this message translates to:
+  /// **'Berat'**
+  String get kondisiBerat;
+
+  /// No description provided for @dampakKeselamatanAkses.
+  ///
+  /// In id, this message translates to:
+  /// **'Keselamatan · akses terganggu'**
+  String get dampakKeselamatanAkses;
+
+  /// No description provided for @exportInfoDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Export laporan dalam format CSV, GeoJSON, atau PDF. Data akan difilter sesuai opsi yang dipilih.'**
+  String get exportInfoDeskripsi;
+
+  /// No description provided for @exportCsvDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Export data laporan dalam format CSV untuk Excel atau Google Sheets.'**
+  String get exportCsvDeskripsi;
+
+  /// No description provided for @exportGeojsonDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Export data laporan dengan koordinat geospasial untuk GIS.'**
+  String get exportGeojsonDeskripsi;
+
+  /// No description provided for @exportPdfDeskripsi.
+  ///
+  /// In id, this message translates to:
+  /// **'Export laporan lengkap dalam format PDF.'**
+  String get exportPdfDeskripsi;
+
+  /// No description provided for @exportCsvGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Export CSV gagal:'**
+  String get exportCsvGagal;
+
+  /// No description provided for @exportGeojsonGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Export GeoJSON gagal:'**
+  String get exportGeojsonGagal;
+
+  /// No description provided for @exportPdfGagal.
+  ///
+  /// In id, this message translates to:
+  /// **'Export PDF gagal:'**
+  String get exportPdfGagal;
+
+  /// No description provided for @faktorKeparahan.
+  ///
+  /// In id, this message translates to:
+  /// **'Tingkat Keparahan (Severity)'**
+  String get faktorKeparahan;
+
+  /// No description provided for @faktorKebaruan.
+  ///
+  /// In id, this message translates to:
+  /// **'Kebaruan Laporan (Recency)'**
+  String get faktorKebaruan;
+
+  /// No description provided for @faktorUrgensi.
+  ///
+  /// In id, this message translates to:
+  /// **'Urgensi Kategori (Category)'**
+  String get faktorUrgensi;
+
+  /// No description provided for @faktorKepadatan.
+  ///
+  /// In id, this message translates to:
+  /// **'Kepadatan Wilayah (Location)'**
+  String get faktorKepadatan;
+
+  /// No description provided for @faktorRiwayat.
+  ///
+  /// In id, this message translates to:
+  /// **'Riwayat Wilayah/Laporan (History)'**
+  String get faktorRiwayat;
+
+  /// No description provided for @totalBobotSesuai.
+  ///
+  /// In id, this message translates to:
+  /// **'Total bobot: 100% (Sesuai)'**
+  String get totalBobotSesuai;
+
+  /// No description provided for @totalBobotDisarankan.
+  ///
+  /// In id, this message translates to:
+  /// **'Total bobot: {total}% (Disarankan total 100%)'**
+  String totalBobotDisarankan(int total);
+
+  /// No description provided for @roleDescAdmin.
+  ///
+  /// In id, this message translates to:
+  /// **'Kelola master wilayah, unit UPT, SLA, dan konfigurasi bobot prioritas.'**
+  String get roleDescAdmin;
+
+  /// No description provided for @roleDescOperator.
+  ///
+  /// In id, this message translates to:
+  /// **'Disposisi penugasan, eskalasi kasus, dan monitoring antrean laporan.'**
+  String get roleDescOperator;
+
+  /// No description provided for @roleDescVerifikator.
+  ///
+  /// In id, this message translates to:
+  /// **'Validasi kelayakan laporan pengaduan masuk dan tinjauan kebenaran.'**
+  String get roleDescVerifikator;
+
+  /// No description provided for @roleDescPetugas.
+  ///
+  /// In id, this message translates to:
+  /// **'Tindak lanjut teknis lapangan dan penyelesaian masalah pengaduan.'**
+  String get roleDescPetugas;
+
+  /// No description provided for @roleDescSurveyor.
+  ///
+  /// In id, this message translates to:
+  /// **'Survei dan peninjauan fisik lapangan dengan formulir teknis.'**
+  String get roleDescSurveyor;
+
+  /// No description provided for @roleDescAuditor.
+  ///
+  /// In id, this message translates to:
+  /// **'Inspeksi jejak audit, log aktivitas sistem, dan pelaporan compliance.'**
+  String get roleDescAuditor;
+
+  /// No description provided for @roleDescWarga.
+  ///
+  /// In id, this message translates to:
+  /// **'Kirim laporan pengaduan publik dan pantau status penyelesaian.'**
+  String get roleDescWarga;
+
+  /// No description provided for @roleDescExec.
+  ///
+  /// In id, this message translates to:
+  /// **'Ringkasan eksekutif, analisis tren verifikasi, dan statistik wilayah.'**
+  String get roleDescExec;
+
+  /// No description provided for @roleDescDefault.
+  ///
+  /// In id, this message translates to:
+  /// **'Akses fitur operasional sistem SIGAP.'**
+  String get roleDescDefault;
+
+  /// No description provided for @assessmentAiMunculNanti.
+  ///
+  /// In id, this message translates to:
+  /// **'Assessment AI akan muncul setelah laporan diajukan dan diproses.'**
+  String get assessmentAiMunculNanti;
+
+  /// No description provided for @reportLabelId.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan: {id}'**
+  String reportLabelId(String id);
+
+  /// No description provided for @laporanCountLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} laporan'**
+  String laporanCountLabel(int count);
+
+  /// No description provided for @semuaLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua {label}'**
+  String semuaLabel(String label);
+
+  /// No description provided for @targetJamHari.
+  ///
+  /// In id, this message translates to:
+  /// **'Target: {hours} jam ({days} hari)'**
+  String targetJamHari(int hours, double days);
+
+  /// No description provided for @slaOverdueLaporan.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} laporan'**
+  String slaOverdueLaporan(int count);
+
+  /// No description provided for @syncChannelName.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi Sinkronisasi'**
+  String get syncChannelName;
+
+  /// No description provided for @syncChannelDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi untuk event sinkronisasi'**
+  String get syncChannelDescription;
+
+  /// No description provided for @itemTidakDisinkronkanPercobaan.
+  ///
+  /// In id, this message translates to:
+  /// **'Item {key} tidak dapat disinkronkan setelah beberapa percobaan.'**
+  String itemTidakDisinkronkanPercobaan(String key);
+
+  /// No description provided for @beberapaItemTidakDisinkronkan.
+  ///
+  /// In id, this message translates to:
+  /// **'Beberapa item tidak dapat disinkronkan setelah beberapa percobaan.'**
+  String get beberapaItemTidakDisinkronkan;
+
+  /// No description provided for @pilihWilayahFallback.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih Wilayah'**
+  String get pilihWilayahFallback;
+
+  /// No description provided for @kabBandungFallback.
+  ///
+  /// In id, this message translates to:
+  /// **'Kab. Bandung'**
+  String get kabBandungFallback;
+
+  /// No description provided for @draftLabelStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Draft'**
+  String get draftLabelStatus;
+
+  /// No description provided for @digabungLabelStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Digabung'**
+  String get digabungLabelStatus;
+
+  /// No description provided for @dipisahLabelStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Dipisah'**
+  String get dipisahLabelStatus;
+
+  /// No description provided for @dalamReviewLabelStatus.
+  ///
+  /// In id, this message translates to:
+  /// **'Dalam Review'**
+  String get dalamReviewLabelStatus;
+
+  /// No description provided for @noAssessmentFactors.
+  ///
+  /// In id, this message translates to:
+  /// **'Tidak ada faktor penilaian yang tersedia.'**
+  String get noAssessmentFactors;
+
+  /// No description provided for @latitude.
+  ///
+  /// In id, this message translates to:
+  /// **'Latitude'**
+  String get latitude;
+
+  /// No description provided for @longitude.
+  ///
+  /// In id, this message translates to:
+  /// **'Longitude'**
+  String get longitude;
+
+  /// No description provided for @diperbaruiPada.
+  ///
+  /// In id, this message translates to:
+  /// **'Diperbarui: {time}'**
+  String diperbaruiPada(Object time);
+
+  /// No description provided for @akurasiSedang.
+  ///
+  /// In id, this message translates to:
+  /// **'Akurasi sedang'**
+  String get akurasiSedang;
+
+  /// No description provided for @akurasiBuruk.
+  ///
+  /// In id, this message translates to:
+  /// **'Akurasi buruk'**
+  String get akurasiBuruk;
+
+  /// No description provided for @laporanPendukungCount.
+  ///
+  /// In id, this message translates to:
+  /// **'laporan pendukung'**
+  String get laporanPendukungCount;
+
+  /// No description provided for @statusOnline.
+  ///
+  /// In id, this message translates to:
+  /// **'Online'**
+  String get statusOnline;
+
+  /// No description provided for @statusOffline.
+  ///
+  /// In id, this message translates to:
+  /// **'Offline'**
+  String get statusOffline;
+
+  /// No description provided for @statusSyncing.
+  ///
+  /// In id, this message translates to:
+  /// **'Syncing'**
+  String get statusSyncing;
+
+  /// No description provided for @statusErrorLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Error'**
+  String get statusErrorLabel;
+
+  /// No description provided for @sinkronStatusA11y.
+  ///
+  /// In id, this message translates to:
+  /// **'Status sinkron: {status}'**
+  String sinkronStatusA11y(Object status);
+
+  /// No description provided for @bukaPusatSinkronisasiLink.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka Pusat Sinkronisasi →'**
+  String get bukaPusatSinkronisasiLink;
+
+  /// No description provided for @laporanBelumTersinkronCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} laporan belum tersinkron'**
+  String laporanBelumTersinkronCount(Object count);
+
+  /// No description provided for @defaultPrivatPetugas.
+  ///
+  /// In id, this message translates to:
+  /// **'Default: privat · hanya petugas melihat'**
+  String get defaultPrivatPetugas;
+
+  /// No description provided for @severityColonValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Severity: {value}'**
+  String severityColonValue(Object value);
+
+  /// No description provided for @scoreColonValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Score: {value}'**
+  String scoreColonValue(Object value);
+
+  /// No description provided for @ringkasanLaporanUppercase.
+  ///
+  /// In id, this message translates to:
+  /// **'RINGKASAN LAPORAN'**
+  String get ringkasanLaporanUppercase;
+
+  /// No description provided for @waktuLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Waktu'**
+  String get waktuLabel;
+
+  /// No description provided for @dampakLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Dampak'**
+  String get dampakLabel;
+
+  /// No description provided for @fotoIndexPlaceholder.
+  ///
+  /// In id, this message translates to:
+  /// **'foto {index}'**
+  String fotoIndexPlaceholder(Object index);
+
+  /// No description provided for @checklistWajib.
+  ///
+  /// In id, this message translates to:
+  /// **'CHECKLIST WAJIB'**
+  String get checklistWajib;
+
+  /// No description provided for @kasusSerupaDitemukan.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} kasus serupa ditemukan di dekat sini'**
+  String kasusSerupaDitemukan(Object count);
+
+  /// No description provided for @kemiripanLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'kemiripan'**
+  String get kemiripanLabel;
+
+  /// No description provided for @naLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'N/A'**
+  String get naLabel;
+
+  /// No description provided for @lessThan1dLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'<1d'**
+  String get lessThan1dLabel;
+
+  /// No description provided for @sayaMenyatakanBenar.
+  ///
+  /// In id, this message translates to:
+  /// **'Saya menyatakan informasi ini benar sesuai kondisi yang saya lihat.'**
+  String get sayaMenyatakanBenar;
+
+  /// No description provided for @terimaTugasLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Terima Tugas'**
+  String get terimaTugasLabel;
+
+  /// No description provided for @labelSubmitted.
+  ///
+  /// In id, this message translates to:
+  /// **'Submitted'**
+  String get labelSubmitted;
+
+  /// No description provided for @labelUnderReview.
+  ///
+  /// In id, this message translates to:
+  /// **'Under Review'**
+  String get labelUnderReview;
+
+  /// No description provided for @labelDiproses.
+  ///
+  /// In id, this message translates to:
+  /// **'Diproses'**
+  String get labelDiproses;
+
+  /// No description provided for @labelTerverifikasi.
+  ///
+  /// In id, this message translates to:
+  /// **'Terverifikasi'**
+  String get labelTerverifikasi;
+
+  /// No description provided for @labelSelesai.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesai'**
+  String get labelSelesai;
+
+  /// No description provided for @labelDitolak.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditolak'**
+  String get labelDitolak;
+
+  /// No description provided for @labelBaru.
+  ///
+  /// In id, this message translates to:
+  /// **'Baru'**
+  String get labelBaru;
+
+  /// No description provided for @labelDitugaskan.
+  ///
+  /// In id, this message translates to:
+  /// **'Ditugaskan'**
+  String get labelDitugaskan;
+
+  /// No description provided for @labelDikerjakan.
+  ///
+  /// In id, this message translates to:
+  /// **'Dikerjakan'**
+  String get labelDikerjakan;
 }
 
 class _AppLocalizationsDelegate

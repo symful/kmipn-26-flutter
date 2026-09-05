@@ -16,7 +16,7 @@ import '../../widgets/design_system/design_system.dart';
 /// - Each entry shows who did what and when
 ///
 /// Ported from Web SPA's Audit.tsx for case-specific audit trail.
-/// API: GET /api/audit?report_id={caseId}
+/// API: GET /api/auditor/audit-search?object_id={caseId}&object_type=report
 class CaseWorkspaceAuditTab extends ConsumerStatefulWidget {
   final String caseId;
 
@@ -62,13 +62,12 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Role-gated: Only users with audit.view capability can see audit trail
     return Can(
       action: 'audit.view',
       resource: Resource(type: 'case', id: widget.caseId),
-      fallback: const AccessDeniedCard(
-        message: 'Anda tidak memiliki akses untuk melihat riwayat audit.',
-      ),
+      fallback: AccessDeniedCard(message: l10n.andaTidakAksesAudit),
       child: _buildAuditContent(),
     );
   }
@@ -108,7 +107,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
                 const Icon(Icons.history, color: SigapColors.primary, size: 20),
                 const SizedBox(width: SigapSpacing.sm),
                 Text(
-                  '${_entries.length} Entri Audit',
+                  l10n.entriAuditCount(_entries.length),
                   style: const TextStyle(
                     fontSize: SigapTypography.subtitle,
                     fontWeight: FontWeight.bold,
@@ -155,8 +154,7 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
                   const SizedBox(width: SigapSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Riwayat audit bersifat immutable dan tidak dapat diubah. '
-                      'Semua tindakan pada kasus ini dicatat untuk keperluan audit.',
+                      l10n.riwayatAuditInfo,
                       style: TextStyle(
                         fontSize: SigapTypography.bodySmall,
                         color: SigapColors.textTertiary,
@@ -195,8 +193,8 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
               ),
             ),
             const SizedBox(height: SigapSpacing.md),
-            const Text(
-              'Belum Ada Riwayat Audit',
+            Text(
+              l10n.belumAdaRiwayatAudit,
               style: TextStyle(
                 fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w700,
@@ -204,8 +202,8 @@ class _CaseWorkspaceAuditTabState extends ConsumerState<CaseWorkspaceAuditTab> {
               ),
             ),
             const SizedBox(height: SigapSpacing.xs),
-            const Text(
-              'Semua tindakan pada kasus ini akan dicatat di sini.',
+            Text(
+              l10n.semuaTindakanTercatatDiSini,
               style: TextStyle(
                 fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
@@ -234,6 +232,7 @@ class _AuditEntryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +266,7 @@ class _AuditEntryTile extends StatelessWidget {
                 Text(
                   _formatAction(entry.action ?? '-'),
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: SigapTypography.bodyText,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textSecondary,
                   ),
@@ -276,16 +275,16 @@ class _AuditEntryTile extends StatelessWidget {
                 Text(
                   _formatTimestamp(entry.timestamp ?? '-'),
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: SigapTypography.bodySmall,
                     color: SigapColors.textTertiary,
                   ),
                 ),
                 if (entry.userId != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    'Oleh: ${entry.userId}',
+                    l10n.olehLabel(entry.userId!),
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: SigapTypography.captionMedium,
                       color: SigapColors.textDisabled,
                     ),
                   ),
@@ -293,10 +292,10 @@ class _AuditEntryTile extends StatelessWidget {
                 if (entry.resource != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    'Resource: ${entry.resource}${entry.resourceId != null ? ' (${entry.resourceId})' : ''}',
+                    l10n.resourceLabel(entry.resource ?? '-'),
                     style: const TextStyle(
-                      fontSize: 11,
-                      fontFamily: 'monospace',
+                      fontSize: SigapTypography.captionMedium,
+                      fontFamily: SigapTypography.fontFamilyMono,
                       color: SigapColors.textDisabled,
                     ),
                   ),

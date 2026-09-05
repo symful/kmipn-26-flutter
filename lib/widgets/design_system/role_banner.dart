@@ -65,8 +65,6 @@ class RoleBanner extends ConsumerWidget {
         return SigapColors.roleAuditor;
       case 'PENGAMBIL_KEPUTUSAN':
         return SigapColors.rolePengambilKeputusan;
-      case 'RT_RW':
-        return SigapColors.roleRtRw;
       case 'WARGA':
         return SigapColors.roleWarga;
       case 'PUBLIC':

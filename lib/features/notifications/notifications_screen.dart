@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/design_system/authenticated_shell.dart';
+import '../../widgets/design_system/sigap_app_bar.dart';
 
 /// Notifications screen using the unified REST API client.
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -72,15 +74,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     final notificationsAsync = ref.watch(notificationsProvider);
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
 
-    return Scaffold(
+    return AuthenticatedShell(
+      activeRole: activeRole,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.notifikasi),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+      appBar: SigapAppBar(
+        title: AppLocalizations.of(context)!.notifikasi,
         actions: [
           TextButton(
             onPressed: _markingAllRead ? null : _markAllRead,
@@ -224,7 +224,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 label: Text(AppLocalizations.of(context)!.cobaLagi),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: SigapColors.surface,
                 ),
               ),
             ],

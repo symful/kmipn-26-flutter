@@ -79,7 +79,7 @@ class _OperatorMergeDialogState extends ConsumerState<OperatorMergeDialog> {
             if (_error != null) ...[
               const SizedBox(height: SigapSpacing.md),
               Text(
-                'Error: $_error',
+                l10n.errorGeneric(_error ?? ""),
                 style: const TextStyle(
                   color: SigapColors.perluTindakan,
                   fontSize: 12,

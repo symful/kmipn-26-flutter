@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,6 @@ import '../../db/database.dart';
 import '../../api/client.dart';
 import '../../widgets/design_system/similar_cases_banner.dart';
 import '../../providers/providers.dart';
-import '../../services/photo_service.dart';
 import '../../utils/logger.dart';
 import '../../utils/platform_helper.dart';
 import '../../widgets/design_system/design_system.dart';
@@ -43,54 +43,44 @@ class _TimeOfDayFormatter {
   }
 }
 
-// ─── Section Card Widget ──────────────────────────────────────────────────────
-
-class _SectionCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Widget child;
-
-  const _SectionCard({
-    required this.title,
-    required this.icon,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SigapCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              SigapSpacing.lg,
-              SigapSpacing.md,
-              SigapSpacing.lg,
-              SigapSpacing.sm,
-            ),
-            child: Row(
-              children: [
-                Icon(icon, color: SigapColors.primary, size: 20),
-                const SizedBox(width: SigapSpacing.sm),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: SigapColors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
+/// Builds a section card with icon header, divider, and content, using SigapCard.
+Widget _sectionCard({
+  required String title,
+  required IconData icon,
+  required Widget child,
+}) {
+  return SigapCard(
+    padding: EdgeInsets.zero,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            SigapSpacing.lg,
+            SigapSpacing.md,
+            SigapSpacing.lg,
+            SigapSpacing.sm,
           ),
-          Divider(height: 1, color: SigapColors.border),
-          Padding(padding: const EdgeInsets.all(SigapSpacing.lg), child: child),
-        ],
-      ),
-    );
-  }
+          child: Row(
+            children: [
+              Icon(icon, color: SigapColors.primary, size: 20),
+              const SizedBox(width: SigapSpacing.sm),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyMedium,
+                  fontWeight: FontWeight.w600,
+                  color: SigapColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1, color: SigapColors.border),
+        Padding(padding: const EdgeInsets.all(SigapSpacing.lg), child: child),
+      ],
+    ),
+  );
 }
 
 // ─── Category Section ─────────────────────────────────────────────────────────
@@ -177,7 +167,7 @@ class _CategoryErrorWidget extends ConsumerWidget {
                   error,
                   style: const TextStyle(
                     color: SigapColors.danger,
-                    fontSize: 12,
+                    fontSize: SigapTypography.bodySmall,
                   ),
                 ),
               ),
@@ -222,8 +212,8 @@ class _PhotoSection extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
+              crossAxisSpacing: SigapSpacing.sm,
+              mainAxisSpacing: SigapSpacing.sm,
             ),
             itemCount: photos.length,
             itemBuilder: (context, index) {
@@ -241,24 +231,26 @@ class _PhotoSection extends StatelessWidget {
                       // GPS badge
                       if (hasGps)
                         Positioned(
-                          bottom: 4,
-                          left: 4,
+                          bottom: SigapSpacing.x4,
+                          left: SigapSpacing.x4,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 2,
+                              horizontal: SigapSpacing.x4,
+                              vertical: SigapSpacing.xxs,
                             ),
                             decoration: BoxDecoration(
                               color: SigapColors.selesai.withValues(
                                 alpha: 0.85,
                               ),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(
+                                SigapRadius.x4,
+                              ),
                             ),
-                            child: const Text(
-                              'GPS',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
+                            child: Text(
+                              l10n.gpsBadge,
+                              style: const TextStyle(
+                                color: SigapColors.surface,
+                                fontSize: SigapTypography.captionMicro,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -266,8 +258,8 @@ class _PhotoSection extends StatelessWidget {
                         ),
                       // Remove button
                       Positioned(
-                        top: 4,
-                        right: 4,
+                        top: SigapSpacing.x4,
+                        right: SigapSpacing.x4,
                         child: GestureDetector(
                           onTap: () => onRemove(index),
                           child: Container(
@@ -279,7 +271,7 @@ class _PhotoSection extends StatelessWidget {
                             ),
                             child: const Icon(
                               Icons.close,
-                              color: Colors.white,
+                              color: SigapColors.surface,
                               size: 14,
                             ),
                           ),
@@ -323,7 +315,7 @@ class _PhotoSection extends StatelessWidget {
                 Text(
                   photos.isEmpty
                       ? l10n.sectionAmbilFoto
-                      : 'Tambah foto (${photos.length}/5)',
+                      : l10n.tambahFoto(photos.length, 5),
                   style: const TextStyle(
                     color: SigapColors.primary,
                     fontWeight: FontWeight.w600,
@@ -335,8 +327,11 @@ class _PhotoSection extends StatelessWidget {
         ),
         const SizedBox(height: SigapSpacing.sm),
         Text(
-          'Maks 5 foto, format JPG/PNG. GPS dari EXIF akan digunakan jika tersedia.',
-          style: TextStyle(color: SigapColors.textTertiary, fontSize: 11),
+          l10n.maks5FotoFormat,
+          style: TextStyle(
+            color: SigapColors.textTertiary,
+            fontSize: SigapTypography.captionMedium,
+          ),
         ),
       ],
     );
@@ -431,7 +426,7 @@ class _LocationSection extends StatelessWidget {
                         Text(
                           '${lat!.toStringAsFixed(6)}, ${lng!.toStringAsFixed(6)}',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: SigapTypography.bodySmall,
                             color: SigapColors.textSecondary,
                           ),
                         ),
@@ -440,7 +435,7 @@ class _LocationSection extends StatelessWidget {
                         Text(
                           l10n.tapUntukMendapatkanLokasi,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: SigapTypography.bodySmall,
                             color: SigapColors.textTertiary,
                           ),
                         ),
@@ -508,9 +503,11 @@ class _VulnerabilitySegment extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: SigapTypography.bodyText,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : SigapColors.textPrimary,
+                color: isSelected
+                    ? SigapColors.surface
+                    : SigapColors.textPrimary,
               ),
             ),
           ),
@@ -581,27 +578,29 @@ class _DuplicateCasesSection extends ConsumerWidget {
         maxChildSize: 0.9,
         builder: (_, scrollController) => Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            color: SigapColors.surface,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(SigapRadius.x16),
+            ),
           ),
           child: Column(
             children: [
               // Handle bar
               Container(
-                margin: const EdgeInsets.only(top: 12),
+                margin: const EdgeInsets.only(top: SigapSpacing.x12),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                  color: SigapColors.border,
+                  borderRadius: BorderRadius.circular(SigapRadius.x2),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(SigapSpacing.xl),
                 child: Text(
                   l10n.kasusSerupa(cases.length),
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: SigapTypography.titleLarge,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -626,7 +625,11 @@ class _DuplicateCasesSection extends ConsumerWidget {
                       ),
                       title: Text(c.title),
                       subtitle: Text(
-                        '${c.distance} · kemiripan ${c.similarityPercent}% · ${c.reportCount} laporan',
+                        l10n.infoSerupa(
+                          c.distance,
+                          c.similarityPercent,
+                          c.reportCount,
+                        ),
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
@@ -712,7 +715,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   Uint8List _stripExifFromJpeg(Uint8List bytes) {
     final image = img.decodeImage(bytes);
     if (image == null) {
-      throw Exception('Gagal mendekode gambar untuk menghapus EXIF');
+      throw Exception(AppLocalizations.of(context)!.gagalMendekodeGambar);
     }
     final strippedBytes = Uint8List.fromList(img.encodeJpg(image, quality: 85));
     _logger.info('EXIF data stripped from image');
@@ -728,7 +731,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt, color: SigapColors.primary),
-              title: const Text('Kamera'),
+              title: Text(AppLocalizations.of(context)!.kamera),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickPhoto(cameraSource());
@@ -739,7 +742,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                 Icons.photo_library,
                 color: SigapColors.primary,
               ),
-              title: const Text('Galeri'),
+              title: Text(AppLocalizations.of(context)!.galeri),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickPhoto(ImageSource.gallery);
@@ -754,9 +757,9 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   Future<void> _pickPhoto(ImageSource source) async {
     if (_photos.length >= 5) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Maksimal 5 foto')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.maksimal5Foto)),
+        );
       }
       return;
     }
@@ -803,7 +806,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                   context,
                 )!.gagalHapusMetadataFoto(e.toString()),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: SigapColors.danger,
             ),
           );
         }
@@ -872,19 +875,15 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
     );
   }
 
-  void _openMapPicker() {
-    ref.read(pickLocationCallbackProvider.notifier).state = (latLng) {
-      if (mounted) {
-        setState(() {
-          _lat = latLng.latitude;
-          _lng = latLng.longitude;
-        });
-        _onFormChanged();
-      }
-      ref.read(pickLocationCallbackProvider.notifier).state = null;
-    };
-    ref.read(pickLocationModeProvider.notifier).state = true;
-    context.push('/map');
+  void _openMapPicker() async {
+    final result = await context.push<LatLng>('/map-picker');
+    if (result != null && mounted) {
+      setState(() {
+        _lat = result.latitude;
+        _lng = result.longitude;
+      });
+      _onFormChanged();
+    }
   }
 
   static const String _deviceIdKey = 'anonymous_device_id';
@@ -1199,30 +1198,14 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: SigapColors.bgSurface,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.buatLaporan),
-            if (_autosaveTimestamp != null)
-              Text(
-                l10n.tersimpanPada(
-                  _TimeOfDayFormatter.format(_autosaveTimestamp!),
-                ),
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: SigapColors.textSecondary,
-                ),
-              ),
-          ],
-        ),
-        backgroundColor: SigapColors.bgCard,
-        foregroundColor: SigapColors.textPrimary,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
+    return ResponsiveScaffold(
+      appBar: SigapAppBar(
+        title: l10n.buatLaporan,
+        subtitle: _autosaveTimestamp != null
+            ? l10n.tersimpanPada(
+                _TimeOfDayFormatter.format(_autosaveTimestamp!),
+              )
+            : null,
       ),
       body: Column(
         children: [
@@ -1233,7 +1216,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                 padding: const EdgeInsets.all(SigapSpacing.lg),
                 children: [
                   // Photo Section
-                  _SectionCard(
+                  _sectionCard(
                     title: l10n.sectionAmbilFoto,
                     icon: Icons.add_a_photo,
                     child: _PhotoSection(
@@ -1246,7 +1229,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                   const SizedBox(height: SigapSpacing.lg),
 
                   // Location Section
-                  _SectionCard(
+                  _sectionCard(
                     title: l10n.sectionLokasi,
                     icon: Icons.location_on,
                     child: _LocationSection(
@@ -1259,7 +1242,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                   const SizedBox(height: SigapSpacing.lg),
 
                   // Category Section
-                  _SectionCard(
+                  _sectionCard(
                     title: l10n.kategori,
                     icon: Icons.category,
                     child: _CategorySection(
@@ -1283,7 +1266,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                     const SizedBox(height: SigapSpacing.lg),
 
                   // Description Section
-                  _SectionCard(
+                  _sectionCard(
                     title: l10n.sectionDeskripsi,
                     icon: Icons.description,
                     child: TextFormField(
@@ -1301,14 +1284,14 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                       maxLines: 4,
                       maxLength: 2000,
                       validator: (v) => v == null || v.length < 10
-                          ? 'Minimal 10 karakter'
+                          ? l10n.minimal10KarakterValidasi
                           : null,
                     ),
                   ),
                   const SizedBox(height: SigapSpacing.lg),
 
                   // Population Affected Section
-                  _SectionCard(
+                  _sectionCard(
                     title: l10n.sectionPerkiraanTerdampak,
                     icon: Icons.people,
                     child: Column(
@@ -1340,7 +1323,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                         Text(
                           l10n.jumlahPerkiraanTerdampak,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: SigapTypography.bodySmall,
                             color: SigapColors.textTertiary,
                           ),
                         ),
@@ -1350,7 +1333,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                   const SizedBox(height: SigapSpacing.lg),
 
                   // Vulnerability Index Section
-                  _SectionCard(
+                  _sectionCard(
                     title: l10n.sectionTingkatKerentanan,
                     icon: Icons.warning,
                     child: Column(
@@ -1359,7 +1342,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                         Text(
                           l10n.seberapaRentan,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: SigapTypography.bodySmall,
                             color: SigapColors.textSecondary,
                           ),
                         ),
@@ -1403,7 +1386,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                   const SizedBox(height: SigapSpacing.lg),
 
                   // Dampak Section
-                  _SectionCard(
+                  _sectionCard(
                     title: l10n.sectionDampak,
                     icon: Icons.warning,
                     child: Column(
@@ -1412,7 +1395,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                         Text(
                           l10n.pilihJenisDampak,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: SigapTypography.bodySmall,
                             color: SigapColors.textSecondary,
                           ),
                         ),
@@ -1477,7 +1460,7 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                 onPressed: _submitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: SigapColors.surface,
                   disabledBackgroundColor: SigapColors.primary.withValues(
                     alpha: 0.5,
                   ),
@@ -1493,14 +1476,14 @@ class _CreateReportScreenState extends ConsumerState<CreateReportScreen> {
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                            SigapColors.surface,
                           ),
                         ),
                       )
                     : Text(
                         l10n.kirimLaporan,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: SigapTypography.titleMedium,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

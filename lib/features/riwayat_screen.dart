@@ -72,62 +72,37 @@ class _RiwayatScreenState extends ConsumerState<RiwayatScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Column(
-      children: [
-        Expanded(
-          child: Scaffold(
-            backgroundColor: SigapColors.bgSurface,
-            appBar: AppBar(
-              backgroundColor: SigapColors.bgCard,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              titleSpacing: 0,
-              title: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SigapSpacing.lg,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      l10n.riwayat,
-                      style: const TextStyle(
-                        fontSize: SigapTypography.sectionTitle,
-                        fontWeight: FontWeight.w700,
-                        color: SigapColors.textPrimary,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${_visits.length} visit',
-                      style: const TextStyle(
-                        fontFamily: SigapTypography.fontFamilyMono,
-                        fontSize: SigapTypography.bodySmall,
-                        color: SigapColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            body: _loading
-                ? Padding(
-                    padding: const EdgeInsets.all(SigapSpacing.lg),
-                    child: SkeletonLoader.list(),
-                  )
-                : _error != null && _visits.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(SigapSpacing.xl),
-                    child: ErrorRetryView(
-                      message: l10n.gagalMemuatRiwayat,
-                      onRetry: _load,
-                    ),
-                  )
-                : _visits.isEmpty
-                ? _buildEmpty(l10n)
-                : _buildVisitList(),
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      backgroundColor: SigapColors.bgSurface,
+      appBar: SigapAppBar(
+        title: l10n.riwayat,
+        trailing: Text(
+          '${_visits.length} visit',
+          style: const TextStyle(
+            fontFamily: SigapTypography.fontFamilyMono,
+            fontSize: SigapTypography.bodySmall,
+            color: SigapColors.textTertiary,
           ),
         ),
-      ],
+      ),
+      body: _loading
+          ? Padding(
+              padding: const EdgeInsets.all(SigapSpacing.lg),
+              child: SkeletonLoader.list(),
+            )
+          : _error != null && _visits.isEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(SigapSpacing.xl),
+              child: ErrorRetryView(
+                message: l10n.gagalMemuatRiwayat,
+                onRetry: _load,
+              ),
+            )
+          : _visits.isEmpty
+          ? _buildEmpty(l10n)
+          : _buildVisitList(),
     );
   }
 
@@ -291,7 +266,7 @@ class _VisitCard extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: _syncStatusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(SigapRadius.x8),
                 ),
                 child: Icon(_syncStatusIcon, color: _syncStatusColor, size: 20),
               ),
@@ -328,7 +303,7 @@ class _VisitCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: _syncStatusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(SigapRadius.x6),
                 ),
                 child: Text(
                   _syncStatusLabel(l10n),

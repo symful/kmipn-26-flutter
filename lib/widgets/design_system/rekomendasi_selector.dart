@@ -120,7 +120,7 @@ class _RadioCircle extends StatelessWidget {
       ),
       child: isSelected
           ? const Center(
-              child: Icon(Icons.circle, size: 10, color: Colors.white),
+              child: Icon(Icons.circle, size: 10, color: SigapColors.surface),
             )
           : null,
     );

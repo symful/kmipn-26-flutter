@@ -3,11 +3,11 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sigap/widgets/design_system/responsive_scaffold.dart';
 import 'package:uuid/uuid.dart';
 import '../../db/database.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
-import '../../services/photo_service.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
 import 'review_app_bar_screen.dart';
@@ -262,8 +262,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
         .map((match) => match.toSimilarCase())
         .toList();
 
-    return Scaffold(
-      backgroundColor: SigapColors.bgScreen,
+    return ResponsiveScaffold(
       body: Column(
         children: [
           // Custom app bar with stepper
@@ -308,13 +307,15 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
                                 .toUpperCase()
                           : 'JL',
                       categoryName: widget.categoryName ?? 'JALAN',
-                      condition: 'Berat',
+                      condition: AppLocalizations.of(context)!.kondisiBerat,
                       title: widget.description,
                       location:
                           '${widget.lat.toStringAsFixed(4)}, ${widget.lng.toStringAsFixed(4)}',
-                      accuracy: 'Akurasi baik',
+                      accuracy: AppLocalizations.of(context)!.akurasiBaik,
                       timestamp: _formatTimestamp(DateTime.now()),
-                      impact: 'Keselamatan · akses terganggu',
+                      impact: AppLocalizations.of(
+                        context,
+                      )!.dampakKeselamatanAkses,
                       canEditLocation: false,
                       canEditTimestamp: false,
                     ),
@@ -354,7 +355,7 @@ class _ReviewKirimanScreenState extends ConsumerState<ReviewKirimanScreen> {
 
           // Sticky footer with action buttons and offline warning
           StickyFooterCTA(
-            buttonLabel: 'Simpan dan sinkronkan nanti',
+            buttonLabel: AppLocalizations.of(context)!.simpanSinkronkanNanti,
             isOffline: ref
                 .watch(connectivityProvider)
                 .maybeWhen(

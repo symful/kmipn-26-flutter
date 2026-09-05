@@ -36,7 +36,6 @@ const _seedAccounts = <String, Map<String, String>>{
   'admin_daerah': {'email': 'admin.daerah@sigap.id', 'password': 'admin123'},
   'auditor': {'email': 'auditor@sigap.id', 'password': 'auditor123'},
   'pengambil_keputusan': {'email': 'eksekutif@sigap.id', 'password': 'exec123'},
-  'rt_rw': {'email': 'rtrw@sigap.id', 'password': 'rtrw123'},
 };
 
 // ─── Run ID ───────────────────────────────────────────────────────────────────

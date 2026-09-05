@@ -64,7 +64,7 @@ final dashboardMiniMapProvider = FutureProvider<List<MiniMapMarker>>((
         MiniMapMarker(
           id: props?['id']?.toString() ?? '',
           status: props?['status']?.toString() ?? 'submitted',
-          categoryName: props?['category_id']?.toString() ?? 'Laporan',
+          categoryName: props?['category_id']?.toString() ?? '',
           point: LatLng(lat, lng),
         ),
       );
@@ -124,7 +124,9 @@ class DashboardMiniMap extends ConsumerWidget {
       child: reportsAsync.when(
         data: (reports) => _MiniMapContent(reports: reports),
         loading: () => const _MiniMapLoading(),
-        error: (error, _) => _MiniMapError(message: 'Gagal memuat peta'),
+        error: (error, _) => _MiniMapError(
+          message: AppLocalizations.of(context)!.gagalMemuatPeta,
+        ),
       ),
     );
   }
@@ -151,10 +153,10 @@ class _MiniMapContent extends StatelessWidget {
             decoration: BoxDecoration(
               color: _getMarkerColor(r.status),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
+              border: Border.all(color: SigapColors.surface, width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.25),
+                  color: SigapColors.textPrimary.withValues(alpha: 0.25),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -165,7 +167,7 @@ class _MiniMapContent extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: SigapColors.surface,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -195,10 +197,10 @@ class _MiniMapContent extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: SigapColors.primary.withValues(alpha: 0.85),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: SigapColors.surface, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
+                      color: SigapColors.textPrimary.withValues(alpha: 0.25),
                       blurRadius: 6,
                       offset: const Offset(0, 3),
                     ),
@@ -208,7 +210,7 @@ class _MiniMapContent extends StatelessWidget {
                   child: Text(
                     clusterMarkers.length.toString(),
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: SigapColors.surface,
                       fontSize: SigapTypography.captionMedium,
                       fontWeight: FontWeight.w700,
                     ),
@@ -241,7 +243,7 @@ class _MiniMapContent extends StatelessWidget {
             ),
             const SizedBox(height: SigapSpacing.xs),
             Text(
-              'Status: ${marker.status}',
+              l10n.statusMarker(marker.status),
               style: const TextStyle(
                 fontSize: SigapTypography.captionMedium,
                 color: SigapColors.textSecondary,

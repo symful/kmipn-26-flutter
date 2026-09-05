@@ -200,7 +200,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: SigapColors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(SigapRadius.sm),
                   ),
@@ -267,10 +267,13 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
   @override
   Widget build(BuildContext context) {
     final dl10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(dl10n.kelolaAkun),
+      appBar: SigapAppBar(
+        title: dl10n.kelolaAkun,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -282,7 +285,7 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _createUser,
         backgroundColor: SigapColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: SigapColors.surface,
         icon: const Icon(Icons.add),
         label: Text(dl10n.tambahAkun),
       ),
@@ -314,12 +317,12 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                             ? FontWeight.w600
                             : FontWeight.normal,
                         color: isSelected
-                            ? Colors.white
+                            ? SigapColors.surface
                             : SigapColors.textPrimary,
                       ),
                       selectedColor: SigapColors.primary,
                       backgroundColor: SigapColors.bgSurface,
-                      checkmarkColor: Colors.white,
+                      checkmarkColor: SigapColors.surface,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.pill),
                         side: BorderSide(

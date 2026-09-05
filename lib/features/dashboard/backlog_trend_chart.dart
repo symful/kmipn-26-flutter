@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/widgets/design_system/sigap_card.dart';
 
 /// Data point for backlog trend chart.
 class BacklogTrendPoint {
@@ -28,11 +30,7 @@ class BacklogTrendChart extends StatelessWidget {
   /// Chart title displayed in header.
   final String title;
 
-  const BacklogTrendChart({
-    super.key,
-    required this.data,
-    this.title = 'Umur backlog kasus',
-  });
+  const BacklogTrendChart({super.key, required this.data, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +79,14 @@ class _ChartLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         const _LegendDot(color: SigapColors.info),
         const SizedBox(width: SigapSpacing.xs),
-        const Text(
-          'laporan',
-          style: TextStyle(
+        Text(
+          l10n.labelLaporanChart,
+          style: const TextStyle(
             fontSize: SigapTypography.captionSmall,
             color: SigapColors.textTertiary,
           ),
@@ -95,9 +94,9 @@ class _ChartLegend extends StatelessWidget {
         const SizedBox(width: SigapSpacing.sm),
         const _LegendDot(color: SigapColors.primary),
         const SizedBox(width: SigapSpacing.xs),
-        const Text(
-          'kasus',
-          style: TextStyle(
+        Text(
+          l10n.labelKasusChart,
+          style: const TextStyle(
             fontSize: SigapTypography.captionSmall,
             color: SigapColors.textTertiary,
           ),
@@ -119,7 +118,7 @@ class _LegendDot extends StatelessWidget {
       height: 8,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(SigapRadius.x2),
       ),
     );
   }
@@ -130,10 +129,11 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Text(
-        'Tidak ada data tren',
-        style: TextStyle(
+        l10n.tidakAdaDataTren,
+        style: const TextStyle(
           color: SigapColors.textMuted,
           fontSize: SigapTypography.bodyText,
         ),
@@ -431,32 +431,5 @@ class _BacklogChartPainter extends CustomPainter {
     return oldDelegate.data != data ||
         oldDelegate.width != width ||
         oldDelegate.height != height;
-  }
-}
-
-/// Signature matches existing SigapCard used throughout the codebase.
-class SigapCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final Color? borderLeftColor;
-
-  const SigapCard({
-    super.key,
-    required this.child,
-    this.padding,
-    this.borderLeftColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: padding ?? const EdgeInsets.all(SigapSpacing.md),
-      decoration: BoxDecoration(
-        color: SigapColors.surface,
-        borderRadius: BorderRadius.circular(SigapRadius.md),
-        border: Border.all(color: SigapColors.border),
-      ),
-      child: child,
-    );
   }
 }

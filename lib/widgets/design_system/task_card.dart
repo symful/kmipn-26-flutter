@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/design_system.dart';
 
@@ -97,16 +98,16 @@ class TaskCard extends StatelessWidget {
     }
   }
 
-  String get _priorityLabel {
+  String _priorityLabel(AppLocalizations l10n) {
     switch (task.priority) {
       case TaskPriority.urgent:
-        return 'Prioritas tinggi';
+        return l10n.prioritasTinggiCard;
       case TaskPriority.high:
-        return 'Prioritas sedang';
+        return l10n.prioritasSedangCard;
       case TaskPriority.normal:
-        return 'Prioritas normal';
+        return l10n.prioritasNormalCard;
       case TaskPriority.low:
-        return 'Prioritas rendah';
+        return l10n.prioritasRendahCard;
     }
   }
 
@@ -138,6 +139,7 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: SigapCard(
@@ -236,7 +238,7 @@ class TaskCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   StatusPill(
-                    label: _priorityLabel,
+                    label: _priorityLabel(l10n),
                     tone: _priorityTone,
                     showDot: true,
                   ),
@@ -262,8 +264,8 @@ class TaskCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        const Text(
-                          'Siap offline',
+                        Text(
+                          l10n.siapOfflineBadge,
                           style: TextStyle(
                             fontSize: SigapTypography.captionMedium,
                             fontWeight: FontWeight.w600,
@@ -273,8 +275,8 @@ class TaskCard extends StatelessWidget {
                       ],
                     )
                   else
-                    const Text(
-                      'Unduh untuk offline',
+                    Text(
+                      l10n.unduhUntukOffline,
                       style: TextStyle(
                         fontSize: SigapTypography.captionMedium,
                         fontWeight: FontWeight.w700,

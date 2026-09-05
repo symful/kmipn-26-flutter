@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Offline availability indicator for task cards.
@@ -21,6 +22,7 @@ class OfflineReadyBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (isOfflineAvailable) {
       // S-01 "Siap offline" badge with circle-arrow icon
       return Row(
@@ -36,12 +38,12 @@ class OfflineReadyBadge extends StatelessWidget {
             child: const Icon(
               Icons.arrow_downward,
               size: 9,
-              color: Colors.white, // white arrow on teal circle per S-01
+              color: SigapColors.surface, // white arrow on teal circle per S-01
             ),
           ),
           const SizedBox(width: 5),
           Text(
-            'Siap offline',
+            l10n.siapOfflineBadge,
             style: TextStyle(
               fontSize: SigapTypography.captionMedium,
               fontWeight: FontWeight.w600,
@@ -55,7 +57,7 @@ class OfflineReadyBadge extends StatelessWidget {
       return GestureDetector(
         onTap: onDownloadTap,
         child: Text(
-          'Unduh untuk offline',
+          l10n.unduhUntukOffline,
           style: TextStyle(
             fontSize: SigapTypography.captionMedium,
             fontWeight: FontWeight.w700,

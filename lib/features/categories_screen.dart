@@ -157,7 +157,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: SigapColors.surface,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(SigapRadius.sm),
                 ),
@@ -174,15 +174,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                 }
                 try {
                   final client = ref.read(apiClientProvider);
-                  await client.dio.post(
-                    '/api/categories',
-                    data: {
-                      'name': nameController.text.trim(),
-                      if (slugController.text.trim().isNotEmpty)
-                        'slug': slugController.text.trim(),
-                      if (iconController.text.trim().isNotEmpty)
-                        'icon': iconController.text.trim(),
-                    },
+                  await client.createCategory(
+                    name: nameController.text.trim(),
+                    slug: slugController.text.trim().isNotEmpty
+                        ? slugController.text.trim()
+                        : null,
+                    icon: iconController.text.trim().isNotEmpty
+                        ? iconController.text.trim()
+                        : null,
                   );
                   if (ctx.mounted) Navigator.pop(ctx, true);
                 } catch (e) {
@@ -210,10 +209,13 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final dl10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(dl10n.kelolaKategori),
+      appBar: SigapAppBar(
+        title: dl10n.kelolaKategori,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -225,7 +227,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _createItem,
         backgroundColor: SigapColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: SigapColors.surface,
         icon: const Icon(Icons.add),
         label: Text(dl10n.tambahKategori),
       ),
@@ -334,7 +336,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                               subtitle: Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
-                                  'Slug: $slug',
+                                  dl10n.slugPrefix(slug),
                                   style: const TextStyle(
                                     fontSize: SigapTypography.bodySmall,
                                     color: SigapColors.textSecondary,

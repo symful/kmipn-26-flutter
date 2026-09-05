@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import '../../../../theme/tokens.dart';
 
 /// S-02 Checklist widget for surveyor task detail screen.
@@ -45,11 +46,12 @@ class S02Checklist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'CHECKLIST WAJIB',
+        Text(
+          l10n.checklistWajib,
           style: TextStyle(
             fontSize: SigapTypography.captionMedium,
             fontWeight: FontWeight.w700,
@@ -60,7 +62,7 @@ class S02Checklist extends StatelessWidget {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: SigapColors.bgCard,
             border: Border.all(color: SigapColors.borderCard),
             borderRadius: BorderRadius.circular(SigapRadius.x12),
           ),
@@ -114,8 +116,8 @@ class _ChecklistItem extends StatelessWidget {
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                color: isChecked ? SigapColors.primary : Colors.white,
-                borderRadius: BorderRadius.circular(6),
+                color: isChecked ? SigapColors.primary : SigapColors.bgCard,
+                borderRadius: BorderRadius.circular(SigapRadius.x6),
                 border: Border.all(
                   color: isChecked
                       ? SigapColors.primary
@@ -125,7 +127,11 @@ class _ChecklistItem extends StatelessWidget {
               ),
               child: isChecked
                   ? const Center(
-                      child: Icon(Icons.check, size: 13, color: Colors.white),
+                      child: Icon(
+                        Icons.check,
+                        size: 13,
+                        color: SigapColors.surface,
+                      ),
                     )
                   : null,
             ),

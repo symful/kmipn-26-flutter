@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Catatan lapangan (field notes) text input widget.
@@ -84,12 +85,13 @@ class CatatanLapangan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Label
-        const Text(
-          'Catatan lapangan',
+        Text(
+          l10n.catatanLapangan,
           style: TextStyle(
             fontSize: SigapTypography.bodySmall,
             fontWeight: FontWeight.w600,
@@ -103,7 +105,7 @@ class CatatanLapangan extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           initialValue: controller == null ? initialValue : null,
-          hintText: hintText ?? 'Tambahkan catatan...',
+          hintText: hintText ?? l10n.tambahkanCatatan,
           minLines: minLines,
           maxLines: maxLines,
           maxCharacters: maxCharacters,

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sigap/api/client.dart';
+import 'package:sigap/config/map_constants.dart';
 import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/l10n/status_label.dart';
+import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/features/map/report_map_widget.dart';
 import 'package:sigap/widgets/design_system/design_system.dart';
 
 // ============================================================================
@@ -66,7 +67,7 @@ String _formatStatus(BuildContext context, String? statusStr) {
 final publicReportsProvider = FutureProvider.autoDispose<PublicReportsPage>((
   ref,
 ) async {
-  final api = ApiClient(onLogout: () async {});
+  final api = ref.read(publicApiClientProvider);
   // Use public endpoint — no auth required
   return await api.getPublicReports(limit: 100);
 });
@@ -74,7 +75,7 @@ final publicReportsProvider = FutureProvider.autoDispose<PublicReportsPage>((
 final publicGeojsonProvider =
     FutureProvider.autoDispose<GeoJSONFeatureCollection>((ref) async {
       final filters = ref.watch(publicFiltersProvider);
-      final api = ApiClient(onLogout: () async {});
+      final api = ref.read(publicApiClientProvider);
       return await api.getMapGeoJson(wilayah: filters.wilayahId);
     });
 
@@ -133,7 +134,7 @@ final publicFiltersProvider = StateProvider<PublicFilters>((ref) {
 final publicWilayahListProvider = FutureProvider.autoDispose<List<String>>((
   ref,
 ) async {
-  final api = ApiClient(onLogout: () async {});
+  final api = ref.read(publicApiClientProvider);
   final geojson = await api.getMapGeoJson();
   final wilayahSet = <String>{};
   for (final feature in geojson.features ?? []) {
@@ -160,8 +161,7 @@ class PublicPortalScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: SigapColors.bgSurface,
+    return ResponsiveScaffold(
       appBar: const _PublicAppBar(),
       body: Column(
         children: [
@@ -169,12 +169,14 @@ class PublicPortalScreen extends ConsumerWidget {
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final isMobile = constraints.maxWidth < _publicBreakpointMobile;
-                final showListOnly =
-                    isMobile || ref.watch(publicViewModeProvider);
+                final showListOnly = ref.watch(publicViewModeProvider);
 
                 if (showListOnly) {
                   return const _ReportsList();
+                }
+                final isMobile = constraints.maxWidth < _publicBreakpointMobile;
+                if (isMobile) {
+                  return const _MobileMapListStack();
                 }
                 return const _MapListSplit();
               },
@@ -188,21 +190,21 @@ class PublicPortalScreen extends ConsumerWidget {
 
 // ─── Public App Bar ──────────────────────────────────────────────────────────
 
-class _PublicAppBar extends StatelessWidget implements PreferredSizeWidget {
+class _PublicAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const _PublicAppBar();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     return SigapAppBar(
       title: l10n.portalPublik,
       showSync: true,
       syncState: SyncState.online,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: SigapSpacing.md),
+      trailing: Padding(
+        padding: const EdgeInsets.only(right: SigapSpacing.md),
         child: Center(
           child: Container(
             width: 32,
@@ -211,18 +213,22 @@ class _PublicAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: SigapColors.primary,
               borderRadius: BorderRadius.circular(SigapRadius.x6),
             ),
-            child: const Icon(Icons.map, color: Colors.white, size: 18),
+            child: const Icon(Icons.map, color: SigapColors.surface, size: 18),
           ),
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => context.go('/dashboard'),
-          child: Text(l10n.beranda),
+        IconButton(
+          icon: const Icon(Icons.refresh, size: 20),
+          tooltip: l10n.cobaLagi,
+          onPressed: () {
+            ref.invalidate(publicReportsProvider);
+            ref.invalidate(publicGeojsonProvider);
+          },
         ),
-        TextButton(onPressed: () => context.go('/map'), child: Text(l10n.peta)),
+        const SizedBox(width: SigapSpacing.sm),
         TextButton(
-          onPressed: () => context.go('/stats'),
+          onPressed: () => context.push('/public-statistics'),
           child: Text(l10n.statistik),
         ),
         const SizedBox(width: SigapSpacing.sm),
@@ -230,7 +236,7 @@ class _PublicAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () => context.push('/create-anonymous'),
           style: ElevatedButton.styleFrom(
             backgroundColor: SigapColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: SigapColors.surface,
           ),
           child: Text(l10n.buatLaporan),
         ),
@@ -248,7 +254,7 @@ class _PublicAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () => context.push('/register'),
           style: ElevatedButton.styleFrom(
             backgroundColor: SigapColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: SigapColors.surface,
           ),
           child: Text(l10n.daftar),
         ),
@@ -367,7 +373,7 @@ class _FilterBar extends ConsumerWidget {
           ],
           // Count text
           Text(
-            '$count laporan',
+            l10n.laporanCountLabel(count),
             style: const TextStyle(
               fontSize: SigapTypography.bodyText,
               color: SigapColors.textSecondary,
@@ -403,8 +409,8 @@ class _FilterBar extends ConsumerWidget {
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
               primary: SigapColors.primary,
-              onPrimary: Colors.white,
-              surface: Colors.white,
+              onPrimary: SigapColors.surface,
+              surface: SigapColors.surface,
               onSurface: SigapColors.textPrimary,
             ),
           ),
@@ -553,7 +559,7 @@ class _FilterDropdown extends StatelessWidget {
           DropdownMenuItem<String>(
             value: null,
             child: Text(
-              'Semua $label',
+              AppLocalizations.of(context)!.semuaLabel(label),
               style: const TextStyle(fontSize: SigapTypography.bodyText),
             ),
           ),
@@ -584,7 +590,7 @@ class _FilterDropdown extends StatelessWidget {
       case 'public':
         return l10n.fasilitasUmum;
       default:
-        return item;
+        return statusLabel(context, item);
     }
   }
 }
@@ -687,7 +693,7 @@ class _ToggleButton extends StatelessWidget {
         child: Icon(
           icon,
           size: 18,
-          color: isActive ? Colors.white : SigapColors.textSecondary,
+          color: isActive ? SigapColors.surface : SigapColors.textSecondary,
         ),
       ),
     );
@@ -718,12 +724,29 @@ class _MapListSplit extends StatelessWidget {
   }
 }
 
+/// Mobile layout: map on top (40% height), list below (60% height).
+class _MobileMapListStack extends StatelessWidget {
+  const _MobileMapListStack();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Map — takes 40% of available height
+        const Expanded(flex: 4, child: _PublicMap()),
+        // Divider
+        Container(height: 1, color: SigapColors.border),
+        // List — takes 60% of available height
+        const Expanded(flex: 6, child: _ReportsList()),
+      ],
+    );
+  }
+}
+
 // ─── Public Map ──────────────────────────────────────────────────────────────
 
 class _PublicMap extends ConsumerWidget {
   const _PublicMap();
-
-  static const _indonesiaCenter = LatLng(-2.548926, 118.0148634);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -731,36 +754,11 @@ class _PublicMap extends ConsumerWidget {
 
     return geojsonAsync.when(
       data: (geojson) {
-        return FlutterMap(
-          options: const MapOptions(
-            initialCenter: _indonesiaCenter,
-            initialZoom: 5.0,
-            minZoom: 3.5,
-            maxZoom: 18.0,
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'id.kmipn.sigap',
-            ),
-            // Note: GeoJSON markers would be rendered here
-            // Using a simple marker placeholder for now
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: _indonesiaCenter,
-                  width: 40,
-                  height: 40,
-                  child: Icon(
-                    Icons.location_on,
-                    color: SigapColors.primary,
-                    size: 36,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
+        final markers = (geojson.features ?? [])
+            .map((f) => ReportMapMarker.fromGeoJSONFeature(f))
+            .where((m) => m.point.latitude != 0 || m.point.longitude != 0)
+            .toList();
+        return ReportMapWidget(markers: markers, interactive: true);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) {
@@ -991,7 +989,7 @@ class _ReportCard extends ConsumerWidget {
     // Fetch share metadata
     ShareMetadata? shareMeta;
     try {
-      final api = ApiClient(onLogout: () async {});
+      final api = ref.read(publicApiClientProvider);
       shareMeta = await api.getShareMetadata(caseId);
     } catch (_) {
       // Ignore share meta errors
@@ -1007,19 +1005,21 @@ class _ReportCard extends ConsumerWidget {
       builder: (ctx) => Container(
         height: MediaQuery.of(context).size.height * 0.6,
         decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          color: SigapColors.surface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(SigapRadius.x16),
+          ),
         ),
         child: Column(
           children: [
             // Handle bar
             Container(
-              margin: const EdgeInsets.only(top: 12),
+              margin: const EdgeInsets.only(top: SigapSpacing.x12),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+                color: SigapColors.border,
+                borderRadius: BorderRadius.circular(SigapRadius.x2),
               ),
             ),
             // Header
@@ -1144,7 +1144,7 @@ class _ReportCard extends ConsumerWidget {
   String _formatDate(BuildContext context, String dateStr) {
     final l10n = AppLocalizations.of(context)!;
     try {
-      final date = DateTime.parse(dateStr);
+      final date = DateTime.parse(dateStr).toLocal();
       final now = DateTime.now();
       final diff = now.difference(date);
 

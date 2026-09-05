@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../api/client.dart' as new_api;
 import '../../../l10n/generated/app_localizations.dart';
-import '../../../l10n/status_label.dart';
+import '../../../providers/providers.dart';
 import '../../../theme/tokens.dart';
 import '../../../widgets/design_system/design_system.dart';
 
-/// Local adapter class that maps StatsResponse to what the screen expects
+/// Local adapter class that maps stats responses to what the screen expects
 class StatsAdapter {
   final int total;
   final int reports;
@@ -56,6 +55,38 @@ class StatsAdapter {
       byCategory: categoryMap,
     );
   }
+
+  factory StatsAdapter.fromPublicStats(new_api.PublicStats r) {
+    // Build byStatus from public API response
+    final statusMap = <String, int>{};
+    final rawByStatus = r.byStatus;
+    if (rawByStatus != null) {
+      for (final entry in rawByStatus.entries) {
+        statusMap[entry.key] = (entry.value is int) ? entry.value : 0;
+      }
+    }
+
+    // Build byCategory from public API response (List<Map> -> Map<String, int>)
+    final categoryMap = <String, int>{};
+    final rawByCategory = r.byCategory;
+    if (rawByCategory != null) {
+      for (final item in rawByCategory) {
+        final key =
+            item['category'] as String? ?? item['name'] as String? ?? 'Unknown';
+        final value = item['count'] as int? ?? 0;
+        categoryMap[key] = value;
+      }
+    }
+
+    return StatsAdapter(
+      total: r.total ?? 0,
+      reports: r.total ?? 0,
+      cases: 0,
+      slaOverdue: 0, // Public stats don't include SLA data
+      byStatus: statusMap,
+      byCategory: categoryMap,
+    );
+  }
 }
 
 /// Stats screen showing report statistics from the unified API.
@@ -65,19 +96,12 @@ class StatsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(_statsProvider);
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
 
-    return Scaffold(
+    return AuthenticatedShell(
+      activeRole: activeRole,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.statistik),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        backgroundColor: SigapColors.surface,
-        foregroundColor: SigapColors.textPrimary,
-        elevation: 0,
-      ),
+      appBar: SigapAppBar(title: AppLocalizations.of(context)!.statistik),
       body: statsAsync.when(
         data: (stats) => SingleChildScrollView(
           padding: const EdgeInsets.all(SigapSpacing.lg),
@@ -140,7 +164,9 @@ class StatsScreen extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              '${stats.slaOverdue} laporan',
+                              AppLocalizations.of(
+                                context,
+                              )!.slaOverdueLaporan(stats.slaOverdue),
                               style: const TextStyle(
                                 fontSize: SigapTypography.bodyLarge,
                                 fontWeight: FontWeight.w700,
@@ -312,9 +338,16 @@ class StatsScreen extends ConsumerWidget {
   }
 }
 
-// Provider
+// Provider — uses public stats for unauthenticated, authenticated stats for logged-in users
 final _statsProvider = FutureProvider<StatsAdapter>((ref) async {
-  final client = new_api.ApiClient();
-  final response = await client.getStats();
-  return StatsAdapter.fromStatsResponse(response);
+  final authState = ref.watch(authNotifierProvider);
+  final client = ref.read(apiClientProvider);
+
+  if (authState.isAuthenticated) {
+    final response = await client.getStats();
+    return StatsAdapter.fromStatsResponse(response);
+  } else {
+    final response = await client.getPublicStats();
+    return StatsAdapter.fromPublicStats(response);
+  }
 });

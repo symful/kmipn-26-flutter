@@ -80,9 +80,9 @@ void main() {
 
   group('audit search & export flow', () {
     test('audit search returns paginated entries', () async {
-      // GET /api/audit/search — no client method, use raw Dio through client
+      // GET /api/auditor/audit-search
       final res = await auditorClient.dio.get(
-        '/api/audit/search',
+        '/api/auditor/audit-search',
         queryParameters: {'page': 1, 'limit': 20},
       );
       final result = res.data as Map<String, dynamic>;
@@ -118,7 +118,7 @@ void main() {
 
     test('audit search filters by action type', () async {
       final res = await auditorClient.dio.get(
-        '/api/audit/search',
+        '/api/auditor/audit-search',
         queryParameters: {'action': 'REPORT_CREATE', 'limit': 20},
       );
       final result = res.data as Map<String, dynamic>;
@@ -139,8 +139,8 @@ void main() {
     });
 
     test('audit chain verify returns valid', () async {
-      // GET /api/audit/verify-chain — no client method
-      final res = await auditorClient.dio.get('/api/audit/verify-chain');
+      // GET /api/auditor/verify-chain
+      final res = await auditorClient.dio.get('/api/auditor/verify-chain');
       final result = res.data as Map<String, dynamic>;
       expect(result.containsKey('ok'), isTrue, reason: 'result should have ok');
       expect(result['ok'], isA<bool>(), reason: 'ok should be boolean');
@@ -156,7 +156,7 @@ void main() {
       'each audit entry has prev_hash + hash + actor + action + object_id + timestamp',
       () async {
         final res = await auditorClient.dio.get(
-          '/api/audit/search',
+          '/api/auditor/audit-search',
           queryParameters: {'limit': 10},
         );
         final result = res.data as Map<String, dynamic>;
@@ -242,7 +242,7 @@ void main() {
     test('audit JSON export contains entries', () async {
       try {
         final res = await auditorClient.dio.get(
-          '/api/audit/export',
+          '/api/auditor/audit-export',
           queryParameters: {'format': 'json'},
         );
         final bodyStr = res.data.toString();
@@ -260,9 +260,9 @@ void main() {
     });
 
     test('auditor stats returns aggregates', () async {
-      // GET /api/audit/stats — no client method
+      // GET /api/auditor/stats
       try {
-        final res = await auditorClient.dio.get('/api/audit/stats');
+        final res = await auditorClient.dio.get('/api/auditor/stats');
         final result = res.data as Map<String, dynamic>;
         expect(
           result.containsKey('counts'),

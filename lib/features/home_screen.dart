@@ -14,7 +14,6 @@ import '../providers/capability_provider.dart';
 import '../widgets/adaptive_nav.dart';
 import '../widgets/design_system/skeleton_loaders.dart';
 import '../widgets/design_system/status_grid.dart';
-import '../widgets/design_system/kasus_terdekat_cards.dart';
 import '../widgets/design_system/connectivity_indicator.dart';
 import '../widgets/design_system/task_filter_chips.dart';
 import '../widgets/design_system/task_sort_row.dart';
@@ -74,9 +73,7 @@ class ReportItem {
     return ReportItem(
       key: r['id']?.toString() ?? r['idempotency_key']?.toString() ?? '',
       description:
-          r['description']?.toString() ??
-          r['title']?.toString() ??
-          'Tanpa judul',
+          r['description']?.toString() ?? r['title']?.toString() ?? "-",
       lat: lat.toDouble(),
       lng: lng.toDouble(),
       syncStatus: 1,
@@ -171,6 +168,9 @@ class _ReportListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final timeAgo = _formatTimeAgo(context, report.createdAt);
+
     return Card(
       margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
       elevation: 0,
@@ -241,10 +241,9 @@ class _ReportListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: SigapSpacing.xs),
                     Text(
-                      '${report.lat.toStringAsFixed(4)}, ${report.lng.toStringAsFixed(4)}',
+                      timeAgo,
                       style: const TextStyle(
                         color: SigapColors.textTertiary,
-                        fontFamily: SigapTypography.fontFamilyMono,
                         fontSize: SigapTypography.captionMedium,
                       ),
                     ),
@@ -261,6 +260,21 @@ class _ReportListItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatTimeAgo(BuildContext context, DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 0) {
+      if (diff.inDays == 1) return l10n.kemarin;
+      if (diff.inDays < 7) return '${diff.inDays} ${l10n.hariLalu}';
+      return '${(diff.inDays / 7).floor()} ${l10n.mingguLalu}';
+    } else if (diff.inHours > 0) {
+      return '${diff.inHours} ${l10n.jamLalu}';
+    } else if (diff.inMinutes > 0) {
+      return '${diff.inMinutes} ${l10n.menitYangLalu}';
+    }
+    return l10n.baruSaja;
   }
 }
 
@@ -457,9 +471,9 @@ Widget _buildWargaEmpty(BuildContext context) {
             ),
           ),
           const SizedBox(height: SigapSpacing.xs),
-          const Text(
-            'Laporan yang Anda kirimkan akan dicatat di sini.',
-            style: TextStyle(
+          Text(
+            l10n.laporanYangAndaKirimkan,
+            style: const TextStyle(
               color: SigapColors.textSecondary,
               fontSize: SigapTypography.bodyText,
             ),
@@ -473,6 +487,8 @@ Widget _buildWargaEmpty(BuildContext context) {
 
 Widget _buildSurveyorLoading() {
   return ListView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
     padding: const EdgeInsets.all(SigapSpacing.lg),
     itemCount: 3,
     itemBuilder: (_, __) => Padding(
@@ -482,7 +498,8 @@ Widget _buildSurveyorLoading() {
   );
 }
 
-Widget _buildSurveyorEmpty() {
+Widget _buildSurveyorEmpty(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -502,18 +519,18 @@ Widget _buildSurveyorEmpty() {
           ),
         ),
         const SizedBox(height: SigapSpacing.lg),
-        const Text(
-          'Tidak ada tugas',
-          style: TextStyle(
+        Text(
+          l10n.tidakAdaTugas,
+          style: const TextStyle(
             fontSize: SigapTypography.bodyLarge,
             fontWeight: FontWeight.w600,
             color: SigapColors.textPrimary,
           ),
         ),
         const SizedBox(height: SigapSpacing.xs),
-        const Text(
-          'Tugas akan muncul di sini',
-          style: TextStyle(
+        Text(
+          l10n.tugasAkanMunculDiSini,
+          style: const TextStyle(
             fontSize: SigapTypography.bodyText,
             color: SigapColors.textTertiary,
           ),
@@ -563,7 +580,7 @@ Widget _buildSurveyorError(
             label: Text(l10n.cobaLagi),
             style: ElevatedButton.styleFrom(
               backgroundColor: SigapColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: SigapColors.surface,
               padding: const EdgeInsets.symmetric(
                 horizontal: SigapSpacing.lg,
                 vertical: SigapSpacing.md,
@@ -678,65 +695,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ) ??
         false;
 
-    return Column(
-      children: [
-        Expanded(
-          child: Scaffold(
-            backgroundColor: SigapColors.bgSurface,
-            body: _buildBody(isOffline),
-            bottomNavigationBar: activeRole == 'WARGA'
-                ? FixedWargaBottomNav(
-                    activeIndex: _selectedNavIndex,
-                    onTabTap: (index) {
-                      setState(() => _selectedNavIndex = index);
-                      final route = FixedWargaBottomNav.fixedRoutes[index];
-                      if (index == 0) {
-                        context.go(route);
-                      } else {
-                        context.push(route);
-                      }
-                    },
-                    onFabTap: () => context.push('/create'),
-                  )
-                : activeRole == 'SURVEYOR'
-                ? SurveyorBottomNav(
-                    activeIndex: _selectedNavIndex,
-                    onTap: (index) {
-                      setState(() => _selectedNavIndex = index);
-                      final route = surveyorNavRoutes[index];
-                      if (index == 0) {
-                        context.go(route);
-                      } else {
-                        context.push(route);
-                      }
-                    },
-                  )
-                : AdaptiveNav(
-                    activeIndex: _selectedNavIndex,
-                    onTap: (index) {
-                      setState(() => _selectedNavIndex = index);
-                      // Derive route from capabilities — same order as AdaptiveNav._buildNavItems.
-                      final capabilityState = ref.read(
-                        capabilityNotifierProvider.select(
-                          (state) => state.valueOrNull,
-                        ),
-                      );
-                      final routes = navRoutesForCapabilities(
-                        capabilityState?.capabilities ?? {},
-                      );
-                      final route = index < routes.length
-                          ? routes[index]
-                          : '/dashboard';
-                      if (index == 0) {
-                        context.go(route);
-                      } else {
-                        context.push(route);
-                      }
-                    },
-                  ),
-          ),
-        ),
-      ],
+    return Scaffold(
+      backgroundColor: SigapColors.bgSurface,
+      body: _buildBody(isOffline),
+      bottomNavigationBar: activeRole == 'WARGA'
+          ? FixedWargaBottomNav(
+              activeIndex: _selectedNavIndex,
+              onTabTap: (index) {
+                setState(() => _selectedNavIndex = index);
+                final route = FixedWargaBottomNav.fixedRoutes[index];
+                context.go(route);
+              },
+              onFabTap: () => context.push('/create'),
+            )
+          : activeRole == 'SURVEYOR'
+          ? SurveyorBottomNav(
+              activeIndex: _selectedNavIndex,
+              onTap: (index) {
+                setState(() => _selectedNavIndex = index);
+                final route = surveyorNavRoutes[index];
+                context.push(route);
+              },
+            )
+          : AdaptiveNav(
+              activeIndex: _selectedNavIndex,
+              onTap: (index, route) {
+                setState(() => _selectedNavIndex = index);
+                context.push(route);
+              },
+            ),
     );
   }
 
@@ -827,15 +814,15 @@ class HomeShell extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: SigapSpacing.md),
-          // ── Pending banner (report.read) ──────────────────────────────
+          // ── Pending banner (report.submit = WARGA only) ────────────────────
           Can(
-            action: 'report.read',
+            action: 'report.submit',
             child: _PendingBannerContent(isOffline: isOffline),
           ),
           const SizedBox(height: SigapSpacing.md),
-          // ── Warga stats + list (report.read) ─────────────────────────
+          // ── Warga stats + list (report.submit = WARGA only) ────────────────
           Can(
-            action: 'report.read',
+            action: 'report.submit',
             child: _WargaReportsModule(isOffline: isOffline),
           ),
           // ── Nearest cases (case.read) ─────────────────────────────────
@@ -984,7 +971,7 @@ class _WargaReportsModule extends ConsumerWidget {
   }
 }
 
-/// Nearest cases module (KasusTerdekatSection) for warga.
+/// Nearest cases module — uses same card style as Laporan Saya.
 class _NearestCasesModule extends ConsumerWidget {
   const _NearestCasesModule({this.currentPosition});
   final Position? currentPosition;
@@ -1004,42 +991,142 @@ class _NearestCasesModule extends ConsumerWidget {
     return nearbyAsync.when(
       data: (reports) {
         if (reports.isEmpty) return const SizedBox.shrink();
-        final cases = reports.map((r) {
-          final statusStr = r['status']?.toString() ?? '';
-          KasusStatus status =
-              statusStr.contains('verified') ||
-                  statusStr.contains('terverifikasi')
-              ? KasusStatus.terverifikasi
-              : KasusStatus.sedangDitangani;
-          return KasusTerdekatCase(
-            initials: (r['short_code'] ?? 'XX').toString().substring(
-              0,
-              2.clamp(0, (r['short_code'] ?? 'XX').toString().length),
-            ),
-            title: r['title']?.toString() ?? l10n.tanpaJudul,
-            rw: r['village_name']?.toString() ?? 'RW -',
-            distanceMeters: (r['distance_meters'] ?? 0).toInt(),
-            laporanCount: (r['supporting_count'] ?? 0).toInt(),
-            status: status,
-          );
-        }).toList();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: SigapSpacing.md),
-            KasusTerdekatSection(
-              cases: cases,
-              onLihatPeta: () => context.push('/map'),
-              onCaseTap: (kasus) {
-                final reportId = reports
-                    .firstWhere(
-                      (r) => r['title']?.toString() == kasus.title,
-                      orElse: () => {},
-                    )['id']
-                    ?.toString();
-                if (reportId != null) context.push('/laporan/$reportId');
-              },
+            // Header
+            Padding(
+              padding: const EdgeInsets.only(top: SigapSpacing.md),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l10n.kasusTerdekat,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodyText,
+                      fontWeight: FontWeight.w700,
+                      color: SigapColors.textPrimary,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => context.push('/map'),
+                    child: Text(
+                      l10n.lihatPeta,
+                      style: const TextStyle(
+                        fontSize: SigapTypography.bodySmall,
+                        fontWeight: FontWeight.w600,
+                        color: SigapColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(height: SigapSpacing.sm),
+            // List using same card as Laporan Saya
+            ...reports.map((r) {
+              final id = r['id']?.toString() ?? '';
+              final statusStr = r['status']?.toString();
+              final distanceM = (r['distance_m'] ?? 0) as int;
+              final createdAt = _parseDate(r['created_at']);
+              final timeAgo = createdAt != null
+                  ? _formatTimeAgo(context, createdAt)
+                  : '';
+              final categoryName = r['category_id']?.toString() ?? '';
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: SigapSpacing.sm),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SigapRadius.md),
+                  side: const BorderSide(color: SigapColors.borderCard),
+                ),
+                child: InkWell(
+                  onTap: () => context.push('/laporan/$id'),
+                  borderRadius: BorderRadius.circular(SigapRadius.md),
+                  child: Padding(
+                    padding: const EdgeInsets.all(SigapSpacing.md),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: _serverStatusColor(statusStr),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: SigapSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  if (statusStr != null) ...[
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: SigapSpacing.sm,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _serverStatusColor(
+                                          statusStr,
+                                        ).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(
+                                          SigapRadius.pill,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _serverStatusLabel(context, statusStr),
+                                        style: TextStyle(
+                                          color: _serverStatusColor(statusStr),
+                                          fontSize:
+                                              SigapTypography.captionMedium,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: SigapSpacing.sm),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      categoryName.isNotEmpty
+                                          ? categoryName.toUpperCase()
+                                          : l10n.laporan,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: SigapTypography.bodyTextWide,
+                                        fontWeight: FontWeight.w500,
+                                        color: SigapColors.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: SigapSpacing.xs),
+                              Text(
+                                '$timeAgo · ${_formatDistance(distanceM)}',
+                                style: const TextStyle(
+                                  color: SigapColors.textTertiary,
+                                  fontSize: SigapTypography.captionMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: SigapColors.textTertiary,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
           ],
         );
       },
@@ -1055,6 +1142,34 @@ class _NearestCasesModule extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  static String _formatDistance(int meters) {
+    if (meters >= 1000) {
+      return '${(meters / 1000).toStringAsFixed(1)} km';
+    }
+    return '$meters m';
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    return DateTime.tryParse(value.toString());
+  }
+
+  static String _formatTimeAgo(BuildContext context, DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 0) {
+      if (diff.inDays == 1) return l10n.kemarin;
+      if (diff.inDays < 7) return '${diff.inDays} ${l10n.hariLalu}';
+      return '${(diff.inDays / 7).floor()} ${l10n.mingguLalu}';
+    } else if (diff.inHours > 0) {
+      return '${diff.inHours} ${l10n.jamLalu}';
+    } else if (diff.inMinutes > 0) {
+      return '${diff.inMinutes} ${l10n.menitYangLalu}';
+    }
+    return l10n.baruSaja;
   }
 }
 
@@ -1167,8 +1282,13 @@ class _SurveyorTasksModule extends ConsumerWidget {
         ),
         // Task list
         tasksAsync.when(
-          data: (tasks) =>
-              _buildSurveyorTaskList(ref, tasks, filterIndex, sortValue),
+          data: (tasks) => _buildSurveyorTaskList(
+            context,
+            ref,
+            tasks,
+            filterIndex,
+            sortValue,
+          ),
           loading: () => _buildSurveyorLoading(),
           error: (error, _) => _buildSurveyorError(
             context,
@@ -1181,6 +1301,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
   }
 
   Widget _buildSurveyorTaskList(
+    BuildContext context,
     WidgetRef ref,
     List<SurveyorTask> tasks,
     int? filterIndex,
@@ -1188,7 +1309,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
   ) {
     final filteredTasks = _applyFilter(tasks, filterIndex);
     final sortedTasks = _applySort(filteredTasks, sortValue);
-    if (sortedTasks.isEmpty) return _buildSurveyorEmpty();
+    if (sortedTasks.isEmpty) return _buildSurveyorEmpty(context);
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(surveyorTasksProvider);
@@ -1196,6 +1317,8 @@ class _SurveyorTasksModule extends ConsumerWidget {
       },
       color: SigapColors.primary,
       child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(SigapSpacing.lg),
         itemCount: sortedTasks.length,
         itemBuilder: (context, index) {
@@ -1344,7 +1467,7 @@ class _SurveyorTasksModule extends ConsumerWidget {
     final timeAgo = _formatTimeAgo(context, _parseDate(task.assignedAt));
     return TaskData(
       id: task.taskId ?? '',
-      title: task.reportTitle ?? 'Tanpa judul',
+      title: task.reportTitle ?? "-",
       location: task.address ?? '-',
       timeAgo: timeAgo,
       priority: priority,

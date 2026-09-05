@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
 import 'package:sigap/widgets/design_system/skeleton_loaders.dart';
@@ -60,6 +61,7 @@ class UrgentCaseList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SigapCard(
       padding: const EdgeInsets.all(SigapSpacing.md),
       child: Column(
@@ -75,11 +77,11 @@ class UrgentCaseList extends StatelessWidget {
           ),
           const SizedBox(height: SigapSpacing.md),
           if (cases.isEmpty)
-            const Center(
+            Center(
               child: Padding(
                 padding: EdgeInsets.all(SigapSpacing.lg),
                 child: Text(
-                  'Tidak ada kasus kritis',
+                  l10n.tidakAdaKasusKritis,
                   style: TextStyle(
                     fontSize: SigapTypography.bodySmall,
                     color: SigapColors.textTertiary,

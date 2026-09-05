@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/design_system/authenticated_shell.dart';
 import '../../widgets/design_system/section_label.dart';
+import '../../widgets/design_system/sigap_app_bar.dart';
+import '../../widgets/design_system/sigap_card.dart';
 
 /// S-01 Sinkron Screen — role-aware unified sync center.
 ///
@@ -188,76 +191,44 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final pendingCountAsync = ref.watch(pendingCountProvider);
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
 
-    return Column(
-      children: [
-        Expanded(
-          child: Scaffold(
-            backgroundColor: SigapColors.bgSurface,
-            appBar: AppBar(
-              backgroundColor: SigapColors.bgCard,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              titleSpacing: 0,
-              title: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SigapSpacing.lg,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      widget.isWargaSection ? 'Sinkronisasi' : 'Sinkron',
-                      style: const TextStyle(
-                        fontSize: SigapTypography.sectionTitle,
-                        fontWeight: FontWeight.w700,
-                        color: SigapColors.textPrimary,
-                      ),
-                    ),
-                    const Spacer(),
-                    pendingCountAsync.when(
-                      data: (count) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: count > 0
-                              ? SigapColors.warning.withValues(alpha: 0.1)
-                              : SigapColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '$count menunggu',
-                          style: TextStyle(
-                            fontFamily: SigapTypography.fontFamilyMono,
-                            fontSize: SigapTypography.captionMedium,
-                            fontWeight: FontWeight.w600,
-                            color: count > 0
-                                ? SigapColors.warning
-                                : SigapColors.primary,
-                          ),
-                        ),
-                      ),
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.sync),
-                  onPressed: _syncAll,
-                  tooltip: l10n.syncAll,
-                ),
-              ],
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      backgroundColor: SigapColors.bgSurface,
+      appBar: SigapAppBar(
+        title: l10n.pusatSinkronisasi,
+        trailing: pendingCountAsync.when(
+          data: (count) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: count > 0
+                  ? SigapColors.warning.withValues(alpha: 0.1)
+                  : SigapColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(SigapRadius.x6),
             ),
-            body: widget.isWargaSection
-                ? _buildWargaBody()
-                : _buildSurveyorBody(),
+            child: Text(
+              l10n.countMenunggu(count),
+              style: TextStyle(
+                fontFamily: SigapTypography.fontFamilyMono,
+                fontSize: SigapTypography.captionMedium,
+                fontWeight: FontWeight.w600,
+                color: count > 0 ? SigapColors.warning : SigapColors.primary,
+              ),
+            ),
           ),
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
         ),
-      ],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sync),
+            onPressed: _syncAll,
+            tooltip: l10n.syncAll,
+          ),
+        ],
+      ),
+      body: widget.isWargaSection ? _buildWargaBody() : _buildSurveyorBody(),
     );
   }
 
@@ -277,6 +248,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
   }
 
   Widget _buildWargaEmpty() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -296,18 +268,18 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
             ),
           ),
           const SizedBox(height: SigapSpacing.lg),
-          const Text(
-            'Semua tersinkron',
-            style: TextStyle(
+          Text(
+            l10n.semuaTersinkron,
+            style: const TextStyle(
               fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
             ),
           ),
           const SizedBox(height: SigapSpacing.xs),
-          const Text(
-            'Tidak ada data yang menunggu sinkron',
-            style: TextStyle(
+          Text(
+            l10n.tidakAdaDataMenungguSinkron,
+            style: const TextStyle(
               fontSize: SigapTypography.bodyText,
               color: SigapColors.textTertiary,
             ),
@@ -318,6 +290,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
   }
 
   Widget _buildWargaList() {
+    final l10n = AppLocalizations.of(context)!;
     return RefreshIndicator(
       onRefresh: _loadWargaSection,
       color: SigapColors.primary,
@@ -327,15 +300,16 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
           // Dead-letter section
           if (_wargaDeadLetter.isNotEmpty) ...[
             SectionLabel(
-              label: 'Gagal dikirim',
+              label: l10n.gagalDikirim,
               color: SigapColors.perluTindakan,
             ),
             ..._wargaDeadLetter.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: SigapSpacing.md),
-                child: _DeadLetterCard(
+                child: _deadLetterCard(
                   item: item,
                   onRetry: () => _retryDeadLetter(item.idempotencyKey),
+                  l10n: l10n,
                 ),
               ),
             ),
@@ -344,11 +318,11 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
 
           // Pending section
           if (_wargaPending.isNotEmpty) ...[
-            SectionLabel(label: 'Menunggu', color: SigapColors.warning),
+            SectionLabel(label: l10n.menungguLabel, color: SigapColors.warning),
             ..._wargaPending.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: SigapSpacing.md),
-                child: _ReportSyncCard(item: item),
+                child: _reportSyncCard(context, item: item),
               ),
             ),
           ],
@@ -370,10 +344,11 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
     if (_pendingVisits.isEmpty) {
       return _buildSurveyorEmpty();
     }
-    return _buildSurveyorList();
+    return _buildSurveyorList(context);
   }
 
   Widget _buildSurveyorEmpty() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -393,9 +368,9 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
             ),
           ),
           const SizedBox(height: SigapSpacing.lg),
-          const Text(
-            'Semua tersinkron',
-            style: TextStyle(
+          Text(
+            l10n.semuaTersinkron,
+            style: const TextStyle(
               fontSize: SigapTypography.bodyLarge,
               fontWeight: FontWeight.w600,
               color: SigapColors.textPrimary,
@@ -403,7 +378,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
           ),
           const SizedBox(height: SigapSpacing.xs),
           Text(
-            '$_downloadedTaskCount tugas tersimpan offline',
+            l10n.tugasTersimpanOfflineCount(_downloadedTaskCount),
             style: const TextStyle(
               fontSize: SigapTypography.bodyText,
               color: SigapColors.textTertiary,
@@ -414,7 +389,8 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
     );
   }
 
-  Widget _buildSurveyorList() {
+  Widget _buildSurveyorList(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return RefreshIndicator(
       onRefresh: _loadSurveyorSection,
       color: SigapColors.primary,
@@ -436,7 +412,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
                   const Icon(Icons.download_done, color: SigapColors.primary),
                   const SizedBox(width: SigapSpacing.sm),
                   Text(
-                    '$_downloadedTaskCount tugas tersimpan offline',
+                    l10n.tugasTersimpanOfflineCount(_downloadedTaskCount),
                     style: const TextStyle(
                       fontSize: SigapTypography.bodyText,
                       fontWeight: FontWeight.w600,
@@ -451,7 +427,7 @@ class _SyncCenterScreenState extends ConsumerState<SyncCenterScreen> {
           ..._pendingVisits.map(
             (item) => Padding(
               padding: const EdgeInsets.only(bottom: SigapSpacing.md),
-              child: _VisitPendingCard(
+              child: _visitPendingCard(
                 item: item,
                 onTap: () {
                   context.push('/tasks/${item.taskId}');
@@ -514,19 +490,179 @@ class _PendingItem {
 
 // ─── Cards ───────────────────────────────────────────────────────────────────
 
-class _ReportSyncCard extends StatelessWidget {
-  final _SyncReportItem item;
+/// Builds a pending report sync card using SigapCard.
+Widget _reportSyncCard(BuildContext context, {required _SyncReportItem item}) {
+  final l10n = AppLocalizations.of(context)!;
+  return SigapCard(
+    padding: const EdgeInsets.all(SigapSpacing.md),
+    child: Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: SigapColors.warning.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.schedule,
+            color: SigapColors.warning,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: SigapSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.description,
+                style: const TextStyle(
+                  fontSize: SigapTypography.bodyTextWide,
+                  fontWeight: FontWeight.w600,
+                  color: SigapColors.textPrimary,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
+                style: const TextStyle(
+                  fontFamily: SigapTypography.fontFamilyMono,
+                  fontSize: SigapTypography.captionMedium,
+                  color: SigapColors.textTertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: SigapColors.warning.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            l10n.menungguLabel,
+            style: const TextStyle(
+              fontSize: SigapTypography.captionSmall,
+              fontWeight: FontWeight.w600,
+              color: SigapColors.warning,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
-  const _ReportSyncCard({required this.item});
+/// Builds a dead-letter report card using SigapCard with a danger left border.
+Widget _deadLetterCard({
+  required _SyncReportItem item,
+  required VoidCallback onRetry,
+  required AppLocalizations l10n,
+}) {
+  return SigapCard(
+    borderLeftColor: SigapColors.perluTindakan,
+    padding: const EdgeInsets.all(SigapSpacing.md),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: SigapColors.dangerBg,
+                borderRadius: BorderRadius.circular(SigapRadius.x8),
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                color: SigapColors.perluTindakan,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: SigapSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.description,
+                    style: const TextStyle(
+                      fontSize: SigapTypography.bodyTextWide,
+                      fontWeight: FontWeight.w600,
+                      color: SigapColors.textPrimary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (item.lastError != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      item.lastError!,
+                      style: const TextStyle(
+                        fontSize: SigapTypography.captionMedium,
+                        color: SigapColors.dangerTextStrong,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh, color: SigapColors.perluTindakan),
+              tooltip: l10n.cobaLagi,
+              onPressed: onRetry,
+            ),
+          ],
+        ),
+        const SizedBox(height: SigapSpacing.sm),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: SigapColors.dangerBg,
+                borderRadius: BorderRadius.circular(SigapRadius.x6),
+              ),
+              child: Text(
+                l10n.gagalLabel,
+                style: const TextStyle(
+                  fontSize: SigapTypography.captionSmall,
+                  fontWeight: FontWeight.w600,
+                  color: SigapColors.dangerTextStrong,
+                ),
+              ),
+            ),
+            Text(
+              '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
+              style: const TextStyle(
+                fontFamily: SigapTypography.fontFamilyMono,
+                fontSize: SigapTypography.captionSmall,
+                color: SigapColors.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: SigapColors.bgCard,
-        borderRadius: BorderRadius.circular(SigapRadius.x12),
-        border: Border.all(color: SigapColors.borderCard),
-      ),
+/// Builds a pending visit card using SigapCard.
+Widget _visitPendingCard({
+  required _PendingItem item,
+  required VoidCallback onTap,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: SigapCard(
       padding: const EdgeInsets.all(SigapSpacing.md),
       child: Row(
         children: [
@@ -535,7 +671,7 @@ class _ReportSyncCard extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: SigapColors.warning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(SigapRadius.x8),
             ),
             child: const Icon(
               Icons.schedule,
@@ -549,18 +685,18 @@ class _ReportSyncCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.description,
+                  item._title,
                   style: const TextStyle(
                     fontSize: SigapTypography.bodyTextWide,
                     fontWeight: FontWeight.w600,
                     color: SigapColors.textPrimary,
                   ),
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
+                  item._taskIdDisplay,
                   style: const TextStyle(
                     fontFamily: SigapTypography.fontFamilyMono,
                     fontSize: SigapTypography.captionMedium,
@@ -574,7 +710,7 @@ class _ReportSyncCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: SigapColors.warning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(SigapRadius.x6),
             ),
             child: const Text(
               'Menunggu',
@@ -587,200 +723,8 @@ class _ReportSyncCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _DeadLetterCard extends StatelessWidget {
-  final _SyncReportItem item;
-  final VoidCallback onRetry;
-
-  const _DeadLetterCard({required this.item, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      decoration: BoxDecoration(
-        color: SigapColors.dangerBg,
-        borderRadius: BorderRadius.circular(SigapRadius.x12),
-        border: Border.all(color: SigapColors.dangerBorder),
-      ),
-      padding: const EdgeInsets.all(SigapSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: SigapColors.dangerBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.error_outline,
-                  color: SigapColors.perluTindakan,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: SigapSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.description,
-                      style: const TextStyle(
-                        fontSize: SigapTypography.bodyTextWide,
-                        fontWeight: FontWeight.w600,
-                        color: SigapColors.textPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (item.lastError != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        item.lastError!,
-                        style: const TextStyle(
-                          fontSize: SigapTypography.captionMedium,
-                          color: SigapColors.dangerTextStrong,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.refresh,
-                  color: SigapColors.perluTindakan,
-                ),
-                tooltip: l10n.cobaLagi,
-                onPressed: onRetry,
-              ),
-            ],
-          ),
-          const SizedBox(height: SigapSpacing.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: SigapColors.dangerBg,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Gagal',
-                  style: TextStyle(
-                    fontSize: SigapTypography.captionSmall,
-                    fontWeight: FontWeight.w600,
-                    color: SigapColors.dangerTextStrong,
-                  ),
-                ),
-              ),
-              Text(
-                '${item.createdAt.day}/${item.createdAt.month}/${item.createdAt.year}',
-                style: const TextStyle(
-                  fontFamily: SigapTypography.fontFamilyMono,
-                  fontSize: SigapTypography.captionSmall,
-                  color: SigapColors.textTertiary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VisitPendingCard extends StatelessWidget {
-  final _PendingItem item;
-  final VoidCallback onTap;
-
-  const _VisitPendingCard({required this.item, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: SigapColors.bgCard,
-          borderRadius: BorderRadius.circular(SigapRadius.x12),
-          border: Border.all(color: SigapColors.borderCard),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(SigapSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: SigapColors.warning.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.schedule,
-                  color: SigapColors.warning,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: SigapSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item._title,
-                      style: const TextStyle(
-                        fontSize: SigapTypography.bodyTextWide,
-                        fontWeight: FontWeight.w600,
-                        color: SigapColors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item._taskIdDisplay,
-                      style: const TextStyle(
-                        fontFamily: SigapTypography.fontFamilyMono,
-                        fontSize: SigapTypography.captionMedium,
-                        color: SigapColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: SigapColors.warning.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Menunggu',
-                  style: TextStyle(
-                    fontSize: SigapTypography.captionSmall,
-                    fontWeight: FontWeight.w600,
-                    color: SigapColors.warning,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+    ),
+  );
 }
 
 class _ErrorRetry extends StatelessWidget {
@@ -804,8 +748,8 @@ class _ErrorRetry extends StatelessWidget {
               color: SigapColors.perluTindakan,
             ),
             const SizedBox(height: SigapSpacing.lg),
-            const Text(
-              'Gagal memuat data',
+            Text(
+              l10n.gagalMemuatData,
               style: TextStyle(
                 fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w600,

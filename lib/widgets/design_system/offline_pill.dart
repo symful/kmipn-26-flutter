@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 class OfflinePill extends StatelessWidget {
@@ -6,6 +7,7 @@ class OfflinePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: SigapSpacing.x9,
@@ -32,7 +34,7 @@ class OfflinePill extends StatelessWidget {
           ),
           SizedBox(width: SigapSpacing.xs),
           Text(
-            'Offline',
+            l10n.statusOffline,
             style: TextStyle(
               fontSize: SigapTypography.captionMedium,
               fontWeight: FontWeight.w600,

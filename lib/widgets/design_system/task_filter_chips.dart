@@ -120,7 +120,7 @@ class _TaskFilterChip extends StatelessWidget {
 
   Color get _textColor {
     if (label == 'Hari ini') {
-      return Colors.white;
+      return SigapColors.surface;
     } else if (label == 'Terlambat') {
       return SigapColors.dangerTextStrong; // #a5271a
     }

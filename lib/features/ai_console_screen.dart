@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
+import 'package:sigap/widgets/design_system/authenticated_shell.dart';
+import 'package:sigap/widgets/design_system/sigap_app_bar.dart';
 
 /// AI Console screen for reviewing AI assessment results and triggering re-scans.
 ///
@@ -70,13 +72,13 @@ class _AiConsoleScreenState extends ConsumerState<AiConsoleScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(l10n.aiConsole),
-        backgroundColor: SigapColors.surface,
-        foregroundColor: SigapColors.textPrimary,
-        elevation: 0,
+      appBar: SigapAppBar(
+        title: l10n.aiConsole,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -148,7 +150,7 @@ class _ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: SigapSpacing.md),
             Text(
-              'Gagal Memuat Assessment',
+              l10n.gagalMemuatAssessment,
               style: TextStyle(
                 fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.bold,
@@ -171,7 +173,7 @@ class _ErrorView extends StatelessWidget {
               label: Text(l10n.cobaLagi),
               style: ElevatedButton.styleFrom(
                 backgroundColor: SigapColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: SigapColors.surface,
               ),
             ),
           ],
@@ -209,7 +211,7 @@ class _EmptyView extends StatelessWidget {
             ),
             const SizedBox(height: SigapSpacing.md),
             Text(
-              'Belum Ada Assessment AI',
+              l10n.belumAdaAssessmentAI,
               style: TextStyle(
                 fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.bold,
@@ -218,7 +220,7 @@ class _EmptyView extends StatelessWidget {
             ),
             const SizedBox(height: SigapSpacing.xs),
             Text(
-              'Assessment AI akan muncul setelah laporan diajukan dan diproses.',
+              l10n.assessmentAiMunculNanti,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: SigapTypography.bodyText,
@@ -299,7 +301,7 @@ class _AssessmentList extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Report: ${item['report_id']}',
+                              l10n.reportLabelId(item['report_id'] as String),
                               style: TextStyle(
                                 fontSize: SigapTypography.bodyText,
                                 fontWeight: FontWeight.w600,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sigap/api/client.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
 import 'package:sigap/widgets/design_system/status_pill.dart';
@@ -85,27 +86,27 @@ class ReportListItem extends StatelessWidget {
     }
   }
 
-  String get _statusLabel {
+  String _statusLabel(AppLocalizations l10n) {
     final status = report.status?.value ?? '';
     switch (status.toLowerCase()) {
       case 'pending':
       case 'submitted':
-        return 'Menunggu';
+        return l10n.menunggu;
       case 'under_review':
-        return 'Diproses';
+        return l10n.diproses;
       case 'in_progress':
-        return 'Dalam Proses';
+        return l10n.dalamProses;
       case 'verified':
       case 'completed':
-        return 'Diverifikasi';
+        return l10n.diverifikasi;
       case 'rejected':
-        return 'Ditolak';
+        return l10n.ditolak;
       case 'resolved':
-        return 'Selesai';
+        return l10n.selesai;
       case 'duplicate_merged':
-        return 'Duplikat';
+        return l10n.duplikat;
       case 'needs_survey':
-        return 'Perlu Survei';
+        return l10n.perluSurvei;
       default:
         return status.isNotEmpty ? status : '-';
     }
@@ -114,8 +115,9 @@ class ReportListItem extends StatelessWidget {
   /// Builds a [StatusPill] from [report.status].
   ///
   /// Call this from the top-left position in the card header.
-  Widget _buildStatusBadge() {
-    return StatusPill(label: _statusLabel, tone: _statusTone);
+  Widget _buildStatusBadge(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return StatusPill(label: _statusLabel(l10n), tone: _statusTone);
   }
 
   StatusTone get _severityTone {
@@ -132,6 +134,7 @@ class ReportListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final id = report.id ?? '';
     final description = report.description ?? report.title ?? '';
     final category = report.category;
@@ -147,7 +150,7 @@ class ReportListItem extends StatelessWidget {
             // --- Header row ---
             Row(
               children: [
-                _buildStatusBadge(),
+                _buildStatusBadge(context),
                 const SizedBox(width: SigapSpacing.sm),
                 if (category != null && category.isNotEmpty) ...[
                   Container(
@@ -172,14 +175,16 @@ class ReportListItem extends StatelessWidget {
                 if (showSeverity && report.severity != null) ...[
                   const SizedBox(width: SigapSpacing.xs),
                   StatusPill(
-                    label: 'Severity: ${report.severity}',
+                    label: l10n.severityColonValue(report.severity.toString()),
                     tone: _severityTone,
                   ),
                 ],
                 if (showPriorityScore && report.priorityScore != null) ...[
                   const SizedBox(width: SigapSpacing.xs),
                   StatusPill(
-                    label: 'Score: ${report.priorityScore}',
+                    label: l10n.scoreColonValue(
+                      report.priorityScore.toString(),
+                    ),
                     tone: StatusTone.warning,
                   ),
                 ],

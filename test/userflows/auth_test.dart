@@ -15,7 +15,6 @@ final _qaAccounts = {
   'admin_daerah': {'email': 'admin.daerah@sigap.id', 'password': 'admin123'},
   'auditor': {'email': 'auditor@sigap.id', 'password': 'auditor123'},
   'eksekutif': {'email': 'eksekutif@sigap.id', 'password': 'exec123'},
-  'rt_rw': {'email': 'rtrw@sigap.id', 'password': 'rtrw123'},
 };
 
 Map<String, dynamic> _decodeJwt(String token) {
@@ -292,7 +291,6 @@ void main() async {
       'ADMIN_DAERAH',
       'AUDITOR',
       'PENGAMBIL_KEPUTUSAN',
-      'RT_RW',
     ];
     for (final role in testRoles) {
       final tokens = await _loginAs(role);

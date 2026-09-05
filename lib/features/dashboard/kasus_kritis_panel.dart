@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/widgets/design_system/sigap_card.dart';
 import 'package:sigap/widgets/design_system/skeleton_loaders.dart';
@@ -49,6 +50,7 @@ class KasusKritisPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SigapCard(
       padding: const EdgeInsets.all(SigapSpacing.md),
       child: Column(
@@ -64,9 +66,9 @@ class KasusKritisPanel extends StatelessWidget {
                 size: 18,
               ),
               const SizedBox(width: SigapSpacing.xs),
-              const Text(
-                'Kasus Kritis',
-                style: TextStyle(
+              Text(
+                l10n.kasusKritisTitle,
+                style: const TextStyle(
                   fontSize: SigapTypography.bodyText,
                   fontWeight: FontWeight.w600,
                   color: SigapColors.textPrimary,
@@ -102,7 +104,7 @@ class KasusKritisPanel extends StatelessWidget {
           else if (errorMessage != null)
             _buildErrorState(errorMessage!)
           else if (cases.isEmpty)
-            _buildEmptyState()
+            _buildEmptyState(context)
           else
             _buildCaseList(),
         ],
@@ -149,22 +151,23 @@ class KasusKritisPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return const Center(
+  Widget _buildEmptyState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(SigapSpacing.lg),
+        padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.check_circle_outline,
               color: SigapColors.success,
               size: 32,
             ),
-            SizedBox(height: SigapSpacing.xs),
+            const SizedBox(height: SigapSpacing.xs),
             Text(
-              'Tidak ada kasus kritis',
-              style: TextStyle(
+              l10n.tidakAdaKasusKritis,
+              style: const TextStyle(
                 fontSize: SigapTypography.bodySmall,
                 color: SigapColors.textTertiary,
               ),
@@ -199,12 +202,13 @@ class _KasusKritisItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final urgencyColor = caseItem.isOverdue
         ? SigapColors.danger
         : SigapColors.warning;
 
     final slaText = caseItem.isOverdue
-        ? 'Overdue'
+        ? l10n.overdue
         : '${caseItem.slaHoursRemaining}h';
 
     return InkWell(

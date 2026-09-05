@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../theme/tokens.dart';
+import 'package:sigap/theme/tokens.dart';
 
 enum ClusterStatus { red, amber, teal, blue }
 
@@ -52,9 +51,9 @@ class ClusterPin extends StatelessWidget {
       child: Text(
         count > 99 ? '99+' : count.toString(),
         style: const TextStyle(
-          fontSize: 11,
+          fontSize: SigapTypography.captionMedium,
           fontWeight: FontWeight.w700,
-          color: Colors.white,
+          color: SigapColors.surface,
         ),
       ),
     );

@@ -10,7 +10,9 @@ import '../../providers/providers.dart';
 import '../../providers/capability_provider.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/adaptive_nav.dart';
+import '../../widgets/design_system/responsive_scaffold.dart';
 import '../../widgets/design_system/task_filter_chips.dart';
+import '../../widgets/design_system/section_label.dart';
 import '../../widgets/design_system/sync_status_indicator.dart';
 import '../../widgets/design_system/photo_full_screen.dart';
 import '../../widgets/design_system/petugas_action_bar.dart';
@@ -518,15 +520,9 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
     );
     final isSurveyor = _getIsSurveyor(capabilityState);
 
-    return Column(
-      children: [
-        Expanded(
-          child: widget.taskId != null
-              ? _buildDetailView(isSurveyor)
-              : _buildListView(isSurveyor),
-        ),
-      ],
-    );
+    return widget.taskId != null
+        ? _buildDetailView(isSurveyor)
+        : _buildListView(isSurveyor);
   }
 
   // ─── List view ─────────────────────────────────────────────────────────────
@@ -552,12 +548,11 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
       return t.deadline!.isBefore(now);
     }).length;
 
-    return Scaffold(
-      backgroundColor: SigapColors.bgSurface,
+    return ResponsiveScaffold(
       appBar: AppBar(
         backgroundColor: SigapColors.bgCard,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         toolbarHeight: 60,
         titleSpacing: 0,
         title: Padding(
@@ -569,7 +564,9 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    isSurveyor ? 'Tugas Survei' : 'Tugas Petugas',
+                    isSurveyor
+                        ? _l10n.tugasSurveiTitle
+                        : _l10n.tugasPetugasTitle,
                     style: const TextStyle(
                       fontSize: SigapTypography.sectionTitle,
                       fontWeight: FontWeight.w700,
@@ -655,7 +652,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                   child: Row(
                     children: [
                       Text(
-                        'Urutkan: ',
+                        _l10n.urutkanLabel,
                         style: TextStyle(
                           fontSize: SigapTypography.bodySmall,
                           color: SigapColors.textTertiary,
@@ -731,21 +728,18 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                 ),
               ],
             ),
-      bottomNavigationBar: isSurveyor
-          ? AdaptiveNav(
-              activeIndex: _selectedNavIndex,
-              onTap: (index) {
-                setState(() {
-                  _selectedNavIndex = index;
-                });
-                if (index == 1) {
-                  context.go('/map');
-                } else if (index == 4) {
-                  context.go('/profile');
-                }
-              },
-            )
-          : null,
+      bottomNavigationBar: Can(
+        action: 'survey.start',
+        child: AdaptiveNav(
+          activeIndex: _selectedNavIndex,
+          onTap: (index, route) {
+            setState(() {
+              _selectedNavIndex = index;
+            });
+            context.push(route);
+          },
+        ),
+      ),
     );
   }
 
@@ -772,7 +766,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
             ),
             const SizedBox(height: SigapSpacing.md),
             Text(
-              isSurveyor ? 'Tidak Ada Tugas Survei' : 'Belum Ada Tugas',
+              isSurveyor ? _l10n.tidakAdaTugasSurvei : _l10n.belumAdaTugas,
               style: const TextStyle(
                 fontSize: SigapTypography.bodyLarge,
                 fontWeight: FontWeight.w700,
@@ -782,8 +776,8 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
             const SizedBox(height: SigapSpacing.xs),
             Text(
               isSurveyor
-                  ? 'Semua tugas survei lapangan yang ditugaskan akan tampil di sini.'
-                  : 'Tugas penanganan dari operator akan muncul di sini saat ditugaskan.',
+                  ? _l10n.tugasSurveiDeskripsi
+                  : _l10n.tugasPetugasDeskripsi,
               style: const TextStyle(
                 fontSize: SigapTypography.bodyText,
                 color: SigapColors.textSecondary,
@@ -805,8 +799,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
   // ─── Detail view ──────────────────────────────────────────────────────────
 
   Widget _buildDetailView(bool isSurveyor) {
-    return Scaffold(
-      backgroundColor: SigapColors.bgSurface,
+    return ResponsiveScaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -835,8 +828,8 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
                   Expanded(
                     child: Text(
                       isSurveyor
-                          ? 'Detail Tugas Survei'
-                          : 'Detail Tugas Petugas',
+                          ? _l10n.detailTugasSurvei
+                          : _l10n.detailTugasPetugas,
                       style: const TextStyle(
                         fontSize: SigapTypography.bodyLarge,
                         fontWeight: FontWeight.w600,
@@ -935,14 +928,7 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
 
           // Progress (for petugas only - surveyor uses checklist)
           if (!isSurveyor && detail.progress != null) ...[
-            Text(
-              _l10n.progress,
-              style: const TextStyle(
-                fontSize: SigapTypography.bodyText,
-                fontWeight: FontWeight.w600,
-                color: SigapColors.textSecondary,
-              ),
-            ),
+            SectionLabel(label: _l10n.progress),
             const SizedBox(height: SigapSpacing.xs),
             Row(
               children: [
@@ -1016,16 +1002,21 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
             ),
 
           // Offline status card (surveyor only)
-          if (isSurveyor) ...[
-            const SizedBox(height: SigapSpacing.lg),
-            S02OfflineBanner(
-              isOfflineReady: _isDownloaded,
-              payloadBytes: _isDownloaded
-                  ? (_reportPhotos.length * _kAvgEvidencePhotoBytes +
-                        (kMapTileEstimateMb * 1000000).toInt())
-                  : null,
+          Can(
+            action: 'survey.start',
+            child: Column(
+              children: [
+                const SizedBox(height: SigapSpacing.lg),
+                S02OfflineBanner(
+                  isOfflineReady: _isDownloaded,
+                  payloadBytes: _isDownloaded
+                      ? (_reportPhotos.length * _kAvgEvidencePhotoBytes +
+                            (kMapTileEstimateMb * 1000000).toInt())
+                      : null,
+                ),
+              ],
             ),
-          ],
+          ),
 
           // Citizen evidence gallery (Bukti warga)
           if (_reportPhotos.isNotEmpty) ...[
@@ -1038,32 +1029,39 @@ class _TaskWorkspaceState extends ConsumerState<TaskWorkspace> {
           ],
 
           // Checklist section (surveyor only)
-          if (isSurveyor &&
-              _checklistTemplate != null &&
-              (_checklistTemplate!.items ?? []).isNotEmpty) ...[
-            const SizedBox(height: SigapSpacing.lg),
-            S02Checklist(
-              items: (_checklistTemplate!.items ?? []).map((item) {
-                final label =
-                    item['label']?.toString() ??
-                    item['text']?.toString() ??
-                    'Item';
-                return label;
-              }).toList(),
-              checkedItems: _checkedChecklistItems,
-              onItemToggled: (index) {
-                setState(() {
-                  if (_checkedChecklistItems.contains(index)) {
-                    _checkedChecklistItems = Set.from(_checkedChecklistItems)
-                      ..remove(index);
-                  } else {
-                    _checkedChecklistItems = Set.from(_checkedChecklistItems)
-                      ..add(index);
-                  }
-                });
-              },
+          if (_checklistTemplate != null &&
+              (_checklistTemplate!.items ?? []).isNotEmpty)
+            Can(
+              action: 'survey.start',
+              child: Column(
+                children: [
+                  const SizedBox(height: SigapSpacing.lg),
+                  S02Checklist(
+                    items: (_checklistTemplate!.items ?? []).map((item) {
+                      final label =
+                          item['label']?.toString() ??
+                          item['text']?.toString() ??
+                          'Item';
+                      return label;
+                    }).toList(),
+                    checkedItems: _checkedChecklistItems,
+                    onItemToggled: (index) {
+                      setState(() {
+                        if (_checkedChecklistItems.contains(index)) {
+                          _checkedChecklistItems = Set.from(
+                            _checkedChecklistItems,
+                          )..remove(index);
+                        } else {
+                          _checkedChecklistItems = Set.from(
+                            _checkedChecklistItems,
+                          )..add(index);
+                        }
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-          ],
         ],
       ),
     );
@@ -1248,20 +1246,21 @@ class _TasksFlowCard extends StatelessWidget {
   /// - Terlambat Xh (red) when overdue
   /// - SLA Xj (amber) when within same day
   /// - SLA besok (gray) when deadline is tomorrow
-  String get _slaLabel {
+  String _slaLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (task.deadline == null) return '';
     final now = DateTime.now();
     final hours = task.deadline!.difference(now).inHours;
     if (hours < 0) {
       final overdueHours = hours.abs();
-      return 'Terlambat ${overdueHours}h';
+      return l10n.terlambatXjam(overdueHours);
     } else if (hours < 24) {
-      return 'SLA ${hours}j';
+      return l10n.slaXjam(hours);
     } else if (hours < 48) {
-      return 'SLA besok';
+      return l10n.slaBesok;
     } else {
       final days = (hours / 24).ceil();
-      return 'SLA ${days}d';
+      return l10n.slaXhari(days);
     }
   }
 
@@ -1339,7 +1338,7 @@ class _TasksFlowCard extends StatelessWidget {
                       if (task.unclaimed) ...[
                         const SizedBox(height: 2),
                         Text(
-                          'Menunggu klaim personel',
+                          AppLocalizations.of(context)!.menungguKlaimPersonel,
                           style: TextStyle(
                             fontSize: SigapTypography.captionMedium,
                             fontWeight: FontWeight.w600,
@@ -1358,7 +1357,7 @@ class _TasksFlowCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: _statusColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(SigapRadius.x6),
                   ),
                   child: Text(
                     _statusLabel(context),
@@ -1393,7 +1392,7 @@ class _TasksFlowCard extends StatelessWidget {
             // Bottom row: SLA badge + progress (petugas) or category (surveyor) + distance/download
             Row(
               children: [
-                if (task.deadline != null && _slaLabel.isNotEmpty) ...[
+                if (task.deadline != null) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,
@@ -1401,10 +1400,10 @@ class _TasksFlowCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: _slaBadgeColor,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(SigapRadius.x4),
                     ),
                     child: Text(
-                      _slaLabel,
+                      _slaLabel(context),
                       style: TextStyle(
                         fontSize: SigapTypography.captionSmall,
                         fontWeight: FontWeight.w700,
@@ -1422,7 +1421,7 @@ class _TasksFlowCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: SigapColors.primaryLight,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(SigapRadius.x4),
                     ),
                     child: Text(
                       task.categoryName!.toUpperCase(),
@@ -1440,7 +1439,7 @@ class _TasksFlowCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(SigapRadius.x4),
                             child: LinearProgressIndicator(
                               value: task.progressPercent! / 100,
                               backgroundColor: SigapColors.bgSoft,
@@ -1525,8 +1524,8 @@ class _ErrorRetry extends StatelessWidget {
               const SizedBox(height: SigapSpacing.md),
               Text(
                 taskId != null
-                    ? 'Gagal Memuat Detail Tugas'
-                    : 'Gagal Memuat Tugas',
+                    ? AppLocalizations.of(context)!.gagalMemuatDetailTugas
+                    : AppLocalizations.of(context)!.gagalMemuatTugasTitle,
                 style: const TextStyle(
                   fontSize: SigapTypography.bodyLarge,
                   fontWeight: FontWeight.w700,

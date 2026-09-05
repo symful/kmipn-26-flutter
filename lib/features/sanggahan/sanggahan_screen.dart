@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../providers/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/logger.dart';
@@ -41,7 +42,9 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
   Future<void> _submit() async {
     if (!_isReasonValid) {
       setState(() {
-        _errorMessage = 'Alasan harus minimal $_minReasonLength karakter';
+        _errorMessage = AppLocalizations.of(
+          context,
+        )!.alasanMinimalKarakter(_minReasonLength);
       });
       return;
     }
@@ -69,19 +72,19 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Gagal mengajukan sanggahan: $e';
+        _errorMessage = AppLocalizations.of(
+          context,
+        )!.gagalAjukanSanggahanError(e.toString());
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_success) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Sanggahan'),
-          automaticallyImplyLeading: false,
-        ),
+      return ResponsiveScaffold(
+        appBar: SigapAppBar(title: l10n.sanggahan),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(SigapSpacing.xl),
@@ -94,10 +97,10 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                   size: 80,
                 ),
                 const SizedBox(height: SigapSpacing.lg),
-                const Text(
-                  'Sanggahan Berhasil Diajukan',
+                Text(
+                  l10n.sanggahanBerhasil,
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: SigapTypography.headlineMedium,
                     fontWeight: FontWeight.bold,
                     color: SigapColors.textPrimary,
                   ),
@@ -105,9 +108,9 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                 ),
                 const SizedBox(height: SigapSpacing.md),
                 Text(
-                  'Sanggahan Anda untuk laporan ${widget.reportId} telah berhasil submitted dan akan ditinjau oleh tim terkait.',
+                  l10n.sanggahanBerhasilDesc(widget.reportId),
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: SigapTypography.subtitle,
                     color: SigapColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
@@ -116,16 +119,19 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => context.go('/laporan/${widget.reportId}'),
+                    onPressed: () =>
+                        context.push('/laporan/${widget.reportId}'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SigapColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      foregroundColor: SigapColors.surface,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: SigapSpacing.xl,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
                       ),
                     ),
-                    child: const Text('Kembali ke Laporan'),
+                    child: Text(l10n.kembaliKeLaporan),
                   ),
                 ),
               ],
@@ -138,11 +144,8 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
     final reasonLength = _reasonController.text.trim().length;
     final isValid = _isReasonValid;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ajukan Sanggahan'),
-        automaticallyImplyLeading: true,
-      ),
+    return ResponsiveScaffold(
+      appBar: SigapAppBar(title: l10n.sanggahan),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
@@ -167,19 +170,19 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'ID Laporan',
+                      Text(
+                        l10n.idLaporanLabel,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: SigapTypography.bodySmall,
                           color: SigapColors.textMuted,
                         ),
                       ),
                       Text(
                         widget.reportId,
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: SigapTypography.bodyMedium,
                           fontWeight: FontWeight.w600,
-                          fontFamily: 'monospace',
+                          fontFamily: SigapTypography.fontFamilyMono,
                           color: SigapColors.textPrimary,
                         ),
                       ),
@@ -204,10 +207,10 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                         size: 20,
                       ),
                       const SizedBox(width: SigapSpacing.sm),
-                      const Text(
-                        'Apa itu Sanggahan?',
+                      Text(
+                        l10n.apaItuSanggahan,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: SigapTypography.bodyMedium,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textPrimary,
                         ),
@@ -215,12 +218,10 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                     ],
                   ),
                   const SizedBox(height: SigapSpacing.sm),
-                  const Text(
-                    'Sanggahan adalah cara Anda untuk mengajukan keberatan terhadap keputusan yang telah diambil terhadap laporan Anda. '
-                    'Jika Anda merasa laporan Anda ditolak atau diputuskan secara tidak adil, Anda dapat mengajukan '
-                    'sanggahan formal yang akan ditinjau oleh tim verifier.',
+                  Text(
+                    l10n.sanggahanDeskripsiLengkap,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: SigapTypography.bodyText,
                       color: SigapColors.textSecondary,
                       height: 1.5,
                     ),
@@ -244,10 +245,10 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                         size: 20,
                       ),
                       const SizedBox(width: SigapSpacing.sm),
-                      const Text(
-                        'Alasan Sanggahan',
+                      Text(
+                        l10n.alasanSanggahanLabel,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: SigapTypography.bodyMedium,
                           fontWeight: FontWeight.w600,
                           color: SigapColors.textPrimary,
                         ),
@@ -255,17 +256,17 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                       const SizedBox(width: SigapSpacing.xs),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
+                          horizontal: SigapSpacing.x6,
+                          vertical: SigapSpacing.xxs,
                         ),
                         decoration: BoxDecoration(
                           color: SigapColors.danger.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(SigapRadius.x4),
                         ),
-                        child: const Text(
-                          'WAJIB',
+                        child: Text(
+                          l10n.wajibLabel,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: SigapTypography.captionSmall,
                             fontWeight: FontWeight.bold,
                             color: SigapColors.danger,
                           ),
@@ -278,8 +279,9 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                     controller: _reasonController,
                     maxLines: 5,
                     decoration: InputDecoration(
-                      hintText:
-                          'Jelaskan alasan sanggahan Anda secara detail...\n\nMinimal $_minReasonLength karakter.',
+                      hintText: l10n.jelaskanAlasanSanggahanHint(
+                        _minReasonLength,
+                      ),
                       hintStyle: TextStyle(color: SigapColors.textMuted),
                       border: const OutlineInputBorder(),
                       focusedBorder: const OutlineInputBorder(
@@ -294,27 +296,27 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '$reasonLength / $_minReasonLength karakter minimum',
+                        l10n.karakterMinimum(reasonLength, _minReasonLength),
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: SigapTypography.bodySmall,
                           color: isValid
                               ? SigapColors.selesai
                               : SigapColors.textMuted,
                         ),
                       ),
                       if (isValid)
-                        const Row(
+                        Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.check_circle,
                               color: SigapColors.selesai,
                               size: 16,
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: SigapSpacing.x4),
                             Text(
-                              'Valid',
-                              style: TextStyle(
-                                fontSize: 12,
+                              l10n.valid,
+                              style: const TextStyle(
+                                fontSize: SigapTypography.bodySmall,
                                 color: SigapColors.selesai,
                               ),
                             ),
@@ -348,7 +350,7 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                       child: Text(
                         _errorMessage!,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: SigapTypography.bodyText,
                           color: SigapColors.dangerTextStrong,
                         ),
                       ),
@@ -366,7 +368,7 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                 onPressed: isValid && !_isSubmitting ? _submit : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: SigapColors.surface,
                   disabledBackgroundColor: SigapColors.border,
                   disabledForegroundColor: SigapColors.textMuted,
                   shape: RoundedRectangleBorder(
@@ -380,14 +382,14 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                            SigapColors.surface,
                           ),
                         ),
                       )
-                    : const Text(
-                        'Ajukan Sanggahan',
+                    : Text(
+                        l10n.ajukanSanggahanBtn,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: SigapTypography.titleMedium,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -407,7 +409,7 @@ class _SanggahanScreenState extends ConsumerState<SanggahanScreen> {
                     borderRadius: BorderRadius.circular(SigapRadius.md),
                   ),
                 ),
-                child: const Text('Batal'),
+                child: Text(l10n.batal),
               ),
             ),
           ],

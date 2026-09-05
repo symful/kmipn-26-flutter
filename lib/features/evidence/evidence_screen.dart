@@ -8,7 +8,8 @@ import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/providers/providers.dart';
 import 'package:sigap/theme/tokens.dart';
 import 'package:sigap/utils/platform_helper.dart';
-import 'package:sigap/widgets/design_system/a11y.dart';
+import 'package:sigap/widgets/design_system/responsive_scaffold.dart';
+import 'package:sigap/widgets/design_system/sigap_app_bar.dart';
 
 /// Evidence submission screen for adding photos/evidence to an existing case.
 ///
@@ -172,17 +173,8 @@ class _EvidenceScreenState extends ConsumerState<EvidenceScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tambahkanBukti),
-        leading: MinTapTarget(
-          semanticsLabel: l10n.kembali,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
-        ),
-      ),
+    return ResponsiveScaffold(
+      appBar: SigapAppBar(title: l10n.fotoBukti),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(SigapSpacing.lg),
         child: Column(
@@ -265,7 +257,11 @@ class _EvidenceScreenState extends ConsumerState<EvidenceScreen> {
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(SigapRadius.pill),
               ),
-              child: const Icon(Icons.close, color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.close,
+                color: SigapColors.surface,
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -355,7 +351,7 @@ class _EvidenceScreenState extends ConsumerState<EvidenceScreen> {
         onPressed: _isSubmitting ? null : _submitEvidence,
         style: ElevatedButton.styleFrom(
           backgroundColor: SigapColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: SigapColors.surface,
           padding: const EdgeInsets.symmetric(vertical: SigapSpacing.md),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -368,14 +364,16 @@ class _EvidenceScreenState extends ConsumerState<EvidenceScreen> {
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    SigapColors.surface,
+                  ),
                 ),
               )
             : Text(
                 l10n.lengkapiLaporanLabel,
                 style: TextStyle(
                   fontSize: SigapTypography.titleMedium,
-                  color: Colors.white,
+                  color: SigapColors.surface,
                   fontWeight: FontWeight.w600,
                 ),
               ),

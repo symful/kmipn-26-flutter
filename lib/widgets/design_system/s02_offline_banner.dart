@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sigap/l10n/generated/app_localizations.dart';
 import 'package:sigap/theme/tokens.dart';
 
 /// Formats [bytes] into a human-readable Indonesian-size string.
@@ -49,6 +50,7 @@ class S02OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!isOfflineReady) {
       return const SizedBox.shrink();
     }
@@ -77,7 +79,7 @@ class S02OfflineBanner extends StatelessWidget {
           ),
           const SizedBox(width: SigapSpacing.xs),
           Text(
-            'Peta area + bukti diunduh$sizeStr',
+            '${l10n.petaAreaBuktiDiunduh}$sizeStr',
             style: TextStyle(
               fontSize: SigapTypography.bodySmall,
               fontWeight: FontWeight.w500,

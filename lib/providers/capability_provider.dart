@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../api/capabilities.g.dart';
 import '../api/client.dart';
 import '../capabilities/can.dart';
 import '../db/database.dart';
+import '../utils/logger.dart';
 import 'providers.dart';
 
 /// Immutable state holder for capabilities.
@@ -96,6 +98,7 @@ class CapabilityCan {
 /// Notifier that manages capability state for the authenticated user.
 /// Fetches from `/auth/capabilities` on demand and caches results in Drift.
 class CapabilityNotifier extends AsyncNotifier<CapabilityState> {
+  static final _logger = Logger('CapabilityNotifier');
   @override
   Future<CapabilityState> build() async {
     // Try to load from cache first
@@ -103,7 +106,22 @@ class CapabilityNotifier extends AsyncNotifier<CapabilityState> {
     if (cached != null) {
       return cached;
     }
-    // Fall back to bootstrap manifest
+
+    // Use static capability matrix based on role if available
+    final authState = ref.read(authNotifierProvider);
+    final role = authState.activeRole ?? authState.userRole ?? '';
+    final staticCaps = Capabilities.roleCapabilityMatrix[role];
+    if (staticCaps != null && staticCaps.isNotEmpty) {
+      final actor = CapabilityActor(role: role, capabilities: staticCaps);
+      return CapabilityState(
+        actor: actor,
+        capabilities: staticCaps,
+        version: 'static',
+        fetchedAt: null,
+      );
+    }
+
+    // Fall back to bootstrap manifest for unauthenticated/public
     return _loadBootstrap();
   }
 
@@ -210,8 +228,33 @@ class CapabilityNotifier extends AsyncNotifier<CapabilityState> {
         ),
       );
     } else {
-      // Fall back to compileRole from the role
-      await fetch();
+      // Server didn't include capabilities in login response.
+      // Use the static capability matrix immediately so nav items render,
+      // then fetch from server in the background.
+      final role = authState.activeRole ?? authState.userRole ?? '';
+      final staticCaps = Capabilities.roleCapabilityMatrix[role] ?? {};
+      if (staticCaps.isNotEmpty) {
+        final actor = CapabilityActor(role: role, capabilities: staticCaps);
+        state = AsyncData(
+          CapabilityState(
+            actor: actor,
+            capabilities: staticCaps,
+            version: 'static',
+            fetchedAt: DateTime.now(),
+          ),
+        );
+        await _saveToCache(
+          userId: authState.userId ?? '',
+          role: role,
+          version: 'static',
+          capabilities: staticCaps,
+          fetchedAt: DateTime.now(),
+        );
+      }
+      // Fetch fresh from server (non-blocking, updates state when done)
+      fetch().catchError((e) {
+        _logger.warning('Background capability fetch failed', e);
+      });
     }
   }
 

@@ -101,7 +101,7 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.labelTargetSLA,
                       hintText: AppLocalizations.of(context)!.hintContohSLA,
-                      suffixText: 'Jam',
+                      suffixText: AppLocalizations.of(context)!.jamSuffix,
                       prefixIcon: const Icon(Icons.hourglass_bottom, size: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(SigapRadius.md),
@@ -152,7 +152,7 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SigapColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: SigapColors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(SigapRadius.sm),
                   ),
@@ -200,10 +200,13 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final activeRole = ref.watch(authNotifierProvider).activeRole ?? '';
+    return AuthenticatedShell(
+      activeRole: activeRole,
+      useScaffold: true,
       backgroundColor: SigapColors.bgScreen,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.konfigurasiSLA),
+      appBar: SigapAppBar(
+        title: AppLocalizations.of(context)!.konfigurasiSLA,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -293,7 +296,11 @@ class _SlaScreenState extends ConsumerState<SlaScreen> {
                           child: Row(
                             children: [
                               StatusPill(
-                                label: isActive ? 'Aktif' : 'Nonaktif',
+                                label: isActive
+                                    ? AppLocalizations.of(context)!.aktifStatus
+                                    : AppLocalizations.of(
+                                        context,
+                                      )!.nonaktifStatus,
                                 tone: isActive
                                     ? StatusTone.success
                                     : StatusTone.neutral,

@@ -28,7 +28,7 @@ const _protectedEndpoints = <Map<String, dynamic>>[
   },
   {
     'method': 'GET',
-    'path': '/api/audit/search',
+    'path': '/api/auditor/audit-search',
     'requiresAny': <String>['AUDITOR', 'ADMIN_DAERAH', 'VERIFIKATOR'],
   },
   {

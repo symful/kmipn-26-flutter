@@ -12,7 +12,7 @@ import 'package:sigap/widgets/design_system/stepper_5.dart';
 /// - Subtitle "Langkah X dari 5" - font-size 12px, color #616770
 /// - 5-step horizontal progress bar with gap 5px
 ///
-/// Now uses [TitleAppBar] internally with review style.
+/// Now uses [SigapAppBar] internally with review style.
 class ReviewAppBar extends StatelessWidget {
   /// Current step in the 5-step flow (1-5)
   final int currentStep;
@@ -33,7 +33,7 @@ class ReviewAppBar extends StatelessWidget {
           bottom: BorderSide(color: SigapColors.borderCard, width: 1),
         ),
       ),
-      child: TitleAppBar(
+      child: SigapAppBar(
         title: l10n.reviewLaporan,
         subtitle: l10n.langkahDari(currentStep, 5),
         onBack: onBack,
