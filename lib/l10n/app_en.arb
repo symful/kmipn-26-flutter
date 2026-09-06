@@ -1,0 +1,2234 @@
+{
+  "namaUnitWajibDiisi": "Unit name is required",
+  "@@locale": "en",
+  "appTitle": "SIGAP",
+  "batal": "Cancel",
+  "simpan": "Save",
+  "kirim": "Submit",
+  "tolak": "Reject",
+  "alasanPenolakan": "Rejection Reason",
+  "selesai": "Done",
+  "submitted": "Submitted",
+  "rejected": "Rejected",
+  "lihatSemua": "View all",
+  "cobaLagi": "Try Again",
+  "gagal": "Failed",
+  "tutup": "Close",
+  "lihatDiPeta": "View on Map",
+  "detail": "Detail",
+  "hapusSemua": "Delete All",
+  "kirimBukti": "Send Evidence",
+  "beranda": "Home",
+  "tugas": "Task",
+  "buat": "Create",
+  "notifikasi": "Notification",
+  "profil": "Profile",
+  "laporan": "Report",
+  "peta": "Map",
+  "akun": "Account",
+  "terima": "Accept",
+  "menunggu": "Waiting",
+  "proses": "Process",
+  "diterima": "Accepted",
+  "perluTindakan": "Needs Action",
+  "diproses": "In Progress",
+  "status": "Status",
+  "kategori": "Category",
+  "nama": "Name",
+  "deskripsi": "Description",
+  "lokasi": "Location",
+  "tanggal": "Date",
+  "jumlah": "Amount",
+  "prioritas": "Priority",
+  "dashboard": "Dashboard",
+  "daftarKasus": "Case List",
+  "detailKasus": "Case Detail",
+  "detailKasusVerifikasi": "Case Detail - Verification",
+  "detailLaporan": "Report Detail",
+  "detailTugas": "Task Detail",
+  "laporanSaya": "My Reports",
+  "belumAdaAktivitas": "No activity yet",
+  "kirimBuktiTambahan": "Send Additional Evidence",
+  "belumAdaFoto": "No photos yet",
+  "survei": "Survey",
+  "kirimSurveyor": "Send Petugas",
+  "tolakLaporan": "Reject Report",
+  "kirimKeputusan": "Send Decision",
+  "masukkanIdLaporanDuplikat": "Enter duplicate report ID",
+  "masukkanIdSurveyor": "Enter petugas ID",
+  "petugasAktif": "Active Officers",
+  "namaWilayahWAJIB": "Region Name (REQUIRED)",
+  "namaUnitWAJIB": "Unit Name (REQUIRED)",
+  "namaWAJIB": "Name (REQUIRED)",
+  "simpanKonfigurasi": "Save Configuration",
+  "tolakTugas": "Reject Task",
+  "masukkanAlasanPenolakan": "Enter rejection reason...",
+  "masukkanPertanyaanAnda": "Enter your question...",
+  "alasanPemisahan": "Enter reason why this case needs to be separated",
+  "idUnitTugas": "Enter task unit ID",
+  "alasanMerge": "Enter case ID to merge",
+  "laporanTersimpan": "SIGAP saved the report on this device. Check its delivery in the sync center.",
+  "surveiBerhasilDikirim": "You have submitted the survey results.",
+  "simpanDanSinkronkanNanti": "Save and sync later",
+  "submitFailed": "Submit failed",
+  "kirimLaporan": "Submit Report",
+  "simpanProgress": "Save progress",
+  "kirimVerifikasi": "Submit Verification",
+  "mengirirmuatan": "Sending...",
+  "rw": "RW",
+  "rwMinus": "RW -",
+  "prioritasSlider": "Priority",
+  "lanjutKeReviewHasil": "Continue to review results",
+  "hariIni": "Today",
+  "terlambat": "Late",
+  "belumDiunduh": "Not downloaded",
+  "sinkron": "Sync",
+  "riwayat": "History",
+  "kasusTerdekat": "Nearest Case",
+  "lihatPeta": "View map",
+  "lihatArrow": "View →",
+  "hapusUnduhanOffline": "Delete offline download",
+  "detailPerubahan": "Detail: {action}",
+  "@detailPerubahan": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "lihatDetailPerubahan": "View change details",
+  "laporanIdDuplikat": "Report: {reportId}",
+  "@laporanIdDuplikat": {
+    "placeholders": {
+      "reportId": {
+        "type": "String"
+      }
+    }
+  },
+  "idLaporanDuplikat": "Enter duplicate report ID",
+  "keluar": "Exit",
+  "detailLaporanVerifikasi": "Verification Report Detail",
+  "laporanDuplicate": "Duplicate report",
+  "perluTindakanCapital": "Needs Action",
+  "ditolak": "Rejected",
+  "duplikat": "Duplicate",
+  "perluSurvei": "Needs Survey",
+  "unknown": "Information not recorded",
+  "mergeDuplikat": "Merge duplicate",
+  "tandaiDuplikat": "Mark as Duplicate",
+  "diluteJangkauan": "Outside service area",
+  "dilute": "Outside service area",
+  "perluKelengkapan": "Needs completion",
+  "perluDilengkapi": "Needs to be completed",
+  "underReview": "Under Review",
+  "verified": "Verified",
+  "inProgress": "In Progress",
+  "resolved": "Resolved",
+  "konfirmasi": "Confirm",
+  "filter": "Filter",
+  "reset": "Reset",
+  "tersimpan": "Saved",
+  "tersimpanDiPerangkat": "Saved on device",
+  "perluTindakanAnda": "Needs your action",
+  "idLaporanDuplikatHint": "Enter duplicate report ID",
+  "mengirim": "Sending...",
+  "tanpaJudul": "No title",
+  "baruSaja": "Just now",
+  "tidakAdaTugas": "No tasks",
+  "tugasSurveiAkanMuncul": "Open this list after an admin assigns a survey to you.",
+  "gagalMemuatTugas": "Failed to load tasks",
+  "belumAdaRiwayat": "No history yet",
+  "visitYangDikirimAkanMuncul": "Sent visits will appear here",
+  "gagalMemuatRiwayat": "Failed to load history",
+  "terbaru": "Latest",
+  "slaTerdekat": "Nearest deadline",
+  "sinkronkan": "Synchronize",
+  "kemarin": "Yesterday",
+  "hariYangLalu": "days ago",
+  "mingguYangLalu": "weeks ago",
+  "jamYangLalu": "hours ago",
+  "menitYangLalu": "minutes ago",
+  "filterAntrean": "Queue Filter",
+  "terapkan": "Apply",
+  "sortir": "Sort",
+  "filterStatus": "Filter Status",
+  "prioritasTertinggi": "Highest Priority",
+  "semua": "All",
+  "dalamProses": "In Process",
+  "diverifikasi": "Verified",
+  "laporanDiterima": "Report accepted",
+  "laporanTidakJelas": "Unclear report",
+  "refresh": "Refresh",
+  "tidakAdaKasus": "No Cases",
+  "tidakAdaKasusDenganFilter": "No cases with filter",
+  "belumAdaKasusMasuk": "No cases incoming.",
+  "resetFilter": "Reset Filter",
+  "tidakAdaLaporanDiAntrean": "No Reports in Queue",
+  "tidakAdaLaporanSesuaiFilter": "No reports matching active filter.",
+  "semuaLaporanSelesaiDiverifikasi": "All incoming reports have been verified.",
+  "hapusFilter": "Remove Filter",
+  "adminAntrian": "Admin - Queue",
+  "labelWilayahAktif": "Active region",
+  "buatLaporan": "Create report",
+  "fotoLokasiKondisi": "Photo, location, and field conditions",
+  "laporanYangAndaKirimkan": "Reports you submit will be recorded here.",
+  "tanpaDeskripsi": "The reporter has not added a description.",
+  "exportPdf": "Export PDF",
+  "pdfSaved": "PDF saved",
+  "error": "Error",
+  "terkirim": "Sent",
+  "verifikasi": "Verification",
+  "kembali": "Back",
+  "belumDisinkronkan": "Not yet synced to server",
+  "foto": "Photo",
+  "timeline": "Timeline",
+  "tindakan": "Action",
+  "valid": "Valid",
+  "rendah": "Low",
+  "tinggi": "High",
+  "merge": "Merge",
+  "eskalasi": "Escalation",
+  "baru": "New",
+  "ditugaskan": "Assigned",
+  "mengerjakan": "Working on",
+  "unduh": "Download",
+  "instruksi": "Instructions",
+  "progress": "Progress",
+  "clarification": "Clarification",
+  "diselesaikan": "Completed",
+  "item": "Item",
+  "klarifikasi": "Clarification",
+  "kunjungi": "Visit",
+  "akurasiBaik": "Good accuracy",
+  "berat": "Heavy",
+  "siapOffline": "Ready for offline",
+  "semuaTersinkron": "All synchronized",
+  "gagalDikirim": "Failed to send",
+  "sedangDiperiksa": "Being checked",
+  "lengkapiLaporan": "Complete report",
+  "reviewLaporan": "Review report",
+  "unduhBatch": "Download batch",
+  "beralihPeran": "Switch Role",
+  "sinkronLabel": "Sync",
+  "pengaturan": "Settings",
+  "english": "English",
+  "tinggal": "Remaining",
+  "kasusDilaporkan": "cases reported",
+  "recentActivity": "Just now",
+  "darkMode": "Dark Mode",
+  "darkModeSubtitle": "Use a dark background when reading the app in low light.",
+  "selectLanguage": "Select Language",
+  "bahasaIndonesia": "Indonesian",
+  "englishUs": "English (US)",
+  "sedang": "Medium",
+  "masuk": "Login",
+  "daftar": "Register",
+  "statistik": "Statistics",
+  "exportData": "Export Data",
+  "aiConsole": "AI Console",
+  "auditLog": "Audit Log",
+  "sanggahan": "Objection",
+  "kamera": "Camera",
+  "galeri": "Gallery",
+  "setuju": "Approve",
+  "mintaInfo": "Request Info",
+  "assign": "Assign",
+  "petaLaporan": "Report Map",
+  "ketukPetaUntukMemilihLokasi": "Tap the map to select location",
+  "terapkanFilter": "Apply Filter",
+  "segarkan": "Refresh",
+  "segarkanData": "Refresh Data",
+  "heatmap": "Heatmap",
+  "pilihLokasi": "Select Location",
+  "pusatIndonesia": "Center Indonesia",
+  "lokasiSaya": "My Location",
+  "tidakAdaTugasUntukDiunduh": "No tasks to download",
+  "kelolaWilayah": "Manage Regions",
+  "tambahWilayah": "Add Region",
+  "tambahWilayahBaru": "Add New Region",
+  "namaWilayahWajibDiisi": "Region name is required",
+  "rtRw": "RT / RW",
+  "kelurahanDesa": "Sub-district / Village",
+  "kecamatan": "District",
+  "kotaKabupaten": "City / Regency",
+  "provinsi": "Province",
+  "hintWilayahName": "e.g. Cibadak Sub-district",
+  "hintParentWilayahId": "Parent Region ID",
+  "hintSearchWilayah": "Search region or administrative level...",
+  "labelTingkatAdministratif": "Administrative Level",
+  "labelParentIdWilayah": "Parent Region ID (optional)",
+  "kelolaUnit": "Manage Units",
+  "tambahUnit": "Add Unit",
+  "tambahUnitBaru": "Add New Unit",
+  "namaUnitWilayahWajibDiisi": "Unit name and region are required",
+  "tidakAdaUnit": "No Units",
+  "hintUnitName": "e.g. Public Works, Satpol PP",
+  "hintWilayahSearch": "e.g. WIL-001 or region name",
+  "hintSearchUnit": "Search unit or region...",
+  "labelKodeWilayah": "Region Code / ID (Required)",
+  "kelolaKategori": "Manage Categories",
+  "tambahKategori": "Add Category",
+  "tambahKategoriBaru": "Add New Category",
+  "namaKategoriWajibDiisi": "Category name is required",
+  "tidakAdaKategori": "No Categories",
+  "hintKategoriName": "e.g. Road Damage, Illegal Trash",
+  "hintKategoriSlug": "e.g. road-damage",
+  "hintKategoriIcon": "e.g. road, trash, lightbulb",
+  "hintSearchKategori": "Search category by name or slug...",
+  "labelSlug": "Slug (optional)",
+  "labelIcon": "Icon / Symbol (optional)",
+  "kelolaAkun": "Manage Accounts",
+  "tambahAkun": "Add Account",
+  "tambahAkunBaru": "Add New Account",
+  "emailNamaWajibDiisi": "Email and name are required",
+  "tidakAdaAkun": "No Accounts",
+  "petugasLapangan": "OFFICER (Field)",
+  "hintEmail": "example@region.go.id",
+  "hintNamaLengkap": "Full name",
+  "labelEmailWajib": "Email (Required)",
+  "labelPeranRole": "Role",
+  "gagalMemuatWilayah": "Failed to Load Region",
+  "tidakAdaWilayah": "No Regions",
+  "belumAdaWilayahTerdaftar": "No administrative regions registered yet.",
+  "tidakAdaWilayahCocok": "No regions matching the search",
+  "daftarkanWilayah": "Register administrative regions (Sub-district / District / City) for assignment and report filtering.",
+  "tambahPengguna": "Add User",
+  "masukkanInformasi": "Enter new user account information for the SIGAP system.",
+  "belumAdaUnitKerjaTerdaftar": "No work units registered yet.",
+  "daftarkanUnit": "Register Technical Implementation Units (UPT / SKPD / Department) responsible for handling reports.",
+  "tambahUnitKerja": "Add Work Unit",
+  "belumAdaKategoriLaporanTerdaftar": "No report categories registered yet.",
+  "buatKategori": "Create new report categories to facilitate community complaint classification.",
+  "belumAdaAkunPenggunaTerdaftar": "No user accounts registered yet.",
+  "tidakAdaPenggunaDenganPeran": "No users with the role",
+  "semuaRole": "All Roles",
+  "konfigurasiSLA": "SLA Configuration",
+  "tidakAdaDataSLA": "No SLA Data",
+  "editSLA": "Edit SLA",
+  "labelTargetSLA": "SLA Target Time (hours)",
+  "hintContohSLA": "e.g. 24, 48, 72",
+  "izinkanLokasiDitolak": "Location permission denied",
+  "gagalCaptureGps": "SIGAP could not read the device location. Check location permissions and try again. Details: {error}",
+  "@gagalCaptureGps": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "formSurvei": "Record survey findings",
+  "kembaliKeDaftarTugas": "Back to Task List",
+  "berhasilMengunduhTugas": "Successfully downloaded {count} tasks",
+  "@berhasilMengunduhTugas": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tugasDimulaiPetugasLain": "This task has changed or does not allow that action. Reload it and check its stage before trying again.",
+  "tugasDiprosesPetugasLain": "Task has been processed by another officer",
+  "gagalDenganError": "Failed: {error}",
+  "@gagalDenganError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mintaClarifikasi": "Ask for clarification",
+  "unduhSemuaOffline": "Download all for offline",
+  "hintMasukkanAlasan": "Enter reason...",
+  "hintTulisPertanyaan": "Type your question...",
+  "labelAlasanPenolakan": "Rejection reason",
+  "labelPertanyaanKlarifikasi": "Question / clarification",
+  "ambilUlangFoto": "Retake Photo",
+  "pilihDiPeta": "Select on Map",
+  "gagalHapusMetadataFoto": "Failed to delete photo metadata: {error}",
+  "@gagalHapusMetadataFoto": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "lokasiTidakTersedia": "Location Unavailable",
+  "ambilFotoTerlebihDahulu": "Take a photo first",
+  "aktifkanLokasiUntukMelapor": "Enable location to report",
+  "pilihKategoriTerlebihDahulu": "Select a category first",
+  "gagalMenyimpan": "Failed to save: {error}",
+  "@gagalMenyimpan": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapUntukMemilihKategori": "Tap to select category",
+  "minimal10Karakter": "Minimum 10 characters...",
+  "labelPilihKategori": "Select Category",
+  "labelJelaskanLaporan": "Describe your report",
+  "labelPerkiraanTerdampak": "Estimated affected residents",
+  "sectionAmbilFoto": "Take Photo",
+  "sectionLokasi": "Location",
+  "sectionDeskripsi": "Description",
+  "sectionPerkiraanTerdampak": "Estimated Affected Count",
+  "sectionTingkatKerentanan": "Vulnerability Level",
+  "sectionDampak": "Impact",
+  "csvSpreadsheet": "CSV (Spreadsheet)",
+  "geoJsonGeospatial": "GeoJSON (Geospatial)",
+  "pdfLaporan": "PDF (Report)",
+  "itemDikembalikanKeAntrian": "Item returned to queue",
+  "syncAll": "Sync all",
+  "totalLaporan": "Total Reports",
+  "totalKasus": "Total Cases",
+  "silakanTambahFotoDahulu": "Please add a photo first",
+  "laporanBerhasilDilengkapi": "Report successfully completed",
+  "gagalMelengkapiLaporan": "Failed to complete report: {error}",
+  "@gagalMelengkapiLaporan": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sanggahanBerhasilDiajukan": "Objection successfully submitted",
+  "perjalananLaporanDitampilkan": "Report journey will be displayed here.",
+  "labelTingkatPrioritas": "Priority Level",
+  "labelDibuat": "Created",
+  "lengkapiLaporanLabel": "Complete report",
+  "sanggahKeputusan": "Object to Decision",
+  "kirimLabel": "Submit",
+  "ajukanSanggahanLabel": "Submit Objection",
+  "portalPublik": "Public Portal",
+  "belumAdaLaporan": "No Reports Yet",
+  "labelProgres": "Progress",
+  "labelDukungan": "Support",
+  "labelTerakhirDiperbarui": "Last Updated",
+  "gantiPeranAktif": "Switch Active Role",
+  "pengaturanAplikasi": "App Settings",
+  "subtitlePengaturan": "Theme, language, and preferences",
+  "labelPeranAkses": "Roles & Access",
+  "labelPengaturanPreferensi": "Settings & Preferences",
+  "sectionTampilanTema": "Adjust the appearance",
+  "sectionBahasaLokalisasi": "Choose the display language",
+  "sectionInformasiAplikasi": "App Information",
+  "pilihSurveyor": "Select petugas",
+  "labelIdLaporanDuplikatWajib": "Duplicate Report ID (REQUIRED)",
+  "labelPilihSurveyorWajib": "Select Petugas (REQUIRED)",
+  "labelAlasanWajib": "Reason (REQUIRED)",
+  "hintMasukkanIdLaporanDuplikat": "Enter duplicate report ID",
+  "hintBerikanAlasanKeputusan": "Provide reason for this decision",
+  "laporanBerhasilDiverifikasi": "Report successfully verified",
+  "laporanDitolak": "Report rejected",
+  "mintaInformasi": "Request Information",
+  "gagalMemuat": "Failed to load: {error}",
+  "@gagalMemuat": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "belumAdaKasusVerifikasi": "No cases pending verification.",
+  "permintaanInformasiTerkirim": "Information request sent successfully",
+  "semuaNotifikasiDibaca": "You marked all notifications as read.",
+  "gagalMenandaiSemua": "Failed to mark all: {error}",
+  "@gagalMenandaiSemua": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "gagalMenandai": "Failed to mark: {error}",
+  "@gagalMenandai": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "bacaSemua": "Mark all read",
+  "buktiDitambahkanKeKasus": "Evidence successfully added to case",
+  "gagalMenambahkanBukti": "Failed to add evidence: {error}",
+  "@gagalMenambahkanBukti": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "kategoriLaporanTidakTersedia": "Report category not available",
+  "laporanTersimpanAutoSync": "SIGAP saved the report on this device. Check the sync center to confirm delivery.",
+  "gantiPeranPengguna": "Switch User Role",
+  "berhasilBeralihPeran": "Successfully switched to {role}",
+  "@berhasilBeralihPeran": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "gagalBeralihPeran": "Failed to switch role. Please try again.",
+  "errorDenganPesan": "Error: {error}",
+  "@errorDenganPesan": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mergeKasus": "Merge Cases",
+  "gagalUbahStatus": "Failed to change status: {error}",
+  "@gagalUbahStatus": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tugasDanProgres": "Tasks & Progress",
+  "detailAudit": "Audit Detail",
+  "fotoBukti": "Evidence Photos",
+  "dokumen": "Documents",
+  "lihatDiPetaLabel": "View on Map",
+  "labelPenilaianAI": "AI Assessment",
+  "izinDiperlukan": "Permission Required",
+  "bukaPengaturan": "Open Settings",
+  "aksesLokasi": "Location Access",
+  "aksesKamera": "Camera Access",
+  "konfigurasiBobotTersimpan": "Priority weight configuration saved successfully",
+  "bobotPrioritas": "Priority Weight",
+  "konfigurasiPrioritas": "Priority Configuration",
+  "aturPrioritas": "Set Priority",
+  "skorPrioritas": "Priority Score: ",
+  "labelAlasanPerubahan": "Reason for change",
+  "labelAlasanOpsional": "Reason (optional)",
+  "labelIdKasusTarget": "Target Case ID (REQUIRED)",
+  "assignKasus": "Assign Case",
+  "labelIdUnitWajib": "Unit ID (REQUIRED)",
+  "labelInstruksiOpsional": "Instructions (optional)",
+  "aiRescanBerhasil": "AI re-scan triggered successfully",
+  "aiRescanGagal": "Failed to trigger re-scan: {error}",
+  "@aiRescanGagal": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "retryScan": "Retry Scan",
+  "labelStatus": "Status",
+  "labelConfidence": "Confidence",
+  "labelResult": "Result",
+  "semuaAksi": "All Actions",
+  "createBuat": "CREATE",
+  "updateUbah": "UPDATE",
+  "deleteHapus": "DELETE",
+  "approveSetujui": "APPROVE",
+  "rejectTolak": "REJECT",
+  "semuaTipeObjek": "All Object Types",
+  "laporanReport": "Report",
+  "penggunaUser": "User",
+  "kategoriCategory": "Category",
+  "unitKerja": "Work Unit",
+  "csvFormat": "CSV Format",
+  "jsonFormat": "JSON Format",
+  "mengunduhAuditLog": "Downloading audit log data...",
+  "exportGagal": "Export failed: {error}",
+  "@exportGagal": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "kondisiSebelumnya": "Previous State (Before)",
+  "kondisiSesudahnya": "After State (After)",
+  "metadataTambahan": "Additional Metadata",
+  "labelAksi": "Action",
+  "labelObjek": "Object",
+  "labelActor": "Actor",
+  "labelTanggal": "Date",
+  "exportLabel": "Export",
+  "supportingFactors": "Supporting Factors",
+  "riskFactors": "Risk Factors",
+  "labelKasusBaru": "New cases",
+  "labelPerluVerifikasi": "Needs verification",
+  "labelSlaTerlewat": "Past the deadline",
+  "labelPrioritasTinggi": "High priority",
+  "labelPerluKelengkapan": "Needs completion",
+  "labelTotalAntrean": "Total Queue",
+  "labelTepatWaktu": "On Time",
+  "labelSedangDiproses": "In Progress",
+  "labelSLATerlewatDashboard": "SLA Overdue",
+  "kasusBerisikoSLA": "{count} cases at SLA risk",
+  "@kasusBerisikoSLA": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tingkatSinkronisasi": "Sync Level",
+  "pusatSinkronisasi": "Sync Center",
+  "petugasMenunggu": "Officers Waiting",
+  "petugasLabel": "Officers",
+  "totalAntreanLabel": "Total Queue",
+  "selesaiLabel": "Completed",
+  "totalLaporanLabel": "Total Reports",
+  "totalKasusLabel": "Total Cases",
+  "belumAdaRiwayatVerifikasi": "No history yet",
+  "perjalananLaporanAkanDitampilkan": "Report journey will be displayed here.",
+  "langkahDari": "Step {current} of {total}",
+  "@langkahDari": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "fotoLabel": "Photo",
+  "deskripsiLabel": "Description",
+  "lokasiLabel": "Location",
+  "dibuatLabel": "Created",
+  "tindakanLabel": "Action",
+  "timelineLabel": "Timeline",
+  "photoCounter": "{current} / {total}",
+  "@photoCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "menungguVerifikasi": "Pending Verification",
+  "terverifikasi": "Verified",
+  "sedangDitangani": "Being Handled",
+  "perluLengkapi": "Needs Completion",
+  "surveiLabel": "Survey",
+  "tolakLabel": "Reject",
+  "tugaskanPetugas": "Assign Officer",
+  "gabungkan": "Merge",
+  "tandaiSelesai": "Mark Complete",
+  "labelSeverity": "Severity",
+  "labelScore": "Score",
+  "petugasLabelA": "Officer",
+  "clarifikasiLabel": "Clarification",
+  "kunjungiLabel": "Visit",
+  "terimaLabel": "Accept",
+  "adminDaerah": "Regional Admin",
+  "tugasDiprosesSurveyorLain": "Task is being processed by another petugas",
+  "verifikatorMemintaInfo": "The verifier requested additional information to complete this report.",
+  "ringkasanOperasionalDaerah": "Regional Operational Summary",
+  "dataPenangananKasusDaerah": "Regional case handling data",
+  "apaYangHarusDitanganiHariIni": "What needs to be handled today?",
+  "petaRingkasKasus": "Case summary map",
+  "bukaPeta": "Open Map →",
+  "lihatSemuaKasusDiPeta": "See all cases on map",
+  "dashboardAuditor": "Auditor Dashboard",
+  "auditIntegrityMonitoring": "Audit & Integrity Monitoring",
+  "lihatLogAktivitas": "View Activity Log →",
+  "gagalMemuatStatistik": "Failed to load statistics",
+  "gagalMemuatAntrean": "Failed to load queue",
+  "gagalMemuatTren": "Failed to load trend",
+  "gagalMemuatKasusKritis": "Failed to load critical cases",
+  "gagalMemuatAnalitik": "Failed to load analytics",
+  "belumAdaKonfigurasiSLA": "No complaint handling time limit configuration yet.",
+  "tidakAdaNotifikasi": "You have no notifications yet",
+  "pemberitahuanTerkait": "SIGAP will show your report and task updates here. Tap a notification to open the related report when a link is available.",
+  "gagalMemuatNotifikasi": "SIGAP could not load notifications. Check your connection and try again.",
+  "modeGelap": "Dark Mode",
+  "modeGelapSubtitle": "Use a dark background when reading the app in low light.",
+  "bahasaAplikasi": "App Language",
+  "pilihBahasa": "Select Language",
+  "peranSaatIni": "Current Role",
+  "akunHanyaSatuPeran": "Your account currently has only one active role. Contact the Regional Administrator if you need access to additional roles.",
+  "aktif": "ACTIVE",
+  "peranTersedia": "Roles Available for This Account",
+  "peranAktifSaatIni": "Current active role",
+  "tapUntukMengaktifkan": "Tap to activate",
+  "algoritmaPenilaianPrioritas": "Priority Assessment Algorithm",
+  "aturPersentaseBobot": "Set the weight percentage of each factor to calculate automatic priority scores for incoming reports.",
+  "statusSLAAktif": "SLA Status Active",
+  "slaDinonaktifkan": "If deactivated, delay warnings are not counted",
+  "tentukanBatasWaktuSLA": "Set the standard handling time limit (SLA) for this report category.",
+  "belumPunyaAkun": "Don't have an account?",
+  "akunDemo": "Demo Account",
+  "loginGagal": "Login failed",
+  "sistemInformasiGeospasial": "Geospatial Information System\n& Report Handling",
+  "gunakanAkun": "Sign in to submit and follow reports, or to open your field assignments.",
+  "emailLabel": "Email",
+  "emailHint": "email@example.com",
+  "emailKosong": "Enter your email address.",
+  "emailTidakValid": "Check the format of your email address.",
+  "kataSandi": "Password",
+  "kataSandiKosong": "Enter your password.",
+  "kataSandiMinimal6": "Password must be at least 6 characters",
+  "registrasiGagal": "Registration failed",
+  "tidakDapatTerhubung": "Cannot connect to server",
+  "daftarAkun": "Register Account",
+  "buatAkunBaru": "Create a resident account to submit reports and follow their progress.",
+  "namaLengkap": "Full Name",
+  "namaLengkapHint": "Your full name",
+  "namaKosong": "Enter your name.",
+  "namaMinimal2": "Name must be at least 2 characters",
+  "kataSandiMinimal8": "Password must be at least 8 characters",
+  "konfirmasiKataSandi": "Confirm Password",
+  "ulangiKataSandi": "Repeat password",
+  "kataSandiTidakCocok": "Enter the same password again.",
+  "sudahPunyaAkun": "Already have an account?",
+  "minimal8Karakter": "Minimum 8 characters",
+  "gagalMemuatKasusTerdekat": "Failed to load nearest cases",
+  "gagalMemuatLaporan": "Failed to load reports",
+  "memuat": "Loading...",
+  "semuaTugasSudahDiunduh": "All tasks already downloaded",
+  "hariLalu": "days ago",
+  "mingguLalu": "weeks ago",
+  "jamLalu": "hours ago",
+  "jalanRusak": "Road Damage",
+  "jembatan": "Bridge",
+  "drainase": "Drainage",
+  "fasilitasUmum": "Public Facilities",
+  "gagalMemuatPeta": "Failed to load map",
+  "mendukung": "supporting",
+  "tapUntukBukaKamera": "Tap to take an evidence photo",
+  "lokasiTerdeteksi": "Location Detected",
+  "ambilLokasiGps": "Get GPS Location",
+  "tapUntukMendapatkanLokasi": "Tap to get current location",
+  "kasusSerupa": "{count} Similar Cases",
+  "@kasusSerupa": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tidakDapatAksesGps": "Cannot access GPS. Select location manually on map.",
+  "laporanTersimpanDi": "Report saved at {address}",
+  "@laporanTersimpanDi": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "laporanTersimpanTerkirim": "SIGAP received your report.",
+  "laporanAnonimTersimpanDi": "Anonymous report saved at {address}",
+  "@laporanAnonimTersimpanDi": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "laporanAnonimTersimpanId": "Anonymous report saved: {id}",
+  "@laporanAnonimTersimpanId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "tersimpanPada": "Saved {time}",
+  "@tersimpanPada": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "orang": "people",
+  "jumlahPerkiraanTerdampak": "Estimated number of residents affected by this incident",
+  "seberapaRentan": "How vulnerable is the local community?",
+  "pilihJenisDampak": "Select the type of impact:",
+  "keselamatan": "Safety",
+  "aksesWilayah": "Area access",
+  "layananSekolah": "School services",
+  "ekonomi": "Economy",
+  "lingkungan": "Environment",
+  "bagianDariKasus": "Part of case",
+  "lihatLabel": "View",
+  "perjalananLaporanHeader": "REPORT JOURNEY",
+  "privasiInfo": "Your identity & precise location are only visible to related officers. Public sees generalized location.",
+  "gagalUrlUpload": "Failed to get photo upload URL",
+  "tambahkanFotoDeskripsi": "Add a photo that clarifies the reported condition. Use the description to point out what staff should check.",
+  "deskripsiOpsional": "Description (optional)",
+  "jelaskanInfoTambahan": "Describe additional information you want to provide...",
+  "alasanMinimalKarakter": "Reason must be at least {count} characters",
+  "@alasanMinimalKarakter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gagalAjukanSanggahan": "Failed to submit objection: {error}",
+  "@gagalAjukanSanggahan": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "ajukanKeberatan": "Submit an objection to your report rejection decision.",
+  "alasanSanggahan": "Objection Reason",
+  "minimalKarakter": "Minimum {count} characters",
+  "@minimalKarakter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "jelaskanAlasanKeberatan": "Describe what this additional evidence shows…",
+  "buktiFotoOpsional": "Photo Evidence (optional)",
+  "tambahkanFotoBukti": "Add photo as supporting evidence for your objection",
+  "lewatI": "Skip",
+  "izinkan": "Allow",
+  "izinDiperlukanPesan": "Open settings to allow {title}, then return to SIGAP.",
+  "@izinDiperlukanPesan": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "berdasarkanStatus": "View handling stages",
+  "berdasarkanKategori": "View report categories",
+  "aksesLokasiBody": "Allow SIGAP to read your device location to show nearby reports and help you choose a report location. Check the point before sending.",
+  "aksesKameraBody": "Allow camera access if you want to take evidence photos in SIGAP. You can also choose a photo from your device.",
+  "notifikasiBody": "Allow SIGAP to show report and task updates on this device. You can change the permission in settings.",
+  "tambahkanBukti": "Add Evidence",
+  "gagalMengambilFoto": "Failed to pick photo: {error}",
+  "@gagalMengambilFoto": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "gagalMemuatData": "Failed to load data",
+  "keputusanBerhasilDikirim": "Decision sent successfully",
+  "assessmentTidakTersedia": "Assessment not available",
+  "tidakAdaDokumen": "No documents",
+  "menungguKlaimPersonel": "Awaiting personnel claim",
+  "informasiYangDiperlukan": "Required information",
+  "umurBacklogKasus": "Case backlog age",
+  "dataTidakTersedia": "Data not available",
+  "distribusiStatus": "Status Distribution",
+  "distribusiKategori": "Category Distribution",
+  "dataKategoriTidakTersedia": "Category data not available",
+  "semuaPetugasAktif": "All officers active",
+  "terjadiKesalahan": "An error occurred. Please try again.",
+  "koneksiTimeout": "Connection timeout. Please try again.",
+  "tidakAdaKoneksiInternet": "No internet connection.",
+  "permintaanDibatalkan": "Request cancelled.",
+  "emailAtauPasswordSalah": "Invalid email or password.",
+  "sesiHabis": "Session expired. Please login again.",
+  "andaTidakMemilikiAkses": "You don't have access.",
+  "dataTidakDitemukan": "Data not found.",
+  "dataTidakValid": "Invalid data. Please check your input.",
+  "serverSedangBermasalah": "Server is having issues. Please try again later.",
+  "terlaluBanyakPermintaan": "Too many requests. Please try again later.",
+  "dataSudahAdaAtauKonflik": "Data already exists or conflict.",
+  "serverTidakTersedia": "Server unavailable. Please try again later.",
+  "terjadiKesalahanDenganCode": "An error occurred (code: {statusCode}).",
+  "@terjadiKesalahanDenganCode": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "apiError": "API Error: {statusCode}",
+  "@apiError": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "requestTimeoutPada": "Request timeout on {endpoint}",
+  "@requestTimeoutPada": {
+    "placeholders": {
+      "endpoint": {
+        "type": "String"
+      }
+    }
+  },
+  "minimal10KarakterValidasi": "minimum 10 characters",
+  "tidakDitemukan": "Not found",
+  "tidakBolehKosong": "cannot be empty",
+  "formatEmailTidakValid": "invalid email format",
+  "terlaluPanjang": "too long",
+  "terlaluPendek": "too short",
+  "harus": "must",
+  "gagalMendekodeGambar": "Failed to decode image for EXIF removal",
+  "menungguVerifikasiLabel": "Waiting for verification",
+  "terverifikasiLabel": "Verified",
+  "sedangDitanganiLabel": "Being handled",
+  "perluKelengkapanLabel": "Needs completion",
+  "slaTerlewatLabel": "SLA overdue",
+  "tersimpanDiPerangkatLabel": "Saved on device",
+  "laporanDiterimaLabel": "Report accepted",
+  "sedangDiperiksaLabel": "Being checked",
+  "perluDilengkapiLabel": "Needs to be completed",
+  "perluTindakanAndaLabel": "Needs your action",
+  "draftLabel": "Draft",
+  "digabungLabel": "Merged",
+  "dipisahLabel": "Split",
+  "dalamReviewLabel": "Under Review",
+  "unknownLabel": "Information not recorded",
+  "laporanPertamaDiterima": "First report received",
+  "kasusDibuatDariKonsolidasi": "Case created from consolidation",
+  "laporanDigabung": "Report merged",
+  "menungguVerifikasiManual": "Waiting for manual verification",
+  "laporanNav": "Reports",
+  "sinkronNav": "Sync",
+  "riwayatNav": "History",
+  "akunNav": "Account",
+  "buatLaporanFAB": "Create report",
+  "izinkanLokasiDitolakSnack": "Location permission denied",
+  "gagalCaptureGPS": "SIGAP could not read the device location. Check location permissions and try again. Details: {error}",
+  "@gagalCaptureGPS": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "maksimal5Foto": "Maximum 5 photos",
+  "tambahFoto": "Add photo ({count}/{max})",
+  "@tambahFoto": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "formSurveiTitle": "Record survey findings",
+  "kembaliKeDaftarTugasBtn": "Back to Task List",
+  "fotoPerSudut": "Take a photo from each angle",
+  "formSurveiHeader": "Record conditions on site",
+  "gpsBelumTertangkap": "You have not recorded a location",
+  "tidakDitemukanDiLokasi": "I did not find the issue at this location",
+  "ringkasanTab": "Summary",
+  "buktiLaporanTab": "Evidence & Reports",
+  "verifikasiTab": "Verification",
+  "tugasProgresTab": "Tasks & Progress",
+  "riwayatAuditTab": "Audit History",
+  "aksiGunakanPanelVerifikasi": "Action \"{label}\" - use verification panel",
+  "@aksiGunakanPanelVerifikasi": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "bukaTabVerifikasi": "Open Verification tab for action \"{label}\"",
+  "@bukaTabVerifikasi": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "statusKasus": "Case Status",
+  "daftarTugasProgres": "Task list and handling progress will be displayed here.",
+  "riwayatAuditLabel": "Audit History",
+  "detailAuditTitle": "Audit Detail",
+  "detailAuditDesc": "Complete audit chain details will be displayed here.",
+  "belumAdaRiwayatAudit": "No audit history yet",
+  "transisiStatusTidakValid": "Invalid status transition. Report may have been processed.",
+  "gagalMengirimKeputusan": "Failed to send decision: {error}",
+  "@gagalMengirimKeputusan": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "gagalMemuatError": "Failed to load: {error}",
+  "@gagalMemuatError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLabel": "Error: {error}",
+  "@errorLabel": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "andaTidakAksesVerifikasi": "You don't have access to verify this case.",
+  "andaTidakAksesTugas": "You don't have access to view case tasks.",
+  "andaTidakAksesAudit": "You don't have access to view audit history.",
+  "tidakAdaTugasTitle": "No Tasks",
+  "tugasPenangananMuncul": "Handling tasks for this case will appear here.",
+  "tidakAdaDeskripsi": "No description.",
+  "koordinatLabel": "Coordinates: {lat}, {lng}",
+  "@koordinatLabel": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lng": {
+        "type": "String"
+      }
+    }
+  },
+  "prioritasLabel": "Priority: {value}",
+  "@prioritasLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "kembaliKeLaporan": "Back to Report",
+  "batalBtn": "Cancel",
+  "idLaporanLabel": "Report number",
+  "apaItuSanggahan": "What is an Objection?",
+  "sanggahanAdalah": "An objection is your way to file a grievance against a rejection decision.",
+  "alasanSanggahanLabel": "Objection Reason",
+  "wajibLabel": "REQUIRED",
+  "karakterMinimum": "{current} / {minimum} characters minimum",
+  "@karakterMinimum": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "minimum": {
+        "type": "int"
+      }
+    }
+  },
+  "validLabel": "Valid",
+  "ajukanSanggahanBtn": "Submit Objection",
+  "gagalAjukanSanggahanError": "Failed to submit objection: {error}",
+  "@gagalAjukanSanggahanError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "sanggahanBerhasil": "You have submitted your appeal",
+  "sanggahanBerhasilDesc": "SIGAP received your appeal for report {reportId}. Follow its progress in report details; submitting an appeal does not change the previous decision.",
+  "@sanggahanBerhasilDesc": {
+    "placeholders": {
+      "reportId": {
+        "type": "String"
+      }
+    }
+  },
+  "filterAuditLog": "Filter Audit Log",
+  "idUserNamaActor": "User ID / Name (Actor)",
+  "idObjekResourceId": "Object ID (Resource ID)",
+  "aksiAction": "Action",
+  "tipeObjekResourceType": "Object Type (Resource Type)",
+  "filterAktif": "Active Filter: ",
+  "aksiFilter": "Action: {value}",
+  "@aksiFilter": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "objekFilter": "Object: {value}",
+  "@objekFilter": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "actorFilter": "Actor: {value}",
+  "@actorFilter": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "tanggalTerpilih": "Date: Selected",
+  "detailPerubahanLabel": "Change Detail: {action}",
+  "@detailPerubahanLabel": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "gagalMemuatAuditLog": "Failed to Load Audit Log",
+  "tidakAdaDataAuditLog": "No Audit Log Data",
+  "tidakDitemukanRiwayatLog": "No log history found with current filter criteria.",
+  "belumAdaAktivitasTercatat": "No activity recorded in audit log yet.",
+  "lihatDetailPerubahanDiff": "View change detail (diff)",
+  "kosongTidakAdaData": "(Empty / No data)",
+  "wargaRole": "Citizen",
+  "petugasRole": "Officer",
+  "adminRole": "Admin",
+  "tidakAdaTugasSurvei": "No Survey Tasks",
+  "belumAdaTugas": "No Tasks Yet",
+  "detailTugasSurvei": "Survey Task Detail",
+  "detailTugasPetugas": "Officer Task Detail",
+  "gagalMemuatDetailTugas": "Failed to Load Task Detail",
+  "gagalMemuatTugasTitle": "Failed to Load Tasks",
+  "urutkanLabel": "Sort: ",
+  "tugasHariIni": "Today's Tasks",
+  "semuaTersinkronStatus": "All synchronized",
+  "tidakAdaDataMenungguSinkron": "No data waiting to sync",
+  "gagalDikirimLabel": "Failed to send",
+  "menungguLabel": "Waiting",
+  "gagalLabel": "Failed",
+  "kasusKritisTitle": "Critical Cases",
+  "tidakAdaKasusKritis": "No critical cases",
+  "gagalMemuatPetaError": "Failed to load map",
+  "statusMarker": "Status: {status}",
+  "@statusMarker": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "kategoriSection": "Category",
+  "statusSection": "Status",
+  "waktuSection": "Time",
+  "pengaturanTooltip": "Settings",
+  "wargaDefault": "Citizen",
+  "apakahYakinKeluar": "Are you sure you want to log out from this account?",
+  "bahasaIndonesiaLabel": "Bahasa Indonesia",
+  "statusServer": "Server Status",
+  "onlineTersambung": "Online (Connected)",
+  "cobaLagiBtn": "Try Again",
+  "aksesDitolakTitle": "Access Denied",
+  "tutupBtn": "Close",
+  "tentangPrivasi": "About Privacy",
+  "privasiInfoBody": "Your identity and precise location are only visible to related officers. Public only sees generalized location.",
+  "identitasPublik": "My identity is public",
+  "prioritasRendah": "Low",
+  "prioritasTinggi": "High",
+  "prioritasDiubah": "Priority changed",
+  "rendahLabel": "Low",
+  "tinggiLabel": "High",
+  "siapOfflineBadge": "Ready for offline",
+  "unduhUntukOffline": "Download for offline",
+  "prioritasTinggiCard": "High priority",
+  "prioritasSedangCard": "Medium priority",
+  "prioritasNormalCard": "Normal priority",
+  "prioritasRendahCard": "Low priority",
+  "tugasHariIniTitle": "Today's Tasks",
+  "umurBacklogTitle": "Case backlog age",
+  "unduhBatchBtn": "Download batch",
+  "kasusKritisDefault": "Critical cases",
+  "kasusTerdekatTitle": "Nearest Case",
+  "lihatPetaAction": "View map",
+  "sedangDitanganiStatus": "Being handled",
+  "terverifikasiStatus": "Verified",
+  "lokasiGPS": "GPS Location",
+  "catatanLapangan": "Field notes",
+  "tambahkanCatatan": "Add notes...",
+  "batasWaktuBelumDipilih": "Deadline: (not selected)",
+  "batasWaktuLabel": "Deadline: {time}",
+  "@batasWaktuLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "simpanDanSinkronkanNantiBtn": "Save and sync later",
+  "tidakAdaKoneksiAntrean": "No connection - report will enter queue.",
+  "tambahkanBuktiKeKasus": "Add evidence to this case",
+  "buatTerpisah": "Create separate",
+  "lanjutKeReviewHasilSurvei": "Continue to survey results review",
+  "mintaClarifikasiBtn": "Request Clarification",
+  "terimaTugasBtn": "Accept Task",
+  "sinkronkanSekarang": "Sync Now",
+  "sinkronkanSekarangSemantics": "Sync now",
+  "petaAreaBuktiDiunduh": "Map area + downloaded evidence",
+  "duplicateCandidates": "Duplicate Candidates",
+  "menungguVerifikasiSnackBar": "Waiting for verification",
+  "terverifikasiSnackBar": "Verified",
+  "sedangDitanganiSnackBar": "Being handled",
+  "perluKelengkapanSnackBar": "Needs completion",
+  "slaTerlewatSnackBar": "SLA overdue",
+  "submittedLabel": "Submitted",
+  "underReviewLabel": "Under Review",
+  "inProgressLabel": "In Progress",
+  "resolvedLabel": "Resolved",
+  "rejectedLabel": "Rejected",
+  "verifiedLabel": "Verified",
+  "kualitasData": "Data Quality",
+  "tingkatSinkronisasiLabel": "Sync Level",
+  "surveyorMenungguLabel": "Petugas Waiting",
+  "risikoSLA": "SLA Risk",
+  "semuaKasusOnTrack": "All cases on track",
+  "pendahLabel": "Pending",
+  "sinkronisasiBerhasil": "Sync Successful",
+  "dataBerhasilDisinkronkan": "Data successfully synced to server",
+  "sinkronisasiGagal": "Sync Failed",
+  "gagalMenyinkronkanData": "Failed to sync data. Please try again.",
+  "itemGagalDisinkronkan": "Item failed to sync",
+  "exportFormat": "Export Format",
+  "exportCSVGagal": "CSV export failed:",
+  "exportGeoJSONGagal": "GeoJSON export failed:",
+  "exportPDFGagal": "PDF export failed:",
+  "emptyGeoJSON": "Empty GeoJSON",
+  "sigapMobile": "SIGAP Mobile",
+  "sistemInformasiGerakAduan": "Geospatial Information System & Public Complaint Handling",
+  "versiAplikasi": "v1.0.0",
+  "batalkanTugasTitle": "Reject Task",
+  "alasanPenolakanLabel": "Rejection reason",
+  "masukkanAlasanHint": "Enter reason...",
+  "mintaClarifikasiTitle": "Request Clarification",
+  "pertanyaanKlarifikasiLabel": "Question / clarification",
+  "tulisPertanyaanHint": "Type your question...",
+  "kondisiAktual": "Select the condition you observed",
+  "rekomendasiHasil": "Recommend the next step",
+  "ambilGPS": "Record device location",
+  "pilihPeranKonteks": "Select a role to switch work context. Menu, data flow, and access permissions will be automatically adjusted.",
+  "kirimLaporanPublik": "Submit public complaint reports and monitor completion status.",
+  "ringkasanEksekutif": "Executive summary, verification trend analysis, and regional statistics.",
+  "gagalMemuatAssessment": "Failed to Load Assessment",
+  "belumAdaAssessmentAI": "No AI Assessment Yet",
+  "formatExportTitle": "Export Format",
+  "riwayatAuditImmutable": "Audit history is immutable and cannot be modified. ",
+  "kategoriColon": "Category:",
+  "deskripsiColon": "Description:",
+  "fotoColon": "Photo:",
+  "buktiFotoDariPelapor": "Photo evidence of damage from reporter",
+  "koordinatColon": "Coordinates:",
+  "lokasiTepatDiPeta": "Exact location on map",
+  "tanggalColon": "Date:",
+  "kapanLaporanDibuat": "When the report was created",
+  "statusLaporan": "Report Status",
+  "laporanBaru": "New report",
+  "perluTindakanStatus": "Needs Action",
+  "sedangDiprosesStatus": "In Progress",
+  "selesaiStatus": "Done",
+  "ditolakStatus": "Rejected",
+  "keteranganPrivasiTooltip": "If active, your name is visible to public. Location remains generalized.",
+  "identitasLokasiPrivasi": "Your identity and precise location are only visible to related officers. Public only sees generalized location.",
+  "gpsBadge": "GPS",
+  "maks5FotoFormat": "Max 5 photos, JPG/PNG format. GPS from EXIF will be used if available.",
+  "jamSuffix": "Hours",
+  "aktifStatus": "Active",
+  "nonaktifStatus": "Inactive",
+  "targetJam": "Target: {hours} hours",
+  "@targetJam": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "slugPrefix": "Slug: {value}",
+  "@slugPrefix": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "latihanVerifikasiLaporan": "Report Verification Training",
+  "apaItuSIGAP": "What is SIGAP?",
+  "tujuanSIGAP": "SIGAP Purpose",
+  "caraMemverifikasiLaporan": "How to Verify Reports",
+  "terimaTautanVerifikasi": "Receive Verification Link",
+  "bukaTautan": "Open Link",
+  "periksaKondisiLapangan": "Check Field Conditions",
+  "berikanKeputusan": "Make a Decision",
+  "kirimVerifikasiTitle": "Submit Verification",
+  "klikTombolKirimVerifikasi": "Click the 'Submit Verification' button to send your decision to the system.",
+  "memahamiDashboardSIGAP": "Understanding SIGAP Dashboard",
+  "dashboardMenampilkanLaporan": "The SIGAP Dashboard displays all incoming damage reports.",
+  "bestPractice": "Best Practice",
+  "lakukan": "Do",
+  "verifikasiDalam1x24Jam": "Verify reports within 1x24 hours",
+  "hindari": "Don't",
+  "pertanyaanUmum": "Frequently Asked Questions",
+  "statusDikonfirmasi": "Confirmed",
+  "statusDitolakRT": "Rejected",
+  "laporanTidakValid": "Report is not valid",
+  "berikanAlasanJelas": "Provide a clear reason",
+  "simpanKonfigurasiBtn": "Save Configuration",
+  "editSLATooltip": "Edit SLA",
+  "segarkanTooltip": "Refresh",
+  "gpsBerhasilDitangkap": "The device recorded {lat}, {lng}. Check that this matches the survey site.",
+  "@gpsBerhasilDitangkap": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lng": {
+        "type": "String"
+      }
+    }
+  },
+  "gagalMemilihGambar": "Failed to pick image: {error}",
+  "@gagalMemilihGambar": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "ringan": "Light",
+  "kritis": "Critical",
+  "validPerluTindakLanjut": "The issue still needs action",
+  "kondisiColonLabel": "Condition: {value}",
+  "@kondisiColonLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "rekomendasiColonLabel": "Recommendation: {value}",
+  "@rekomendasiColonLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSurveiTersimpanLokal": "SIGAP saved the survey on this device. Open the sync center when internet returns to check its delivery.",
+  "dataSurveiTersimpanDiproses": "SIGAP has received your survey. The admin will review your notes and photos before deciding the next steps.",
+  "hintCatatanLapangan": "Describe what you observed, the measurements you took, and any action you carried out.",
+  "labelOffline": "offline",
+  "tambahFotoLabel": "Add photo",
+  "ketukUntukMenangkapGps": "Record your location at the inspection site. The device position does not replace notes about conditions on site.",
+  "depan": "Front",
+  "samping": "Side",
+  "atas": "Top",
+  "fotoCountDari": "{count} of {total}",
+  "@fotoCountDari": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "infoSerupa": "{distance} · {similarity}% similarity · {count} reports",
+  "@infoSerupa": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "similarity": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "antreanNav": "Queue",
+  "exportNav": "Export",
+  "analitikNav": "Analytics",
+  "dashboardEksekutif": "Executive Dashboard",
+  "masukkanPertanyaanInformasiHint": "Enter the question or information needed...",
+  "diajukanPada": "Submitted: {date}",
+  "@diajukanPada": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "olehPelaku": "by: {userId}",
+  "@olehPelaku": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "verifikasiLaporan": "Verify Reports",
+  "panduanLengkapRTRW": "Complete guide for RT and RW officials in using the SIGAP system",
+  "deskripsiSIGAP": "SIGAP (Geospatial Information System & Village Report Handling) is a digital platform for mapping and monitoring village development. This system helps record, track, and resolve infrastructure damage reports in your area.",
+  "memetakanKerusakan": "Mapping infrastructure damage",
+  "mempercepatPerbaikan": "Accelerating repair process",
+  "transparansiLaporan": "Transparency of community reports",
+  "koordinasiPemerintah": "Coordination between government levels",
+  "memverifikasiLaporan": "Verifying damage reports",
+  "memberikanKonfirmasi": "Providing field confirmation",
+  "melaporkanKerusakanBaru": "Reporting new damage",
+  "memantauStatusPerbaikan": "Monitoring repair status",
+  "deskripsiTerimaTautan": "You will receive a verification link via SMS or WhatsApp from the SIGAP system. The link contains a unique token to access the report.",
+  "deskripsiBukaTautan": "Click the link sent to you. You will be redirected to the SIGAP verification page.",
+  "deskripsiPeriksaKondisi": "Visit the location mentioned in the report. Check if the damage really exists and note the actual conditions.",
+  "deskripsiBerikanKeputusan": "Select 'Confirmed' if the damage really exists, or 'Rejected' if the report is not valid. Provide a clear reason.",
+  "deskripsiKirimVerifikasi": "Click the 'Submit Verification' button to send your decision to the system.",
+  "deskripsiMemahamiDashboard": "The SIGAP Dashboard displays all incoming damage reports. Here are the main elements you need to know:",
+  "datangLangsungKeLokasi": "Visit the location in person",
+  "berikanAlasanDetail": "Provide detailed reasons",
+  "dokumentasikanDenganFoto": "Document with photos",
+  "laporkanJikaKendala": "Report if there are obstacles",
+  "memverifikasiTanpaKeLokasi": "Verifying without visiting location",
+  "memberikanAlasanKosong": "Giving empty reasons",
+  "menundaVerifikasi": "Delaying verification too long",
+  "menolakTanpaAlasan": "Rejecting without clear reason",
+  "mengabaikanLaporan": "Ignoring community reports",
+  "faqLokasiSulitDiakses": "What if the location is difficult to access?",
+  "faqLokasiSulitDiaksesJawab": "Try to verify from the nearest possible point. If it really cannot be accessed, provide a reason in the system and ask for help from neighbors or nearby residents for documentation.",
+  "faqLaporanTidakJelasPertanyaan": "What should be done if the report is unclear?",
+  "faqLaporanTidakJelasJawab": "Contact the reporter through the listed number to request clarification. If unreachable, verify based on available information and note the ambiguity.",
+  "faqWaktuVerifikasiPertanyaan": "How long is the verification time?",
+  "faqWaktuVerifikasiJawab": "Ideally, verification should be done within 1x24 hours after the report is received. However, if there are obstacles, immediately contact the regional admin.",
+  "faqTidakSetujuPertanyaan": "What if I disagree with the officer's decision?",
+  "faqTidakSetujuJawab": "Every decision is recorded in the system. If there are objections, please contact the regional admin or submit through the available comment feature.",
+  "siapMemulai": "Ready to Start?",
+  "aksesMenuVerifikasi": "Access the Report Verification menu to process damage reports from the community.",
+  "pelatihanSelesai": "Training Complete",
+  "dalamPenanganan": "Under handling",
+  "sudahDiperbaiki": "Already repaired",
+  "informasiLaporan": "Report Information",
+  "sanggahanDeskripsiLengkap": "Submit an appeal if you have reasons or evidence for reviewing the report decision. Explain which part you question and what staff should check again.",
+  "jelaskanAlasanSanggahanHint": "Explain your objection reason in detail...\n\nMinimum {count} characters.",
+  "@jelaskanAlasanSanggahanHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rentangTanggalSemua": "Date Range: (All)",
+  "olehLabel": "By: {actor}",
+  "@olehLabel": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      }
+    }
+  },
+  "tugasCount": "{count} Tasks",
+  "@tugasCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ditugaskanPada": "Assigned: {date}",
+  "@ditugaskanPada": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "entriAuditCount": "{count} Audit Entries",
+  "@entriAuditCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "riwayatAuditInfo": "Audit history is immutable and cannot be modified. All actions on this case are recorded for audit purposes.",
+  "semuaTindakanTercatatDiSini": "All actions on this case will be recorded here.",
+  "resourceLabel": "Resource: {resource}",
+  "@resourceLabel": {
+    "placeholders": {
+      "resource": {
+        "type": "String"
+      }
+    }
+  },
+  "jenisKerusakanDeskripsi": "Type of damage (road, drainage, bridge, etc)",
+  "penjelasanDariPelapor": "Detailed explanation from reporter",
+  "rentangTanggalLabel": "Date Range: {range}",
+  "@rentangTanggalLabel": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "auditLogExportSubjek": "Audit Log Export ({format})",
+  "@auditLogExportSubjek": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "tidakDapatTerhubungKeServer": "Cannot connect to server.",
+  "errorTidakDikenal": "Unknown error",
+  "gagalRetryLoop": "Unexpected retry loop exit",
+  "gagalMemuatLaporanPublik": "Failed to fetch public reports",
+  "gagalMemuatKasusPublik": "Failed to fetch public case",
+  "gagalMemuatStatistikPublik": "Failed to fetch public stats",
+  "gagalMemuatMetadataBagikan": "Failed to fetch share metadata",
+  "fileFotoTidakDitemukan": "Photo file not found: {path}",
+  "@fileFotoTidakDitemukan": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadFotoGagal": "Photo upload failed",
+  "uploadFotoGagalUrl": "Photo upload failed: no URL returned",
+  "penggunaSigap": "SIGAP User",
+  "aktifkanLokasiUntukMelihatPeta": "Enable location to view your map",
+  "dariTanggal": "From Date",
+  "sampaiTanggal": "Until Date",
+  "tugasAkanMunculDiSini": "Tasks will appear here",
+  "laporanAndaKirimkanMuncul": "Reports you submit will appear here",
+  "countMenunggu": "{count} waiting",
+  "@countMenunggu": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tugasTersimpanOfflineCount": "{count} tasks saved offline",
+  "@tugasTersimpanOfflineCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "labelLaporanChart": "reports",
+  "labelKasusChart": "cases",
+  "tidakAdaDataTren": "No trend data",
+  "petugasPerluDitugaskan": "{count} officers need assignment",
+  "@petugasPerluDitugaskan": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kasusBerisikoTerlambat": "{count} cases at risk of delay",
+  "@kasusBerisikoTerlambat": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "overdue": "Overdue",
+  "tugasSurveiTitle": "Survey Tasks",
+  "tugasPetugasTitle": "Officer Tasks",
+  "tugasSurveiDeskripsi": "All field survey tasks assigned to you will appear here.",
+  "tugasPetugasDeskripsi": "You have no tasks in this list. Refresh after an admin assigns work to you.",
+  "terlambatXjam": "{hours} hours overdue",
+  "@terlambatXjam": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "slaXjam": "Due in {hours} hours",
+  "@slaXjam": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "slaBesok": "Due tomorrow",
+  "slaXhari": "Due in {days} days",
+  "@slaXhari": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "adminMemintaInfo": "The admin requested additional information to complete this report.",
+  "tenggatTanggal": "Deadline {date}.",
+  "@tenggatTanggal": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "eventFallback": "Report update",
+  "simpanSinkronkanNanti": "Save and sync later",
+  "kondisiBerat": "Heavy",
+  "dampakKeselamatanAkses": "Safety · access disrupted",
+  "exportInfoDeskripsi": "Export reports in CSV, GeoJSON, or PDF format. Data will be filtered according to selected options.",
+  "exportCsvDeskripsi": "Export report data in CSV format for Excel or Google Sheets.",
+  "exportGeojsonDeskripsi": "Export report data with geospatial coordinates for GIS.",
+  "exportPdfDeskripsi": "Export complete report in PDF format.",
+  "exportCsvGagal": "CSV export failed:",
+  "exportGeojsonGagal": "GeoJSON export failed:",
+  "exportPdfGagal": "PDF export failed:",
+  "faktorKeparahan": "Severity Level (Severity)",
+  "faktorKebaruan": "Report Recency (Recency)",
+  "faktorUrgensi": "Category Urgency (Category)",
+  "faktorKepadatan": "Region Density (Location)",
+  "faktorRiwayat": "Region/Report History (History)",
+  "totalBobotSesuai": "Total weight: 100% (Correct)",
+  "totalBobotDisarankan": "Total weight: {total}% (Recommended 100%)",
+  "@totalBobotDisarankan": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "roleDescAdmin": "Manage regional master data, UPT units, SLA, and priority weight configuration.",
+  "roleDescPetugas": "Technical field follow-up and complaint resolution.",
+  "roleDescWarga": "Submit public complaint reports and monitor completion status.",
+  "roleDescDefault": "Access SIGAP system operational features.",
+  "assessmentAiMunculNanti": "AI Assessment will appear after the report is submitted and processed.",
+  "reportLabelId": "Report: {id}",
+  "@reportLabelId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "laporanCountLabel": "{count} reports",
+  "@laporanCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "semuaLabel": "All {label}",
+  "@semuaLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "targetJamHari": "Target: {hours} hours ({days} days)",
+  "@targetJamHari": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "days": {
+        "type": "double"
+      }
+    }
+  },
+  "slaOverdueLaporan": "{count} reports",
+  "@slaOverdueLaporan": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncChannelName": "Sync Notifications",
+  "syncChannelDescription": "Notifications for sync events",
+  "itemTidakDisinkronkanPercobaan": "Item {key} could not be synced after several attempts.",
+  "@itemTidakDisinkronkanPercobaan": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "beberapaItemTidakDisinkronkan": "Some items could not be synced after several attempts.",
+  "pilihWilayahFallback": "Select Region",
+  "kabBandungFallback": "Kab. Bandung",
+  "draftLabelStatus": "Draft",
+  "digabungLabelStatus": "Merged",
+  "dipisahLabelStatus": "Split",
+  "dalamReviewLabelStatus": "Under review",
+  "noAssessmentFactors": "No assessment factors available.",
+  "latitude": "Latitude",
+  "longitude": "Longitude",
+  "diperbaruiPada": "Updated: {time}",
+  "akurasiSedang": "Moderate accuracy",
+  "akurasiBuruk": "Poor accuracy",
+  "laporanPendukungCount": "supporting reports",
+  "statusOnline": "Connected",
+  "statusOffline": "Offline",
+  "statusSyncing": "Syncing",
+  "statusErrorLabel": "Error",
+  "sinkronStatusA11y": "Sync status: {status}",
+  "bukaPusatSinkronisasiLink": "Open Sync Center →",
+  "laporanBelumTersinkronCount": "{count} reports not yet synced",
+  "defaultPrivatPetugas": "Limit account identity to authorized staff",
+  "severityColonValue": "Severity: {value}",
+  "scoreColonValue": "Score: {value}",
+  "ringkasanLaporanUppercase": "REPORT SUMMARY",
+  "waktuLabel": "Time",
+  "dampakLabel": "Impact",
+  "fotoIndexPlaceholder": "photo {index}",
+  "checklistWajib": "REQUIRED CHECKS",
+  "kasusSerupaDitemukan": "{count} similar cases found nearby",
+  "kemiripanLabel": "similarity",
+  "naLabel": "N/A",
+  "lessThan1dLabel": "<1d",
+  "sayaMenyatakanBenar": "I declare this information is true according to the conditions I observed.",
+  "terimaTugasLabel": "Accept Task",
+  "labelSubmitted": "Submitted",
+  "labelUnderReview": "Under Review",
+  "labelDiproses": "In Progress",
+  "labelTerverifikasi": "Verified",
+  "labelSelesai": "Resolved",
+  "labelDitolak": "Rejected",
+  "labelBaru": "New",
+  "labelDitugaskan": "Assigned",
+  "labelDikerjakan": "In Progress",
+  "reportPhotoPreparationFailed": "SIGAP could not prepare this photo. Choose JPG, PNG, or WebP with an original size of at most 10 MB.",
+  "taskAcceptStart": "Accept and start survey",
+  "taskAwaitingReview": "A field worker has submitted the work results. Wait for admin review; submission does not yet close the resident report.",
+  "taskChecklistMissing": "The admin has not configured the checks for this category. Ask the admin to add them before you submit survey results.",
+  "taskCitizenEvidence": "Citizen photos",
+  "taskContinueSurvey": "Continue survey",
+  "taskDepth": "Depth",
+  "taskDetailsTitle": "Task details",
+  "taskFindings": "Observed conditions",
+  "taskHeight": "Height",
+  "taskInstructions": "Read the field instructions",
+  "taskInstructionsMissing": "This task has no field instructions yet. Ask for clarification before deciding what work to carry out.",
+  "taskLength": "Length",
+  "taskMeasurements": "Recorded measurements",
+  "taskNotes": "Worker notes",
+  "taskPhotosLoadFailed": "SIGAP could not open the reporter’s photos. Check your connection, then reload them.",
+  "taskRecommendation": "Recommended next steps",
+  "taskRequiredChecklist": "Required checks",
+  "taskResolved": "The admin has approved the work results and completed this report.",
+  "taskSavedPhotosOnline": "SIGAP stores this task on this device. Connect to the internet to open photos that have not loaded.",
+  "taskSavePreparation": "Save this task before you travel so you can read the instructions without internet.",
+  "taskSurveyPhotos": "Survey photos",
+  "taskSurveyResults": "Review the survey findings",
+  "taskWidth": "Width",
+  "taskPhotoCount": "{count, plural, =0{No photos} one{1 photo} other{{count} photos}}",
+  "@taskPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mobileNotSaved": "Not saved",
+  "mobileSaveThisTaskToPrepareForTheSurvey": "Save this task before you travel to the site.",
+  "mobileAcceptStartSurvey": "Accept and start survey",
+  "mobileNoInternetAccess": "The device is not connected",
+  "mobileInternetConnected": "The device is connected to the internet",
+  "mobileCheckingConnection": "Checking connection",
+  "mobileConnectTheDeviceToTheInternetBeforeSyncing": "Connect the device to the internet before syncing.",
+  "mobileQueuedItemsRemainSavedUntilInternetAccessReturns": "SIGAP keeps this queue on your device. Connect to the internet, then send it and check the result here.",
+  "mobileTaskLocationsForAuthorizedFieldWorkers": "Use task locations to prepare your visit. Compare each point with the address and field instructions before travelling.",
+  "mobileTapAMarkerToSeeTheTaskSummary": "Tap a marker to see the task summary.",
+  "mobileTaskLocations": "Task locations",
+  "mobileOfficeAddressOptional": "Office address (optional)",
+  "mobileContactPhoneOptional": "Contact / Phone (optional)",
+  "mobileEditWorkUnit": "Edit work unit",
+  "mobileChooseTheUnitThatWillHandleThisCase": "Choose the unit that will handle this case.",
+  "mobileNoActiveUnits": "No active units.",
+  "mobileDepartmentsUnits": "Departments & units",
+  "mobileArea": "Area",
+  "mobileChangeCaseStatus": "Change case status",
+  "mobilePrimaryReportUUID": "Primary report UUID",
+  "mobileReceivingUnitUUID": "Receiving unit UUID",
+  "mobileReceivingUnitOptional": "Receiving unit (optional)",
+  "mobileReportsMergedSuccessfully": "Reports merged successfully",
+  "mobileNoDuplicatesFound": "No duplicates found",
+  "mobileCompareDuplicateCandidates": "Compare duplicate candidates",
+  "mobilePhotoUnavailable": "Photo unavailable",
+  "mobileLocationUnavailable": "Location unavailable",
+  "mobileAssignSurveyTask": "Assign survey task",
+  "mobileOpenCaseDetails": "Open case details ↗",
+  "mobileEnableLocationToViewTheMap": "Enable location to view the map",
+  "mobileCaseStatus": "Case status",
+  "mobileVerifiedCompleted": "Verified / completed",
+  "mobileAwaitingFollowUp": "Awaiting follow-up",
+  "mobileInProgress": "In progress",
+  "mobileLocationsAreGeneralizedToProtectReporterPrivacyPDPLaw": "The public map shows approximate locations to limit sharing of reporters’ precise coordinates.",
+  "mobileAppearanceLanguage": "Appearance & language",
+  "mobileTheme": "Theme",
+  "mobileSystemDefault": "System default",
+  "mobileDark": "Dark",
+  "mobileLight": "Light",
+  "mobileLanguage": "Language",
+  "mobileActiveAreaDeviceLocation": "Active area · device location",
+  "mobileABetterVillageStartsWithOurCare": "Help improve your village\nby reporting conditions around you.",
+  "mobilePhotoLocationAndFieldConditions": "Photo, location and field conditions",
+  "mobileSafeOnThisDeviceSendWhenConnected": "SIGAP keeps pending submissions on this device. Check their delivery when internet is available.",
+  "mobileAllReportsSynced": "No reports are waiting to send from this device.",
+  "mobileSyncStatusIsUnavailable": "Sync status is unavailable.",
+  "mobileMyReports": "My reports",
+  "mobileViewAll": "View all →",
+  "mobileReloadReportSummary": "Reload report summary",
+  "mobileCasesNearYou": "Cases near you",
+  "mobileOpenMap": "Open map ↗",
+  "mobileAllowDeviceLocationToSeeNearbyCases": "Allow device location to see nearby cases.",
+  "mobileNoNearbyCasesYet": "SIGAP found no reports within this area. Move the map or reload to view other locations.",
+  "mobileReloadNearbyCases": "Reload nearby cases",
+  "mobileYourIdentityIsSafePublicReportsDoNotShow": "The public portal does not show the reporter’s account identity. Avoid including personal details in descriptions or photos.",
+  "mobileFacilityReport": "Facility report",
+  "mobileQueued": "Not sent",
+  "mobileNoReportsInThisCategoryYet": "No reports match this selection. Change the filter or create a report if you find a new issue.",
+  "mobileCreateNewReport": "+ Create new report",
+  "mobileViewProgress": "View progress →",
+  "mobileAccountDevice": "Account & device",
+  "mobileUserContext": "Your signed-in account",
+  "mobileResident": "Resident",
+  "mobileSurveyor": "Field worker",
+  "mobileAdministrator": "Administrator",
+  "mobileUser": "User",
+  "mobileAuthenticatedAccount": "You are signed in",
+  "mobileConnectionStatus": "Check the device connection",
+  "mobileSaveReportsOnThisDeviceWhileDisconnected": "You can save reports without internet. Check the sync center after the connection returns.",
+  "mobileSignOut": "Sign out",
+  "mobileSyncCenter": "Sync center",
+  "mobileAnInternetConnectionIsRequiredToSendAdditionalEvidence": "An internet connection is required to send additional evidence.",
+  "mobileYouAreOffline": "Connect this device to the internet",
+  "mobileReadyToSyncData": "Send the queue when you are ready",
+  "mobileSendReportsAndSurveyResultsToTheOperatorWorkspace": "Send the queue so staff can read your reports and surveys. Check the delivery results before leaving this page.",
+  "mobileNoPendingSubmissionsAllDataOnThisDeviceIs": "This device has no queued submissions. Drafts you have not submitted are not part of this queue.",
+  "mobileSurveyResult": "Survey result",
+  "mobileResidentReport": "Resident report",
+  "mobilePending": "Pending",
+  "mobileRetry": "Retry",
+  "mobileSyncing": "Syncing…",
+  "mobileTheQueueIsStoredOnThisDevice": "This list shows only the queue on this device. Open report details to check submissions that have arrived.",
+  "mobileSomeSubmissionsAreStillPendingYourDataRemainsSafe": "SIGAP has not sent every queued item. Review the items you need to retry; do not delete data before confirming delivery.",
+  "mobileReportDetails": "Report details",
+  "mobileYourReportHelpsStaffUnderstandFacilityConditions": "Your report helps staff understand facility conditions.",
+  "mobileRELATEDCASE": "RELATED CASE",
+  "mobileViewRelatedCase": "View related case →",
+  "mobileReportProgress": "Report progress",
+  "mobileNoReportUpdatesYet": "This report has no recorded updates yet. Reload later to check for progress.",
+  "mobileReloadProgress": "Reload progress",
+  "mobileOnlyAuthorizedStaffCanAccessReporterDetails": "Authorized staff can access reporter details to follow up. The public portal does not show your account identity.",
+  "mobileReloadReport": "Reload report",
+  "mobileAwaitingSync": "Awaiting sync",
+  "mobileYourReportIsSafeOnThisDeviceOpenSync": "SIGAP has saved this report only on this device; staff have not received it. Open the sync center when internet is available.",
+  "mobileAwaitingReportSubmission": "Awaiting report submission",
+  "mobileNoCaseIDAssignedYet": "Send the report first so SIGAP can assign a report number.",
+  "mobileSavedOnDevice": "Saved on device",
+  "mobileWaitingForAConnectionToSendTheReport": "Connect to the internet and open the sync center to send this report.",
+  "mobileAdditionalEvidenceSent": "You have added evidence to this report.",
+  "mobileStaffRequestedAnotherPhoto": "Add the evidence requested by staff",
+  "mobileNewPhoto": "New photo",
+  "mobileChoosePhotoFromDevice": "Choose photo from device",
+  "mobileSending": "Sending…",
+  "mobileSendAdditionalEvidence": "Send additional evidence",
+  "mobileReportSuccessfullySentToStaff": "SIGAP has received your report. Open report details to follow its review and progress.",
+  "mobilePhotoEvidence": "Photo evidence",
+  "mobileCondition": "Condition",
+  "mobileReview": "Review",
+  "mobileBack": "← Back",
+  "mobileSendReport": "Send report",
+  "mobileContinue": "Continue →",
+  "mobileWhatWouldYouLikeToReport": "What would you like to report?",
+  "mobileChooseTheTypeOfDamagedFacility": "Choose the type of damaged facility.",
+  "mobileReportTitle": "Report title",
+  "mobileExamplePotholeNearTheMarket": "Example: Pothole near the market",
+  "mobileShowTheConditionsOnSite": "Show the conditions on site",
+  "mobileTakeAClearPhotoWithoutFacesOrPersonalDetails": "Show the facility and damage clearly. Avoid unnecessary faces, vehicle plates, or personal documents.",
+  "mobileUPLOADEDEVIDENCE": "UPLOADED EVIDENCE",
+  "mobileNoPhotoYet": "You have not selected a photo",
+  "mobileTakeOrChooseAPhotoFromYourDevice": "Take or choose a photo from your device",
+  "mobilePNGJPGWebPMax1MB": "Choose JPG, PNG, or WebP. SIGAP prepares a copy up to 1 MB; the original must not exceed 10 MB.",
+  "mobileReplacePhoto": "Replace photo",
+  "mobileRemovePhoto": "Remove photo",
+  "mobileWhereIsItLocated": "Where is it located?",
+  "mobileChooseAVillageAndTheFacilityLocationOnThe": "Choose a village and the facility location on the map.",
+  "mobileVillage": "Village",
+  "mobileTapTheMapToMoveThePinPublicCoordinates": "Tap the map to move the point. The public portal shows an approximate location rather than the report’s precise coordinates.",
+  "mobileDescribeTheConditionsYouSee": "Describe the conditions you see",
+  "mobileDetailsHelpStaffPrioritizeRepairs": "Explain the damaged area and its impact. Staff use this description with the photo to decide the next review step.",
+  "mobileDamageLevel": "Damage level",
+  "mobileDescriptionImpact": "Description & impact",
+  "mobileDescribeTheDamageSizeRisksAndAffectedResidents": "Describe the damage size, risks and affected residents…",
+  "mobileDescribeWhatYouObservedDoNotIncludeNamesPhone": "Describe what you observed. Do not include names, phone numbers or personal data.",
+  "mobileASimilarCaseWasFoundNearThisLocation": "Review nearby reports before adding evidence. Nearby locations do not prove that reports describe the same issue.",
+  "mobileAddEvidence": "Add evidence",
+  "mobileCreateSeparately": "Create separately",
+  "mobileMinor": "Minor",
+  "mobileSevere": "Severe",
+  "mobileCoordinates": "Coordinates",
+  "mobileSurveyHistory": "Survey history",
+  "mobileTodaySTasks": "Today’s tasks",
+  "mobileRunAIAnalysis": "Run AI analysis",
+  "mobileAnalysisInProgress": "Analysis in progress…",
+  "mobileAnalysisCompleted": "Analysis completed",
+  "mobileAIPreVerificationConsolidationQueue": "AI Pre-verification & Consolidation Queue",
+  "mobileMetadataChecksPhotoValidationAndGroupingOfNearbyReports": "Metadata checks, photo validation and grouping of nearby reports within 50–100 meters.",
+  "mobileRunAIAnalysisUsingTheButtonTheVerifierMakes": "✧ Run AI analysis using the button. The verifier makes the final decision.",
+  "mobileHumanVerificationRequired": "Human verification required",
+  "mobilePossibleDuplicate": "Possible duplicate",
+  "mobileLowMediaQuality": "Low media quality",
+  "mobileAICompleted": "AI completed",
+  "mobileEvidence": "Evidence",
+  "mobileIdentityConcealed": "identity concealed",
+  "mobileNotAnalyzed": "Not analyzed",
+  "mobileUnableToAssess": "Unable to assess",
+  "mobileIdentifiedDamage": "Identified damage",
+  "mobileReportsPointToTheSameObject": "reports point to the same object",
+  "mobileApproveAsNewCase": "Approve as new case",
+  "mobileMergeIntoExistingCase": "Merge into existing case",
+  "mobileAssignFieldSurvey": "Assign field survey",
+  "mobileRequestMorePhotos": "Request more photos",
+  "mobileRejectReport": "Reject report",
+  "mobileDetails": "Details ↗",
+  "mobileDecisionReason": "Decision reason",
+  "mobileNoReportsInThisQueue": "No reports in this queue.",
+  "mobileMoreInformationNeeded": "More information needed",
+  "mobileQuickSurveyNeeded": "Quick survey needed",
+  "mobileAwaitingVerification": "Awaiting verification",
+  "mobileWhatNeedsAttentionToday": "What needs attention today?",
+  "mobileCurrentInfrastructureConditionsAndFollowUpActions": "Current infrastructure conditions and follow-up actions.",
+  "mobileOverdueSLA": "Overdue SLA",
+  "mobileNeedsInformation": "Needs information",
+  "mobileViewRelatedCases": "View related cases ↗",
+  "mobileReportsReceivedAndCompletedLast30Days": "Reports received and completed · last 30 days",
+  "mobileCasesInYourArea": "Cases in your area",
+  "mobileOpenFullMapCases": "Open full map & cases ↗",
+  "mobileCasesRequiringAttention": "Cases requiring attention",
+  "mobileNoCriticalCasesInThisArea": "No critical cases in this area.",
+  "mobileDataQualitySynchronization": "Data quality & synchronization",
+  "mobileReportsReceivedByServer": "Reports received by server",
+  "mobileOfflineDeviceQueuesAreAvailableInTheSyncCenter": "Offline device queues are available in the sync center.",
+  "mobileCitizenDataIsProtectedEveryOperatorDecisionIsRecorded": "Citizen data is protected. Every operator decision is recorded in the audit history.",
+  "mobileReportsReceived": "Reports received",
+  "mobileCasesCompleted": "Cases completed",
+  "mobileNoTrendDataYet": "No trend data yet",
+  "mobileWORKSPACE": "WORKSPACE",
+  "mobileGOVERNANCE": "GOVERNANCE",
+  "mobileOverview": "Overview",
+  "mobileMapCases": "Map & cases",
+  "mobileAIPreVerification": "AI pre-verification",
+  "mobileTasksProgress": "Tasks & progress",
+  "mobileAnalyticsHeatmap": "Analytics & heatmap",
+  "mobileExportReports": "Export reports",
+  "mobileAdministration": "Administration",
+  "mobileAllAreas": "All areas",
+  "mobileSearchCasesVillagesOrIDs": "⌕  Search cases, villages or IDs…",
+  "mobileCitizenDataIsProtectedDecisionsAreRecordedInThe": "Citizen data is protected. Decisions are recorded in the audit log.",
+  "mobileCurrentReport": "Current report",
+  "mobileDuplicateCandidate": "Duplicate candidate",
+  "mobileSimilarity": "Similarity",
+  "mobileNearbyReports": "Nearby reports",
+  "mobileChangeStatus": "Change status",
+  "mobileExportCase": "Export case",
+  "mobileAssignUnit": "Assign unit",
+  "mobileVerifyPrioritize": "Verify & prioritize",
+  "mobileDamageDimensions": "Record damage measurements",
+  "mobileExampleLength2MWidth1M": "Include each measurement and its unit. If you have not measured the damage, explain why.",
+  "mobileTapAPhotoToReplaceItMaximum1MB": "Take photos from different angles so the admin can compare conditions. Tap a photo to replace it; each photo must be at most 1 MB.",
+  "mobileAlreadyRepaired": "I observed that the issue has been addressed",
+  "mobileResultsGoToTheOperatorForVerificationOfflineResults": "Send your results so the admin can review your findings. If you are offline, save them to the queue and send them when internet is available.",
+  "mobileSaveDraft": "Save draft",
+  "mobileNewDraft": "New draft",
+  "mobileDraftSaved": "Draft saved",
+  "mobileFIELDINSTRUCTIONS": "FIELD INSTRUCTIONS",
+  "mobileREQUIREDCHECKLIST": "REQUIRED CHECKS",
+  "mobileCitizenEvidence": "Citizen evidence",
+  "mobileNoCitizenPhotosYet": "This report has no resident photos. Ask for more evidence if you need it to prepare for the survey.",
+  "mobileSurveyResultsSubmitted": "Survey results submitted",
+  "mobileRequestClarification": "Ask for clarification",
+  "mobileDeclineTask": "Decline task",
+  "mobileSaveTask": "↓ Save task",
+  "mobileSaveAll": "↓ Save all",
+  "mobileAvailableLocally": "✓ Task saved on this device",
+  "mobileDue": "Deadline",
+  "mobileNotSet": "Not set",
+  "mobileLocationNotSet": "Location not set",
+  "mobileNoSurveyResultsYetSubmittedResultsWillAppearHere": "You have not submitted survey results yet. After you send them, return here to review your notes and evidence.",
+  "mobileMyPublicIdentity": "Review report privacy",
+  "mobilePrivateVisibleOnlyToStaff": "SIGAP limits account identity to authorized staff.",
+  "mobileIConfirmThisInformationAccuratelyDescribesWhatIObserved": "I confirm this information accurately describes what I observed.",
+  "mobileNearbyMap": "Nearby map",
+  "mobilePublicCasesGeneralizedLocations": "View reports at approximate public locations",
+  "mobileReloadMap": "Reload map",
+  "mobileTapAPinToSeeFacilityDetailsPublicCoordinates": "Tap a point to read the report. This map uses approximate public locations; do not treat them as exact survey directions.",
+  "mobileCasePriorityScore": "Case priority score",
+  "mobilePeopleAffected": "People affected",
+  "mobileSupportingReports": "Supporting reports",
+  "mobileSLAOverdue": "Past the deadline",
+  "mobileScoreNotAvailable": "Score not available",
+  "mobileISSUEIMPACT": "ISSUE IMPACT",
+  "mobileResidentsAffected": "Residents affected",
+  "mobileTimelineAndDecisions": "Timeline and decisions",
+  "mobileResidentPrivacyReporterIdentitiesAreExcludedFromThePublic": "Resident privacy\nReporter identities are excluded from the public portal.",
+  "mobileNoAIResultsYetRunTheAssessmentToSee": "No AI results yet. Run the assessment to see results.",
+  "mobileAIAssessmentResults": "AI assessment results",
+  "mobileConsolidatedSupportingReports": "consolidated supporting reports",
+  "mobileCaseActions": "Case actions:",
+  "connectionOnline": "Connected",
+  "connectionOffline": "Offline",
+  "statusAwaitingClarification": "Awaiting clarification",
+  "greetingPerson": "Hello, {name} 👋",
+  "@greetingPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "villageWithName": "{name} village",
+  "@villageWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "conditionWithLabel": "Condition: {condition}",
+  "@conditionWithLabel": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      }
+    }
+  },
+  "reportCount": "{count, plural, one{1 report} other{{count} reports}}",
+  "@reportCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "submittedResultCount": "{count, plural, one{1 result submitted} other{{count} results submitted}}",
+  "@submittedResultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingSyncCount": "{count, plural, one{1 submission awaiting sync} other{{count} submissions awaiting sync}}",
+  "@pendingSyncCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "waitingSubmissionCount": "{count, plural, one{1 submission pending} other{{count} submissions pending}}",
+  "@waitingSubmissionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "successfulSyncCount": "{count, plural, one{1 submission synced successfully.} other{{count} submissions synced successfully.}}",
+  "@successfulSyncCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "supportingReportCount": "{count, plural, one{1 supporting report} other{{count} supporting reports}}",
+  "@supportingReportCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "protectedReportCount": "{count, plural, one{1 report · identity protected} other{{count} reports · identity protected}}",
+  "@protectedReportCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photoProgress": "{count} of {total} photos",
+  "@photoProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "taskSavedSummary": "{count, plural, one{1 task} other{{count} tasks}} · {saved} saved locally",
+  "@taskSavedSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "saved": {
+        "type": "int"
+      }
+    }
+  },
+  "reportStepProgress": "Step {current} of {total} · {label}",
+  "@reportStepProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceWithValue": "Distance: {distance}",
+  "@distanceWithValue": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "saveTaskFailed": "Failed to save task: {error}",
+  "@saveTaskFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mergeReportFailed": "Merge failed: {error}",
+  "@mergeReportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "slaTargetDuration": "Target: {hours} hours ({days} days)",
+  "@slaTargetDuration": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryRoad": "Road",
+  "categoryBridge": "Bridge",
+  "categoryCleanWater": "Clean water",
+  "categoryPublicFacility": "Public facilities",
+  "categoryIrrigation": "Irrigation",
+  "submissionFailedWithReason": "Submission failed: {error}",
+  "@submissionFailedWithReason": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "reportPhotoUploadRetry": "SIGAP could not upload the photo. Your draft and photo remain available; check your connection and send again.",
+  "minimumEightCharacters": "At least 8 characters",
+  "originalPhotoTooLarge": "Original photo exceeds 10 MB",
+  "surveyPhotoTooLarge": "Maximum 1 MB per photo. Choose a smaller photo.",
+  "reportAddressLabel": "Location address",
+  "reportVillageLabel": "Village or neighbourhood",
+  "reportAddressLookupLoading": "SIGAP is finding an address for this point…",
+  "reportAddressLookupFailed": "SIGAP could not find an address for this point. Type an address or landmark so staff can find it.",
+  "reportAddressLookupRetry": "Find address from pin",
+  "reportLocationInstruction": "Choose the point where the issue occurred, then check or type its address. Do not use your device location if you are somewhere else.",
+  "infrastructureLabel": "Infrastructure",
+  "infrastructureReportLabel": "Infrastructure report",
+  "supportingReportsUnknown": "Supporting report count is unavailable",
+  "fieldSurveyLabel": "Field survey",
+  "reportsUnavailable": "Reports could not be loaded.",
+  "fieldWorkerLabel": "Field worker",
+  "saveSurveyToQueue": "Save to queue",
+  "submitSurveyResult": "Submit survey result",
+  "timelineReportCreated": "The reporter submitted a report",
+  "timelineAnonymousReportCreated": "The reporter submitted without an account identity",
+  "reportStatusDraftExplanation": "SIGAP stores this report on your device. Send it so staff can review it.",
+  "reportStatusSubmittedExplanation": "The report has arrived. Follow the updates below; this stage does not confirm its accuracy or that the issue is resolved.",
+  "reportStatusReviewExplanation": "Staff are reviewing the report and evidence. Follow the updates for a decision or a request for more information.",
+  "reportStatusVerifiedExplanation": "Staff have verified the report. Follow assignment and work updates; verification does not mean the work is complete.",
+  "reportStatusProgressExplanation": "The report is in the handling stage. Follow work updates to see the results submitted by staff.",
+  "reportStatusResolvedExplanation": "Handling of this report is complete. Read the updates below to see the recorded outcome.",
+  "reportStatusRejectedExplanation": "Staff rejected this report. Read the reason and appeal if you have information that needs another review.",
+  "reportStatusNeedsInfoExplanation": "Staff requested more information. Read the request and add evidence that clarifies the reported condition.",
+  "reportStatusSurveyExplanation": "The report needs a site inspection. Follow assignment and visit updates before drawing conclusions about the outcome.",
+  "reportStatusLinkedExplanation": "This report is linked to another report. Open the main report to follow how the issue is handled.",
+  "reportStatusUnknownExplanation": "SIGAP has not received a displayable handling stage. Reload to check for updates.",
+  "reportStatusOutOfScopeExplanation": "This issue is outside the reporting service’s scope. Read the decision notes for any available guidance.",
+  "reportLocationMissingExplanation": "This report does not contain an address. Use any recorded location details and ask for directions if you cannot identify the site.",
+  "reportRelatedExplanation": "SIGAP links this report to a main report. Follow its handling through the link below; supporting reports do not count completed work.",
+  "reportStandaloneExplanation": "This report is not linked to another main report. Follow its handling on this page.",
+  "reportPhotoMissingExplanation": "This report has no photo. Add evidence if staff request it.",
+  "reportPhotoLoadExplanation": "SIGAP could not open the photo. Check your connection and reload the report.",
+  "mobileTechnicalDetails": "View technical details",
+  "mobileRequestFailedExplanation": "SIGAP could not complete this request. Check your connection and try again. If it keeps failing, include the technical details when contacting support.",
+  "mobileSyncItemFailedExplanation": "SIGAP has not sent this item. Check your connection, choose retry, then send the queue again.",
+  "mobileSyncLoadFailedExplanation": "SIGAP could not read this device’s queue. Reload before concluding that every item has been sent.",
+  "mobileNotificationTitle": "Manage device notifications",
+  "mobileNotificationEnabled": "SIGAP can show report and task updates in the background. Delivery still requires a device connection.",
+  "mobileNotificationDenied": "Open Android settings to allow notifications, then enable them here.",
+  "mobileNotificationFailed": "SIGAP could not register this device for notifications. Check your connection and try again.",
+  "mobileNotificationUnavailable": "This device cannot receive SIGAP notifications. Open the notification inbox to check updates.",
+  "mobileNotificationPrompt": "Enable notifications to follow report and task updates on this device.",
+  "mobileNotificationEnabling": "SIGAP is enabling notifications…",
+  "mobileNotificationEnable": "Enable notifications",
+  "mobileNotificationDisable": "Disable notifications",
+  "mobileAndroidSettings": "Open Android settings",
+  "taskLocationExplanation": "Compare the address and report location before travelling. If either is unclear, ask the task issuer for clarification.",
+  "taskEvidenceExplanation": "Compare the reporter’s evidence with what you observe. Report photos help you prepare but do not replace a site inspection.",
+  "taskResultsExplanation": "These notes show results staff have submitted. Submitting results is different from admin approval of task completion.",
+  "statisticsExplanation": "This summary counts reports available to your account. Report totals are not work totals; open a report to read its handling stage.",
+  "gpsReadingExplanation": "The device estimated this point when you recorded it. Check its accuracy and capture time; GPS alone does not prove the facility’s condition.",
+  "privacyReportExplanation": "Protecting account identity does not remove personal details from photos or descriptions. Review the evidence before sending it.",
+  "reportClosedStatus": "Closed",
+  "taskSubmittedStatus": "SIGAP received the results",
+  "mobileSummaryUnavailable": "SIGAP has not received all summary figures. Open the report list to check the available data.",
+  "reportReviewExplanation": "Review the photo, location, time and description before sending. Go back to the previous step if you need to correct anything.",
+  "reportConditionUnknown": "You have not recorded the condition",
+  "reportCaptureTimeUnknown": "The photo has no readable capture time.",
+  "reportImpactUnknown": "You have not added an impact description.",
+  "categoryUnknown": "Category not recorded",
+  "similarCaseHint": "Compare the photos and descriptions. Add evidence only if the report describes the same incident.",
+  "gpsAccuracyMeaning": "This figure estimates positional accuracy, not your distance from the facility.",
+  "statusStepRecorded": "SIGAP recorded this stage: {status}.",
+  "@statusStepRecorded": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "mobileRetryRequestExplanation": "SIGAP could not complete this request. Check your connection and try again."
+}

@@ -1,0 +1,89 @@
+name: sigap
+description: 'SIGAP - Platform pemetaan dan monitoring pembangunan desa.'
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+
+  # Local database
+  drift: ^2.22.1
+  drift_flutter: ^0.2.4
+  sqlite3_flutter_libs: ^0.5.28
+
+  # Networking
+  dio: ^5.7.0
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # Maps
+  flutter_map: ^7.0.2
+  flutter_map_marker_cluster: ^1.4.0
+  latlong2: ^0.9.1
+
+  # Camera & Location
+  image_picker: ^1.1.2
+  geolocator: ^13.0.2
+  permission_handler: ^11.3.1
+  exif: ^3.3.0
+  image: ^4.3.0
+
+  # Connectivity
+  connectivity_plus: ^6.1.1
+
+
+  # Utilities
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.5
+  share_plus: ^10.1.4
+  crypto: ^3.0.6
+  uuid: ^4.5.1
+  intl: ^0.20.2
+  flutter_localizations:
+    sdk: flutter
+  path_provider: ^2.1.5
+  # Notifications
+  flutter_local_notifications: ^18.0.1
+  firebase_core: ^4.14.0
+  firebase_messaging: ^16.6.0
+
+dev_dependencies:
+  drift_dev: ^2.22.1
+  build_runner: ^2.4.14
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  http: ^1.2.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+  fonts:
+    - family: IBMPlexSans
+      fonts:
+        - asset: assets/fonts/IBMPlexSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexSans-Bold.ttf
+          weight: 700
+    - family: IBMPlexMono
+      fonts:
+        - asset: assets/fonts/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexMono-SemiBold.ttf
+          weight: 600

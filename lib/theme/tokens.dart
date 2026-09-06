@@ -1,0 +1,334 @@
+import 'package:flutter/material.dart';
+
+// ============================================================================
+// SIGAP Design Tokens - Single Source of Truth (Flutter)
+// Matches kmipn-26-deno/web/src/theme/tokens.ts
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// Colors - matches web tokens.ts colors + extended palette
+// ----------------------------------------------------------------------------
+class SigapColors {
+  SigapColors._();
+
+  // Primary
+  static const Color primary = Color(0xFF0F7A6B);
+  static const Color primaryHover = Color(0xFF0D6A5D);
+  static const Color primaryLight = Color(0xFFE2F1EE);
+  static const Color primaryDark = Color(0xFF0A5C50);
+
+  // Status
+  static const Color perluTindakan = Color(0xFFC0392B);
+  static const Color diproses = Color(0xFF2563EB);
+  static const Color selesai = Color(0xFF0F7A6B);
+  static const Color success = Color(0xFF0F7A6B);
+  static const Color warning = Color(0xFFB8730A);
+
+  // Offline Banner
+  static const Color offlineBg = Color(0xFFF8ECD6);
+  static const Color offlineBorder = Color(0xFFECD7A6);
+  static const Color offlineText = Color(0xFF8A5808);
+  static const Color offlineDot = Color(0xFFB8730A);
+
+  // Base
+  static const Color background = Color(0xFFF9FAF8);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color border = Color(0xFFE4E7E2);
+
+  // Text
+  static const Color textPrimary = Color(0xFF17191C);
+  static const Color textSecondary = Color(0xFF3A3F45);
+  static const Color textTertiary = Color(0xFF616770);
+  static const Color textMuted = Color(0xFF8A9099);
+  static const Color text = Color(0xFF17191C);
+
+  // Sidebar (T-W1.14)
+  static const Color sidebarBg = Color(0xFF16302B);
+  static const Color sidebarText = Color(0xFFCFE4DF);
+  static const Color sidebarTextHover = Color(0xFFFFFFFF);
+  static const Color sidebarTextMuted = Color(0xFF9DC0B9);
+  static const Color sidebarDivider = Color(0xFF234A43);
+  static const Color sidebarAccent = Color(0xFF7FA8A0);
+
+  // Extended palette (T-W1.15)
+  static const Color infoChartBar = Color(0xFFC7D7FB);
+  static const Color dangerTextStrong = Color(0xFFA5271A);
+  static const Color dangerBorder = Color(0xFFECC4BD);
+  static const Color dangerBg = Color(0xFFF8E2DE);
+  static const Color danger = Color(0xFFC0392B); // Alias for perluTindakan
+  static const Color warningText = Color(0xFF8A5808);
+  static const Color warningBorder = Color(0xFFECD7A6);
+  static const Color warningBg = Color(0xFFF8ECD6);
+  static const Color warningTextStrong = Color(0xFF7A4D06);
+  static const Color info = Color(0xFF2563EB);
+  static const Color infoBg = Color(0xFFE5EDFD);
+  static const Color successBorder = Color(0xFFBFE0D9);
+  static const Color borderSoft = Color(0xFFD3D7D0);
+  static const Color borderCard = Color(0xFFE4E7E2); // Alias for border
+  static const Color bgSoft = Color(0xFFEEF0EC);
+  static const Color bgScreen = Color(0xFFF9FAF8);
+  static const Color bgCard = Color(0xFFFFFFFF);
+  static const Color bgSurface = Color(0xFFF4F5F3);
+
+  // Misc
+  static const Color textSoft = Color(0xFF4A5058);
+  static const Color textDisabled = Color(0xFF8A9099);
+  static const Color macGreen = Color(0xFF66C07F);
+  static const Color macYellow = Color(0xFFE8BD57);
+  static const Color macRed = Color(0xFFE06C60);
+
+  // Role colors
+  static const Color roleAdmin = Color(0xFF6A1B9A);
+  static const Color rolePetugas = Color(0xFFE65100);
+  static const Color roleWarga = Color(0xFF558B2F);
+
+  static const Color mapBg = Color(0xFFEAEEE9);
+  static const Color mapGrid = Color(0xFFDFE4DE);
+  static const Color phoneBezel = Color(0xFF1F2226);
+}
+
+// ----------------------------------------------------------------------------
+// Spacing - matches web tokens.ts spacing
+// ----------------------------------------------------------------------------
+class SigapSpacing {
+  SigapSpacing._();
+
+  static const double xs = 5;
+  static const double sm = 8;
+  static const double md = 13;
+  static const double lg = 18;
+  static const double xl = 24;
+
+  // Extended tokens (used in Flutter but not in web)
+  static const double xxs = 2;
+  static const double x4 = 4;
+  static const double x6 = 6;
+  static const double x7 = 7;
+  static const double x9 = 9;
+  static const double x10 = 10;
+  static const double x11 = 11;
+  static const double x12 = 12;
+  static const double x14 = 14;
+  static const double x15 = 15;
+  static const double x17 = 17;
+  static const double x20 = 20;
+  static const double x22 = 22;
+  static const double x28 = 28;
+  static const double x32 = 32;
+  static const double x34 = 34;
+  static const double x56 = 56;
+  static const double x60 = 60;
+  static const double x90 = 90;
+  static const double xxl = 48;
+}
+
+// ----------------------------------------------------------------------------
+// Radius - matches web tokens.ts radius
+// ----------------------------------------------------------------------------
+class SigapRadius {
+  SigapRadius._();
+
+  static const double sm = 5;
+  static const double md = 11;
+  static const double lg = 13;
+
+  // Extended tokens
+  static const double x1 = 1;
+  static const double x2 = 2;
+  static const double x3 = 3;
+  static const double x4 = 4;
+  static const double x6 = 6;
+  static const double x7 = 7;
+  static const double x8 = 8;
+  static const double x9 = 9;
+  static const double x10 = 10;
+  static const double x12 = 12;
+  static const double xl = 14;
+  static const double x16 = 16;
+  static const double x34 = 34;
+  static const double x44 = 44;
+  static const double pill = 999;
+}
+
+// ----------------------------------------------------------------------------
+// Shadows - matches web shadow definitions
+// ----------------------------------------------------------------------------
+class SigapShadows {
+  SigapShadows._();
+
+  static const List<BoxShadow> buttonPrimary = [
+    BoxShadow(color: Color(0xE60F7A6B), blurRadius: 22, offset: Offset(0, 10)),
+  ];
+
+  static const List<BoxShadow> fab = [
+    BoxShadow(color: Color(0xE60F7A6B), blurRadius: 20, offset: Offset(0, 10)),
+  ];
+
+  static const List<BoxShadow> phoneBezel = [
+    BoxShadow(color: Color(0x80000000), blurRadius: 60, offset: Offset(0, 28)),
+  ];
+
+  static const List<BoxShadow> browserFrame = [
+    BoxShadow(color: Color(0x66000000), blurRadius: 60, offset: Offset(0, 24)),
+  ];
+
+  static const List<BoxShadow> mapLegend = [
+    BoxShadow(color: Color(0x4D000000), blurRadius: 16, offset: Offset(0, 6)),
+  ];
+
+  static const List<BoxShadow> toggleThumb = [
+    BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1)),
+  ];
+}
+
+// ----------------------------------------------------------------------------
+// Typography - IBM Plex Sans via bundled local font asset
+// Matches kmipn-26-deno/web/src/theme/tokens.ts
+// ----------------------------------------------------------------------------
+class SigapTypography {
+  SigapTypography._();
+
+  // ============================================================================
+  // Font Families (bundled assets)
+  // ============================================================================
+  static const String fontFamilySans = 'IBMPlexSans';
+  static const String fontFamilyMono = 'IBM Plex Mono';
+
+  // ============================================================================
+  // RAW SIZE SCALE - Complete integer + half-step scale from 8 to 36
+  // ============================================================================
+  static const double size8 = 8;
+  static const double size9 = 9;
+  static const double size10 = 10;
+  static const double size11 = 11;
+  static const double size11_5 = 11.5;
+  static const double size12 = 12;
+  static const double size12_5 = 12.5;
+  static const double size13 = 13;
+  static const double size13_5 = 13.5;
+  static const double size14 = 14;
+  static const double size15 = 15;
+  static const double size16 = 16;
+  static const double size17 = 17;
+  static const double size18 = 18;
+  static const double size19 = 19;
+  static const double size20 = 20;
+  static const double size21 = 21;
+  static const double size22 = 22;
+  static const double size23 = 23;
+  static const double size24 = 24;
+  static const double size25 = 25;
+  static const double size26 = 26;
+  static const double size27 = 27;
+  static const double size28 = 28;
+  static const double size29 = 29;
+  static const double size30 = 30;
+  static const double size31 = 31;
+  static const double size32 = 32;
+  static const double size33 = 33;
+  static const double size34 = 34;
+  static const double size35 = 35;
+  static const double size36 = 36;
+
+  // ============================================================================
+  // SEMANTIC SCALE - Named by purpose, maps to Flutter TextTheme
+  // Use these for new code; raw size* constants remain for backward compat.
+  // ============================================================================
+
+  /// Hero / landing text (36pt)
+  static const double displayLarge = size36;
+
+  /// Large display (30pt)
+  static const double displayMedium = size30;
+
+  /// Small display (26pt)
+  static const double displaySmall = size26;
+
+  /// Section headers (24pt)
+  static const double headlineLarge = size24;
+
+  /// Sub-section headers (22pt)
+  static const double headlineMedium = size22;
+
+  /// Minor headers (20pt)
+  static const double headlineSmall = size20;
+
+  /// Card titles (18pt)
+  static const double titleLarge = size18;
+
+  /// List item titles (16pt)
+  static const double titleMedium = size16;
+
+  /// Supporting titles (14pt)
+  static const double titleSmall = size14;
+
+  /// Large body / lead paragraphs (16pt)
+  static const double bodyLarge = size16;
+
+  /// Default body text (14pt)
+  static const double bodyMedium = size14;
+
+  /// Small body / secondary text (12pt)
+  static const double bodySmall = size12;
+
+  /// Labels, badges, metadata (12pt)
+  static const double captionLarge = size12;
+
+  /// Fine print, timestamps (11pt)
+  static const double captionMedium = size11;
+
+  /// Smallest readable text (10pt)
+  static const double captionSmall = size10;
+
+  /// Micro text, tooltips (9pt)
+  static const double captionMicro = size9;
+
+  /// Nano text, absolute minimum (8pt)
+  static const double captionNano = size8;
+
+  // ============================================================================
+  // INTERMEDIATE SCALE - Fills gaps between standard semantic sizes
+  // Use when standard scale doesn't match design requirements.
+  // ============================================================================
+
+  /// Compact caption, between captionMedium(11) and captionSmall(10)
+  static const double captionFine = size11_5;
+
+  /// Compact body, between bodySmall(12) and captionMedium(11)
+  static const double bodySmallFine = size12_5;
+
+  /// Standard body text (13pt) - most common body size, between bodySmall(12) and bodyMedium(14)
+  static const double bodyText = size13;
+
+  /// Wide body text (13.5pt) - between bodySmall(12) and bodyMedium(14)
+  static const double bodyTextWide = size13_5;
+
+  /// Subtitle text (15pt) - between bodyMedium(14) and bodyLarge(16)
+  static const double subtitle = size15;
+
+  /// Subheading text (17pt) - between titleMedium(16) and titleLarge(18)
+  static const double subheading = size17;
+
+  /// Section title (19pt) - between titleLarge(18) and headlineSmall(20)
+  static const double sectionTitle = size19;
+
+  /// Hero text (28pt) - between displaySmall(26) and displayMedium(30)
+  static const double heroText = size28;
+
+  // ============================================================================
+  // LINE HEIGHTS - Multiplier applied to font size
+  // ============================================================================
+  static const double lineHeight125 = 1.25;
+  static const double lineHeight130 = 1.3;
+  static const double lineHeight135 = 1.35;
+  static const double lineHeight140 = 1.4;
+  static const double lineHeight145 = 1.45;
+  static const double lineHeight150 = 1.5;
+  static const double lineHeight155 = 1.55;
+
+  // ============================================================================
+  // LETTER SPACING
+  // ============================================================================
+  static const double letterSpacingTight = -0.01;
+  static const double letterSpacingLabel = 0.04;
+}
