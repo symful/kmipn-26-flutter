@@ -686,8 +686,8 @@ class ApiClient {
         body = {'reason': note ?? ''};
         break;
       case 'lengkapi':
-        // lengkapi (add evidence) — submit via evidence endpoint
-        endpoint = '/api/reports/$reportId/evidence';
+        // lengkapi (support an existing case) - community update endpoint
+        endpoint = '/api/reports/$reportId/community-update';
         body = {'description': note ?? ''};
         break;
       case 'reopen':

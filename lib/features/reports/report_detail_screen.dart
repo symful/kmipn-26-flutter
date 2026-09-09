@@ -362,6 +362,48 @@ class ReportDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+              if ([
+                    'rejected',
+                    'needs_completion',
+                  ].contains(report.status?.value) &&
+                  ref.watch(authNotifierProvider).userRole == roleWarga) ...[
+                SizedBox(height: 18),
+                _referenceCard(
+                  context,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.apaItuSanggahan,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        AppLocalizations.of(context)!.sanggahanDeskripsiLengkap,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: SigapColorScheme.of(context).textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () =>
+                              context.push('/sanggahan/${report.id ?? id}'),
+                          icon: Icon(Icons.gavel_outlined, size: 18),
+                          label: Text(
+                            AppLocalizations.of(context)!.ajukanSanggahanBtn,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               SizedBox(height: 18),
               Row(
                 children: [
