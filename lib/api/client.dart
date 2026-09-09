@@ -693,6 +693,10 @@ class ApiClient {
         endpoint = '/api/reports/$reportId/reopen';
         body = {'reason': note ?? ''};
         break;
+      case 'self_close':
+        endpoint = '/api/reports/$reportId/self-close';
+        body = {'reason': note ?? ''};
+        break;
       default:
         throw ArgumentError.value(
           action,

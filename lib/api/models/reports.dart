@@ -425,13 +425,20 @@ class ReportActionResponse {
   final String? id;
   final String? status;
   final int? version;
-  ReportActionResponse({this.id, this.status, this.version});
+  final int? cancelledTasks;
+  ReportActionResponse({
+    this.id,
+    this.status,
+    this.version,
+    this.cancelledTasks,
+  });
 
   factory ReportActionResponse.fromJson(Map<String, dynamic> json) {
     return ReportActionResponse(
       id: json['id']?.toString(),
       status: json['status']?.toString(),
       version: json['version'] as int?,
+      cancelledTasks: json['cancelled_tasks'] as int?,
     );
   }
 }
