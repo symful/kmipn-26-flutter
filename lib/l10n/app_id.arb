@@ -1008,7 +1008,7 @@
     }
   },
   "sanggahanBerhasil": "Anda sudah mengirim sanggahan",
-  "sanggahanBerhasilDesc": "SIGAP menerima sanggahan untuk laporan {reportId}. Ikuti perkembangannya melalui detail laporan; pengiriman ini belum mengubah keputusan sebelumnya.",
+  "sanggahanBerhasilDesc": "SIGAP telah menerima sanggahan untuk laporan {reportId}. Sanggahan ini sudah masuk antrean tinjauan admin; status terbaru akan muncul di detail laporan.",
   "@sanggahanBerhasilDesc": {
     "placeholders": {
       "reportId": {

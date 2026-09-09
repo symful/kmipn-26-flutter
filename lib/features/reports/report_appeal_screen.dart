@@ -1,6 +1,6 @@
+import 'package:sigap/api/exceptions.dart' show ApiException;
 import 'package:sigap/theme/sigap_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:sigap/widgets/request_error_details.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sigap/l10n/generated/app_localizations.dart';
@@ -72,11 +72,20 @@ class _ReportAppealScreenState extends ConsumerState<ReportAppealScreen> {
     } catch (e) {
       _logger.warning('Error submitting sanggahan', e);
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      final statusCode = e is ApiException ? e.statusCode : null;
+      final message = switch (statusCode) {
+        409 => l10n.sanggahanBerhasil,
+        _ =>
+          e is ApiException
+              ? (e.userMessage?.split(' [').first ??
+                    l10n.mobileRequestFailedExplanation)
+              : l10n.mobileRequestFailedExplanation,
+      };
       setState(() {
         _isSubmitting = false;
-        _errorMessage = null;
+        _errorMessage = message;
       });
-      showRequestFailure(context, e);
     }
   }
 

@@ -2216,7 +2216,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String sanggahanBerhasilDesc(String reportId) {
-    return 'SIGAP menerima sanggahan untuk laporan $reportId. Ikuti perkembangannya melalui detail laporan; pengiriman ini belum mengubah keputusan sebelumnya.';
+    return 'SIGAP telah menerima sanggahan untuk laporan $reportId. Sanggahan ini sudah masuk antrean tinjauan admin; status terbaru akan muncul di detail laporan.';
   }
 
   @override

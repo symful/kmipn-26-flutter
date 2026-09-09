@@ -4211,7 +4211,7 @@ abstract class AppLocalizations {
   /// No description provided for @sanggahanBerhasilDesc.
   ///
   /// In id, this message translates to:
-  /// **'SIGAP menerima sanggahan untuk laporan {reportId}. Ikuti perkembangannya melalui detail laporan; pengiriman ini belum mengubah keputusan sebelumnya.'**
+  /// **'SIGAP telah menerima sanggahan untuk laporan {reportId}. Sanggahan ini sudah masuk antrean tinjauan admin; status terbaru akan muncul di detail laporan.'**
   String sanggahanBerhasilDesc(String reportId);
 
   /// No description provided for @filterAuditLog.
