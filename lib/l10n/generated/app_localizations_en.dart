@@ -4789,4 +4789,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mobileRetryRequestExplanation =>
       'SIGAP could not complete this request. Check your connection and try again.';
+
+  @override
+  String get selfCloseTitle => 'Mark Report as Done';
+
+  @override
+  String get selfCloseDescription =>
+      'Are you sure this issue is resolved and no further action is needed? Marking the report as done will cancel all active field tasks for this report.';
+
+  @override
+  String get selfCloseReasonLabel => 'Closing Reason';
+
+  @override
+  String get selfCloseReasonHint =>
+      'Explain why you are marking this report as done...\n\nMinimum 10 characters.';
+
+  @override
+  String get selfCloseSubmit => 'Close Report';
+
+  @override
+  String get selfCloseSuccessTitle => 'Report Closed';
+
+  @override
+  String get selfCloseSuccessBody =>
+      'Your report has been closed and will not be processed further. You can reopen this report through the available flow if needed.';
+
+  @override
+  String selfCloseReasonTooShort(int count) {
+    return 'Reason must be at least $count characters';
+  }
+
+  @override
+  String get tandaiSelesaiSendiri => 'Mark as Done by Self';
+
+  @override
+  String get tandaiSelesaiSendiriCaption =>
+      'You consider this issue resolved on your own.';
 }

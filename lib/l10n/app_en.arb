@@ -2230,5 +2230,22 @@
       }
     }
   },
-  "mobileRetryRequestExplanation": "SIGAP could not complete this request. Check your connection and try again."
+  "mobileRetryRequestExplanation": "SIGAP could not complete this request. Check your connection and try again.",
+  "selfCloseTitle": "Mark Report as Done",
+  "selfCloseDescription": "Are you sure this issue is resolved and no further action is needed? Marking the report as done will cancel all active field tasks for this report.",
+  "selfCloseReasonLabel": "Closing Reason",
+  "selfCloseReasonHint": "Explain why you are marking this report as done...\n\nMinimum 10 characters.",
+  "selfCloseSubmit": "Close Report",
+  "selfCloseSuccessTitle": "Report Closed",
+  "selfCloseSuccessBody": "Your report has been closed and will not be processed further. You can reopen this report through the available flow if needed.",
+  "selfCloseReasonTooShort": "Reason must be at least {count} characters",
+  "@selfCloseReasonTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tandaiSelesaiSendiri": "Mark as Done by Self",
+  "tandaiSelesaiSendiriCaption": "You consider this issue resolved on your own."
 }

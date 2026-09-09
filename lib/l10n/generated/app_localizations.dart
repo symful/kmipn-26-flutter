@@ -8635,6 +8635,66 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'SIGAP belum menyelesaikan permintaan ini. Periksa koneksi lalu coba lagi.'**
   String get mobileRetryRequestExplanation;
+
+  /// No description provided for @selfCloseTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tandai Laporan Selesai'**
+  String get selfCloseTitle;
+
+  /// No description provided for @selfCloseDescription.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda yakin masalah ini sudah selesai dan tidak memerlukan penanganan lebih lanjut? Menandai laporan sebagai selesai akan membatalkan semua tugas petugas yang masih aktif untuk laporan ini.'**
+  String get selfCloseDescription;
+
+  /// No description provided for @selfCloseReasonLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan Penutupan'**
+  String get selfCloseReasonLabel;
+
+  /// No description provided for @selfCloseReasonHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Jelaskan mengapa Anda menandai laporan ini sebagai selesai...\n\nMinimal 10 karakter.'**
+  String get selfCloseReasonHint;
+
+  /// No description provided for @selfCloseSubmit.
+  ///
+  /// In id, this message translates to:
+  /// **'Tutup Laporan'**
+  String get selfCloseSubmit;
+
+  /// No description provided for @selfCloseSuccessTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan Ditutup'**
+  String get selfCloseSuccessTitle;
+
+  /// No description provided for @selfCloseSuccessBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan Anda sudah ditutup dan tidak akan diproses lebih lanjut. Anda dapat membuka kembali laporan ini melalui alur yang tersedia jika diperlukan.'**
+  String get selfCloseSuccessBody;
+
+  /// No description provided for @selfCloseReasonTooShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Alasan harus minimal {count} karakter'**
+  String selfCloseReasonTooShort(int count);
+
+  /// No description provided for @tandaiSelesaiSendiri.
+  ///
+  /// In id, this message translates to:
+  /// **'Tandai Selesai Sendiri'**
+  String get tandaiSelesaiSendiri;
+
+  /// No description provided for @tandaiSelesaiSendiriCaption.
+  ///
+  /// In id, this message translates to:
+  /// **'Anda menganggap masalah ini sudah selesai sendiri.'**
+  String get tandaiSelesaiSendiriCaption;
 }
 
 class _AppLocalizationsDelegate

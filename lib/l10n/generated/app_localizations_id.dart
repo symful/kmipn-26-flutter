@@ -4779,4 +4779,40 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get mobileRetryRequestExplanation =>
       'SIGAP belum menyelesaikan permintaan ini. Periksa koneksi lalu coba lagi.';
+
+  @override
+  String get selfCloseTitle => 'Tandai Laporan Selesai';
+
+  @override
+  String get selfCloseDescription =>
+      'Anda yakin masalah ini sudah selesai dan tidak memerlukan penanganan lebih lanjut? Menandai laporan sebagai selesai akan membatalkan semua tugas petugas yang masih aktif untuk laporan ini.';
+
+  @override
+  String get selfCloseReasonLabel => 'Alasan Penutupan';
+
+  @override
+  String get selfCloseReasonHint =>
+      'Jelaskan mengapa Anda menandai laporan ini sebagai selesai...\n\nMinimal 10 karakter.';
+
+  @override
+  String get selfCloseSubmit => 'Tutup Laporan';
+
+  @override
+  String get selfCloseSuccessTitle => 'Laporan Ditutup';
+
+  @override
+  String get selfCloseSuccessBody =>
+      'Laporan Anda sudah ditutup dan tidak akan diproses lebih lanjut. Anda dapat membuka kembali laporan ini melalui alur yang tersedia jika diperlukan.';
+
+  @override
+  String selfCloseReasonTooShort(int count) {
+    return 'Alasan harus minimal $count karakter';
+  }
+
+  @override
+  String get tandaiSelesaiSendiri => 'Tandai Selesai Sendiri';
+
+  @override
+  String get tandaiSelesaiSendiriCaption =>
+      'Anda menganggap masalah ini sudah selesai sendiri.';
 }

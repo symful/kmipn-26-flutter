@@ -2209,5 +2209,22 @@
       }
     }
   },
-  "mobileRetryRequestExplanation": "SIGAP belum menyelesaikan permintaan ini. Periksa koneksi lalu coba lagi."
+  "mobileRetryRequestExplanation": "SIGAP belum menyelesaikan permintaan ini. Periksa koneksi lalu coba lagi.",
+  "selfCloseTitle": "Tandai Laporan Selesai",
+  "selfCloseDescription": "Anda yakin masalah ini sudah selesai dan tidak memerlukan penanganan lebih lanjut? Menandai laporan sebagai selesai akan membatalkan semua tugas petugas yang masih aktif untuk laporan ini.",
+  "selfCloseReasonLabel": "Alasan Penutupan",
+  "selfCloseReasonHint": "Jelaskan mengapa Anda menandai laporan ini sebagai selesai...\n\nMinimal 10 karakter.",
+  "selfCloseSubmit": "Tutup Laporan",
+  "selfCloseSuccessTitle": "Laporan Ditutup",
+  "selfCloseSuccessBody": "Laporan Anda sudah ditutup dan tidak akan diproses lebih lanjut. Anda dapat membuka kembali laporan ini melalui alur yang tersedia jika diperlukan.",
+  "selfCloseReasonTooShort": "Alasan harus minimal {count} karakter",
+  "@selfCloseReasonTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tandaiSelesaiSendiri": "Tandai Selesai Sendiri",
+  "tandaiSelesaiSendiriCaption": "Anda menganggap masalah ini sudah selesai sendiri."
 }
