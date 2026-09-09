@@ -104,8 +104,12 @@ class PetugasTask {
       evidenceUrls: (json['photo_urls'] as List?)
           ?.map((e) => e as String)
           .toList(),
-      completionEvidenceUrls: _parseUrls(json['completion_evidence_urls']),
-      resolutionEvidenceUrls: _parseUrls(json['resolution_evidence_urls']),
+      completionEvidenceUrls: (json['completion_evidence_urls'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
+      resolutionEvidenceUrls: (json['resolution_evidence_urls'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
       assignedAt: json['accepted_at']?.toString(),
       completedAt: json['completed_at']?.toString(),
       code: json['code']?.toString(),
@@ -126,19 +130,6 @@ class PetugasTask {
       createdAt: parseDate(json['created_at']?.toString()),
       reportDescription: json['report_description']?.toString(),
     );
-  }
-
-  static List<String>? _parseUrls(dynamic raw) {
-    if (raw is List) return raw.map((e) => e.toString()).toList();
-    if (raw is String) {
-      try {
-        final decoded = jsonDecode(raw);
-        if (decoded is List) return decoded.map((e) => e.toString()).toList();
-      } catch (_) {
-        return null;
-      }
-    }
-    return null;
   }
 
   Map<String, dynamic> toJson() => {
@@ -333,12 +324,12 @@ class TaskDetail {
       evidenceUrls: (task['photo_urls'] as List?)
           ?.map((url) => EvidenceUrl(url: url.toString()))
           .toList(),
-      completionEvidenceUrls: PetugasTask._parseUrls(
-        task['completion_evidence_urls'],
-      ),
-      resolutionEvidenceUrls: PetugasTask._parseUrls(
-        task['resolution_evidence_urls'],
-      ),
+      completionEvidenceUrls: (task['completion_evidence_urls'] as List?)
+          ?.map((url) => url.toString())
+          .toList(),
+      resolutionEvidenceUrls: (task['resolution_evidence_urls'] as List?)
+          ?.map((url) => url.toString())
+          .toList(),
       clarification: (json['clarifications'] as List?)
           ?.map(
             (entry) => ClarificationEntry(
