@@ -2247,5 +2247,31 @@
     }
   },
   "tandaiSelesaiSendiri": "Mark as Done by Self",
-  "tandaiSelesaiSendiriCaption": "You consider this issue resolved on your own."
+  "tandaiSelesaiSendiriCaption": "You consider this issue resolved on your own.",
+  "gamificationSectionTitle": "Contributions & Awards",
+  "gamificationXpLabel": "XP",
+  "gamificationLevelLabel": "Level",
+  "gamificationReputationLabel": "Reputation",
+  "gamificationReputationUnavailable": "Reputation unavailable (min. 5 rated contributions)",
+  "gamificationReputationValue": "Reputation: {value}% ({accepted}/{total} contributions)",
+  "@gamificationReputationValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "accepted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gamificationCountNewReport": "New reports",
+  "gamificationCountCorroboration": "Corroborations",
+  "gamificationCountStatusChange": "Status updates",
+  "gamificationBadgesEmpty": "No badges yet",
+  "gamificationLeaderboardOptInTitle": "Show on Public Leaderboard",
+  "gamificationLeaderboardOptInSubtitle": "The public leaderboard is visible on the SIGAP website. You can change this anytime.",
+  "gamificationLoadError": "Failed to load contribution data"
 }

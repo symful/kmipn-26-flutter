@@ -2226,5 +2226,31 @@
     }
   },
   "tandaiSelesaiSendiri": "Tandai Selesai Sendiri",
-  "tandaiSelesaiSendiriCaption": "Anda menganggap masalah ini sudah selesai sendiri."
+  "tandaiSelesaiSendiriCaption": "Anda menganggap masalah ini sudah selesai sendiri.",
+  "gamificationSectionTitle": "Kontribusi & Penghargaan",
+  "gamificationXpLabel": "XP",
+  "gamificationLevelLabel": "Level",
+  "gamificationReputationLabel": "Reputasi",
+  "gamificationReputationUnavailable": "Reputasi belum tersedia (min. 5 kontribusi dinilai)",
+  "gamificationReputationValue": "Reputasi: {value}% ({accepted}/{total} kontribusi)",
+  "@gamificationReputationValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "accepted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gamificationCountNewReport": "Laporan baru",
+  "gamificationCountCorroboration": "Penguatan",
+  "gamificationCountStatusChange": "Pembaruan status",
+  "gamificationBadgesEmpty": "Belum ada lencana",
+  "gamificationLeaderboardOptInTitle": "Tampilkan di Leaderboard Publik",
+  "gamificationLeaderboardOptInSubtitle": "Leaderboard publik dapat dilihat di situs web SIGAP. Anda dapat berubah kapan saja.",
+  "gamificationLoadError": "Gagal memuat data kontribusi"
 }

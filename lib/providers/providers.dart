@@ -246,6 +246,14 @@ final reportTimelineProvider = FutureProvider.family<TimelineEnvelope, String>((
   return api.getReportTimeline(reportId);
 });
 
+// ─── Gamification ─────────────────────────────────────────────────────────────
+
+/// Fetches the current user's gamification profile from the server.
+final gamificationProvider = FutureProvider<GamificationProfile>((ref) async {
+  final api = ref.watch(apiClientProvider);
+  return api.getGamificationProfile();
+});
+
 // ─── Notifications ─────────────────────────────────────────────────────────────
 
 /// Fetches notifications from the server.

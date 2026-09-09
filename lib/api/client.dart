@@ -19,6 +19,7 @@ part 'models/governance.dart';
 part 'models/geo.dart';
 
 part 'models/common.dart';
+part 'models/gamification.dart';
 
 class ApiClient {
   Future<ReverseGeocodedAddress> reverseGeocode(
@@ -1127,6 +1128,33 @@ class ApiClient {
       endpoint: '/api/notifications/mark-read',
       parse: (data) =>
           MarkReadResult.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
+  // ─── Gamification ───────────────────────────────────────────────────────
+
+  Future<GamificationProfile> getGamificationProfile() async {
+    return await _execute<GamificationProfile>(
+      dioCall: () => _dio.get('/api/gamification/me'),
+      endpoint: '/api/gamification/me',
+      parse: (data) =>
+          GamificationProfile.fromJson((data as Map).cast<String, dynamic>()),
+    );
+  }
+
+  Future<GamificationOptInResult> setGamificationOptIn({
+    required bool optIn,
+  }) async {
+    return await _execute<GamificationOptInResult>(
+      dioCall: () => _dio.post(
+        '/api/gamification/opt-in',
+        data: {'opt_in': optIn},
+        options: Options(contentType: 'application/json'),
+      ),
+      endpoint: '/api/gamification/opt-in',
+      parse: (data) => GamificationOptInResult.fromJson(
+        (data as Map).cast<String, dynamic>(),
+      ),
     );
   }
 

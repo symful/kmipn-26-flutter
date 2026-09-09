@@ -8695,6 +8695,84 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Anda menganggap masalah ini sudah selesai sendiri.'**
   String get tandaiSelesaiSendiriCaption;
+
+  /// No description provided for @gamificationSectionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kontribusi & Penghargaan'**
+  String get gamificationSectionTitle;
+
+  /// No description provided for @gamificationXpLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'XP'**
+  String get gamificationXpLabel;
+
+  /// No description provided for @gamificationLevelLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Level'**
+  String get gamificationLevelLabel;
+
+  /// No description provided for @gamificationReputationLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Reputasi'**
+  String get gamificationReputationLabel;
+
+  /// No description provided for @gamificationReputationUnavailable.
+  ///
+  /// In id, this message translates to:
+  /// **'Reputasi belum tersedia (min. 5 kontribusi dinilai)'**
+  String get gamificationReputationUnavailable;
+
+  /// No description provided for @gamificationReputationValue.
+  ///
+  /// In id, this message translates to:
+  /// **'Reputasi: {value}% ({accepted}/{total} kontribusi)'**
+  String gamificationReputationValue(String value, int accepted, int total);
+
+  /// No description provided for @gamificationCountNewReport.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan baru'**
+  String get gamificationCountNewReport;
+
+  /// No description provided for @gamificationCountCorroboration.
+  ///
+  /// In id, this message translates to:
+  /// **'Penguatan'**
+  String get gamificationCountCorroboration;
+
+  /// No description provided for @gamificationCountStatusChange.
+  ///
+  /// In id, this message translates to:
+  /// **'Pembaruan status'**
+  String get gamificationCountStatusChange;
+
+  /// No description provided for @gamificationBadgesEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada lencana'**
+  String get gamificationBadgesEmpty;
+
+  /// No description provided for @gamificationLeaderboardOptInTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Tampilkan di Leaderboard Publik'**
+  String get gamificationLeaderboardOptInTitle;
+
+  /// No description provided for @gamificationLeaderboardOptInSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Leaderboard publik dapat dilihat di situs web SIGAP. Anda dapat berubah kapan saja.'**
+  String get gamificationLeaderboardOptInSubtitle;
+
+  /// No description provided for @gamificationLoadError.
+  ///
+  /// In id, this message translates to:
+  /// **'Gagal memuat data kontribusi'**
+  String get gamificationLoadError;
 }
 
 class _AppLocalizationsDelegate

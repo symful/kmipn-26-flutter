@@ -4815,4 +4815,48 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get tandaiSelesaiSendiriCaption =>
       'Anda menganggap masalah ini sudah selesai sendiri.';
+
+  @override
+  String get gamificationSectionTitle => 'Kontribusi & Penghargaan';
+
+  @override
+  String get gamificationXpLabel => 'XP';
+
+  @override
+  String get gamificationLevelLabel => 'Level';
+
+  @override
+  String get gamificationReputationLabel => 'Reputasi';
+
+  @override
+  String get gamificationReputationUnavailable =>
+      'Reputasi belum tersedia (min. 5 kontribusi dinilai)';
+
+  @override
+  String gamificationReputationValue(String value, int accepted, int total) {
+    return 'Reputasi: $value% ($accepted/$total kontribusi)';
+  }
+
+  @override
+  String get gamificationCountNewReport => 'Laporan baru';
+
+  @override
+  String get gamificationCountCorroboration => 'Penguatan';
+
+  @override
+  String get gamificationCountStatusChange => 'Pembaruan status';
+
+  @override
+  String get gamificationBadgesEmpty => 'Belum ada lencana';
+
+  @override
+  String get gamificationLeaderboardOptInTitle =>
+      'Tampilkan di Leaderboard Publik';
+
+  @override
+  String get gamificationLeaderboardOptInSubtitle =>
+      'Leaderboard publik dapat dilihat di situs web SIGAP. Anda dapat berubah kapan saja.';
+
+  @override
+  String get gamificationLoadError => 'Gagal memuat data kontribusi';
 }

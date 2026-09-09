@@ -4825,4 +4825,47 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tandaiSelesaiSendiriCaption =>
       'You consider this issue resolved on your own.';
+
+  @override
+  String get gamificationSectionTitle => 'Contributions & Awards';
+
+  @override
+  String get gamificationXpLabel => 'XP';
+
+  @override
+  String get gamificationLevelLabel => 'Level';
+
+  @override
+  String get gamificationReputationLabel => 'Reputation';
+
+  @override
+  String get gamificationReputationUnavailable =>
+      'Reputation unavailable (min. 5 rated contributions)';
+
+  @override
+  String gamificationReputationValue(String value, int accepted, int total) {
+    return 'Reputation: $value% ($accepted/$total contributions)';
+  }
+
+  @override
+  String get gamificationCountNewReport => 'New reports';
+
+  @override
+  String get gamificationCountCorroboration => 'Corroborations';
+
+  @override
+  String get gamificationCountStatusChange => 'Status updates';
+
+  @override
+  String get gamificationBadgesEmpty => 'No badges yet';
+
+  @override
+  String get gamificationLeaderboardOptInTitle => 'Show on Public Leaderboard';
+
+  @override
+  String get gamificationLeaderboardOptInSubtitle =>
+      'The public leaderboard is visible on the SIGAP website. You can change this anytime.';
+
+  @override
+  String get gamificationLoadError => 'Failed to load contribution data';
 }
