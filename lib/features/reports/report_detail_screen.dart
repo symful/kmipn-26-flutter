@@ -580,7 +580,6 @@ class _CitizenEvidenceFormState extends ConsumerState<CitizenEvidenceForm> {
             : () async {
                 final photo = await ImagePicker().pickImage(
                   source: ImageSource.gallery,
-                  imageQuality: 85,
                 );
                 if (mounted && photo != null) setState(() => _photo = photo);
               },

@@ -3963,7 +3963,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mobilePNGJPGWebPMax1MB =>
-      'Choose JPG, PNG, or WebP. SIGAP prepares a copy up to 1 MB; the original must not exceed 10 MB.';
+      'Choose JPG, PNG, or WebP. The original must not exceed 10 MB.';
 
   @override
   String get mobileReplacePhoto => 'Replace photo';
@@ -4245,7 +4245,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mobileTapAPhotoToReplaceItMaximum1MB =>
-      'Take photos from different angles so the admin can compare conditions. Tap a photo to replace it; each photo must be at most 1 MB.';
+      'Take photos from different angles so the admin can compare conditions. Tap a photo to replace it; each photo must be at most 10 MB.';
 
   @override
   String get mobileAlreadyRepaired =>
@@ -4549,7 +4549,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get surveyPhotoTooLarge =>
-      'Maximum 1 MB per photo. Choose a smaller photo.';
+      'Maximum 10 MB per photo. Choose a smaller photo.';
 
   @override
   String get reportAddressLabel => 'Location address';

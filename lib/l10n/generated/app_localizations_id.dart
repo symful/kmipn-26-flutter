@@ -3966,7 +3966,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get mobilePNGJPGWebPMax1MB =>
-      'Pilih JPG, PNG, atau WebP. SIGAP menyiapkan salinan foto maksimal 1 MB; foto asli tidak boleh melebihi 10 MB.';
+      'Pilih JPG, PNG, atau WebP. Foto asli tidak boleh melebihi 10 MB.';
 
   @override
   String get mobileReplacePhoto => 'Ganti foto';
@@ -4248,7 +4248,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get mobileTapAPhotoToReplaceItMaximum1MB =>
-      'Ambil foto dari sudut yang berbeda agar admin dapat membandingkan kondisi. Ketuk foto untuk menggantinya; batas setiap foto 1 MB.';
+      'Ambil foto dari sudut yang berbeda agar admin dapat membandingkan kondisi. Ketuk foto untuk menggantinya; batas setiap foto 10 MB.';
 
   @override
   String get mobileAlreadyRepaired => 'Saya melihat masalah sudah ditangani';
@@ -4538,7 +4538,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get surveyPhotoTooLarge =>
-      'Maksimal 1 MB per foto. Pilih foto yang lebih kecil.';
+      'Maksimal 10 MB per foto. Pilih foto yang lebih kecil.';
 
   @override
   String get reportAddressLabel => 'Alamat lokasi';

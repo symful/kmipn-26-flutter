@@ -251,14 +251,9 @@ class _SurveyFormScreenState extends ConsumerState<SurveyFormScreen> {
     if (_photos.length >= 3) return;
     _submitErrorDetails = null;
     try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
-      );
+      final XFile? image = await _picker.pickImage(source: source);
       if (image != null) {
-        if (await image.length() > 1024 * 1024) {
+        if (await image.length() > 10 * 1024 * 1024) {
           setState(
             () => _submitError = AppLocalizations.of(
               context,

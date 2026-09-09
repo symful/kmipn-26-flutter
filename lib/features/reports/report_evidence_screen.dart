@@ -47,12 +47,7 @@ class _ReportEvidenceScreenState extends ConsumerState<ReportEvidenceScreen> {
 
   Future<void> _pickPhoto(ImageSource source) async {
     try {
-      final photo = await _imagePicker.pickImage(
-        source: source,
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
-      );
+      final photo = await _imagePicker.pickImage(source: source);
 
       if (photo != null) {
         setState(() {

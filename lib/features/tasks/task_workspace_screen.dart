@@ -24,9 +24,6 @@ import 'package:sigap/widgets/design_system/photo_full_screen.dart';
 /// Approximate tile bundle size for offline map area — picked once.
 const double kMapTileEstimateMb = 2.0;
 
-/// Approximate average size of a compressed field evidence photo in bytes.
-// Evidence is loaded from the report. // ~500 KB per JPEG
-
 /// Unified TaskWorkspaceScreen for PETUGAS role.
 ///
 /// Combines list and detail views into a single capability-driven workspace:

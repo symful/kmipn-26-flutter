@@ -33,7 +33,7 @@ import 'package:sigap/widgets/design_system/design_system.dart';
 import 'package:sigap/widgets/design_system/mobile_title_bar.dart';
 
 // ─── Severity levels ─────────────────────────────────────────────────────────
-const List<String> _severityLevels = ['Ringan', 'Berat', 'Kritis'];
+const List<String> _severityLevels = ['Ringan', 'Sedang', 'Berat', 'Kritis'];
 
 class CreateReportScreen extends ConsumerStatefulWidget {
   final bool anonymousMode;

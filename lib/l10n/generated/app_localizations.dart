@@ -7307,7 +7307,7 @@ abstract class AppLocalizations {
   /// No description provided for @mobilePNGJPGWebPMax1MB.
   ///
   /// In id, this message translates to:
-  /// **'Pilih JPG, PNG, atau WebP. SIGAP menyiapkan salinan foto maksimal 1 MB; foto asli tidak boleh melebihi 10 MB.'**
+  /// **'Pilih JPG, PNG, atau WebP. Foto asli tidak boleh melebihi 10 MB.'**
   String get mobilePNGJPGWebPMax1MB;
 
   /// No description provided for @mobileReplacePhoto.
@@ -7829,7 +7829,7 @@ abstract class AppLocalizations {
   /// No description provided for @mobileTapAPhotoToReplaceItMaximum1MB.
   ///
   /// In id, this message translates to:
-  /// **'Ambil foto dari sudut yang berbeda agar admin dapat membandingkan kondisi. Ketuk foto untuk menggantinya; batas setiap foto 1 MB.'**
+  /// **'Ambil foto dari sudut yang berbeda agar admin dapat membandingkan kondisi. Ketuk foto untuk menggantinya; batas setiap foto 10 MB.'**
   String get mobileTapAPhotoToReplaceItMaximum1MB;
 
   /// No description provided for @mobileAlreadyRepaired.
@@ -8243,7 +8243,7 @@ abstract class AppLocalizations {
   /// No description provided for @surveyPhotoTooLarge.
   ///
   /// In id, this message translates to:
-  /// **'Maksimal 1 MB per foto. Pilih foto yang lebih kecil.'**
+  /// **'Maksimal 10 MB per foto. Pilih foto yang lebih kecil.'**
   String get surveyPhotoTooLarge;
 
   /// No description provided for @reportAddressLabel.
