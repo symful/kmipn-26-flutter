@@ -10,6 +10,7 @@ const Map<String, List<String>> routeRoles = {
   '/warga': [roleWarga],
   '/review': [roleWarga],
   '/sanggahan': [roleWarga],
+  '/tutup': [roleWarga],
   '/dashboard': [rolePetugas, roleWarga],
   '/notifications': [rolePetugas, roleWarga],
   '/settings': [rolePetugas, roleWarga],

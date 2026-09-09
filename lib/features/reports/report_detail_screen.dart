@@ -15,6 +15,7 @@ import 'package:sigap/config/api_config.dart';
 import 'package:sigap/widgets/design_system/mobile_title_bar.dart';
 import 'package:sigap/widgets/design_system/photo_full_screen.dart';
 import 'package:sigap/widgets/request_error_details.dart';
+import 'package:sigap/core/roles.dart';
 
 import 'package:sigap/widgets/design_system/timeline_event.dart';
 
@@ -312,6 +313,53 @@ class ReportDetailScreen extends ConsumerWidget {
                 _referenceCard(
                   context,
                   CitizenEvidenceForm(reportId: report.id ?? id),
+                ),
+              ],
+              if ({
+                    'verified',
+                    'assigned',
+                    'in_progress',
+                    'needs_survey',
+                    'needs_completion',
+                  }.contains(report.status?.value) &&
+                  ref.watch(authNotifierProvider).userRole == roleWarga) ...[
+                SizedBox(height: 18),
+                _referenceCard(
+                  context,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.tandaiSelesaiSendiri,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.tandaiSelesaiSendiriCaption,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: SigapColorScheme.of(context).textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              context.push('/tutup/${report.id ?? id}'),
+                          icon: Icon(Icons.check_circle_outline, size: 18),
+                          label: Text(
+                            AppLocalizations.of(context)!.tandaiSelesaiSendiri,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
               SizedBox(height: 18),

@@ -22,6 +22,7 @@ import 'features/home/home_screen.dart';
 import 'features/reports/report_list_screen.dart';
 import 'features/reports/report_appeal_screen.dart';
 import 'features/reports/report_evidence_screen.dart';
+import 'features/reports/report_self_close_screen.dart';
 import 'providers/auth_provider.dart';
 import 'core/route_access.dart';
 import 'providers/onboarding_provider.dart';
@@ -146,6 +147,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/sanggahan/:reportId',
         builder: (c, s) =>
             ReportAppealScreen(reportId: s.pathParameters['reportId']!),
+      ),
+
+      // TUTUP (self-close)
+      GoRoute(
+        path: '/tutup/:reportId',
+        builder: (c, s) =>
+            ReportSelfCloseScreen(reportId: s.pathParameters['reportId']!),
       ),
 
       // EVIDENCE
