@@ -8246,6 +8246,36 @@ abstract class AppLocalizations {
   /// **'Maksimal 10 MB per foto. Pilih foto yang lebih kecil.'**
   String get surveyPhotoTooLarge;
 
+  /// No description provided for @taskFieldEvidence.
+  ///
+  /// In id, this message translates to:
+  /// **'Bukti petugas lapangan'**
+  String get taskFieldEvidence;
+
+  /// No description provided for @taskNoFieldEvidence.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada foto bukti dari petugas lapangan.'**
+  String get taskNoFieldEvidence;
+
+  /// No description provided for @taskResolutionEvidence.
+  ///
+  /// In id, this message translates to:
+  /// **'Bukti penanganan admin'**
+  String get taskResolutionEvidence;
+
+  /// No description provided for @taskNoResolutionEvidence.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada foto penanganan dari admin.'**
+  String get taskNoResolutionEvidence;
+
+  /// No description provided for @taskResolutionEvidenceExplanation.
+  ///
+  /// In id, this message translates to:
+  /// **'Catatan: bukti petugas tetap tersimpan dan dapat dilihat kembali di bagian atas.'**
+  String get taskResolutionEvidenceExplanation;
+
   /// No description provided for @reportAddressLabel.
   ///
   /// In id, this message translates to:

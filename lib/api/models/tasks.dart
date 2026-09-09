@@ -40,6 +40,8 @@ class PetugasTask {
   final String? reportTitle;
   final String? status;
   final List<String>? evidenceUrls;
+  final List<String>? completionEvidenceUrls;
+  final List<String>? resolutionEvidenceUrls;
   final String? assignedAt;
   final String? completedAt;
   // Rich backend fields from JOIN query
@@ -65,6 +67,8 @@ class PetugasTask {
     this.reportTitle,
     this.status,
     this.evidenceUrls,
+    this.completionEvidenceUrls,
+    this.resolutionEvidenceUrls,
     this.assignedAt,
     this.completedAt,
     this.code,
@@ -100,6 +104,8 @@ class PetugasTask {
       evidenceUrls: (json['photo_urls'] as List?)
           ?.map((e) => e as String)
           .toList(),
+      completionEvidenceUrls: _parseUrls(json['completion_evidence_urls']),
+      resolutionEvidenceUrls: _parseUrls(json['resolution_evidence_urls']),
       assignedAt: json['accepted_at']?.toString(),
       completedAt: json['completed_at']?.toString(),
       code: json['code']?.toString(),
@@ -122,12 +128,27 @@ class PetugasTask {
     );
   }
 
+  static List<String>? _parseUrls(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is String) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) return decoded.map((e) => e.toString()).toList();
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
   Map<String, dynamic> toJson() => {
     'id': taskId,
     'report_id': reportId,
     'report_description': reportTitle,
     'status': status,
     'photo_urls': evidenceUrls,
+    'completion_evidence_urls': completionEvidenceUrls,
+    'resolution_evidence_urls': resolutionEvidenceUrls,
     'accepted_at': assignedAt,
     'completed_at': completedAt,
     'code': code,
@@ -258,6 +279,8 @@ class TaskDetail {
   final String? status;
   final int? progress;
   final List<EvidenceUrl>? evidenceUrls;
+  final List<String>? completionEvidenceUrls;
+  final List<String>? resolutionEvidenceUrls;
   final List<ClarificationEntry>? clarification;
   final String? assignedAt;
   final String? completedAt;
@@ -278,6 +301,8 @@ class TaskDetail {
     this.status,
     this.progress,
     this.evidenceUrls,
+    this.completionEvidenceUrls,
+    this.resolutionEvidenceUrls,
     this.clarification,
     this.assignedAt,
     this.completedAt,
@@ -308,6 +333,12 @@ class TaskDetail {
       evidenceUrls: (task['photo_urls'] as List?)
           ?.map((url) => EvidenceUrl(url: url.toString()))
           .toList(),
+      completionEvidenceUrls: PetugasTask._parseUrls(
+        task['completion_evidence_urls'],
+      ),
+      resolutionEvidenceUrls: PetugasTask._parseUrls(
+        task['resolution_evidence_urls'],
+      ),
       clarification: (json['clarifications'] as List?)
           ?.map(
             (entry) => ClarificationEntry(
@@ -348,6 +379,8 @@ class TaskDetail {
       'category_name': categoryName,
       'deadline': deadline,
       'photo_urls': evidenceUrls?.map((e) => e.url).toList(),
+      'completion_evidence_urls': completionEvidenceUrls,
+      'resolution_evidence_urls': resolutionEvidenceUrls,
       'report_status': reportStatus,
     },
     'visits': visits.map((visit) => visit.toJson()).toList(),

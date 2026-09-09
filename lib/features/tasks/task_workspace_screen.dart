@@ -79,6 +79,8 @@ class _TaskWorkspaceScreenState extends ConsumerState<TaskWorkspaceScreen> {
   String? _detailError;
   TaskDetail? _detail;
   List<String> _reportPhotos = [];
+  List<String> _fieldEvidencePhotos = [];
+  List<String> _resolutionEvidencePhotos = [];
   bool _photoLoadFailed = false;
   ChecklistTemplate? _checklistTemplate;
   bool _isDownloaded = false;
@@ -316,6 +318,8 @@ class _TaskWorkspaceScreenState extends ConsumerState<TaskWorkspaceScreen> {
               .where((url) => url.isNotEmpty)
               .toList() ??
           [];
+      _fieldEvidencePhotos = detail.completionEvidenceUrls ?? [];
+      _resolutionEvidencePhotos = detail.resolutionEvidenceUrls ?? [];
       _photoLoadFailed = false;
       _checklistTemplate = null;
       _isDownloaded = false;
@@ -374,6 +378,8 @@ class _TaskWorkspaceScreenState extends ConsumerState<TaskWorkspaceScreen> {
                   .where((url) => url.isNotEmpty)
                   .toList() ??
               [];
+          _fieldEvidencePhotos = detail.completionEvidenceUrls ?? [];
+          _resolutionEvidencePhotos = detail.resolutionEvidenceUrls ?? [];
           _detailLoading = false;
           _isDownloaded = true;
         });
@@ -954,34 +960,53 @@ class _TaskWorkspaceScreenState extends ConsumerState<TaskWorkspaceScreen> {
           else if (_reportPhotos.isEmpty)
             Text(AppLocalizations.of(context)!.mobileNoCitizenPhotosYet)
           else
-            SizedBox(
-              height: 100,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _reportPhotos.length,
-                separatorBuilder: (_, __) => SizedBox(width: 8),
-                itemBuilder: (_, index) => InkWell(
-                  onTap: () => _showPhotoFullScreen(_reportPhotos, index),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      Uri.parse(
-                        ApiConfig.baseUrl,
-                      ).resolve(_reportPhotos[index]).toString(),
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => SizedBox(
-                        width: 100,
-                        child: Icon(Icons.image_not_supported_outlined),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            _evidenceStrip(_reportPhotos),
           const SizedBox(height: 10),
           Text(_l10n.taskEvidenceExplanation),
+          SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  _l10n.taskFieldEvidence,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ),
+              Text(
+                _l10n.taskPhotoCount(_fieldEvidencePhotos.length),
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          if (_fieldEvidencePhotos.isEmpty)
+            Text(_l10n.taskNoFieldEvidence)
+          else
+            _evidenceStrip(_fieldEvidencePhotos),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  _l10n.taskResolutionEvidence,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ),
+              Text(
+                _l10n.taskPhotoCount(_resolutionEvidencePhotos.length),
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          if (_resolutionEvidencePhotos.isEmpty)
+            Text(_l10n.taskNoResolutionEvidence)
+          else
+            _evidenceStrip(_resolutionEvidencePhotos),
+          SizedBox(height: 10),
+          Text(_l10n.taskResolutionEvidenceExplanation),
           SizedBox(height: 18),
           Container(
             padding: const EdgeInsets.all(14),
@@ -1018,6 +1043,31 @@ class _TaskWorkspaceScreenState extends ConsumerState<TaskWorkspaceScreen> {
       index,
     );
   }
+
+  Widget _evidenceStrip(List<String> photos) => SizedBox(
+    height: 100,
+    child: ListView.separated(
+      scrollDirection: Axis.horizontal,
+      itemCount: photos.length,
+      separatorBuilder: (_, __) => SizedBox(width: 8),
+      itemBuilder: (_, index) => InkWell(
+        onTap: () => _showPhotoFullScreen(photos, index),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            Uri.parse(ApiConfig.baseUrl).resolve(photos[index]).toString(),
+            width: 100,
+            height: 100,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => SizedBox(
+              width: 100,
+              child: Icon(Icons.image_not_supported_outlined),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 
   String _formatDimensions(SurveyDimensions dimensions) {
     final unit = dimensions.unit == null ? '' : ' ${dimensions.unit}';

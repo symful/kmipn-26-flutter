@@ -4552,6 +4552,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Maximum 10 MB per photo. Choose a smaller photo.';
 
   @override
+  String get taskFieldEvidence => 'Field officer evidence';
+
+  @override
+  String get taskNoFieldEvidence => 'No field evidence photos yet.';
+
+  @override
+  String get taskResolutionEvidence => 'Admin resolution photos';
+
+  @override
+  String get taskNoResolutionEvidence => 'No admin resolution photos yet.';
+
+  @override
+  String get taskResolutionEvidenceExplanation =>
+      'Field evidence stays stored and viewable above.';
+
+  @override
   String get reportAddressLabel => 'Location address';
 
   @override

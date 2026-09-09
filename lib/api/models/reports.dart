@@ -174,6 +174,7 @@ class Report {
   final String? kabupaten;
   final String? provinsi;
   final String? aiAssessment;
+  final String? appealStatus;
   Report({
     this.id,
     this.idempotencyKey,
@@ -204,6 +205,7 @@ class Report {
     this.kabupaten,
     this.provinsi,
     this.aiAssessment,
+    this.appealStatus,
   });
 
   factory Report.fromJson(Map<String, dynamic> json) {
@@ -251,6 +253,7 @@ class Report {
       kabupaten: json['kabupaten']?.toString(),
       provinsi: json['provinsi']?.toString(),
       aiAssessment: json['ai_assessment']?.toString(),
+      appealStatus: json['appeal_status']?.toString(),
     );
   }
 
@@ -283,6 +286,7 @@ class Report {
     'kabupaten': kabupaten,
     'provinsi': provinsi,
     'ai_assessment': aiAssessment,
+    'appeal_status': appealStatus,
   };
 }
 

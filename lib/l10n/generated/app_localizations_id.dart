@@ -4541,6 +4541,24 @@ class AppLocalizationsId extends AppLocalizations {
       'Maksimal 10 MB per foto. Pilih foto yang lebih kecil.';
 
   @override
+  String get taskFieldEvidence => 'Bukti petugas lapangan';
+
+  @override
+  String get taskNoFieldEvidence =>
+      'Belum ada foto bukti dari petugas lapangan.';
+
+  @override
+  String get taskResolutionEvidence => 'Bukti penanganan admin';
+
+  @override
+  String get taskNoResolutionEvidence =>
+      'Belum ada foto penanganan dari admin.';
+
+  @override
+  String get taskResolutionEvidenceExplanation =>
+      'Catatan: bukti petugas tetap tersimpan dan dapat dilihat kembali di bagian atas.';
+
+  @override
   String get reportAddressLabel => 'Alamat lokasi';
 
   @override
